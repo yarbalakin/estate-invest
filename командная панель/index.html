@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Исследование командной панели</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a12;--bg2:#101020;--bg-card:#161628;--bg-card-h:#1c1c38;
+  --border:rgba(255,255,255,.06);--border-h:rgba(255,255,255,.12);
+  --text:#e8e8f0;--text2:#8888a8;--text3:#5a5a78;
+  --accent:#6366f1;--accent-h:#818cf8;--accent-bg:rgba(99,102,241,.1);
+  --green:#10b981;--green-bg:rgba(16,185,129,.1);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.1);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,.1);
+  --violet:#8b5cf6;--violet-bg:rgba(139,92,246,.1);
+  --r:14px;--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;color-scheme:dark}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;
+  background-image:radial-gradient(ellipse at 15% 50%,rgba(99,102,241,.06) 0,transparent 50%),
+  radial-gradient(ellipse at 85% 20%,rgba(139,92,246,.04) 0,transparent 50%);
+  min-height:100vh}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--text3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text2)}
+
+/* Layout */
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.sidebar.open{display:flex;position:fixed;z-index:100;inset:0;width:100%}}
+
+/* Sidebar */
+.sidebar{
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:24px 0;
+}
+.sidebar-logo{padding:0 20px 20px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border)}
+.sidebar-section{padding:16px 12px 4px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.sidebar a{
+  display:flex;align-items:center;gap:10px;padding:8px 16px;margin:2px 8px;
+  border-radius:8px;text-decoration:none;color:var(--text2);font-size:13.5px;font-weight:450;
+  transition:all .15s ease;
+}
+.sidebar a:hover{background:var(--accent-bg);color:var(--text)}
+.sidebar a.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.sidebar a .num{font-family:var(--mono);font-size:11px;font-weight:600;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(255,255,255,.04);color:var(--text3)}
+.sidebar a.active .num{background:var(--accent-bg);color:var(--accent)}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text3);line-height:1.5}
+
+/* Mobile toggle */
+.burger{display:none;position:fixed;top:12px;left:12px;z-index:200;width:40px;height:40px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center}
+.burger span{display:block;width:18px;height:2px;background:var(--text);border-radius:1px;position:relative}
+.burger span::before,.burger span::after{content:'';position:absolute;width:18px;height:2px;background:var(--text);border-radius:1px;left:0}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+@media(max-width:900px){.burger{display:flex}}
+
+/* Main */
+.main{padding:32px 40px 80px;max-width:960px;overflow-x:hidden}
+@media(max-width:900px){.main{padding:60px 16px 60px}}
+
+/* Content sections */
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Typography */
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px;color:var(--text)}
+h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:40px 0 16px;color:var(--text);padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:17px;font-weight:600;margin:28px 0 12px;color:var(--text)}
+h4{font-size:15px;font-weight:600;margin:20px 0 8px;color:var(--text2)}
+.subtitle{font-size:14px;color:var(--text2);margin-bottom:24px}
+p{margin-bottom:14px}
+strong{font-weight:600;color:var(--text)}
+em{font-style:italic;color:var(--text2)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+blockquote{border-left:3px solid var(--accent);padding:12px 16px;margin:16px 0;background:var(--accent-bg);border-radius:0 var(--r) var(--r) 0;font-style:italic;color:var(--text2)}
+ul,ol{margin:0 0 16px 20px}
+li{margin-bottom:6px}
+li::marker{color:var(--text3)}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-amber{background:var(--amber-bg);color:var(--amber)}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-blue{background:var(--blue-bg);color:var(--blue)}
+.tag-violet{background:var(--violet-bg);color:var(--violet)}
+.tag-gray{background:rgba(255,255,255,.05);color:var(--text2)}
+
+/* Cards */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin:16px 0;transition:all .2s ease}
+.card:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:16px 0}
+.card h4{margin:0 0 8px;color:var(--text)}
+.card p{font-size:13.5px;color:var(--text2);margin:0}
+.card-highlight{border-left:3px solid var(--accent);background:linear-gradient(135deg,var(--bg-card),rgba(99,102,241,.03))}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px}
+thead{position:sticky;top:0}
+th{text-align:left;padding:10px 14px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:2px solid rgba(255,255,255,.08);background:var(--bg-card)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:rgba(99,102,241,.03)}
+td:first-child{color:var(--text);font-weight:500}
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);margin:16px 0}
+.table-wrap table{margin:0}
+
+/* Code blocks */
+pre{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin:16px 0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text2)}
+code{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:4px;color:var(--accent)}
+pre code{background:none;padding:0;color:var(--text2)}
+
+/* Wireframe blocks (ASCII art) */
+.wireframe{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin:16px 0;font-family:var(--mono);font-size:13px;line-height:1.5;color:var(--green);white-space:pre;overflow-x:auto}
+
+/* Alert boxes */
+.alert{display:flex;gap:12px;padding:14px 16px;border-radius:10px;margin:12px 0;border-left:3px solid}
+.alert-info{background:var(--blue-bg);border-color:var(--blue)}
+.alert-warn{background:var(--amber-bg);border-color:var(--amber)}
+.alert-err{background:var(--red-bg);border-color:var(--red)}
+.alert-ok{background:var(--green-bg);border-color:var(--green)}
+.alert-icon{font-size:18px;line-height:1}
+.alert-text{font-size:13.5px;color:var(--text2)}
+.alert-text strong{color:var(--text)}
+
+/* Home page cards */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:24px 0}
+.home-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .2s ease;text-decoration:none;display:block}
+.home-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.25);text-decoration:none}
+.home-card .hc-num{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.home-card .hc-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.home-card .hc-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* Progress bar */
+.progress{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--violet))}
+
+/* TOC */
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:4px 0}
+.toc a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text2);font-size:14px;text-decoration:none;transition:all .15s}
+.toc a:hover{background:var(--accent-bg);color:var(--text)}
+.toc .toc-num{font-family:var(--mono);font-size:12px;color:var(--text3);min-width:24px}
+
+/* Search */
+.search-box{position:relative;margin:16px 12px}
+.search-box input{width:100%;padding:8px 12px 8px 32px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s}
+.search-box input:focus{border-color:var(--accent)}
+.search-box::before{content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid var(--text3);border-radius:50%}
+.search-box::after{content:'';position:absolute;left:22px;top:60%;width:2px;height:6px;background:var(--text3);transform:rotate(-45deg)}
+
+/* Floating nav */
+.section-nav{position:fixed;right:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:50}
+.section-nav a{width:8px;height:8px;border-radius:50%;background:var(--text3);transition:all .2s;opacity:.5}
+.section-nav a:hover{opacity:1;transform:scale(1.3)}
+@media(max-width:1200px){.section-nav{display:none}}
+</style>
+</head>
+<body>
+<button class="burger" onclick="document.querySelector('.sidebar').classList.toggle('open')"><span></span></button>
+
+<div class="app">
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">Estate Invest<br><span style="font-weight:400;font-size:11px;letter-spacing:.02em;color:var(--text3)">Исследование командной панели</span></div>
+
+  <div class="search-box"><input type="text" placeholder="Поиск..." id="searchInput" oninput="filterNav(this.value)"></div>
+
+  <a href="#" onclick="showSection('home')" class="active" data-id="home"><span class="num" style="background:var(--accent-bg);color:var(--accent)">*</span> Главная</a>
+
+  <div class="sidebar-section">Раунд 1 — Дизайн</div>
+  <a href="#" onclick="showSection('s01')" data-id="s01"><span class="num">01</span> Дизайн дашборда</a>
+  <a href="#" onclick="showSection('s02')" data-id="s02"><span class="num">02</span> Визуализация данных</a>
+  <a href="#" onclick="showSection('s03')" data-id="s03"><span class="num">03</span> CSS-техники</a>
+
+  <div class="sidebar-section">Раунд 2 — Глубже</div>
+  <a href="#" onclick="showSection('s04')" data-id="s04"><span class="num">04</span> Живые примеры</a>
+  <a href="#" onclick="showSection('s05')" data-id="s05"><span class="num">05</span> Контент-карта (PRD)</a>
+  <a href="#" onclick="showSection('s06')" data-id="s06"><span class="num">06</span> UX-паттерны</a>
+  <a href="#" onclick="showSection('s07')" data-id="s07"><span class="num">07</span> Premium-эстетика</a>
+
+  <div class="sidebar-section">Раунд 3 — Критика</div>
+  <a href="#" onclick="showSection('s08')" data-id="s08"><span class="num">08</span> Критический разбор</a>
+  <a href="#" onclick="showSection('s09')" data-id="s09"><span class="num">09</span> Восприятие и UX</a>
+
+  <div class="sidebar-section">Дорожная карта</div>
+  <a href="#" onclick="showSection('s10')" data-id="s10"><span class="num">R</span> Рекомендации</a>
+  <a href="#" onclick="showSection('s11')" data-id="s11"><span class="num">AI</span> AI-трансформация</a>
+
+  <div class="sidebar-footer">
+    9 файлов исследования<br>2 файла дорожной карты<br>90+ источников<br><br>
+    <span style="color:var(--text3)">26.02.2026</span>
+  </div>
+</nav>
+
+<main class="main" id="content">
+<!-- ==================== HOME ==================== -->
+<div class="section active" id="home">
+<h1>Командная панель Estate Invest</h1>
+<p class="subtitle">Полное исследование дизайна, UX и архитектуры + дорожная карта развития. 3 раунда, 11 документов, 90+ источников.</p>
+
+<div class="card card-highlight">
+<h4>Ключевое решение из исследования</h4>
+<p>4 блока на экране (Cowan), 8 метрик максимум, North Star вверху слева, каждое число с контекстом, алерты с действиями. Не 50 виджетов — велосипед, не космический корабль.</p>
+</div>
+
+<h2>Исследование</h2>
+<div class="home-grid">
+  <a class="home-card" onclick="showSection('s01')"><div class="hc-num">01</div><div class="hc-title">Дизайн дашборда</div><div class="hc-desc">Layout, цвета, шрифты, KPI-карточки, иконки, микро-взаимодействия, референсы</div></a>
+  <a class="home-card" onclick="showSection('s02')"><div class="hc-num">02</div><div class="hc-title">Визуализация данных</div><div class="hc-desc">Финансовые метрики, воронки, команда, недвижимость, таблицы, статусы, алерты</div></a>
+  <a class="home-card" onclick="showSection('s03')"><div class="hc-num">03</div><div class="hc-title">CSS-техники</div><div class="hc-desc">CSS Grid, переменные, glassmorphism, шрифты, графики, иконки, HTML-шаблон</div></a>
+  <a class="home-card" onclick="showSection('s04')"><div class="hc-num">04</div><div class="hc-title">Живые примеры</div><div class="hc-desc">27 работающих ссылок на реальные HTML-дашборды (CodePen, GitHub, демо)</div></a>
+  <a class="home-card" onclick="showSection('s05')"><div class="hc-num">05</div><div class="hc-title">Контент-карта (PRD)</div><div class="hc-desc">7 KPI, 9 секций, 50 виджетов, источники данных, алерты, drill-down</div></a>
+  <a class="home-card" onclick="showSection('s06')"><div class="hc-num">06</div><div class="hc-title">UX-паттерны</div><div class="hc-desc">Навигация, когнитивная нагрузка, периоды, skeleton screens, мобильные</div></a>
+  <a class="home-card" onclick="showSection('s07')"><div class="hc-num">07</div><div class="hc-title">Premium-эстетика</div><div class="hc-desc">Noise/grain, glow, aurora-фон, анимация чисел, 3D tilt, психология цвета</div></a>
+  <a class="home-card" onclick="showSection('s08')"><div class="hc-num">08</div><div class="hc-title">Критический разбор</div><div class="hc-desc">10 проблем исследования: масштаб, палитры, эффекты, данные, план</div></a>
+  <a class="home-card" onclick="showSection('s09')"><div class="hc-num">09</div><div class="hc-title">Восприятие и UX</div><div class="hc-desc">Eye-tracking, 4 чанка, светофор, North Star, actionability, мобильный вид</div></a>
+</div>
+
+<h2>Дорожная карта</h2>
+<div class="home-grid">
+  <a class="home-card" onclick="showSection('s10')" style="border-left:3px solid var(--green)"><div class="hc-num" style="color:var(--green)">R</div><div class="hc-title">Стратегические рекомендации</div><div class="hc-desc">Диагноз, немедленные действия, среднесрочные инициативы, метрики, приоритеты</div></a>
+  <a class="home-card" onclick="showSection('s11')" style="border-left:3px solid var(--violet)"><div class="hc-num" style="color:var(--violet)">AI</div><div class="hc-title">AI-трансформация</div><div class="hc-desc">8 фаз: аналитика, реализация, маркетинг, поддержка, финансы, юрист, контент, IT</div></a>
+</div>
+
+<h2>Рекомендуемая структура дашборда</h2>
+<div class="wireframe">
++============================================================+
+|  ESTATE INVEST                          [  ЗЕЛЕНЫЙ / ОК  ] |
++============================================================+
+|                                                              |
+|  ПРИБЫЛЬ ИНВЕСТОРАМ      37.2 млн       ^ +8% к плану      |
+|  ==================----   72% годовой цели                   |
+|  [спарклайн 12 мес]                                          |
+|                                                              |
++============================+=================================+
+|  ФИНАНСЫ                   |  ОБЪЕКТЫ                        |
+|                            |                                 |
+|  Капитал  196 млн          |  94 активных из 118             |
+|  ^ +12% за мес             |  3 проблемных !                 |
+|                            |                                 |
+|  ROI      14.2%            |  Подг 12 | Сбор 28 | Реал 58   |
+|  * выше рынка (12%)        |                                 |
+|                            |                                 |
++============================+=================================+
+|  ИНВЕСТОРЫ                 |  ТРЕБУЕТ ВНИМАНИЯ (3)           |
+|                            |                                 |
+|  912 активных              |  ! #47 Арбат -- задержка 12 дн  |
+|  +14 за месяц              |    -> Связаться с Ивановым      |
+|                            |                                 |
+|  23 в воронке              |  ! Петров -- запрос вывода 2.1М |
+|  4.2 млн pipeline          |    -> Подготовить документы     |
+|                            |                                 |
+|                            |  ! #83 ROI 4.2% (план 8%)      |
+|                            |    -> Пересмотреть цену         |
++============================+=================================+</div>
+<p style="font-size:13px;color:var(--text3)">4 блока (Cowan), F-паттерн (eye-tracking), North Star вверху слева (Tufte), RAG-статус (Bernard Marr), Actionability (Kaushik)</p>
+</div>
+
+<!-- ==================== SECTION 01 ==================== -->
+<div class="section" id="s01">
+<h1>01. Дизайн executive-дашборда</h1>
+<p class="subtitle">Layout, цвета, шрифты, KPI-карточки, иконки, микро-взаимодействия, референсы. 30+ источников.</p>
+
+<h2>Layout-паттерны</h2>
+<h3>Sidebar + Top Rail + Content Grid</h3>
+<p>Доминирующий паттерн 2025-2026 — <strong>сворачиваемый сайдбар слева</strong> (Vercel, Linear, Stripe) + горизонтальная полоса KPI сверху + основной контент в grid-сетке.</p>
+
+<div class="card-grid">
+<div class="card"><h4>Sidebar</h4><p>240-280px развёрнутый, 64-72px свёрнутый (только иконки)</p></div>
+<div class="card"><h4>Top Rail</h4><p>Высота 56-64px: breadcrumbs, фильтры, период</p></div>
+<div class="card"><h4>KPI-полоса</h4><p>Первый ряд: 3-5 карточек в линию</p></div>
+<div class="card"><h4>Content area</h4><p><code>grid-template-columns: repeat(auto-fit, minmax(320px, 1fr))</code> с gap 16-24px</p></div>
+</div>
+
+<h3>Bento Grid Layout (тренд Apple)</h3>
+<p>Карточки разного размера в единой 12-колоночной сетке: small (span 3), medium (span 6), large (span 12).</p>
+
+<h3>Принцип "перевёрнутая пирамида"</h3>
+<ul>
+<li>Верх — ключевые KPI (самое важное)</li>
+<li>Середина — тренды и графики</li>
+<li>Низ — детальные таблицы и breakdown</li>
+</ul>
+
+<h2>Цветовые схемы</h2>
+<h3>Dark Mode (основной тренд)</h3>
+<p>Тёмная тема — <strong>стандарт</strong> для CEO-дашбордов. Уменьшает усталость глаз, выглядит premium.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Элемент</th><th>Hex</th></tr></thead>
+<tbody>
+<tr><td>Фон страницы</td><td><code>#0a0a0f</code></td></tr>
+<tr><td>Фон sidebar</td><td><code>#141420</code></td></tr>
+<tr><td>Фон карточки</td><td><code>#1a1a2e</code></td></tr>
+<tr><td>Основной текст</td><td><code>#e4e4e7</code></td></tr>
+<tr><td>Вторичный текст</td><td><code>#71717a</code></td></tr>
+<tr><td>Бордер карточек</td><td><code>rgba(255,255,255,0.06)</code></td></tr>
+</tbody></table></div>
+
+<h3>Акцентные цвета</h3>
+<div class="card-grid">
+<div class="card" style="border-left:3px solid #22c55e"><h4 style="color:#22c55e">Рост / Успех</h4><p><code>#22c55e</code></p></div>
+<div class="card" style="border-left:3px solid #ef4444"><h4 style="color:#ef4444">Падение / Ошибка</h4><p><code>#ef4444</code></p></div>
+<div class="card" style="border-left:3px solid #eab308"><h4 style="color:#eab308">Предупреждение</h4><p><code>#eab308</code></p></div>
+<div class="card" style="border-left:3px solid #6366f1"><h4 style="color:#6366f1">Primary accent</h4><p><code>#6366f1</code> (индиго)</p></div>
+</div>
+
+<h2>Типографика</h2>
+<div class="card card-highlight">
+<h4>Шрифты</h4>
+<p><strong>Inter</strong> — заголовки и UI (стандарт индустрии, Google Fonts)</p>
+<p><strong>JetBrains Mono</strong> — числа и данные</p>
+<p>Ключевое: <code>font-variant-numeric: tabular-nums</code> — числа одинаковой ширины.</p>
+</div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Размер</th><th>Значение</th><th>Применение</th></tr></thead>
+<tbody>
+<tr><td>text-xs</td><td>11px</td><td>мелкие лейблы, timestamp</td></tr>
+<tr><td>text-sm</td><td>13px</td><td>таблицы, вторичный текст</td></tr>
+<tr><td>text-base</td><td>14px</td><td>основной текст дашборда</td></tr>
+<tr><td>text-2xl</td><td>24px</td><td>KPI-числа (средние)</td></tr>
+<tr><td>text-3xl</td><td>32px</td><td>KPI-числа (крупные)</td></tr>
+<tr><td>text-4xl</td><td>48px</td><td>hero-метрика</td></tr>
+</tbody></table></div>
+
+<h2>KPI-карточка (анатомия)</h2>
+<div class="wireframe">+----------------------------------+
+|  Период (мес/год)         ...    |  &lt;- text-xs, secondary
+|                                   |
+|  Выручка                         |  &lt;- text-sm, weight-medium
+|  12.5 млн                        |  &lt;- text-3xl (32px), bold
+|  +23.5% ^                        |  &lt;- text-sm, green/red
+|                                   |
+|  ~~~~ sparkline ~~~~             |  &lt;- 40-60px высота, без осей
++----------------------------------+</div>
+
+<p><strong>Правила:</strong> left-align, max 5-7 KPI на экране, каждое число с контекстом (vs прошлый период, vs план).</p>
+
+<h2>Графики</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Тип</th><th>Применение</th></tr></thead>
+<tbody>
+<tr><td>Sparkline</td><td>Внутри KPI-карточки, тренд без деталей</td></tr>
+<tr><td>Area Chart (градиент)</td><td>Выручка, трафик — объём во времени</td></tr>
+<tr><td>Bar Chart</td><td>Помесячная выручка, сравнение периодов</td></tr>
+<tr><td>Donut Chart</td><td>Доли/проценты, структура выручки</td></tr>
+<tr><td>Funnel</td><td>Конверсия, стадии сделок</td></tr>
+</tbody></table></div>
+<p><strong>Не использовать:</strong> 3D-графики, полные pie charts, gauge charts.</p>
+<p><strong>Библиотека:</strong> <a href="https://apexcharts.com/" target="_blank">ApexCharts</a> — лучший баланс красоты и лёгкости.</p>
+
+<h2>Иконки</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Библиотека</th><th>Иконок</th><th>Рекомендация</th></tr></thead>
+<tbody>
+<tr><td><a href="https://lucide.dev/" target="_blank">Lucide</a></td><td>1600+</td><td>Для быстрого старта</td></tr>
+<tr><td><a href="https://phosphoricons.com/" target="_blank">Phosphor</a></td><td>9000+</td><td>Для premium-вида (duotone)</td></tr>
+<tr><td><a href="https://tabler.io/icons" target="_blank">Tabler</a></td><td>5900+</td><td>Для data-heavy UI</td></tr>
+</tbody></table></div>
+
+<h2>Референсы</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Продукт</th><th>Что взять</th></tr></thead>
+<tbody>
+<tr><td>Stripe Dashboard</td><td>Чистота, типографическая иерархия, accessibility</td></tr>
+<tr><td>Linear</td><td>Inter, тёмный фон, мягкие тени, minimal</td></tr>
+<tr><td>Vercel</td><td>Geist Sans/Mono, чёрно-белый минимализм</td></tr>
+<tr><td>shadcn/ui</td><td>Open-source блоки для дашбордов</td></tr>
+</tbody></table></div>
+
+<h2>Quick Reference</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+<tbody>
+<tr><td>Шрифт</td><td>Inter (Google Fonts)</td></tr>
+<tr><td>Моно</td><td>JetBrains Mono</td></tr>
+<tr><td>Фон dark</td><td><code>#0a0a0f</code></td></tr>
+<tr><td>Accent</td><td><code>#6366f1</code> (индиго)</td></tr>
+<tr><td>Success</td><td><code>#22c55e</code></td></tr>
+<tr><td>Error</td><td><code>#ef4444</code></td></tr>
+<tr><td>Border-radius</td><td>16px</td></tr>
+<tr><td>Transition</td><td>0.2s cubic-bezier(0.4,0,0.2,1)</td></tr>
+<tr><td>Grid gap</td><td>16-24px</td></tr>
+<tr><td>Иконки</td><td>Lucide / Phosphor</td></tr>
+<tr><td>Графики</td><td>ApexCharts</td></tr>
+</tbody></table></div>
+</div>
+
+<!-- ==================== SECTION 02 ==================== -->
+<div class="section" id="s02">
+<h1>02. Визуализация данных</h1>
+<p class="subtitle">Финансовые метрики, воронки, команда, недвижимость, таблицы, статусы, алерты.</p>
+
+<h2>Форматирование чисел</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Диапазон</th><th>Формат</th><th>Пример</th></tr></thead>
+<tbody>
+<tr><td>&lt; 1 000</td><td>как есть</td><td>750</td></tr>
+<tr><td>1K - 999K</td><td>XXX.XK</td><td>196K</td></tr>
+<tr><td>1M - 999M</td><td>XXX.XM</td><td>196M</td></tr>
+<tr><td>>= 1B</td><td>X.XB</td><td>1.2B</td></tr>
+</tbody></table></div>
+<p>Для рублей: <code>196 млн ₽</code>. В таблицах — полные: <code>196 000 000 ₽</code>.</p>
+
+<h2>KPI-карточка (паттерн)</h2>
+<div class="wireframe">+-----------------------+
+|  Revenue        ^     |  &lt;- название + тренд-иконка
+|  196M Rub             |  &lt;- основное значение (крупный шрифт)
+|  +12.3%  vs Q3        |  &lt;- дельта + период сравнения
+|  --------____----     |  &lt;- мини-спарклайн
++-----------------------+</div>
+<p><strong>Правило 5 секунд:</strong> пользователь должен оценить картину за 5 секунд = макс 5-10 KPI.</p>
+
+<h2>Воронки (Funnel)</h2>
+<div class="wireframe">==========================  Лиды        1343  (100%)
+====================        Показы       900   (67%)
+===============             Сделки       425   (31.6%)
+==========                  Регистрация  283   (21%)
+======                      Закрытие     156   (11.6%)</div>
+
+<h2>Карточка объекта недвижимости</h2>
+<div class="wireframe">+-----------------------------------+
+| [фото]  ул. Ленина, 15            |
+|          Калининград               |
+|          * Продано                 |
+|  Покупка: 1.8M  |  Продажа: 3.2M  |
+|  Прибыль: +1.4M (+77%)            |
+|  ===============--- 77% ROI       |
++-----------------------------------+</div>
+
+<h2>Статусные индикаторы</h2>
+<div class="card-grid">
+<div class="card"><h4><span class="tag tag-green">Active</span></h4><p>Рабочий статус, онлайн</p></div>
+<div class="card"><h4><span class="tag tag-amber">Pending</span></h4><p>Ожидание, в процессе</p></div>
+<div class="card"><h4><span class="tag tag-red">Error</span></h4><p>Проблема, просрочено</p></div>
+<div class="card"><h4><span class="tag tag-gray">Closed</span></h4><p>Завершено, архив</p></div>
+</div>
+
+<h2>4 уровня алертов</h2>
+<div class="alert alert-err"><div class="alert-icon">!</div><div class="alert-text"><strong>Критический</strong> — немедленные действия</div></div>
+<div class="alert alert-warn"><div class="alert-icon">!</div><div class="alert-text"><strong>Предупреждение</strong> — дедлайн приближается</div></div>
+<div class="alert alert-info"><div class="alert-icon">i</div><div class="alert-text"><strong>Информация</strong> — обновление</div></div>
+<div class="alert alert-ok"><div class="alert-icon">+</div><div class="alert-text"><strong>Успех</strong> — подтверждение</div></div>
+
+<h2>Рекомендуемый стек</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Задача</th><th>Решение</th><th>Вес</th></tr></thead>
+<tbody>
+<tr><td>Графики</td><td>ApexCharts CDN</td><td>~130KB</td></tr>
+<tr><td>Иконки</td><td>Lucide CDN</td><td>~180KB</td></tr>
+<tr><td>Карта</td><td>Leaflet.js CDN</td><td>~40KB</td></tr>
+<tr><td>Шрифт</td><td>Inter (Google Fonts)</td><td>CDN</td></tr>
+<tr><td>Стили</td><td>Чистый CSS с переменными</td><td>0</td></tr>
+</tbody></table></div>
+</div>
+
+<!-- ==================== SECTION 03 ==================== -->
+<div class="section" id="s03">
+<h1>03. CSS и фронтенд техники</h1>
+<p class="subtitle">Pure HTML/CSS/JS, без фреймворков, всё через CDN.</p>
+
+<h2>CSS Grid Layout</h2>
+<h3>Sidebar + Content</h3>
+<pre><code>.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas: "sidebar header" "sidebar main";
+  min-height: 100vh;
+}</code></pre>
+
+<h3>Grid для KPI-карточек</h3>
+<pre><code>.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}</code></pre>
+
+<h2>Палитра "Midnight Indigo"</h2>
+<div class="card card-highlight">
+<p>Рекомендуемая палитра — используем её как единственную.</p>
+<pre><code>--bg-primary:    #0a0a0f;
+--bg-card:       #1a1a2e;
+--text-primary:  #f1f5f9;
+--text-secondary:#94a3b8;
+--accent-primary:#6366f1;
+--success:       #10b981;
+--warning:       #f59e0b;
+--danger:        #ef4444;</code></pre>
+</div>
+
+<h2>Glassmorphism</h2>
+<pre><code>.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}</code></pre>
+
+<h2>Анимации</h2>
+<h3>Hover карточек</h3>
+<pre><code>.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+}</code></pre>
+
+<h3>Fade-in при загрузке</h3>
+<pre><code>@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card { animation: fadeInUp 0.5s ease forwards; }
+.card:nth-child(2) { animation-delay: 0.1s; }</code></pre>
+
+<h3>Count-up чисел (Vanilla JS)</h3>
+<pre><code>function animateValue(element, start, end, duration) {
+  const startTime = performance.now();
+  function update(t) {
+    const progress = Math.min((t - startTime) / duration, 1);
+    const eased = 1 - Math.pow(2, -10 * progress);
+    element.textContent = Math.floor(start + (end-start) * eased)
+      .toLocaleString('ru-RU');
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}</code></pre>
+
+<h2>Google Fonts подключение</h2>
+<pre><code>&lt;link href="https://fonts.googleapis.com/css2?
+  family=Inter:wght@300;400;500;600;700
+  &family=JetBrains+Mono:wght@400;500;600;700
+  &display=swap" rel="stylesheet"&gt;</code></pre>
+
+<h2>ApexCharts (тёмная тема)</h2>
+<pre><code>new ApexCharts(el, {
+  chart: { type: 'area', height: 350, background: 'transparent' },
+  theme: { mode: 'dark' },
+  colors: ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981'],
+  stroke: { curve: 'smooth', width: 2 },
+  fill: { type: 'gradient', gradient: {
+    shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05 } },
+  grid: { borderColor: 'rgba(148,163,184,0.08)' },
+}).render();</code></pre>
+
+<h2>Иконки через CDN</h2>
+<pre><code>&lt;!-- Lucide --&gt;
+&lt;script src="https://unpkg.com/lucide@latest"&gt;&lt;/script&gt;
+&lt;i data-lucide="trending-up"&gt;&lt;/i&gt;
+&lt;script&gt;lucide.createIcons();&lt;/script&gt;</code></pre>
+</div>
+
+<!-- ==================== SECTION 04 ==================== -->
+<div class="section" id="s04">
+<h1>04. Живые HTML-дашборды</h1>
+<p class="subtitle">27 работающих демо-ссылок. Все открываются в браузере.</p>
+
+<h2>TOP-5 для вдохновения</h2>
+<div class="card-grid">
+<div class="card" style="border-left:3px solid var(--accent)"><h4>1. Tabler</h4><p>Layout, KPI-карты, типографика. 5/5</p><p><a href="https://preview.tabler.io/" target="_blank">preview.tabler.io</a></p></div>
+<div class="card" style="border-left:3px solid var(--violet)"><h4>2. ApexCharts Dark</h4><p>Графики на тёмном фоне. 5/5</p><p><a href="https://apexcharts.com/javascript-chart-demos/dashboards/dark/" target="_blank">apexcharts.com/dark</a></p></div>
+<div class="card" style="border-left:3px solid var(--green)"><h4>3. Soft UI Dashboard</h4><p>Gradient стиль, blur sidebar. 5/5</p><p><a href="https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html" target="_blank">creative-tim.com</a></p></div>
+<div class="card" style="border-left:3px solid var(--blue)"><h4>4. TailAdmin</h4><p>Tailwind, sparkline в карточках. 5/5</p><p><a href="https://demo.tailadmin.com/" target="_blank">demo.tailadmin.com</a></p></div>
+<div class="card" style="border-left:3px solid var(--amber)"><h4>5. Bank Dashboard</h4><p>Минималистичный тёмный UI. 5/5</p><p><a href="https://codepen.io/havardob/pen/ExvwGBr" target="_blank">codepen.io/bank</a></p></div>
+</div>
+
+<h2>A. Полноценные шаблоны</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Шаблон</th><th>Стек</th><th>Что украсть</th><th>Ссылка</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Tabler</td><td>Bootstrap 5, ApexCharts</td><td>Типографика, spacing, KPI</td><td><a href="https://preview.tabler.io/" target="_blank">Demo</a></td></tr>
+<tr><td>2</td><td>Soft UI</td><td>Bootstrap 5, Chart.js</td><td>Gradient KPI, sidebar blur</td><td><a href="https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html" target="_blank">Demo</a></td></tr>
+<tr><td>3</td><td>TailAdmin</td><td>Tailwind, ApexCharts</td><td>eCommerce dash, sparklines</td><td><a href="https://demo.tailadmin.com/" target="_blank">Demo</a></td></tr>
+<tr><td>4</td><td>AdminLTE v4</td><td>Bootstrap 5, WCAG AA</td><td>Info Box (icon+number+progress)</td><td><a href="https://adminlte-v4.netlify.app/" target="_blank">Demo</a></td></tr>
+<tr><td>5</td><td>Mazer</td><td>Bootstrap 5</td><td>Чистый sidebar, stat-карточки</td><td><a href="https://zuramai.github.io/mazer/demo/" target="_blank">Demo</a></td></tr>
+<tr><td>6</td><td>CoreUI</td><td>Bootstrap 5, Sass</td><td>Dark/light toggle</td><td><a href="https://coreui.io/demos/bootstrap/5.0/free/" target="_blank">Demo</a></td></tr>
+<tr><td>7</td><td>Volt</td><td>Bootstrap 5, Vanilla JS</td><td>Тренд-стрелки, таблица транзакций</td><td><a href="https://demo.themesberg.com/volt/" target="_blank">Demo</a></td></tr>
+<tr><td>8</td><td>Windmill</td><td>Tailwind, Chart.js</td><td>Лучшая dark тема, accessibility</td><td><a href="https://windmill-dashboard.vercel.app/" target="_blank">Demo</a></td></tr>
+</tbody></table></div>
+
+<h2>B. ApexCharts</h2>
+<div class="card-grid">
+<div class="card"><h4>Dark Dashboard</h4><p>Gradient fill, radial bar, анимации. <a href="https://apexcharts.com/javascript-chart-demos/dashboards/dark/" target="_blank">Demo</a></p></div>
+<div class="card"><h4>Modern Dashboard</h4><p>Sparkline в KPI. <a href="https://apexcharts.com/javascript-chart-demos/dashboards/modern/" target="_blank">Demo</a></p></div>
+<div class="card"><h4>Realtime</h4><p>Live-обновление. <a href="https://apexcharts.com/javascript-chart-demos/dashboards/realtime/" target="_blank">Demo</a></p></div>
+</div>
+
+<h2>C. CodePen</h2>
+<div class="card-grid">
+<div class="card"><h4>Dark Bank Dashboard</h4><p>Лучший тёмный UI на чистом CSS. 5/5. <a href="https://codepen.io/havardob/pen/ExvwGBr" target="_blank">Demo</a></p></div>
+<div class="card"><h4>Glassmorphism Analytics</h4><p>Backdrop blur, цветные акценты. <a href="https://codepen.io/themrsami/pen/OPVBzNX" target="_blank">Demo</a></p></div>
+<div class="card"><h4>CSS Grid Dashboard</h4><p>Идеальная Grid-структура, responsive. <a href="https://codepen.io/trooperandz/pen/EOgJvg" target="_blank">Demo</a></p></div>
+<div class="card"><h4>Tailwind + ChartJS</h4><p>Интеграция Chart.js sparklines. <a href="https://codepen.io/ScottWindon/pen/GRZjbaG" target="_blank">Demo</a></p></div>
+</div>
+</div>
+
+<!-- ==================== SECTION 05 ==================== -->
+<div class="section" id="s05">
+<h1>05. Контент-карта (PRD)</h1>
+<p class="subtitle">Дашборд управляющего партнёра. 7 KPI, 9 секций, ~50 виджетов, источники данных.</p>
+
+<h2>7 KPI верхнего уровня</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>KPI</th><th>Значение</th><th>Источник</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Капитал под управлением</strong></td><td>~196 млн ₽</td><td>Sheets "Свод объекты"</td></tr>
+<tr><td>2</td><td><strong>Стоимость продажи</strong></td><td>~388 млн ₽</td><td>Sheets "Объекты"</td></tr>
+<tr><td>3</td><td><strong>Распределённая прибыль</strong></td><td>~37 млн ₽</td><td>Sheets "Общая база"</td></tr>
+<tr><td>4</td><td><strong>Инвесторы</strong></td><td>900+ / ~2000</td><td>Sheets + Битрикс</td></tr>
+<tr><td>5</td><td><strong>Объектов в работе</strong></td><td>N / 118</td><td>Sheets "Объекты"</td></tr>
+<tr><td>6</td><td><strong>Конверсия воронки</strong></td><td>37%</td><td>Битрикс24 REST API</td></tr>
+<tr><td>7</td><td><strong>Прогресс цели</strong></td><td>X / 24 объекта/год</td><td>Sheets "Объекты"</td></tr>
+</tbody></table></div>
+
+<h2>9 секций навигации</h2>
+<div class="card-grid">
+<div class="card"><h4>1. Главная</h4><p>7 KPI + воронка объектов + динамика капитала + топ-5 объектов</p></div>
+<div class="card"><h4>2. Объекты</h4><p>Канбан + таблица + P&L + прогресс сбора + рейтинг ROI</p></div>
+<div class="card"><h4>3. Инвесторы</h4><p>Таблица + карточка + динамика регистраций + топ-10</p></div>
+<div class="card"><h4>4. Воронки CRM</h4><p>Воронка "Регистрация" + конверсия + динамика анкет</p></div>
+<div class="card"><h4>5. Финансы</h4><p>Cash Flow + долг + остатки + валюты + выплаты</p></div>
+<div class="card"><h4>6. Продажи / Авито</h4><p>Активных объявлений + таблица + срок продажи</p></div>
+<div class="card"><h4>7. Торги</h4><p>Таблица торгов + конверсия + календарь</p></div>
+<div class="card"><h4>8. KPI отделов</h4><p>Аналитика, Реализация, Продажи (gauge)</p></div>
+<div class="card"><h4>9. Salebot</h4><p>Клиентов в боте + обращения</p></div>
+</div>
+
+<h2>Источники данных</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Источник</th><th>Что берём</th></tr></thead>
+<tbody>
+<tr><td><strong>Google Sheets</strong> (5 таблиц)</td><td>Транзакции, инвесторы, объекты, торги, кассы</td></tr>
+<tr><td><strong>Битрикс24 REST API</strong></td><td>4 воронки, лиды, сделки</td></tr>
+<tr><td><strong>Salebot API</strong></td><td>Клиенты бота, обращения</td></tr>
+</tbody></table></div>
+
+<h2>3 уровня алертов</h2>
+<div class="alert alert-err"><div class="alert-text"><strong>Критические:</strong> Анкета &gt;48ч, объект просрочен, расхождение сумм, запрос возврата</div></div>
+<div class="alert alert-warn"><div class="alert-text"><strong>Важные:</strong> Сбор &gt;90%, объект без активности 30 дней, торги через 3 дня</div></div>
+<div class="alert alert-info"><div class="alert-text"><strong>Информационные:</strong> Еженедельная сводка, новые регистрации</div></div>
+
+<h2>Drill-down при клике на KPI</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>KPI</th><th>Открывает</th></tr></thead>
+<tbody>
+<tr><td>Капитал 196M</td><td>Разбивка по объектам (bar) + по валютам (donut)</td></tr>
+<tr><td>Продажа 388M</td><td>Таблица с покупка/продажа/ROI</td></tr>
+<tr><td>Прибыль 37M</td><td>Выплаты по месяцам (stacked bar)</td></tr>
+<tr><td>Инвесторы 900/2000</td><td>Активные vs неактивные, рост</td></tr>
+<tr><td>Объектов N/118</td><td>Канбан по стадиям</td></tr>
+<tr><td>Конверсия 37%</td><td>Воронка "Регистрация" (funnel)</td></tr>
+<tr><td>Цель 24/год</td><td>Timeline + прогноз</td></tr>
+</tbody></table></div>
+</div>
+
+<!-- ==================== SECTION 06 ==================== -->
+<div class="section" id="s06">
+<h1>06. UX-паттерны для CEO-дашборда</h1>
+<p class="subtitle">Навигация, когнитивная нагрузка, мобильные, антипаттерны.</p>
+
+<h2>Навигация</h2>
+<div class="card card-highlight">
+<h4>Sidebar — лучший для 10+ секций</h4>
+<p>Пользователи смотрят на левую половину экрана 80% времени (NN/Group). 240-300px развёрнутый, 48-64px свёрнутый.</p>
+</div>
+
+<h2>Progressive Disclosure (3 уровня)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Уровень</th><th>Что видит CEO</th><th>Время</th></tr></thead>
+<tbody>
+<tr><td><strong>Glanceable</strong></td><td>5-7 KPI с числами, стрелками, цветом</td><td>3 сек</td></tr>
+<tr><td><strong>Explorable</strong></td><td>Клик -> тренд (график), разбивка</td><td>30 сек</td></tr>
+<tr><td><strong>Deep dive</strong></td><td>Полная таблица, фильтры, экспорт</td><td>2+ мин</td></tr>
+</tbody></table></div>
+
+<h2>Управление периодами</h2>
+<p><strong>Лучший для CEO:</strong> пресеты — Сегодня / Неделя / Месяц / Квартал / Год — один клик. Всегда показывать: абсолютное изменение + % + стрелка + цвет.</p>
+
+<h2>Загрузка и пустые состояния</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Время</th><th>Решение</th></tr></thead>
+<tbody>
+<tr><td>&lt; 1 сек</td><td>Ничего</td></tr>
+<tr><td>2-10 сек</td><td>Skeleton screen или spinner</td></tr>
+<tr><td>&gt; 10 сек</td><td>Progress bar</td></tr>
+</tbody></table></div>
+
+<h2>Accessibility (Dark Mode)</h2>
+<ul>
+<li><strong>Никогда #000000</strong> — вызывает halation. Используй #121212 / #0f172a</li>
+<li><strong>Текст не #FFFFFF</strong> — слишком резкий. Используй #E0E0E0 / #f1f5f9</li>
+<li><strong>Font-weight min 400</strong> — thin "исчезает" на тёмном</li>
+<li><strong>Контраст 4.5:1</strong> минимум для обычного текста</li>
+</ul>
+
+<h2>Мобильные паттерны</h2>
+<p>CEO на мобильном = "между встречами" — ответ за 5 секунд. 1 колонка, только KPI, 44px+ touch targets.</p>
+
+<h2>Антипаттерны — ЧТО НЕ ДЕЛАТЬ</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Ошибка</th><th>Решение</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Информационная перегрузка</td><td>Max 5-7 KPI, progressive disclosure</td></tr>
+<tr><td>2</td><td>Данные без контекста</td><td>Всегда: vs период, vs цель, тренд</td></tr>
+<tr><td>3</td><td>Неправильная визуализация</td><td>Тренд=линия, сравнение=бары, доля=donut до 5</td></tr>
+<tr><td>4</td><td>Идеальная симметрия</td><td>Размер блока = его важность</td></tr>
+<tr><td>5</td><td>Один дашборд для всех</td><td>Ролевая кастомизация</td></tr>
+<tr><td>6</td><td>Цветовой хаос</td><td>2-3 основных + семантические</td></tr>
+<tr><td>7</td><td>Нет действия</td><td>Кнопка/ссылка рядом с алертом</td></tr>
+</tbody></table></div>
+</div>
+
+<!-- ==================== SECTION 07 ==================== -->
+<div class="section" id="s07">
+<h1>07. Premium-эстетика</h1>
+<p class="subtitle">CSS-сниппеты и техники для "wow"-эффекта.</p>
+
+<h2>Noise/Grain (зернистость)</h2>
+<p>SVG feTurbulence делает интерфейс "осязаемым". <code>baseFrequency</code> 0.5-0.8, <code>opacity</code> 0.08-0.15.</p>
+
+<h2>Glow (свечение)</h2>
+<pre><code>.card-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 8px 25px rgba(0,0,0,0.4),
+    0 0 60px rgba(59,130,246,0.15);
+}</code></pre>
+
+<h2>Aurora-фон</h2>
+<p>Движущиеся блобы с <code>filter: blur(80px)</code>. <strong>Правило:</strong> opacity 0.3-0.5 max, предельно тонкая.</p>
+
+<h2>Анимация чисел</h2>
+<pre><code>function animateNumber(el, target, duration = 1500) {
+  const start = performance.now();
+  function update(t) {
+    const p = Math.min((t - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 4); // easeOutQuart
+    el.textContent = Math.round(target * eased)
+      .toLocaleString('ru-RU');
+    if (p < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}</code></pre>
+
+<h2>Premium-рецепт (чеклист)</h2>
+<h3>Must-have (max эффекта, min кода)</h3>
+<ul>
+<li>Тёмный фон <code>#0f172a</code> + текст <code>#f1f5f9</code></li>
+<li>Noise-оверлей через SVG (opacity 0.1)</li>
+<li><code>font-variant-numeric: tabular-nums</code></li>
+<li>Glassmorphism: <code>backdrop-filter: blur(12px)</code></li>
+<li>Многослойные тени + glow на hover</li>
+<li>Каскадный fadeInUp при загрузке</li>
+<li>Анимация чисел при появлении</li>
+<li>1px бордеры opacity 0.05-0.1, radius 12-16px</li>
+</ul>
+<h3>Nice-to-have</h3>
+<ul>
+<li>Aurora-фон (тонкий, opacity 0.3)</li>
+<li>3D tilt карточек (threshold 5-8)</li>
+<li>SVG progress rings</li>
+<li>Skeleton shimmer при загрузке</li>
+</ul>
+
+<div class="alert alert-warn"><div class="alert-text"><strong>Важно:</strong> Stripe, Linear и Vercel используют 2-3 эффекта, не все 14. "Less is more" — выбрать максимум 4-5 и сделать хорошо.</div></div>
+</div>
+
+<!-- ==================== SECTION 08 ==================== -->
+<div class="section" id="s08">
+<h1>08. Критический разбор</h1>
+<p class="subtitle">Честный взгляд опытного разработчика на собранные материалы.</p>
+
+<div class="alert alert-err"><div class="alert-text"><strong>Главная проблема:</strong> исследование описывает три разных продукта одновременно — статичный HTML, SaaS-дашборд уровня Stripe и BI-платформу. Нужно выбрать одно.</div></div>
+
+<h2>10 проблем</h2>
+
+<div class="card" style="border-left:3px solid var(--red)"><h4>1. Масштаб не соответствует реальности</h4><p>50 виджетов для 2 человек. Must-have на 25 пунктов = wish list. Для MVP: 5-7 KPI + 3 графика + 1 таблица.</p></div>
+
+<div class="card" style="border-left:3px solid var(--red)"><h4>2. Single HTML file — ложь при таком скоупе</h4><p>50 виджетов = 8-12K строк. Это уже приложение, а не HTML-файл. Либо несколько файлов, либо радикально сократить скоуп.</p></div>
+
+<div class="card" style="border-left:3px solid var(--red)"><h4>3. Данные — самое сложное, а не дизайн</h4><p>80% исследования — CSS. 80% работы уйдёт на данные: CORS, 76K строк, пагинация Битрикс, кэширование.</p></div>
+
+<div class="card" style="border-left:3px solid var(--amber)"><h4>4. Шесть разных палитр</h4><p>Разные hex-коды в файлах 01, 03, 07. Нужна ОДНА палитра, записанная в одном месте.</p></div>
+
+<div class="card" style="border-left:3px solid var(--amber)"><h4>5. Новогодняя ёлка из эффектов</h4><p>14 эффектов одновременно. Stripe использует 2-3. Выбрать максимум 4-5.</p></div>
+
+<div class="card" style="border-left:3px solid var(--amber)"><h4>6. "Must-have" = всё и ничего</h4><p>25 виджетов помечены Must-have. Канбан = ~1000 строк кода. Таблица с фильтрами = ~500. Это отдельные приложения.</p></div>
+
+<div class="card" style="border-left:3px solid var(--text3)"><h4>7. Референсы — продукты команд из 50+ человек</h4><p>Stripe (1000+), Linear (70+), Vercel (500+). Полезнее смотреть на Tabler (1 разработчик).</p></div>
+
+<div class="card" style="border-left:3px solid var(--text3)"><h4>8. Дублирование между файлами</h4><p>KPI-карточка описана 3 раза. Палитра — 3 раза с разными hex. fadeInUp — 3 раза.</p></div>
+
+<div class="card" style="border-left:3px solid var(--text3)"><h4>9. Нет ответа "откуда данные"</h4><p>CORS, аутентификация, 76K строк = 5-15MB CSV. Нужен бэкенд? Кэш? Прокси?</p></div>
+
+<div class="card" style="border-left:3px solid var(--text3)"><h4>10. Не actionable</h4><p>Нет макета, нет спеки данных, нет плана итераций, нет архитектурного решения.</p></div>
+
+<h2>Что хорошо</h2>
+<div class="card card-highlight">
+<ul>
+<li><strong>Контент-карта (05)</strong> — отличная декомпозиция</li>
+<li><strong>Живые примеры (04)</strong> — 27 ссылок, можно потрогать</li>
+<li><strong>Антипаттерны (06)</strong> — список ошибок ценнее "лучших практик"</li>
+<li><strong>ApexCharts</strong> — правильный выбор</li>
+<li><strong>tabular-nums</strong> — мелочь, но критичная</li>
+<li><strong>Правило 5-7 KPI</strong> — важное ограничение</li>
+</ul>
+</div>
+
+<h2>Правильный порядок</h2>
+<ol>
+<li><strong>Архитектура</strong> (30 мин): статический HTML или JS + API или бэкенд + фронт</li>
+<li><strong>MVP</strong> (1 день): 5-7 KPI, 2-3 графика, 1 таблица, данные hardcoded</li>
+<li><strong>Данные</strong> (2-3 дня): Google Sheets, потом Битрикс, кэш в localStorage</li>
+<li><strong>Красота</strong> (1 день): 2-3 эффекта, проверка на реальном устройстве</li>
+<li><strong>Итерации</strong>: добавлять секции по одной</li>
+</ol>
+
+<blockquote>Исследование собрало отличный материал, но предлагает построить космический корабль когда нужен хороший велосипед. Нужно урезать скоуп в 5 раз и начать с MVP.</blockquote>
+</div>
+
+<!-- ==================== SECTION 09 ==================== -->
+<div class="section" id="s09">
+<h1>09. Восприятие и удобство</h1>
+<p class="subtitle">Как 3 партнёра читают дашборд. Eye-tracking, когнитивная нагрузка, actionability.</p>
+
+<div class="card card-highlight">
+<h4>Главный принцип</h4>
+<p>Дашборд отвечает на 3 вопроса: <strong>Где мы?</strong> (статус) | <strong>Где должны быть?</strong> (план) | <strong>Что требует внимания?</strong> (действия)</p>
+</div>
+
+<h2>Тест 5 секунд</h2>
+<p>Партнёр открыл дашборд. Через 5 секунд закрыл. Должен запомнить:</p>
+<ul>
+<li><strong>Бизнес ОК или нет</strong> — общий RAG-статус</li>
+<li><strong>Ключевая цифра</strong> — North Star вверху слева</li>
+<li><strong>Тренд</strong> — стрелка или спарклайн</li>
+</ul>
+
+<h2>Eye-tracking (F-паттерн)</h2>
+<div class="wireframe">========================   &lt;- 1. Горизонтально по верху
+============               &lt;- 2. Вниз по левому краю
+================           &lt;- 3. Ещё горизонтальное сканирование
+======                     &lt;- 4. Внимание падает к низу</div>
+<p><strong>Вывод:</strong> North Star metric = верхний левый угол, крупный шрифт. Нижний правый = "мёртвая зона".</p>
+
+<h2>Когнитивная нагрузка: не 7, а 4</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Автор</th><th>Год</th><th>Лимит</th></tr></thead>
+<tbody>
+<tr><td>Miller</td><td>1956</td><td>7 +/- 2</td></tr>
+<tr><td><strong>Cowan</strong></td><td><strong>2001</strong></td><td><strong>3-5 чанков (в среднем 4)</strong></td></tr>
+<tr><td>Cowan</td><td>2010</td><td>Подтвердил: "Magical Mystery Four"</td></tr>
+</tbody></table></div>
+
+<div class="card card-highlight">
+<h4>4 чанка для Estate Invest</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Чанк</th><th>Метрики</th></tr></thead>
+<tbody>
+<tr><td><strong>Финансы</strong></td><td>Прибыль инвесторам, Капитал, ROI</td></tr>
+<tr><td><strong>Объекты</strong></td><td>Активные, Завершённые, Проблемные</td></tr>
+<tr><td><strong>Инвесторы</strong></td><td>Активных, Новых, Сделки в воронке</td></tr>
+<tr><td><strong>Внимание</strong></td><td>Алерты с действиями</td></tr>
+</tbody></table></div>
+<p><strong>Итого:</strong> 4 блока x 2-3 метрики = 8-12 метрик на экране. Не 50.</p>
+</div>
+
+<h2>North Star Metric</h2>
+<p>Рекомендация: <strong>Прибыль инвесторам</strong> нарастающим итогом (37 млн) — "пульс" бизнеса.</p>
+<div class="wireframe">ПРИБЫЛЬ ИНВЕСТОРАМ      37.2 млн Rub    ^ +8% к плану
+==================---   72% от годовой цели
+[спарклайн 12 мес]</div>
+
+<h2>Светофор (RAG)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Метрика</th><th style="color:var(--green)">Зелёный</th><th style="color:var(--amber)">Жёлтый</th><th style="color:var(--red)">Красный</th></tr></thead>
+<tbody>
+<tr><td>ROI объекта</td><td>&gt; 15%</td><td>8-15%</td><td>&lt; 8%</td></tr>
+<tr><td>Срок реализации</td><td>В плане</td><td>Задержка &lt; 30 дней</td><td>Задержка &gt; 30 дней</td></tr>
+<tr><td>Сбор средств</td><td>&gt; 90%</td><td>70-90%</td><td>&lt; 70%</td></tr>
+</tbody></table></div>
+
+<h2>Actionability: Красное = Действие</h2>
+<div class="alert alert-err"><div class="alert-text"><strong>Не так:</strong> Объект #47 — КРАСНЫЙ</div></div>
+<div class="alert alert-ok"><div class="alert-text"><strong>А так:</strong> ! Объект #47 Арбат — задержка ремонта 12 дней -> Связаться с подрядчиком (отв: Иванов) -> При текущем темпе: -400К/мес</div></div>
+
+<h2>Мобильный вид</h2>
+<p>Мобильный = НЕ уменьшенный десктоп. Отдельный интерфейс: 3-4 карточки, 1 колонка, шрифт 24-32px.</p>
+<div class="wireframe">+-------------------------------+
+|  ESTATE INVEST    [* OK]      |
++-------------------------------+
+|                               |
+|  Прибыль инвесторам           |
+|  37.2 млн      ^ +8%         |
+|  ===============---  72%      |
+|                               |
++-------------------------------+
+|  Объекты         Инвесторы    |
+|  94 активных     912          |
+|  3 проблемных    +14/мес      |
++-------------------------------+
+|  Требует внимания (3)         |
+|  ! Объект #47 -- 12 дн.      |
+|  ! Петров -- вывод 2.1М      |
+|  ! #83 ROI 4.2% < 8%         |
++-------------------------------+</div>
+</div>
+
+<!-- ==================== SECTION 10 ==================== -->
+<div class="section" id="s10">
+<h1>Стратегические рекомендации</h1>
+<p class="subtitle">Диагноз, немедленные действия, среднесрочные инициативы, приоритеты. 25.02.2026.</p>
+
+<h2>Диагноз</h2>
+<div class="card-grid">
+<div class="card" style="border-left:3px solid var(--green)"><h4>Сильные стороны</h4>
+<ul><li>120+ объектов, ~37 млн прибыли, 10-40% доходность</li>
+<li>900+ инвесторов, конверсия воронки 37%</li>
+<li>Чёткое разделение ролей между партнёрами</li></ul></div>
+<div class="card" style="border-left:3px solid var(--red)"><h4>Критические слабости</h4>
+<ul><li>Операционный хаос: 16 таблиц, 117 касс</li>
+<li>Нет выделенного маркетинга</li>
+<li>60% в Перми — концентрационный риск</li>
+<li>ИП — ограничение масштабирования</li></ul></div>
+</div>
+<blockquote>Компания выросла из "стартапа трёх партнёров" но всё ещё управляется как стартап. Следующий этап — институционализация.</blockquote>
+
+<h2>Часть 1. Немедленные (1-3 мес.)</h2>
+<div class="card"><h4>1.1 Расшивка учётного узла</h4><p>Завершить переход на 1С — приоритет №1. Заморозить новые Google Sheets. Автосинхронизация 1С -> ЛК инвестора.</p></div>
+<div class="card"><h4>1.2 Назначение маркетинг-лида</h4><p>Full-time маркетолог или агентство на 3 мес. UTM -> CRM. Запуск VK Ads + Яндекс.Директ (от 50К/мес). CAC &lt; 5 000 руб.</p></div>
+<div class="card"><h4>1.3 Юридическая защита</h4><p>Консультация по ФЗ-259. Аудит инвестиционного договора. Рассмотреть переход на ООО.</p></div>
+
+<h2>Часть 2. Среднесрочные (3-9 мес.)</h2>
+<div class="card"><h4>2.1 Диверсификация предложения</h4><p>Базовый (от 50К) + Портфельный (от 300К) + Земельный фонд (от 100К) + Агентство (комиссия).</p></div>
+<div class="card"><h4>2.2 Географическая экспансия</h4><p>Целевая структура: Пермь 40% / Калининград 25% / Самара 15% / Новые 20%</p></div>
+<div class="card"><h4>2.3 Маркетинговая машина</h4><p>Контент (кейсы 3/нед) -> лид-магнит -> курс ФГ -> автоворонка -> инвестор. YouTube + Reels.</p></div>
+<div class="card"><h4>2.4 ЛК инвестора -> платформа</h4><p>Дашборд портфеля, push, автоинвестирование, маркетплейс объектов, документооборот.</p></div>
+
+<h2>Часть 3. Стратегические (9-18 мес.)</h2>
+<div class="card"><h4>3.1 Лицензирование</h4><p>Вариант C (ООО + инвестиционное товарищество) -> параллельно Вариант A (лицензия ЦБ)</p></div>
+<div class="card"><h4>3.2 PropTech-позиционирование</h4><p>IT-статус, Минцифры, грант Сколково/РФРИТ (до 20 млн), венчурные инвестиции</p></div>
+
+<h2>Матрица приоритетов</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Действие</th><th>Приоритет</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Завершить переход на 1С</td><td><span class="tag tag-red">Немедленно</span></td></tr>
+<tr><td>2</td><td>Нанять маркетолога</td><td><span class="tag tag-red">Немедленно</span></td></tr>
+<tr><td>3</td><td>Юридический аудит</td><td><span class="tag tag-red">Немедленно</span></td></tr>
+<tr><td>4</td><td>Минимальный вход 50К</td><td><span class="tag tag-amber">1 мес.</span></td></tr>
+<tr><td>5</td><td>Контент-машина (кейсы)</td><td><span class="tag tag-amber">1-2 мес.</span></td></tr>
+<tr><td>6</td><td>Расширить географию</td><td><span class="tag tag-blue">3-6 мес.</span></td></tr>
+<tr><td>7</td><td>Развить ЛК инвестора</td><td><span class="tag tag-blue">3-6 мес.</span></td></tr>
+<tr><td>8</td><td>Лицензирование / IT-статус</td><td><span class="tag tag-violet">6-12 мес.</span></td></tr>
+</tbody></table></div>
+
+<h2>Цели на год</h2>
+<div class="card-grid">
+<div class="card"><h4>24 объекта</h4><p>Текущий план, поддерживаю</p></div>
+<div class="card"><h4>1 500 инвесторов</h4><p>Рост 67% от 900</p></div>
+<div class="card"><h4>CAC &lt; 5 000 ₽</h4><p>Стоимость привлечения</p></div>
+<div class="card"><h4>100% в 1С</h4><p>Миграция с Sheets</p></div>
+</div>
+</div>
+
+<!-- ==================== SECTION 11 ==================== -->
+<div class="section" id="s11">
+<h1>AI-трансформация</h1>
+<p class="subtitle">8 фаз: от ручного управления к AI-управляемой компании. 12-18 месяцев.</p>
+
+<div class="card card-highlight">
+<h4>Концепция</h4>
+<p><strong>Сейчас:</strong> люди делают работу, иногда используют инструменты<br>
+<strong>Цель:</strong> AI делает работу, люди принимают решения</p>
+</div>
+
+<h2>Сводная таблица фаз</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Фаза</th><th>Отдел</th><th>Что</th><th>Срок</th><th>Эффект</th></tr></thead>
+<tbody>
+<tr><td><span class="tag tag-red">1</span></td><td>Аналитика</td><td>Парсер объектов + AI-скоринг</td><td>1-3 мес.</td><td>10x больше горячих объектов</td></tr>
+<tr><td><span class="tag tag-amber">2</span></td><td>Реализация</td><td>Единая база + канбан + AI-объявления</td><td>2-4 мес.</td><td>-80% ручного труда</td></tr>
+<tr><td><span class="tag tag-amber">3</span></td><td>Маркетинг</td><td>AI контент + воронка + реклама</td><td>3-5 мес.</td><td>CAC &lt; 5К, 3 кейса/нед автоматически</td></tr>
+<tr><td><span class="tag tag-blue">4</span></td><td>Поддержка</td><td>AI-бот 1 линии + уведомления</td><td>4-6 мес.</td><td>-70% нагрузки</td></tr>
+<tr><td><span class="tag tag-blue">5</span></td><td>Финансы</td><td>Автоотчёты + прогнозы + расчёт выплат</td><td>5-7 мес.</td><td>Стратегия вместо ручного ввода</td></tr>
+<tr><td><span class="tag tag-violet">6</span></td><td>Юридический</td><td>AI-проверка лотов + автодоговоры</td><td>6-8 мес.</td><td>Due diligence 10 мин vs 2 дня</td></tr>
+<tr><td><span class="tag tag-violet">7</span></td><td>Контент</td><td>Фабрика кейсов + мультиплатформа</td><td>пар. с 3</td><td>1 кейс -> 5 форматов</td></tr>
+<tr><td><span class="tag tag-gray">8</span></td><td>IT/Платформа</td><td>AI в ЛК + умный советник</td><td>7-12 мес.</td><td>Конкурентное преимущество</td></tr>
+</tbody></table></div>
+
+<h2>Фаза 1 — Аналитика (1-3 мес.)</h2>
+<div class="card">
+<h4>Ежедневный AI-парсер объектов</h4>
+<p>Торговые площадки (tbankrot, m-ets, torgi.gov.ru) -> Парсинг (n8n) -> AI-анализ (OpenRouter) -> Скоринг: горячий / интересный / пропустить -> Telegram-отчёт (топ-5 дня)</p>
+<p><strong>Расширение:</strong> Фаза 1: Пермь + Калининград + Самара -> Фаза 2: + Краснодар + Нижний -> Фаза 3: вся Россия</p>
+</div>
+
+<h2>Фаза 2 — Реализация (2-4 мес.)</h2>
+<div class="card-grid">
+<div class="card"><h4>Единая база</h4><p>118+ объектов в одном месте (1С), автосинхронизация</p></div>
+<div class="card"><h4>Канбан с автопереходами</h4><p>Торги -> Выкуп -> Документы -> Ремонт -> Продажа -> Закрыт</p></div>
+<div class="card"><h4>AI-генерация объявлений</h4><p>Из карточки объекта -> AI пишет для Авито, A/B заголовки</p></div>
+<div class="card"><h4>AI-оценщик</h4><p>Параметры объекта -> диапазон рыночной цены на основе парсинга + истории</p></div>
+</div>
+
+<h2>Фаза 3 — Маркетинг (3-5 мес.)</h2>
+<div class="card">
+<h4>AI-маркетинговая машина</h4>
+<ul>
+<li><strong>AI-контент:</strong> закрылся объект -> AI автоматически пишет кейс для TG/VK/Reels</li>
+<li><strong>Автопостинг:</strong> контент-план -> n8n публикует по расписанию</li>
+<li><strong>AI-воронка прогрева:</strong> 7-дневная серия через Salebot, генерирует AI</li>
+<li><strong>AI-аналитика:</strong> UTM -> CRM, CAC по каналам в реальном времени</li>
+</ul>
+</div>
+
+<h2>Фазы 4-8 (кратко)</h2>
+<div class="card-grid">
+<div class="card"><h4>4. Поддержка</h4><p>AI-бот: 80% типовых вопросов, умные уведомления, скоринг инвестора, автоonboarding</p></div>
+<div class="card"><h4>5. Финансы</h4><p>Автоотчёты, прогнозирование ROI, дашборд реального времени, авторасчёт выплат</p></div>
+<div class="card"><h4>6. Юридический</h4><p>AI-проверка PDF лотов, автозаполнение договоров, мониторинг законодательства</p></div>
+<div class="card"><h4>7. Контент</h4><p>Фабрика кейсов из 120+ объектов, мультиплатформенность, AI-редактор, видео</p></div>
+<div class="card"><h4>8. IT/Платформа</h4><p>AI-советник в ЛК, умный подбор объектов, AI-assisted разработка</p></div>
+</div>
+
+<h2>Конечное состояние (12-18 мес.)</h2>
+<div class="wireframe">Аналитик утром: Топ-10 горячих лотов с AI-анализом
+Иван:           Канбан -> объявление уже написано AI
+Глеб:           7 готовых кейсов, нажать "Опубликовать"
+Ирина:          2 эскалации за день (остальное AI)
+Александра:     Проверяет автоотчёт вместо составления
+Инвестор:       Советник предложил реинвестировать</div>
+<p><strong>Итог:</strong> компания работает в 5-10x эффективнее при той же команде. Партнёры фокусируются на стратегии.</p>
+</div>
+
+</main>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar a[data-id]').forEach(a => {
+    a.classList.toggle('active', a.dataset.id === id);
+  });
+  document.querySelector('.main').scrollTop = 0;
+  window.scrollTo(0, 0);
+  // Close mobile sidebar
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function filterNav(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.sidebar a[data-id]').forEach(a => {
+    const text = a.textContent.toLowerCase();
+    a.style.display = text.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.sidebar-section').forEach(s => {
+    s.style.display = q ? 'none' : '';
+  });
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const sections = ['home','s01','s02','s03','s04','s05','s06','s07','s08','s09','s10','s11'];
+  const current = sections.findIndex(id => document.getElementById(id).classList.contains('active'));
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (current < sections.length - 1) showSection(sections[current + 1]);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (current > 0) showSection(sections[current - 1]);
+  } else if (e.key === '/') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+</script>
+</body>
+</html>

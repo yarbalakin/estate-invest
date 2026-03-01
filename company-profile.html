@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Профиль компании</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#09090b;--surface:#111116;--surface2:#1c1c22;--surface3:#242430;
+    --border:#2a2a3a;--border2:#3a3a4a;
+    --text:#e4e4ed;--text2:#8888a0;--text3:#555568;
+    --accent:#7c6cf0;--accent2:#a29bfe;
+    --green:#22c55e;--green-bg:#22c55e15;
+    --yellow:#eab308;--yellow-bg:#eab30815;
+    --red:#ef4444;--red-bg:#ef444415;
+    --blue:#3b82f6;--blue-bg:#3b82f615;
+    --orange:#f97316;--orange-bg:#f9731615;
+    --radius:10px;--transition:150ms ease;
+    --sidebar-w:260px;
+  }
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh}
+
+  /* ── SIDEBAR ── */
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;overflow:hidden}
+  .sb-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .sb-logo{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sb-date{font-size:10px;color:var(--text3);margin-top:2px}
+  .sb-body{flex:1;overflow-y:auto;padding:12px 0}
+  .sb-body::-webkit-scrollbar{width:4px}
+  .sb-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .sb-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:14px 20px 6px}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;transition:var(--transition);border-left:3px solid transparent;font-size:13px;color:var(--text2);text-decoration:none}
+  .sb-item:hover{background:var(--surface2);color:var(--text)}
+  .sb-item.active{background:var(--surface2);border-left-color:var(--accent);color:var(--text)}
+  .sb-icon{width:18px;text-align:center;font-size:13px;flex-shrink:0}
+  .sb-divider{height:1px;background:var(--border);margin:6px 16px}
+
+  /* ── MAIN ── */
+  .main{padding:32px 48px;overflow-y:auto;max-width:960px}
+
+  /* HERO */
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px;margin-bottom:28px;border-left:4px solid var(--accent)}
+  .hero-title{font-size:26px;font-weight:800;margin-bottom:4px}
+  .hero-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+  .hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .hero-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+  .hero-stat-val{font-size:20px;font-weight:800;color:var(--accent2)}
+  .hero-stat-label{font-size:11px;color:var(--text3);margin-top:2px}
+
+  /* SECTIONS */
+  .section{margin-bottom:28px;scroll-margin-top:20px}
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px}
+  .section h2{font-size:18px;font-weight:800;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .section h2 .sec-icon{font-size:16px}
+  .section h3{font-size:14px;font-weight:700;color:var(--accent2);margin:20px 0 10px}
+  .section h3:first-child{margin-top:0}
+  .section p{font-size:13px;line-height:1.7;color:var(--text2);margin:6px 0}
+  .section strong{color:var(--text)}
+  .section a{color:var(--accent2);text-decoration:none}
+  .section a:hover{text-decoration:underline}
+  .section blockquote{border-left:3px solid var(--accent);padding:10px 14px;margin:12px 0;background:var(--surface2);border-radius:0 8px 8px 0;font-size:12px;color:var(--text2)}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+  th{background:var(--surface2);padding:9px 14px;text-align:left;font-weight:600;border:1px solid var(--border);color:var(--accent2);white-space:nowrap}
+  td{padding:9px 14px;border:1px solid var(--border);line-height:1.5}
+  tr:hover td{background:var(--surface2)}
+  .compact-table td,.compact-table th{padding:6px 12px}
+
+  /* LISTS */
+  ul,ol{padding-left:20px;margin:8px 0}
+  li{font-size:13px;line-height:1.7;margin:3px 0;color:var(--text2)}
+  li strong{color:var(--text)}
+
+  /* PIPELINE */
+  .pipeline{display:flex;gap:4px;margin:16px 0;flex-wrap:wrap;align-items:center}
+  .pipe-step{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+  .pipe-arrow{color:var(--text3);font-size:14px}
+  .pipe-step.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* TAGS */
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+  .tag{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+  .tag.green{background:var(--green-bg);color:var(--green);border-color:transparent}
+  .tag.yellow{background:var(--yellow-bg);color:var(--yellow);border-color:transparent}
+  .tag.red{background:var(--red-bg);color:var(--red);border-color:transparent}
+  .tag.blue{background:var(--blue-bg);color:var(--blue);border-color:transparent}
+
+  /* METRIC CARDS */
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+  .metric{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center}
+  .metric-val{font-size:18px;font-weight:800;color:var(--accent2)}
+  .metric-label{font-size:10px;color:var(--text3);margin-top:4px}
+
+  /* PHASE CARDS */
+  .phase{margin:12px 0;padding:16px 20px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent)}
+  .phase-title{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .phase-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+  .phase ul{margin:0;padding-left:18px}
+  .phase li{font-size:12px;color:var(--text2);margin:2px 0}
+
+  /* FUNNEL */
+  .funnel{display:flex;flex-direction:column;gap:4px;margin:12px 0}
+  .funnel-step{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:8px;background:var(--surface2);border:1px solid var(--border)}
+  .funnel-num{font-size:18px;font-weight:800;color:var(--accent);width:28px;text-align:center}
+  .funnel-info{flex:1}
+  .funnel-label{font-size:13px;font-weight:600}
+  .funnel-desc{font-size:11px;color:var(--text3)}
+
+  /* COLLAPSIBLE */
+  .collapsible{margin:10px 0}
+  .coll-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;color:var(--text);width:100%;text-align:left;transition:var(--transition);font-family:inherit}
+  .coll-toggle:hover{border-color:var(--accent)}
+  .coll-arrow{transition:transform .2s;font-size:11px;color:var(--text3)}
+  .coll-toggle.open .coll-arrow{transform:rotate(90deg)}
+  .coll-body{display:none;padding:12px 0 0}
+  .coll-body.open{display:block}
+
+  /* SCROLLBAR */
+  .main::-webkit-scrollbar{width:6px}
+  .main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    body{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .main{padding:20px 16px}
+    .hero-grid{grid-template-columns:repeat(2,1fr)}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <div class="sb-head">
+    <div>
+      <div class="sb-logo">Estate Invest</div>
+      <div class="sb-date">Профиль компании</div>
+    </div>
+  </div>
+  <div class="sb-body">
+    <div class="sb-label">Основное</div>
+    <a class="sb-item active" href="#hero" onclick="nav(this)"><span class="sb-icon">&#9679;</span> О компании</a>
+    <a class="sb-item" href="#model" onclick="nav(this)"><span class="sb-icon">&#9670;</span> Бизнес-модель</a>
+    <a class="sb-item" href="#team" onclick="nav(this)"><span class="sb-icon">&#9632;</span> Команда</a>
+    <a class="sb-item" href="#processes" onclick="nav(this)"><span class="sb-icon">&#9654;</span> Процессы</a>
+    <a class="sb-item" href="#scale" onclick="nav(this)"><span class="sb-icon">&#9650;</span> Масштаб</a>
+    <a class="sb-item" href="#kpi" onclick="nav(this)"><span class="sb-icon">&#9733;</span> KPI</a>
+
+    <div class="sb-divider"></div>
+    <div class="sb-label">Инструменты</div>
+    <a class="sb-item" href="#tech" onclick="nav(this)"><span class="sb-icon">&#9881;</span> Технологии</a>
+    <a class="sb-item" href="#marketing" onclick="nav(this)"><span class="sb-icon">&#9788;</span> Маркетинг</a>
+    <a class="sb-item" href="#fg" onclick="nav(this)"><span class="sb-icon">&#9827;</span> ФГ</a>
+
+    <div class="sb-divider"></div>
+    <div class="sb-label">Стратегия</div>
+    <a class="sb-item" href="#strategy" onclick="nav(this)"><span class="sb-icon">&#9872;</span> Цели и план</a>
+    <a class="sb-item" href="#next" onclick="nav(this)"><span class="sb-icon">&#10003;</span> Следующие шаги</a>
+
+    <div class="sb-divider"></div>
+    <div class="sb-label">Приложения</div>
+    <a class="sb-item" href="#app-bitrix" onclick="nav(this)"><span class="sb-icon">A</span> Битрикс24</a>
+    <a class="sb-item" href="#app-salebot" onclick="nav(this)"><span class="sb-icon">B</span> Salebot</a>
+    <a class="sb-item" href="#app-sheets" onclick="nav(this)"><span class="sb-icon">C</span> Google Sheets</a>
+    <a class="sb-item" href="#app-streamlit" onclick="nav(this)"><span class="sb-icon">D</span> Наработки</a>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main">
+
+  <!-- ── HERO ── -->
+  <div class="hero" id="hero">
+    <div class="hero-title">Estate Invest</div>
+    <div class="hero-sub">
+      Инвестиционная компания. Выкуп недвижимости на торгах ниже рынка, создание добавленной стоимости, продажа с прибылью для инвесторов.
+    </div>
+    <div class="hero-grid">
+      <div class="hero-stat"><div class="hero-stat-val">120+</div><div class="hero-stat-label">объектов реализовано</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">900+</div><div class="hero-stat-label">активных инвесторов</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">~388M</div><div class="hero-stat-label">совокупная продажа</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">~37M</div><div class="hero-stat-label">прибыль инвесторам</div></div>
+    </div>
+    <table style="margin-top:20px">
+      <tr><td style="width:180px;color:var(--text3)">Юридическое лицо</td><td>ИП Мудров Иван Юрьевич</td></tr>
+      <tr><td style="color:var(--text3)">ИНН</td><td>5903156505</td></tr>
+      <tr><td style="color:var(--text3)">Адрес</td><td>г. Пермь, ул. Плеханова, д. 13, кв. 55</td></tr>
+      <tr><td style="color:var(--text3)">Реферальная программа</td><td>10% от прибыли за привлечённого инвестора</td></tr>
+      <tr><td style="color:var(--text3)">Сайт</td><td><a href="https://estateinvest.online" style="color:var(--accent2)">estateinvest.online</a></td></tr>
+    </table>
+  </div>
+
+  <!-- ── БИЗНЕС-МОДЕЛЬ ── -->
+  <div class="section" id="model">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9670;</span> Бизнес-модель</h2>
+
+      <h3>Цикл работы с объектом</h3>
+      <div class="pipeline">
+        <div class="pipe-step">Поиск</div><span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step">Выкуп</div><span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step">Ценность</div><span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step">Продажа</div><span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step active">Прибыль</div>
+      </div>
+
+      <table>
+        <tr><th>Этап</th><th>Что происходит</th></tr>
+        <tr><td><strong>Поиск и анализ</strong></td><td>Мониторинг торгов, анализ потенциала, финансовая модель</td></tr>
+        <tr><td><strong>Выкуп</strong></td><td>Участие в торгах, выкуп ниже рынка, оформление собственности</td></tr>
+        <tr><td><strong>Создание ценности</strong></td><td>Ремонт, раздел помещений, межевание, техдокументы</td></tr>
+        <tr><td><strong>Реализация</strong></td><td>Размещение на Авито, показы, переговоры, закрытие сделок</td></tr>
+        <tr><td><strong>Распределение</strong></td><td>Расчёт доходности, начисление прибыли через ЛК, выплаты</td></tr>
+      </table>
+
+      <h3>Финансовая модель</h3>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val">1K+</div><div class="metric-label">мин. вход (руб.)</div></div>
+        <div class="metric"><div class="metric-val">50/50</div><div class="metric-label">деление прибыли</div></div>
+        <div class="metric"><div class="metric-val">10-40%</div><div class="metric-label">доходность</div></div>
+        <div class="metric"><div class="metric-val">3-12</div><div class="metric-label">мес. реализация</div></div>
+      </div>
+      <ul>
+        <li>Юр. основа: рамочный инвестиционный договор, подписание через <strong>SignEasy</strong> (ЭЦП)</li>
+        <li>Арбитраж: третейский судья (ФЗ-102)</li>
+        <li>Налоги: инвестор платит НДФЛ 13% самостоятельно</li>
+      </ul>
+
+      <h3>Виды операций</h3>
+      <table class="compact-table">
+        <tr><td><strong>вложение / довложение</strong></td><td>Первоначальный и дополнительный взнос</td></tr>
+        <tr><td><strong>конвертация</strong></td><td>Перевод между валютами</td></tr>
+        <tr><td><strong>возврат</strong></td><td>Возврат средств инвестору</td></tr>
+        <tr><td><strong>бонус / реферальный</strong></td><td>Бонусные начисления, 10% за реферала</td></tr>
+        <tr><td><strong>перевод минус/плюс</strong></td><td>Внутренние переводы между объектами</td></tr>
+        <tr><td><strong>выплата тела / %</strong></td><td>Возврат суммы + доля прибыли</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── КОМАНДА ── -->
+  <div class="section" id="team">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9632;</span> Команда</h2>
+
+      <h3>Партнёры</h3>
+      <table>
+        <tr><th>Имя</th><th>Зона ответственности</th></tr>
+        <tr><td><strong>Ярослав Балакин</strong></td><td>Стратегия, аналитика, подбор объектов, торги, выкуп</td></tr>
+        <tr><td><strong>Иван Мудров</strong></td><td>Реализация, обслуживание объектов, ремонт, раздел</td></tr>
+        <tr><td><strong>Глеб Хрянин</strong></td><td>Контент, ведение пабликов, коммуникация с аудиторией</td></tr>
+      </table>
+
+      <h3>Отделы</h3>
+      <table>
+        <tr><th>Отдел</th><th>Руководитель</th><th>Состав</th></tr>
+        <tr><td>Аналитика</td><td>Кирилл Барсуков</td><td>Кирилл, Антонина, Татьяна</td></tr>
+        <tr><td>Работа с объектами</td><td>Иван Мудров</td><td>Иван, Жанна</td></tr>
+        <tr><td>Реализация</td><td>—</td><td>Андрей, Наталья</td></tr>
+        <tr><td>Поддержка инвесторов</td><td>Ирина Боброва</td><td>Ирина, Наталия, Снежана</td></tr>
+        <tr><td>Статистика</td><td>Александра Санникова</td><td>Александра</td></tr>
+        <tr><td>IT / Разработка</td><td>Программист</td><td>Сергей, Александр Н.</td></tr>
+        <tr><td>Контент</td><td>Глеб Хрянин</td><td>Глеб</td></tr>
+        <tr><td>Юридический</td><td>Галина Наборщикова</td><td>Галина</td></tr>
+        <tr><td style="color:var(--yellow)">Маркетинг</td><td style="color:var(--yellow)">Нет выделенного</td><td>Спартак (частично)</td></tr>
+        <tr><td style="color:var(--text3)">Агентство (заморожено)</td><td style="color:var(--text3)">Спартак</td><td style="color:var(--text3)">7 человек</td></tr>
+      </table>
+      <blockquote>Полный список пользователей Битрикс24 (26 чел.) — см. <a href="#app-bitrix">Приложение A</a></blockquote>
+    </div>
+  </div>
+
+  <!-- ── ПРОЦЕССЫ ── -->
+  <div class="section" id="processes">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9654;</span> Бизнес-процессы</h2>
+
+      <h3>4.1 Поиск и анализ</h3>
+      <p style="color:var(--text3)">Ярослав, Кирилл, Жанна, Александра</p>
+      <ol>
+        <li>Мониторинг торговых площадок (банкротство, залоги, муниципальные, аресты)</li>
+        <li>Первичный скрининг: локация, тип, начальная цена, обременения</li>
+        <li>Глубокий анализ: рыночная стоимость, потенциал раздела/апгрейда</li>
+        <li>Финансовая модель: вложения, сроки, ожидаемая доходность</li>
+        <li>Решение головного отдела (go/no-go)</li>
+        <li>Участие в торгах и выкуп</li>
+      </ol>
+      <blockquote>Передача в Реализацию: адрес, документы, финмодель, план работ, бюджет, сроки</blockquote>
+
+      <h3>4.2 Создание добавленной стоимости</h3>
+      <p style="color:var(--text3)">Иван Мудров</p>
+      <ol>
+        <li>Приёмка: осмотр, фиксация состояния, фото/видео</li>
+        <li>Получение техдокументов (кадастр, БТИ, техпаспорт)</li>
+        <li>Проект ремонта, раздел помещений, межевание</li>
+        <li>Выполнение работ и апгрейд</li>
+        <li>Раздел на помещения с кадастровыми номерами</li>
+        <li>Финальная приёмка</li>
+      </ol>
+      <blockquote>Передача в Продажи: фото, описание, цена, все документы</blockquote>
+
+      <h3>4.3 Продажа</h3>
+      <p style="color:var(--text3)">Антонина Скурко</p>
+      <ol>
+        <li>Подготовка объявлений: фото, описание, цена</li>
+        <li>Размещение на Авито</li>
+        <li>Обработка заявок, квалификация покупателей</li>
+        <li>Показы и переговоры</li>
+        <li>Закрытие сделки: договор, оплата, передача</li>
+      </ol>
+
+      <h3>4.4 Расчёт и распределение</h3>
+      <p style="color:var(--text3)">Александра (статистика), Ирина (поддержка)</p>
+      <ol>
+        <li>Расчёт фактической доходности</li>
+        <li>Распределение прибыли между инвесторами</li>
+        <li>Начисление в личных кабинетах</li>
+        <li>Выплата и уведомление через Telegram</li>
+      </ol>
+
+      <h3>Путь инвестора</h3>
+      <div class="funnel">
+        <div class="funnel-step"><div class="funnel-num">1</div><div class="funnel-info"><div class="funnel-label">Регистрация</div><div class="funnel-desc">Анкета на сайте &#8594; подписание договора (SignEasy) &#8594; перевод средств</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">2</div><div class="funnel-info"><div class="funnel-label">Инвестирование</div><div class="funnel-desc">Выбор ИП на сайте &#8594; перевод суммы &#8594; запись в Общую базу</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">3</div><div class="funnel-info"><div class="funnel-label">Ожидание</div><div class="funnel-desc">Реализация объекта: покупка &#8594; улучшение &#8594; продажа</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">4</div><div class="funnel-info"><div class="funnel-label">Выплата</div><div class="funnel-desc">Тело + % прибыли &#8594; уведомление &#8594; перевод на реквизиты</div></div></div>
+      </div>
+
+      <h3>Регламенты</h3>
+      <table class="compact-table">
+        <tr><td>Присоединение нового инвестора</td><td style="color:var(--text3)">Поддержка</td></tr>
+        <tr><td>Ответы в ЛС аккаунта поддержки</td><td style="color:var(--text3)">Поддержка</td></tr>
+        <tr><td>Работа с ботом Salebot</td><td style="color:var(--text3)">Поддержка / IT</td></tr>
+        <tr><td>Скрипты ответов инвесторам</td><td style="color:var(--text3)">Поддержка</td></tr>
+        <tr><td>Этапы работы с объектом</td><td style="color:var(--text3)">Аналитика</td></tr>
+        <tr><td>Обновление новостей по объектам</td><td style="color:var(--text3)">Контент</td></tr>
+        <tr><td>Аналитика объектов</td><td style="color:var(--text3)">Аналитика</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── МАСШТАБ ── -->
+  <div class="section" id="scale">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9650;</span> Масштаб и метрики</h2>
+      <p style="color:var(--text3)">Данные из Google Sheets и Битрикс24, актуальны на 25.02.2026</p>
+
+      <div class="metrics" style="margin-top:16px">
+        <div class="metric"><div class="metric-val">118</div><div class="metric-label">объектов в Мониторе</div></div>
+        <div class="metric"><div class="metric-val">~76K</div><div class="metric-label">транзакций</div></div>
+        <div class="metric"><div class="metric-val">~196M</div><div class="metric-label">общая покупка</div></div>
+        <div class="metric"><div class="metric-val">~388M</div><div class="metric-label">общая продажа</div></div>
+        <div class="metric"><div class="metric-val">~72M</div><div class="metric-label">выручка</div></div>
+        <div class="metric"><div class="metric-val">117</div><div class="metric-label">индивид. касс</div></div>
+        <div class="metric"><div class="metric-val">46</div><div class="metric-label">объявлений Авито</div></div>
+        <div class="metric"><div class="metric-val">37%</div><div class="metric-label">конверсия воронки</div></div>
+      </div>
+
+      <h3>Воронка «Регистрация» в Битрикс24</h3>
+      <table class="compact-table">
+        <tr><th>Показатель</th><th>Значение</th></tr>
+        <tr><td>Всего сделок</td><td><strong>1 142</strong></td></tr>
+        <tr><td>Успешных (средства внесены)</td><td><strong>425</strong> (37%)</td></tr>
+        <tr><td>Период</td><td>Май 2024 — Февраль 2026</td></tr>
+      </table>
+      <blockquote>Суммы в Битрикс не заносятся — финансовый учёт ведётся в Google Sheets.</blockquote>
+
+      <h3>Типы объектов</h3>
+      <table>
+        <tr><th>Тип</th><th>Доля</th><th>Примеры</th></tr>
+        <tr><td><strong>Земельные участки</strong></td><td>~70%</td><td>Пермский край, Калининград, Самара</td></tr>
+        <tr><td><strong>Жилая недвижимость</strong></td><td>~15%</td><td>СПб, Москва, Зеленоградск</td></tr>
+        <tr><td><strong>Коммерческая</strong></td><td>~10%</td><td>Пермь, Самара, Соликамская</td></tr>
+        <tr><td><strong>Авто</strong></td><td>~3%</td><td>ИП №11, ИП №13</td></tr>
+        <tr><td><strong>Зарубежная (EUR)</strong></td><td>~2%</td><td>Турция (Аланья)</td></tr>
+      </table>
+
+      <h3>География</h3>
+      <ul>
+        <li><strong>Пермь и Пермский край</strong> (~60%) — основная база</li>
+        <li><strong>Калининградская область</strong> (~20%): Зеленоградск, Светлогорск, Балтийск</li>
+        <li><strong>Самарская область</strong> (~10%): Тольятти, Самара, Чапаевск</li>
+        <li><strong>Другие</strong>: Санкт-Петербург, Москва, Ленинградская область</li>
+        <li><strong>За рубежом</strong>: Турция (Аланья) — 4 объекта</li>
+      </ul>
+
+      <h3>Стадии объекта</h3>
+      <div class="pipeline">
+        <div class="pipe-step" style="border-left:3px solid var(--blue)">сбор средств</div>
+        <span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step" style="border-left:3px solid var(--orange)">реализация</div>
+        <span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step" style="border-left:3px solid var(--yellow)">подготовка к выплате</div>
+        <span class="pipe-arrow">&#8594;</span>
+        <div class="pipe-step" style="border-left:3px solid var(--green)">завершен</div>
+      </div>
+
+      <h3>Активные крупные объекты</h3>
+      <table>
+        <tr><th>ИП</th><th>Объект</th><th>Тип</th><th>Инвестировано</th><th>Продажа</th></tr>
+        <tr><td>№31</td><td>Пермь, Соликамская, 319</td><td>коммерческая</td><td>29.4 млн</td><td>60 млн</td></tr>
+        <tr><td>№91</td><td>Добрянка, Луначарского, 33</td><td>ЗУ+Дом</td><td>21 млн</td><td>54.5 млн</td></tr>
+        <tr><td>№92</td><td>Нытва, Карла Маркса, 84</td><td>коммерческая</td><td>15.7 млн</td><td>27 млн</td></tr>
+        <tr><td>№70</td><td>Партнёрское финансирование</td><td>авто</td><td>8 млн</td><td>8 млн</td></tr>
+        <tr><td>№35</td><td>Краснокамск, Гражданский, 37</td><td>ЗУ+ЖД</td><td>8.5 млн</td><td>7.5 млн</td></tr>
+        <tr><td>№75</td><td>Лобаново, Путейская</td><td>ЗУ</td><td>981 тыс</td><td>8 млн</td></tr>
+      </table>
+
+      <h3>Примеры завершённых объектов</h3>
+      <table>
+        <tr><th>ИП</th><th>Объект</th><th>Прибыль</th><th>Срок</th></tr>
+        <tr><td>№40</td><td>Пермь, Карпинского, 110</td><td style="color:var(--green)"><strong>34.27%</strong></td><td>18 дней</td></tr>
+        <tr><td>№23</td><td>Красный Восход</td><td style="color:var(--green)"><strong>42.37%</strong></td><td>15 мес</td></tr>
+        <tr><td>№52</td><td>Пермь, Сальский, 11</td><td style="color:var(--green)"><strong>16.66%</strong></td><td>4 мес</td></tr>
+        <tr><td>№54</td><td>Пермь, Скалистая, 12</td><td style="color:var(--green)"><strong>16.68%</strong></td><td>4 мес</td></tr>
+        <tr><td>№68</td><td>Самара, Ленинградская, 77</td><td style="color:var(--green)"><strong>20.85%</strong></td><td>4 мес</td></tr>
+        <tr><td>№100</td><td>Калининград, Коврово</td><td style="color:var(--green)"><strong>30.31%</strong></td><td>8.5 мес</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── KPI ── -->
+  <div class="section" id="kpi">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9733;</span> KPI по отделам</h2>
+
+      <h3>Аналитика</h3>
+      <table class="compact-table">
+        <tr><th>KPI</th><th>Целевое значение</th></tr>
+        <tr><td>Объектов на скрининге / месяц</td><td>50+</td></tr>
+        <tr><td>Конверсия скрининг &#8594; выкуп</td><td>5–10%</td></tr>
+        <tr><td>Средняя скидка от рынка</td><td>30%+</td></tr>
+        <tr><td>Цель на год</td><td><strong>24 объекта (2/мес.)</strong></td></tr>
+      </table>
+
+      <h3>Реализация</h3>
+      <table class="compact-table">
+        <tr><th>KPI</th><th>Целевое значение</th></tr>
+        <tr><td>Срок подготовки</td><td>Квартира: 30 дн., Дом: 60 дн.</td></tr>
+        <tr><td>Бюджет ремонта: факт/план</td><td>Отклонение &lt; 10%</td></tr>
+        <tr><td>Объектов в работе</td><td>3–8</td></tr>
+      </table>
+
+      <h3>Продажи</h3>
+      <table class="compact-table">
+        <tr><th>KPI</th><th>Целевое значение</th></tr>
+        <tr><td>Срок продажи</td><td>&lt; 45 дней</td></tr>
+        <tr><td>Конверсия показ &#8594; сделка</td><td>15–25%</td></tr>
+        <tr><td>Показов в неделю</td><td>10+</td></tr>
+      </table>
+
+      <h3>Поддержка инвесторов</h3>
+      <table class="compact-table">
+        <tr><th>KPI</th><th>Целевое значение</th></tr>
+        <tr><td>Время ответа</td><td>&lt; 2 часов</td></tr>
+        <tr><td>Решение с 1 контакта</td><td>&gt; 95%</td></tr>
+        <tr><td>Отток</td><td>&lt; 5% / квартал</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── ТЕХНОЛОГИИ ── -->
+  <div class="section" id="tech">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9881;</span> Технологический стек</h2>
+
+      <h3>Основные системы</h3>
+      <table>
+        <tr><th>Система</th><th>Назначение</th><th>Статус</th></tr>
+        <tr><td><strong>Google Sheets</strong></td><td>Финансовый учёт, статистика</td><td><span class="tag yellow">16 таблиц, ручной труд</span></td></tr>
+        <tr><td><strong>Битрикс24</strong></td><td>CRM, воронка регистрации</td><td><span class="tag green">Активна</span></td></tr>
+        <tr><td><strong>Salebot</strong></td><td>Telegram-бот поддержки</td><td><span class="tag green">2 127 клиентов</span></td></tr>
+        <tr><td><strong>Личный кабинет</strong></td><td>Портфель, операции, новости</td><td><span class="tag blue">SPA, React</span></td></tr>
+        <tr><td><strong>Авито</strong></td><td>Продажа объектов</td><td><span class="tag green">46 объявлений</span></td></tr>
+        <tr><td><strong>1С</strong></td><td>Бухгалтерия</td><td><span class="tag yellow">В процессе перехода</span></td></tr>
+      </table>
+
+      <h3>Контент и документы</h3>
+      <table class="compact-table">
+        <tr><td><strong>Notion</strong></td><td>Страницы объектов (фото, новости, документы)</td></tr>
+        <tr><td><strong>Google Drive</strong></td><td>Общая папка (12 подпапок по отделам)</td></tr>
+        <tr><td><strong>Dropbox Paper</strong></td><td>Регламенты (закрытый доступ)</td></tr>
+        <tr><td><strong>SignEasy</strong></td><td>Электронная подпись договоров</td></tr>
+        <tr><td><strong>Контент-план</strong></td><td>Google Sheets (10 листов-календарей)</td></tr>
+      </table>
+
+      <h3>Коммуникации</h3>
+      <table class="compact-table">
+        <tr><td>Telegram (публичный)</td><td><a href="https://t.me/russianestateincome">@russianestateincome</a></td></tr>
+        <tr><td>Telegram (инвесторы)</td><td><a href="https://t.me/+TOpOcVlVmJwxMWRj">Закрытый канал</a></td></tr>
+        <tr><td>Telegram (торги)</td><td><a href="https://t.me/torgiigrot">@torgiigrot</a></td></tr>
+        <tr><td>Telegram (ФГ)</td><td><a href="https://t.me/+FtOHpdRQfPJmOWQy">Сообщество практикума</a></td></tr>
+        <tr><td>VK</td><td><a href="https://vk.com/estateinvest.online">estateinvest.online</a></td></tr>
+        <tr><td>Дзен</td><td><a href="https://dzen.ru/estateinvest">dzen.ru/estateinvest</a></td></tr>
+      </table>
+
+      <h3>Монитор объектов</h3>
+      <p>Центральная таблица отдела Реализации (Google Sheets). 118 ИП, гиперссылки на 117 индивидуальных касс, ссылки на объявления Авито.</p>
+      <p>Встроенный <strong>Apps Script автопарсер</strong>: вставка URL с tbankrot.ru &#8594; автозаполнение данных лота.</p>
+
+      <h3>16 таблиц учёта</h3>
+      <table class="compact-table">
+        <tr><th>Категория</th><th>Таблицы</th></tr>
+        <tr><td>Финансы</td><td>Учёт (основная), Касса, Расходы, Бухгалтерия</td></tr>
+        <tr><td>Статистика</td><td>Статистика, Вложения, Портфолио, Списки по объектам</td></tr>
+        <tr><td>CRM / Продажи</td><td>Заявки, Статистика Авито</td></tr>
+        <tr><td>Аналитика</td><td>Таблица объектов, Объекты (диск), Новые, Аналитика земля</td></tr>
+        <tr><td>Прочее</td><td>Неактивные участники, Календарь постов</td></tr>
+      </table>
+      <blockquote>Рекомендация: 16 таблиц = серьёзная нагрузка на ручной учёт. При переходе на 1С рекомендуется объединить.</blockquote>
+    </div>
+  </div>
+
+  <!-- ── МАРКЕТИНГ ── -->
+  <div class="section" id="marketing">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9788;</span> Маркетинг и привлечение</h2>
+
+      <h3>Каналы</h3>
+      <table>
+        <tr><th>Канал</th><th>Текущее</th><th>Автоматизация</th></tr>
+        <tr><td>Реферальная программа</td><td>10% от прибыли, работает</td><td>Автоначисление, трекинг</td></tr>
+        <tr><td>Курсы ФГ</td><td>1 000 руб., закрытое сообщество</td><td>Автоворонка &#8594; апсейл</td></tr>
+        <tr><td>Контент</td><td>Кейсы, посты</td><td>Контент-план, автопостинг</td></tr>
+        <tr><td>Таргет</td><td>VK, TG Ads, Яндекс.Директ</td><td>Look-alike, UTM &#8594; CRM</td></tr>
+        <tr><td>Email / TG рассылки</td><td>Ручные</td><td>Триггерные автоцепочки</td></tr>
+        <tr><td>Живые встречи</td><td>Офлайн</td><td>Авторегистрация</td></tr>
+      </table>
+
+      <h3>Воронка привлечения</h3>
+      <div class="funnel">
+        <div class="funnel-step"><div class="funnel-num">1</div><div class="funnel-info"><div class="funnel-label">Лид</div><div class="funnel-desc">Заявка / реферал / курс ФГ &#8594; создание в CRM</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">2</div><div class="funnel-info"><div class="funnel-label">Квалификация</div><div class="funnel-desc">Бюджет, цели, опыт &#8594; анкета через бот</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">3</div><div class="funnel-info"><div class="funnel-label">Презентация</div><div class="funnel-desc">Текущие проекты &#8594; подбор под бюджет</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">4</div><div class="funnel-info"><div class="funnel-label">Договор</div><div class="funnel-desc">Инвестиционный договор &#8594; SignEasy (ЭЦП)</div></div></div>
+        <div class="funnel-step"><div class="funnel-num">5</div><div class="funnel-info"><div class="funnel-label">Инвестор</div><div class="funnel-desc">Регистрация в ЛК &#8594; первый взнос &#8594; welcome-цепочка</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ФГ ── -->
+  <div class="section" id="fg">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9827;</span> Финансовая грамотность (ФГ)</h2>
+      <p>Отдельное направление бизнеса — закрытое сообщество и практикум. Цель: канал привлечения инвесторов (апсейл из ФГ в инвестиции).</p>
+      <table style="margin-top:12px">
+        <tr><td style="color:var(--text3);width:160px">Формат</td><td>Годовой практикум (2024–2025)</td></tr>
+        <tr><td style="color:var(--text3)">Стоимость</td><td>1 000 руб.</td></tr>
+        <tr><td style="color:var(--text3)">Telegram</td><td><a href="https://t.me/+FtOHpdRQfPJmOWQy">Закрытая группа</a></td></tr>
+        <tr><td style="color:var(--text3)">Оплата</td><td>Продамус</td></tr>
+        <tr><td style="color:var(--text3)">Эфиры</td><td>Zoom</td></tr>
+        <tr><td style="color:var(--text3)">Контент-план</td><td>Google Sheets (Практикум 2025/2026, Дни практикума)</td></tr>
+      </table>
+      <p style="margin-top:10px">Структура: ежедневные обязательства (чтение, вода, тишина), 5 столбов, задания, эфиры.</p>
+    </div>
+  </div>
+
+  <!-- ── СТРАТЕГИЯ ── -->
+  <div class="section" id="strategy">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#9872;</span> Стратегия и цели</h2>
+
+      <h3>Стратегические цели на год</h3>
+      <table>
+        <tr><th>Цель</th><th>Статус</th></tr>
+        <tr><td>Легализация, разрешение на краудфандинг</td><td><span class="tag yellow">В процессе (приоритет)</span></td></tr>
+        <tr><td>Позиционирование как IT-стартап</td><td><span class="tag">Требует проработки</span></td></tr>
+        <tr><td>Запускать курсы ФГ раз в квартал</td><td><span class="tag blue">Есть инфраструктура</span></td></tr>
+        <tr><td><strong>24 объекта за год (2/мес.)</strong></td><td><span class="tag yellow">Ключевой KPI</span></td></tr>
+        <tr><td>Выкатить платформу (ЛК инвестора)</td><td><span class="tag blue">В разработке</span></td></tr>
+        <tr><td>Создать отделы с ответственными</td><td><span class="tag green">Выполнено</span></td></tr>
+      </table>
+
+      <h3>Дорожная карта автоматизации</h3>
+
+      <div class="phase">
+        <div class="phase-title"><span class="phase-num">1</span> Статистика и учёт (1–2 мес.)</div>
+        <ul>
+          <li>Аудит 16 таблиц: дублирование, ручной ввод, уязвимые формулы</li>
+          <li>Единая база объектов в 1С</li>
+          <li>Автосинхронизация: 1С &#8596; ЛК &#8596; таблицы</li>
+          <li>Автоматический расчёт доходности</li>
+          <li>Дашборд для партнёров в реальном времени</li>
+          <li>Алерты при расхождениях</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-title"><span class="phase-num">2</span> Маркетинг и привлечение (2–3 мес.)</div>
+        <ul>
+          <li>Полноценная воронка в Битрикс: лид &#8594; инвестор</li>
+          <li>Автоматизация реферальной программы</li>
+          <li>Email/Telegram автоцепочки</li>
+          <li>Контент-план с автопубликацией</li>
+          <li>Лендинги &#8594; CRM</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-title"><span class="phase-num">3</span> Операции (3–4 мес.)</div>
+        <ul>
+          <li>Канбан-доска объектов</li>
+          <li>Автоуведомления при смене стадии</li>
+          <li>Цифровые чек-листы передачи</li>
+          <li>Автоформирование объявлений из карточки</li>
+          <li>Шаблоны документов</li>
+          <li>Ежемесячные автоотчёты для инвесторов</li>
+        </ul>
+      </div>
+
+      <h3>Дашборд метрик (целевой)</h3>
+      <table class="compact-table">
+        <tr><th>Метрика</th><th>Источник</th><th>Частота</th></tr>
+        <tr><td>Капитал под управлением</td><td>1С + ЛК</td><td>Ежедневно</td></tr>
+        <tr><td>Активные объекты по стадиям</td><td>Канбан</td><td>Реальное время</td></tr>
+        <tr><td>Средняя доходность (12 мес.)</td><td>1С</td><td>Еженедельно</td></tr>
+        <tr><td>Инвесторы: всего / новых</td><td>ЛК / CRM</td><td>Ежедневно</td></tr>
+        <tr><td>Воронка продаж</td><td>Битрикс</td><td>Реальное время</td></tr>
+        <tr><td>Денежный поток</td><td>1С / Касса</td><td>Ежедневно</td></tr>
+        <tr><td>Прогресс: 24 объекта/год</td><td>Канбан</td><td>Реальное время</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── СЛЕДУЮЩИЕ ШАГИ ── -->
+  <div class="section" id="next">
+    <div class="section-card">
+      <h2><span class="sec-icon">&#10003;</span> Следующие шаги</h2>
+      <p style="color:var(--text3)">Из docx «Командный центр v2.3»</p>
+      <table style="margin-top:12px">
+        <tr><th>Действие</th><th>Ответственный</th></tr>
+        <tr><td>Утвердить KPI по отделам — скорректировать значения</td><td>Партнёры</td></tr>
+        <tr><td>Загрузить примеры таблиц учёта для аудита</td><td>Ярослав</td></tr>
+        <tr><td>Скриншоты Битрикс: воронки, автоматизации</td><td>Команда</td></tr>
+        <tr><td>Начать аудит 16 таблиц (Фаза 1)</td><td>Статистика</td></tr>
+        <tr><td>Определить бюджет на Фазу 1</td><td>Партнёры</td></tr>
+        <tr><td>Назначить ответственного за маркетинг</td><td>Партнёры</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ═══ ПРИЛОЖЕНИЯ ═══ -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <div style="text-align:center;margin:40px 0 20px;font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">&#9472;&#9472; Приложения &#9472;&#9472;</div>
+
+  <!-- ── APP A: БИТРИКС ── -->
+  <div class="section" id="app-bitrix">
+    <div class="section-card">
+      <h2><span class="sec-icon">A</span> Битрикс24 (детали)</h2>
+      <p><strong>Инстанс:</strong> estateinvest.bitrix24.ru &nbsp;|&nbsp; <strong>Скоупы:</strong> 73</p>
+      <blockquote>Активно ведётся воронка «Регистрация» — актуальные данные по инвесторам. Остальные воронки содержат исторические данные. Часть контактов — от замороженного «Агентства».</blockquote>
+
+      <h3>Общая статистика</h3>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val">4 030</div><div class="metric-label">сделок</div></div>
+        <div class="metric"><div class="metric-val">3 188</div><div class="metric-label">контактов</div></div>
+        <div class="metric"><div class="metric-val">95</div><div class="metric-label">компаний</div></div>
+        <div class="metric"><div class="metric-val">1 343</div><div class="metric-label">лидов</div></div>
+        <div class="metric"><div class="metric-val">26</div><div class="metric-label">пользователей</div></div>
+      </div>
+
+      <div class="collapsible">
+        <button class="coll-toggle" onclick="toggleColl(this)"><span class="coll-arrow">&#9654;</span> Воронка 1: Инвестирование (ID: 0)</button>
+        <div class="coll-body">
+          <table class="compact-table">
+            <tr><th>Стадия</th><th>ID</th></tr>
+            <tr><td>Инвесторы</td><td>NEW</td></tr>
+            <tr><td>Всё есть</td><td>PREPARATION</td></tr>
+            <tr><td>Не нашел контакт</td><td>EXECUTING</td></tr>
+            <tr><td>Нет регистрации</td><td>PREPAYMENT_INVOICE</td></tr>
+            <tr><td>Нет почты</td><td>UC_9B2PL3</td></tr>
+            <tr><td>Сделка успешна</td><td>WON</td></tr>
+            <tr><td>Однофамильцы</td><td>LOSE</td></tr>
+            <tr><td>Нет бота</td><td>APOLOGY</td></tr>
+            <tr><td>Хрень</td><td>UC_YE5T2R</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <button class="coll-toggle" onclick="toggleColl(this)"><span class="coll-arrow">&#9654;</span> Воронка 2: Регистрация (ID: 2) — основная</button>
+        <div class="coll-body">
+          <p style="margin-bottom:8px"><strong>1 142</strong> сделки, <strong>425</strong> WON (37%), май 2024 — февраль 2026</p>
+          <table class="compact-table">
+            <tr><th>Стадия</th><th>ID</th></tr>
+            <tr><td>Анкета</td><td>C2:NEW</td></tr>
+            <tr><td>Связаться позже</td><td>C2:UC_OOYEBA</td></tr>
+            <tr><td>Не дозвонились 1/2/3</td><td>C2:UC_TMTL7P / UC_0RH8PI / UC_J86RQK</td></tr>
+            <tr><td>Отказ с причиной</td><td>C2:UC_G1NE2U</td></tr>
+            <tr><td>Пока наблюдает</td><td>C2:UC_QAIWY7</td></tr>
+            <tr><td>Скинуть инфу</td><td>C2:UC_0BBGCA</td></tr>
+            <tr><td>Активировал бота</td><td>C2:UC_6G82ED</td></tr>
+            <tr><td>НДЗ 1 (Бот активен)</td><td>C2:UC_M078EE</td></tr>
+            <tr><td>Подписание</td><td>C2:UC_KBB2A2</td></tr>
+            <tr><td>НДЗ 1 (Подписание)</td><td>C2:UC_6BXB4G</td></tr>
+            <tr><td>Договор подписан</td><td>C2:UC_EN4YLS</td></tr>
+            <tr><td>ДЗЛ (Подписан)</td><td>C2:UC_0GSQ0I</td></tr>
+            <tr><td>Связаться позже (Подписан)</td><td>C2:UC_8LYQCI</td></tr>
+            <tr><td>Деньги без договора</td><td>C2:UC_V318VE</td></tr>
+            <tr><td><strong>Средства внесены</strong></td><td><strong>C2:WON</strong></td></tr>
+            <tr><td>Отписался</td><td>C2:LOSE</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <button class="coll-toggle" onclick="toggleColl(this)"><span class="coll-arrow">&#9654;</span> Воронка 3: Агентство (ID: 6) — 20 стадий</button>
+        <div class="coll-body">
+          <table class="compact-table">
+            <tr><th>Стадия</th><th>ID</th></tr>
+            <tr><td>Заявка</td><td>C6:NEW</td></tr>
+            <tr><td>Актуальная заявка</td><td>C6:UC_P38C0K</td></tr>
+            <tr><td>Связаться / Недозвон</td><td>C6:UC_W8I13Q / UC_NHL6NT</td></tr>
+            <tr><td>Связаться позже</td><td>C6:UC_6T5296</td></tr>
+            <tr><td>Отправлена инфа</td><td>C6:UC_VQLXCH</td></tr>
+            <tr><td>Мониторинг</td><td>C6:UC_L88LRJ</td></tr>
+            <tr><td>Отправлена подборка</td><td>C6:UC_NWSEF8</td></tr>
+            <tr><td>Готов на осмотр</td><td>C6:UC_2U8UEA</td></tr>
+            <tr><td>Идет на осмотр</td><td>C6:PREPARATION</td></tr>
+            <tr><td>Сходил на осмотр</td><td>C6:UC_IGYNJA</td></tr>
+            <tr><td>Подготовка документов</td><td>C6:PREPAYMENT_INVOICE</td></tr>
+            <tr><td>В торги</td><td>C6:EXECUTING</td></tr>
+            <tr><td><strong>Выиграли</strong></td><td><strong>C6:WON</strong></td></tr>
+            <tr><td>Проиграли — мониторинг</td><td>C6:LOSE</td></tr>
+            <tr><td>Проиграли — отказался</td><td>C6:APOLOGY</td></tr>
+            <tr><td>Отказ</td><td>C6:UC_F2RQE0</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <button class="coll-toggle" onclick="toggleColl(this)"><span class="coll-arrow">&#9654;</span> Воронка 4: Эстейт продажи (ID: 8) — 8 стадий</button>
+        <div class="coll-body">
+          <p>Новая &#8594; Подготовка &#8594; Счёт &#8594; В работе &#8594; Финальный счёт &#8594; <strong>WON</strong> / LOSE / Анализ</p>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <button class="coll-toggle" onclick="toggleColl(this)"><span class="coll-arrow">&#9654;</span> Пользователи Битрикс24 (26 чел.)</button>
+        <div class="coll-body">
+          <table class="compact-table">
+            <tr><th>ID</th><th>Имя</th><th>Должность</th><th>Email</th></tr>
+            <tr><td>1</td><td>Estate Invest</td><td>Администратор</td><td>estateinvest.online@gmail.com</td></tr>
+            <tr><td>10</td><td>Ярослав Балакин</td><td>Менеджер</td><td>yarbalakin@gmail.com</td></tr>
+            <tr><td>12</td><td>Глеб Хрянин</td><td>Менеджер</td><td>twingleb@gmail.com</td></tr>
+            <tr><td>14</td><td>Алена Вишнякова</td><td>Зам. руководителя</td><td>alenawish27@gmail.com</td></tr>
+            <tr><td>16</td><td>Иван Мудров</td><td>Менеджер</td><td>ivanmudrov@gmail.com</td></tr>
+            <tr><td>18</td><td>Александр Никулин</td><td>Дизайнер</td><td>niksenges@gmail.com</td></tr>
+            <tr><td>20</td><td>Программист</td><td>Начальник IT</td><td>—</td></tr>
+            <tr><td>22</td><td>Жанна Шпехт</td><td>Помощник руководителя</td><td>jeanneplait@gmail.com</td></tr>
+            <tr><td>24</td><td>Ирина Боброва</td><td>Главный спец. поддержки</td><td>ibobrova093@gmail.com</td></tr>
+            <tr><td>26</td><td>Наталия Титова</td><td>Спец. поддержки</td><td>nsheltyamova@gmail.com</td></tr>
+            <tr><td>28</td><td>Антонина Скурко</td><td>Аналитик-риэлтор</td><td>kurilovatonaj@gmail.com</td></tr>
+            <tr><td>30</td><td>Александра Санникова</td><td>Статистик</td><td>alekssannikova@gmail.com</td></tr>
+            <tr><td>34</td><td>Снежана Подкорытова</td><td>Спец. поддержки</td><td>sn.podcor@gmail.com</td></tr>
+            <tr><td>36</td><td>Татьяна Романова</td><td>Аналитик-риэлтор</td><td>ipotekasamara00@gmail.com</td></tr>
+            <tr><td>38</td><td>Кирилл Барсуков</td><td>Главный аналитик</td><td>kir.barsuk@gmail.com</td></tr>
+            <tr><td>42</td><td>Андрей Паскал</td><td>Помощник</td><td>angepas8@yandex.ru</td></tr>
+            <tr><td>44</td><td>Галина Наборщикова</td><td>Юрист</td><td>chipperm@mail.ru</td></tr>
+            <tr><td>50</td><td>Наталья Валетко</td><td>Риэлтор</td><td>valetko@bk.ru</td></tr>
+            <tr><td>2340</td><td>Спартак Хачатурян</td><td>Маркетолог</td><td>Spartakhachaturan@gmail.com</td></tr>
+            <tr><td>2410</td><td>Роман Месяткин</td><td>—</td><td>mesyatkin@mail.ru</td></tr>
+            <tr><td>2508</td><td>Ольга Шайхетдинова</td><td>Спец. поддержки</td><td>olgashajhetdinova@gmail.com</td></tr>
+            <tr><td>3536</td><td>Олеся Дубойская</td><td>—</td><td>Duboyskayaom@gmail.com</td></tr>
+            <tr><td>3538</td><td>Иван Еремин</td><td>—</td><td>ivan5983@yandex.ru</td></tr>
+            <tr><td>3540</td><td>Юлия Кузнецова</td><td>—</td><td>6020490@gmail.com</td></tr>
+            <tr><td>3542</td><td>Анастасия</td><td>—</td><td>K_anastasia@inbox.ru</td></tr>
+            <tr><td>3544</td><td>Георгий Ковшов</td><td>—</td><td>rbrstaff24.ru@yandex.ru</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APP B: SALEBOT ── -->
+  <div class="section" id="app-salebot">
+    <div class="section-card">
+      <h2><span class="sec-icon">B</span> Salebot (детали)</h2>
+      <p><strong>Бот:</strong> @Estate_invest_RF_bot &nbsp;|&nbsp; <strong>Project ID:</strong> 214444 &nbsp;|&nbsp; <strong>API:</strong> chatter.salebot.pro</p>
+
+      <div class="metrics" style="margin-top:12px">
+        <div class="metric"><div class="metric-val">2 127</div><div class="metric-label">клиентов</div></div>
+        <div class="metric"><div class="metric-val">196</div><div class="metric-label">блоков</div></div>
+        <div class="metric"><div class="metric-val">9</div><div class="metric-label">функций</div></div>
+        <div class="metric"><div class="metric-val">2023</div><div class="metric-label">запущен</div></div>
+      </div>
+
+      <h3>Функции бота</h3>
+      <table class="compact-table">
+        <tr><td><strong>1. Онбординг</strong></td><td>ФИО, email, дата рождения, телефон, скан паспорта, реф. код &#8594; SignEasy</td></tr>
+        <tr><td><strong>2. Привязка ЛК</strong></td><td>Ввод API-ключа &#8594; баланс, рефералы, история</td></tr>
+        <tr><td><strong>3. Меню инвестора</strong></td><td>Баланс, свободный баланс, рефералы, пополнение, вывод</td></tr>
+        <tr><td><strong>4. Бронирование ИП</strong></td><td>Ввод суммы &#8594; бронь, CRM-уведомление</td></tr>
+        <tr><td><strong>5. Автоинвестирование</strong></td><td>Автоматическое вложение свободного баланса</td></tr>
+        <tr><td><strong>6. Информация</strong></td><td>О компании, основателях, результатах, FAQ</td></tr>
+        <tr><td><strong>7. Обучающая воронка</strong></td><td>Серия статей с напоминаниями</td></tr>
+        <tr><td><strong>8. Поддержка</strong></td><td>Свободный ввод &#8594; оператор</td></tr>
+        <tr><td><strong>9. Агентство выкупа</strong></td><td>Отдельный раздел для услуги выкупа</td></tr>
+      </table>
+
+      <h3>Переменные</h3>
+      <div class="tags">
+        <span class="tag">balanceTextInfo</span>
+        <span class="tag">freeBalanceTextInfo</span>
+        <span class="tag">referralsTextInfo</span>
+        <span class="tag">email</span>
+        <span class="tag">password</span>
+      </div>
+
+      <h3>Триггеры</h3>
+      <div class="tags">
+        <span class="tag blue">/start</span>
+        <span class="tag">Меню инвестора</span>
+        <span class="tag">В главное меню</span>
+        <span class="tag">Инвестировать</span>
+        <span class="tag">Написать в поддержку</span>
+        <span class="tag">Подписать договор</span>
+        <span class="tag">результаты</span>
+        <span class="tag">Подключить автоинвестирование</span>
+        <span class="tag">Агентство по выкупу с торгов</span>
+      </div>
+
+      <h3>Ссылки из бота</h3>
+      <table class="compact-table">
+        <tr><td>Закрытый канал инвесторов</td><td><a href="https://t.me/+TOpOcVlVmJwxMWRj">t.me/+TOpOcVlVmJwxMWRj</a></td></tr>
+        <tr><td>Канал торгов</td><td><a href="https://t.me/torgiigrot">t.me/torgiigrot</a></td></tr>
+        <tr><td>VK</td><td><a href="https://vk.com/estateinvest.online">vk.com/estateinvest.online</a></td></tr>
+        <tr><td>Дзен</td><td><a href="https://dzen.ru/estateinvest">dzen.ru/estateinvest</a></td></tr>
+        <tr><td>Результаты</td><td><a href="https://estateinvest.online/result">estateinvest.online/result</a></td></tr>
+        <tr><td>Настройка бота</td><td><a href="https://estateinvest.online/dashboard/setup-bot">estateinvest.online/dashboard/setup-bot</a></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── APP C: GOOGLE SHEETS ── -->
+  <div class="section" id="app-sheets">
+    <div class="section-card">
+      <h2><span class="sec-icon">C</span> Google Sheets (структура)</h2>
+
+      <h3>Основная таблица учёта</h3>
+      <p style="color:var(--text3);font-size:11px;margin-bottom:8px">ID: 1dWTjYF8sEc20SKeyl-e6PomBFq3VlfX-m8K2ZRopZJ0</p>
+      <table class="compact-table">
+        <tr><th>Лист</th><th>GID</th><th>Назначение</th></tr>
+        <tr><td>Общая база</td><td>2024918270</td><td>Все транзакции (~76K строк)</td></tr>
+        <tr><td>Свод объекты+инвесторы</td><td>498186989</td><td>Итоги по каждому объекту</td></tr>
+        <tr><td>Объекты</td><td>1464507984</td><td>Справочник объектов</td></tr>
+        <tr><td>Свод инвесторы</td><td>1231813197</td><td>Итоги по каждому инвестору</td></tr>
+        <tr><td>Свод объекты</td><td>1989607622</td><td>Суммы привлечения vs фактические</td></tr>
+        <tr><td>Инвесторы</td><td>2121197329</td><td>Справочник (ФИО, контакты, договор)</td></tr>
+        <tr><td>Технический лист</td><td>1445324714</td><td>Служебные данные</td></tr>
+        <tr><td>Справочник</td><td>703112305</td><td>Валюты, виды взносов, стадии</td></tr>
+        <tr><td>Инструкция</td><td>233535053</td><td>Инструкция по заполнению</td></tr>
+        <tr><td>FAQ</td><td>1873208250</td><td>Вопросы и ответы</td></tr>
+        <tr><td>Новости</td><td>527357395</td><td>Новости по объектам</td></tr>
+        <tr><td>Архив</td><td>1029269575</td><td>Архивные данные</td></tr>
+      </table>
+
+      <h3>Монитор объектов</h3>
+      <p style="color:var(--text3);font-size:11px;margin-bottom:8px">ID: 1oTRqpqS5GIunhi26TO8X6quWR5wWIWoTe0LzFqEGrDs</p>
+      <p>Колонки: A (номер ИП), B (название + ссылка на кассу), C (статус), D-J (финансы), K-L (ROI), M-P (сроки), Q-V (ссылки Авито), AA-AD (экспорт).</p>
+
+      <h3>Таблица торгов</h3>
+      <p style="color:var(--text3);font-size:11px;margin-bottom:8px">ID: 1Ulf_odOSRFcs4Ihi3waCo1Py_a0SgI3-FHlIKdCQvSU</p>
+      <p>Номер торгов, лот, город, статус, документы, тип торгов, даты, задатки, покупка/продажа (min/med/max), срок, расходы.</p>
+
+      <h3>Прочие таблицы</h3>
+      <table class="compact-table">
+        <tr><td>Статистика продаж (7 листов)</td><td style="color:var(--text3);font-size:11px">18S6crJXwHXCh1FKEzgc4444yn4T1KQd30ycpvmVx2Mk</td></tr>
+        <tr><td>Касса компании</td><td style="color:var(--text3);font-size:11px">1aRi5YLORBWDY5oU7hNo1XAWUoIvAM3ArxX7L2dbJHEc</td></tr>
+        <tr><td>Контент-план (10 листов)</td><td style="color:var(--text3);font-size:11px">1lV3gZiWGX8IxsMbKHyMYCAfJB5BeGa33raIFqMLtthk</td></tr>
+        <tr><td>Шаблоны писем</td><td style="color:var(--text3);font-size:11px">1odfnhaeg6HWRgiMu0ASuMPXTgSx673t6BUUoVh7JIts</td></tr>
+        <tr><td>Аккаунты соцсетей</td><td style="color:var(--text3);font-size:11px">1nwaS6lhg5SycS5B8gPQl3F-5qx6NuBeexnP782Nx_to</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── APP D: НАРАБОТКИ ── -->
+  <div class="section" id="app-streamlit">
+    <div class="section-card">
+      <h2><span class="sec-icon">D</span> Наработки (Streamlit)</h2>
+      <p>Папка: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent2)">/Projects/Эстейт/</code></p>
+      <table style="margin-top:12px">
+        <tr><th>Файл</th><th>Назначение</th></tr>
+        <tr><td>data_loader.py</td><td>Загрузчик из Google Sheets (gviz CSV), парсинг валют</td></tr>
+        <tr><td>analytics.py</td><td>Аналитический движок (investor/object/portfolio)</td></tr>
+        <tr><td>app.py</td><td>Streamlit-дашборд (Admin + Investor Portal)</td></tr>
+        <tr><td>config.py</td><td>Конфигурация</td></tr>
+      </table>
+      <div class="tags" style="margin-top:12px">
+        <span class="tag green">Блок 1-2: завершены</span>
+        <span class="tag yellow">Блок 3-5: в процессе</span>
+      </div>
+      <p style="margin-top:8px">Подробнее: <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent2)">ПЛАН_РЕАЛИЗАЦИИ.md</code>, <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent2)">СТРУКТУРА_ДАННЫХ.md</code></p>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:40px 0 20px;font-size:11px;color:var(--text3)">
+    Estate Invest &#183; Профиль компании &#183; Скомпилировано 25.02.2026
+  </div>
+
+</main>
+
+<script>
+function nav(el) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Auto-highlight sidebar on scroll
+const sections = document.querySelectorAll('.section, .hero');
+const navItems = document.querySelectorAll('.sb-item');
+const mainEl = document.querySelector('.main');
+
+mainEl.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    const rect = s.getBoundingClientRect();
+    if (rect.top < 200) current = s.id;
+  });
+  if (current) {
+    navItems.forEach(n => {
+      n.classList.toggle('active', n.getAttribute('href') === '#' + current);
+    });
+  }
+});
+
+// Collapsible sections
+function toggleColl(btn) {
+  btn.classList.toggle('open');
+  const body = btn.nextElementSibling;
+  body.classList.toggle('open');
+}
+</script>
+</body>
+</html>

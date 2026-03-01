@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Стратегические рекомендации</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0a0a0f;
+    --bg-sidebar: #0e0e16;
+    --bg-card: rgba(255,255,255,0.03);
+    --bg-card-hover: rgba(255,255,255,0.06);
+    --text: #e4e4e7;
+    --text-secondary: #71717a;
+    --text-muted: #52525b;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.15);
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --yellow: #eab308;
+    --yellow-bg: rgba(234,179,8,0.1);
+    --cyan: #06b6d4;
+    --cyan-bg: rgba(6,182,212,0.1);
+    --purple: #a855f7;
+    --purple-bg: rgba(168,85,247,0.1);
+    --orange: #f97316;
+    --orange-bg: rgba(249,115,22,0.1);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+        radial-gradient(ellipse at 15% 50%, rgba(99,102,241,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 20%, rgba(139,92,246,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 90%, rgba(6,182,212,0.03) 0%, transparent 50%);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+}
+.sidebar-logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 0 8px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+}
+.sidebar-logo span { color: var(--accent); }
+.nav-section {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 16px 8px 6px;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-decoration: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: var(--accent-glow); color: #a5b4fc; }
+.nav-icon { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: var(--red-bg);
+    color: var(--red);
+}
+.nav-badge.warn { background: var(--yellow-bg); color: var(--yellow); }
+.nav-badge.ok { background: var(--green-bg); color: var(--green); }
+
+/* ===== MAIN ===== */
+.main {
+    margin-left: 260px;
+    padding: 32px 40px 80px;
+    max-width: 1320px;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+    margin-bottom: 32px;
+}
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #e4e4e7 30%, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.page-header .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+
+/* ===== KPI ROW ===== */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    transition: all var(--transition);
+    animation: fadeInUp 0.4s ease forwards;
+    opacity: 0;
+}
+.kpi-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+.kpi-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+.kpi-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    margin-top: 8px;
+}
+.kpi-tag.green { background: var(--green-bg); color: var(--green); }
+.kpi-tag.red { background: var(--red-bg); color: var(--red); }
+.kpi-tag.yellow { background: var(--yellow-bg); color: var(--yellow); }
+.kpi-tag.purple { background: var(--purple-bg); color: var(--purple); }
+
+/* ===== SECTION ===== */
+.section {
+    margin-bottom: 40px;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.section-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.section-icon.red { background: var(--red-bg); }
+.section-icon.green { background: var(--green-bg); }
+.section-icon.purple { background: var(--purple-bg); }
+.section-icon.cyan { background: var(--cyan-bg); }
+.section-icon.yellow { background: var(--yellow-bg); }
+.section-icon.orange { background: var(--orange-bg); }
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.section-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ===== CARDS GRID ===== */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+}
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    transition: all var(--transition);
+}
+.card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.card-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+.card-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+}
+.card-badge.urgent { background: var(--red-bg); color: var(--red); }
+.card-badge.medium { background: var(--yellow-bg); color: var(--yellow); }
+.card-badge.low { background: var(--green-bg); color: var(--green); }
+.card-badge.info { background: var(--cyan-bg); color: var(--cyan); }
+.card-badge.purple { background: var(--purple-bg); color: var(--purple); }
+
+.card-problem {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: rgba(239,68,68,0.04);
+    border-left: 2px solid rgba(239,68,68,0.3);
+    border-radius: 0 8px 8px 0;
+}
+.card-actions {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.card-actions li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 20px;
+    position: relative;
+}
+.card-actions li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 7px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+}
+.card-metric {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.card-metric strong {
+    color: var(--green);
+    font-weight: 600;
+}
+
+/* ===== DIAGNOSIS ===== */
+.diagnosis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.diagnosis-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+}
+.diagnosis-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+}
+.diagnosis-card.strengths h3 { color: var(--green); }
+.diagnosis-card.weaknesses h3 { color: var(--red); }
+.diagnosis-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.diagnosis-list li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 18px;
+    position: relative;
+}
+.diagnosis-card.strengths .diagnosis-list li::before {
+    content: '+';
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--green);
+    font-weight: 700;
+    font-size: 14px;
+}
+.diagnosis-card.weaknesses .diagnosis-list li::before {
+    content: '!';
+    position: absolute;
+    left: 2px; top: 0;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* ===== VERDICT ===== */
+.verdict {
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04));
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+}
+.verdict strong { color: #a5b4fc; }
+
+/* ===== TABLE ===== */
+.table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+thead th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+}
+tbody td {
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: top;
+    line-height: 1.5;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+td strong { color: var(--text); font-weight: 600; }
+.priority-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+.priority-badge.now { background: var(--red-bg); color: var(--red); }
+.priority-badge.soon { background: var(--yellow-bg); color: var(--yellow); }
+.priority-badge.later { background: var(--cyan-bg); color: var(--cyan); }
+.priority-badge.strategic { background: var(--purple-bg); color: var(--purple); }
+
+/* ===== RISK TABLE ===== */
+.risk-high { color: var(--red); font-weight: 600; }
+.risk-medium { color: var(--yellow); font-weight: 600; }
+.risk-low { color: var(--green); font-weight: 600; }
+
+/* ===== PRODUCT TABLE ===== */
+.product-row td:first-child { color: var(--text); font-weight: 600; }
+
+/* ===== GOALS ===== */
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+.goal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    text-align: center;
+    transition: all var(--transition);
+}
+.goal-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+}
+.goal-value {
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+}
+.goal-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ===== FUNNEL ===== */
+.funnel {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 16px 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+.funnel-step {
+    flex: 1;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    transition: all var(--transition);
+}
+.funnel-step:last-child { border-right: none; }
+.funnel-step:hover { background: var(--bg-card-hover); }
+.funnel-step-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.funnel-step-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+.funnel-arrow {
+    color: var(--text-muted);
+    font-size: 10px;
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+    position: relative;
+    padding-left: 24px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--red), var(--yellow), var(--cyan), var(--purple));
+    border-radius: 2px;
+}
+.timeline-item {
+    position: relative;
+    padding: 0 0 24px 20px;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--bg);
+}
+.timeline-item:nth-child(1) .timeline-dot { border-color: var(--red); }
+.timeline-item:nth-child(2) .timeline-dot { border-color: var(--yellow); }
+.timeline-item:nth-child(3) .timeline-dot { border-color: var(--cyan); }
+.timeline-item:nth-child(4) .timeline-dot { border-color: var(--purple); }
+.timeline-period {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+.timeline-item:nth-child(1) .timeline-period { color: var(--red); }
+.timeline-item:nth-child(2) .timeline-period { color: var(--yellow); }
+.timeline-item:nth-child(3) .timeline-period { color: var(--cyan); }
+.timeline-item:nth-child(4) .timeline-period { color: var(--purple); }
+.timeline-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.kpi-card:nth-child(1) { animation-delay: 0ms; }
+.kpi-card:nth-child(2) { animation-delay: 60ms; }
+.kpi-card:nth-child(3) { animation-delay: 120ms; }
+.kpi-card:nth-child(4) { animation-delay: 180ms; }
+.kpi-card:nth-child(5) { animation-delay: 240ms; }
+
+.section:nth-child(1) { animation-delay: 100ms; }
+.section:nth-child(2) { animation-delay: 200ms; }
+.section:nth-child(3) { animation-delay: 300ms; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px 16px 60px; }
+    .diagnosis-grid { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .goals-grid { grid-template-columns: repeat(2, 1fr); }
+    .funnel { flex-direction: column; }
+    .funnel-step { border-right: none; border-bottom: 1px solid var(--border); }
+    .funnel-step:last-child { border-bottom: none; }
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo"><span>Estate</span> Invest</div>
+
+    <div class="nav-section">Обзор</div>
+    <a href="#diagnosis" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+        Диагноз
+    </a>
+    <a href="#immediate" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Немедленно
+        <span class="nav-badge">3</span>
+    </a>
+
+    <div class="nav-section">Среднесрочные</div>
+    <a href="#products" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Продукты
+        <span class="nav-badge warn">4</span>
+    </a>
+    <a href="#geo" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        География
+    </a>
+    <a href="#marketing" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/></svg>
+        Маркетинг
+    </a>
+    <a href="#tech" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Технологии
+    </a>
+
+    <div class="nav-section">Стратегия</div>
+    <a href="#legal" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Лицензирование
+    </a>
+    <a href="#proptech" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>
+        PropTech
+    </a>
+    <a href="#team" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Команда
+    </a>
+    <a href="#risks" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4M12 17h.01"/></svg>
+        Риски
+        <span class="nav-badge">6</span>
+    </a>
+
+    <div class="nav-section">Итоги</div>
+    <a href="#priorities" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>
+        Приоритеты
+    </a>
+    <a href="#goals" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Цели на год
+        <span class="nav-badge ok">7</span>
+    </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+    <div class="page-header">
+        <h1>Стратегические рекомендации</h1>
+        <div class="subtitle">Анализ профиля компании и дорожная карта развития &mdash; 25.02.2026</div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">Объектов</div>
+            <div class="kpi-value">120+</div>
+            <div class="kpi-sub">реализовано</div>
+            <div class="kpi-tag green">Доказанная модель</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Инвесторов</div>
+            <div class="kpi-value">900+</div>
+            <div class="kpi-sub">~2 000 зарегистрировано</div>
+            <div class="kpi-tag purple">Большая база</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Прибыль инвесторам</div>
+            <div class="kpi-value">~37 млн</div>
+            <div class="kpi-sub">10&ndash;40% доходность</div>
+            <div class="kpi-tag green">Работает</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Конверсия воронки</div>
+            <div class="kpi-value">37%</div>
+            <div class="kpi-sub">425 из 1 142</div>
+            <div class="kpi-tag green">Хорошо</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Google Sheets</div>
+            <div class="kpi-value">16</div>
+            <div class="kpi-sub">таблиц + 117 касс</div>
+            <div class="kpi-tag red">Критично</div>
+        </div>
+    </div>
+
+    <!-- DIAGNOSIS -->
+    <div id="diagnosis" class="section" style="animation-delay:100ms">
+        <div class="section-header">
+            <div class="section-icon red">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Диагноз: где вы сейчас</div>
+                <div class="section-subtitle">SWOT-анализ текущего состояния</div>
+            </div>
+        </div>
+        <div class="diagnosis-grid">
+            <div class="diagnosis-card strengths">
+                <h3>Сильные стороны</h3>
+                <ul class="diagnosis-list">
+                    <li>Доказанная модель: 120+ объектов, ~37 млн прибыли, 10&ndash;40% доходность</li>
+                    <li>Большая база: 900+ активных инвесторов</li>
+                    <li>Хорошая конверсия воронки регистрации: 37%</li>
+                    <li>Четкое разделение ролей между партнерами</li>
+                    <li>Сформированные отделы с KPI</li>
+                </ul>
+            </div>
+            <div class="diagnosis-card weaknesses">
+                <h3>Критические слабости</h3>
+                <ul class="diagnosis-list">
+                    <li>Операционный хаос: 16 таблиц, 117 касс &mdash; бомба замедленного действия</li>
+                    <li>Нет маркетинга &mdash; рост органический, потолок близко</li>
+                    <li>60% в Перми &mdash; концентрационный риск</li>
+                    <li>ИП как юрлицо &mdash; ограничение масштабирования</li>
+                    <li>Нет лицензии на краудфандинг &mdash; юридический риск</li>
+                </ul>
+            </div>
+        </div>
+        <div class="verdict">
+            <strong>Главный вывод:</strong> Компания выросла из &laquo;стартапа трёх партнёров&raquo;, но всё ещё управляется как стартап. Инфраструктура не соответствует масштабу. Следующий этап &mdash; <strong>институционализация</strong>.
+        </div>
+    </div>
+
+    <!-- IMMEDIATE ACTIONS -->
+    <div id="immediate" class="section" style="animation-delay:200ms">
+        <div class="section-header">
+            <div class="section-icon red">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Немедленные действия</div>
+                <div class="section-subtitle">1&ndash;3 месяца &mdash; критический приоритет</div>
+            </div>
+        </div>
+        <div class="cards-grid">
+            <!-- 1.1 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">1.1 Расшивка учётного узла</div>
+                    <div class="card-badge urgent">Приоритет №1</div>
+                </div>
+                <div class="card-problem">16 таблиц + 117 касс = невозможно масштабировать. Каждый новый объект добавляет ручного труда. Ошибки неизбежны при 76 000 строк транзакций.</div>
+                <ul class="card-actions">
+                    <li>Завершить переход на 1С &mdash; дедлайн 2 месяца, не &laquo;в процессе&raquo;</li>
+                    <li>Заморозить создание новых Google Sheets касс</li>
+                    <li>Нанять 1С-администратора (не программиста)</li>
+                    <li>Автосинхронизация 1С &rarr; ЛК инвестора</li>
+                    <li>Еженедельный автоотчёт партнёрам из 1С</li>
+                </ul>
+                <div class="card-metric">Метрика: <strong>все новые объекты в 1С, миграция за 3 мес.</strong></div>
+            </div>
+            <!-- 1.2 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">1.2 Назначение маркетинг-лида</div>
+                    <div class="card-badge urgent">Немедленно</div>
+                </div>
+                <div class="card-problem">В профиле прямо написано &laquo;Маркетинг &mdash; нет выделенного (боль)&raquo;. Спартак Хачатурян &laquo;частично&raquo; &mdash; значит никак.</div>
+                <ul class="card-actions">
+                    <li>Full-time маркетолог или агентство на 3 месяца</li>
+                    <li>UTM-метки &rarr; CRM: понять откуда приходят инвесторы</li>
+                    <li>Запустить VK Ads + Яндекс.Директ (от 50К/мес)</li>
+                    <li>Оцифровать реферальную программу</li>
+                </ul>
+                <div class="card-metric">Метрика: <strong>CAC &lt; 5 000 руб., LTV/CAC &gt; 5</strong></div>
+            </div>
+            <!-- 1.3 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">1.3 Юридическая защита</div>
+                    <div class="card-badge urgent">Критично</div>
+                </div>
+                <div class="card-problem">ИП Мудров + рамочный договор + 900 инвесторов = высокий юридический риск. Один недовольный инвестор может создать серьёзные проблемы.</div>
+                <ul class="card-actions">
+                    <li>Профильный юрист по финансовым рынкам (не штатный)</li>
+                    <li>Оценка рисков по ФЗ-259 (краудфандинг)</li>
+                    <li>Рассмотреть переход на ООО</li>
+                    <li>Аудит инвестиционного договора</li>
+                    <li>Страхование профессиональной ответственности</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="products" class="section" style="animation-delay:300ms">
+        <div class="section-header">
+            <div class="section-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Продуктовая стратегия</div>
+                <div class="section-subtitle">3&ndash;9 месяцев &mdash; диверсификация предложения</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Продукт</th><th>Описание</th><th>Аудитория</th><th>Мин. вход</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="product-row"><td>Базовый</td><td>Текущая модель (объекты)</td><td>Массовый инвестор</td><td><strong>от 50 000 руб.</strong></td></tr>
+                    <tr class="product-row"><td>Портфельный</td><td>Автораспределение по 3&ndash;5 объектам</td><td>Средний инвестор</td><td><strong>от 300 000 руб.</strong></td></tr>
+                    <tr class="product-row"><td>Земельный фонд</td><td>Только земельные участки (70% бизнеса)</td><td>Консервативный</td><td><strong>от 100 000 руб.</strong></td></tr>
+                    <tr class="product-row"><td>Агентство</td><td>Выкуп под заказ клиента</td><td>B2B / Состоятельные</td><td>Фикс. комиссия</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="verdict" style="margin-top:12px;">
+            <strong>Рекомендация:</strong> поднять минимальный вход с 1 000 до 50 000 руб. Микроинвесторы создают непропорциональную нагрузку. Средний чек 40&ndash;350К подтверждает, что реальные инвесторы вкладывают больше.
+        </div>
+    </div>
+
+    <!-- GEO -->
+    <div id="geo" class="section" style="animation-delay:100ms">
+        <div class="section-header">
+            <div class="section-icon cyan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Географическая экспансия</div>
+                <div class="section-subtitle">60% в Перми &mdash; концентрационный риск. Целевая структура через год:</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Регион</th><th>Сейчас</th><th>Цель</th><th>Почему</th><th>Действие</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Пермь</strong></td><td>~60%</td><td>40%</td><td>Основная база</td><td>Снижение доли за счёт роста других</td></tr>
+                    <tr><td><strong>Калининград</strong></td><td>~20%</td><td>25%</td><td>Курортная зона, рост цен, уже есть экспертиза</td><td>Удвоить объём, найти местного партнёра</td></tr>
+                    <tr><td><strong>Самара / Тольятти</strong></td><td>~10%</td><td>15%</td><td>Промышленный регион, стабильный спрос</td><td>Развивать &laquo;коммерческую&raquo;</td></tr>
+                    <tr><td><strong>Краснодарский край</strong></td><td>&mdash;</td><td>10%</td><td>Самый растущий рынок РФ</td><td>Разведка: 2&ndash;3 объекта для теста</td></tr>
+                    <tr><td><strong>Нижний Новгород</strong></td><td>&mdash;</td><td>10%</td><td>Миллионник, недооценённый рынок</td><td>Разведка</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="verdict" style="margin-top: 12px">
+            <strong>Модель расширения:</strong> не открывать офисы. Локальный аналитик-подрядчик в каждом регионе мониторит торги. Ярослав + Кирилл принимают решение удалённо.
+        </div>
+    </div>
+
+    <!-- MARKETING FUNNEL -->
+    <div id="marketing" class="section" style="animation-delay:150ms">
+        <div class="section-header">
+            <div class="section-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Маркетинговая машина</div>
+                <div class="section-subtitle">Целевая воронка привлечения инвестора</div>
+            </div>
+        </div>
+        <div class="funnel">
+            <div class="funnel-step">
+                <div class="funnel-step-label">Контент</div>
+                <div class="funnel-step-value">TG, VK, Дзен, YouTube</div>
+            </div>
+            <div class="funnel-step">
+                <div class="funnel-step-label">Лид-магнит</div>
+                <div class="funnel-step-value">Чек-лист / кейс / вебинар</div>
+            </div>
+            <div class="funnel-step">
+                <div class="funnel-step-label">Курс ФГ</div>
+                <div class="funnel-step-value">1 000 руб. &mdash; порог входа</div>
+            </div>
+            <div class="funnel-step">
+                <div class="funnel-step-label">Автоворонка</div>
+                <div class="funnel-step-value">7&ndash;14 дней прогрев</div>
+            </div>
+            <div class="funnel-step">
+                <div class="funnel-step-label">Инвестор</div>
+                <div class="funnel-step-value">Первый взнос</div>
+            </div>
+        </div>
+        <div class="cards-grid" style="margin-top: 16px">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Контент-маркетинг</div>
+                    <div class="card-badge medium">Ключевое</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Кейсы объектов: &laquo;Купили за X, продали за Y за Z месяцев&raquo;</li>
+                    <li>Короткие видео (Reels/Shorts) + текстовые кейсы</li>
+                    <li>Минимум 3 кейса в неделю (120+ объектов = контент на год)</li>
+                    <li>Ответственный: Глеб + контент-менеджер (нанять)</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">YouTube / RuTube канал</div>
+                    <div class="card-badge info">Органика</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Обзоры объектов до/после</li>
+                    <li>Экспертные видео от Ярослава (торги, анализ)</li>
+                    <li>Отчёты по доходности</li>
+                    <li>Бесплатный трафик с высоким доверием</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Курс ФГ &rarr; Автоворонка</div>
+                    <div class="card-badge purple">Апсейл</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Квартальные запуски + автоворонка</li>
+                    <li>После курса &rarr; предложение инвестировать</li>
+                    <li>Автоматизация: n8n + Salebot + Telegram</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Реферальная программа 2.0</div>
+                    <div class="card-badge info">Масштабирование</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Лидерборд рефереров, промоматериалы</li>
+                    <li>Ежемесячные бонусы топ-рефереров</li>
+                    <li>Автоматический трекинг в ЛК</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- TECH -->
+    <div id="tech" class="section" style="animation-delay:200ms">
+        <div class="section-header">
+            <div class="section-icon cyan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Технологический рывок</div>
+                <div class="section-subtitle">ЛК инвестора &mdash; из MVP в платформу</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Функция</th><th>Приоритет</th><th>Описание</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Дашборд портфеля</strong></td><td><span class="priority-badge now">Высокий</span></td><td>Графики доходности, сравнение с рынком</td></tr>
+                    <tr><td><strong>Push-уведомления</strong></td><td><span class="priority-badge now">Высокий</span></td><td>Стадии объекта, выплаты, новые ИП</td></tr>
+                    <tr><td><strong>Автоинвестирование</strong></td><td><span class="priority-badge soon">Средний</span></td><td>Вкладывать свободный баланс в следующий объект</td></tr>
+                    <tr><td><strong>Маркетплейс объектов</strong></td><td><span class="priority-badge soon">Средний</span></td><td>Каталог сборов с фото, описанием, ROI-калькулятором</td></tr>
+                    <tr><td><strong>Документооборот</strong></td><td><span class="priority-badge soon">Средний</span></td><td>Договоры, акты, отчёты &mdash; всё в ЛК</td></tr>
+                    <tr><td><strong>Мобильное приложение</strong></td><td><span class="priority-badge later">Низкий</span></td><td>PWA или React Native (после стабилизации ЛК)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- LEGAL -->
+    <div id="legal" class="section" style="animation-delay:100ms">
+        <div class="section-header">
+            <div class="section-icon yellow">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Лицензирование и регуляторная стратегия</div>
+                <div class="section-subtitle">9&ndash;18 месяцев &mdash; стратегический горизонт</div>
+            </div>
+        </div>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Вариант A &mdash; Лицензия ФЗ-259</div>
+                    <div class="card-badge urgent">5&ndash;10 млн</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Полная легальность, доверие инвесторов</li>
+                    <li>Возможность привлекать институционалов</li>
+                    <li>Требования ЦБ, отчётность, комплаенс</li>
+                    <li>Срок: 6&ndash;12 месяцев</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Вариант B &mdash; Партнёрство с платформой</div>
+                    <div class="card-badge info">Быстрый старт</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Разместить объекты на JetLend, Поток, Rounds</li>
+                    <li>Нет затрат на лицензию</li>
+                    <li>Комиссия платформы 3&ndash;7%, чужие правила</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Вариант C &mdash; ООО + ФЗ-335</div>
+                    <div class="card-badge low">Рекомендуется</div>
+                </div>
+                <ul class="card-actions">
+                    <li>Инвестиционное товарищество &mdash; без лицензии ЦБ</li>
+                    <li>Каждый объект = отдельный договор</li>
+                    <li>Быстро, дешевле варианта A</li>
+                    <li>Параллельно готовить документы для лицензии</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROPTECH -->
+    <div id="proptech" class="section" style="animation-delay:150ms">
+        <div class="section-header">
+            <div class="section-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="m12 2 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Позиционирование как PropTech</div>
+                <div class="section-subtitle">&laquo;Estate Invest &mdash; PropTech-платформа для коллективных инвестиций в недвижимость с торгов&raquo;</div>
+            </div>
+        </div>
+        <div class="kpi-row" style="margin-bottom: 0">
+            <div class="kpi-card">
+                <div class="kpi-label">Гранты</div>
+                <div class="kpi-value">до 20 млн</div>
+                <div class="kpi-sub">Сколково, ФСИ, РФРИТ</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Налоговые льготы</div>
+                <div class="kpi-value">IT-статус</div>
+                <div class="kpi-sub">Минцифры, льготные страховые</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Венчурный капитал</div>
+                <div class="kpi-value">Доступ</div>
+                <div class="kpi-sub">Другой класс партнёров</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Что нужно</div>
+                <div class="kpi-value">ООО</div>
+                <div class="kpi-sub">+ ЛК как IT-продукт</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEAM -->
+    <div id="team" class="section" style="animation-delay:200ms">
+        <div class="section-header">
+            <div class="section-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Масштабирование команды</div>
+                <div class="section-subtitle">Текущая структура (3 + ~10) &mdash; потолок. При 24 объектах/год нужно:</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Роль</th><th>Когда</th><th>Зачем</th><th>Формат</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Маркетолог</strong></td><td><span class="priority-badge now">Сейчас</span></td><td>Нет маркетинга = нет роста</td><td>Full-time / удалённо</td></tr>
+                    <tr><td><strong>1С-администратор</strong></td><td><span class="priority-badge now">1&ndash;2 мес.</span></td><td>Переход с таблиц</td><td>Full-time</td></tr>
+                    <tr><td><strong>Контент-менеджер</strong></td><td><span class="priority-badge soon">3 мес.</span></td><td>Кейсы, видео, соцсети</td><td>Удалённо</td></tr>
+                    <tr><td><strong>Региональные аналитики</strong></td><td><span class="priority-badge later">6 мес.</span></td><td>Расширение географии</td><td>Подряд (2&ndash;3 чел.)</td></tr>
+                    <tr><td><strong>Финдиректор</strong></td><td><span class="priority-badge later">6 мес.</span></td><td>Контроль денежных потоков</td><td>Part-time</td></tr>
+                    <tr><td><strong>Product Owner</strong></td><td><span class="priority-badge strategic">9 мес.</span></td><td>Развитие ЛК как продукта</td><td>Full-time</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RISKS -->
+    <div id="risks" class="section" style="animation-delay:250ms">
+        <div class="section-header">
+            <div class="section-icon orange">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4M12 17h.01"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Управление рисками</div>
+                <div class="section-subtitle">Сейчас в профиле нет секции про риски &mdash; это проблема</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Риск</th><th>Вероятность</th><th>Влияние</th><th>Митигация</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Регуляторный</strong> (ЦБ / прокуратура)</td><td class="risk-medium">Средняя</td><td class="risk-high">Критическое</td><td>Лицензирование, юридический аудит</td></tr>
+                    <tr><td><strong>Провал крупного объекта</strong> (&gt;10 млн)</td><td class="risk-medium">Средняя</td><td class="risk-high">Высокое</td><td>Лимит &lt;15% портфеля, резервный фонд</td></tr>
+                    <tr><td><strong>Потеря ключевого партнёра</strong></td><td class="risk-low">Низкая</td><td class="risk-high">Критическое</td><td>Документирование процессов, страхование</td></tr>
+                    <tr><td><strong>Рыночный спад</strong></td><td class="risk-medium">Средняя</td><td class="risk-high">Высокое</td><td>Диверсификация географии и типов</td></tr>
+                    <tr><td><strong>Кибер-риск</strong> (утечка данных)</td><td class="risk-medium">Средняя</td><td class="risk-high">Высокое</td><td>Аудит безопасности ЛК</td></tr>
+                    <tr><td><strong>Репутационный</strong></td><td class="risk-high">Высокая</td><td class="risk-medium">Среднее</td><td>Мониторинг, быстрое реагирование</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="verdict" style="margin-top:12px">
+            <strong>Критически важно:</strong> создать резервный фонд компании (5&ndash;10% от прибыли) на покрытие убытков. Если объект &laquo;провалится&raquo; &mdash; это не должно ложиться целиком на инвесторов.
+        </div>
+    </div>
+
+    <!-- PRIORITIES -->
+    <div id="priorities" class="section" style="animation-delay:100ms">
+        <div class="section-header">
+            <div class="section-icon red">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Матрица приоритетов</div>
+                <div class="section-subtitle">Что делать первым</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>#</th><th>Действие</th><th>Усилия</th><th>Влияние</th><th>Когда</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>Завершить переход на 1С</strong></td><td>Высокие</td><td class="risk-high">Критическое</td><td><span class="priority-badge now">Немедленно</span></td></tr>
+                    <tr><td>2</td><td><strong>Нанять маркетолога</strong></td><td>Средние</td><td class="risk-high">Высокое</td><td><span class="priority-badge now">Немедленно</span></td></tr>
+                    <tr><td>3</td><td><strong>Юридический аудит</strong></td><td>Средние</td><td class="risk-high">Критическое</td><td><span class="priority-badge now">Немедленно</span></td></tr>
+                    <tr><td>4</td><td>Поднять минимальный вход до 50К</td><td>Низкие</td><td>Среднее</td><td><span class="priority-badge soon">1 мес.</span></td></tr>
+                    <tr><td>5</td><td>Запустить контент-машину</td><td>Средние</td><td class="risk-high">Высокое</td><td><span class="priority-badge soon">1&ndash;2 мес.</span></td></tr>
+                    <tr><td>6</td><td>Автоматизировать реферальную программу</td><td>Средние</td><td>Среднее</td><td><span class="priority-badge soon">2&ndash;3 мес.</span></td></tr>
+                    <tr><td>7</td><td>Расширить географию</td><td>Средние</td><td class="risk-high">Высокое</td><td><span class="priority-badge later">3&ndash;6 мес.</span></td></tr>
+                    <tr><td>8</td><td>Развить ЛК инвестора</td><td>Высокие</td><td class="risk-high">Высокое</td><td><span class="priority-badge later">3&ndash;6 мес.</span></td></tr>
+                    <tr><td>9</td><td>Запустить портфельный продукт</td><td>Средние</td><td class="risk-high">Высокое</td><td><span class="priority-badge later">6 мес.</span></td></tr>
+                    <tr><td>10</td><td>Лицензирование / IT-статус</td><td>Высокие</td><td>Стратегическое</td><td><span class="priority-badge strategic">6&ndash;12 мес.</span></td></tr>
+                    <tr><td>11</td><td>Разморозить Агентство</td><td>Средние</td><td>Среднее</td><td><span class="priority-badge strategic">9&ndash;12 мес.</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- GOALS -->
+    <div id="goals" class="section" style="animation-delay:200ms">
+        <div class="section-header">
+            <div class="section-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Цели на год</div>
+                <div class="section-subtitle">Рекомендуемые целевые показатели</div>
+            </div>
+        </div>
+        <div class="goals-grid">
+            <div class="goal-card"><div class="goal-value" style="color:var(--green)">24</div><div class="goal-label">объекта за год (2/мес.)</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--accent)">1 500</div><div class="goal-label">активных инвесторов (+67%)</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--cyan)">150К</div><div class="goal-label">средний чек первого вложения</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--yellow)">&lt; 5К</div><div class="goal-label">CAC (стоимость привлечения)</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--green)">&gt; 70</div><div class="goal-label">NPS (готовность рекомендовать)</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--purple)">100%</div><div class="goal-label">учёта в 1С (миграция)</div></div>
+            <div class="goal-card"><div class="goal-value" style="color:var(--orange)">ООО</div><div class="goal-label">юридическая структура</div></div>
+        </div>
+    </div>
+
+    <!-- FINAL THOUGHTS -->
+    <div class="section" style="animation-delay:300ms">
+        <div class="section-header">
+            <div class="section-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </div>
+            <div>
+                <div class="section-title">Финальные мысли</div>
+            </div>
+        </div>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Конкурентные преимущества</div>
+                    <div class="card-badge low">Сила</div>
+                </div>
+                <ul class="card-actions">
+                    <li><strong>Трек-рекорд:</strong> 120+ объектов &mdash; у конкурентов 10&ndash;20</li>
+                    <li><strong>Нишевая экспертиза:</strong> торги по банкротству &mdash; барьер входа</li>
+                    <li><strong>Сообщество:</strong> 900+ инвесторов &mdash; это комьюнити</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Главные угрозы</div>
+                    <div class="card-badge urgent">Внимание</div>
+                </div>
+                <ul class="card-actions">
+                    <li><strong>Регуляторная:</strong> без лицензии вы &mdash; &laquo;серая зона&raquo;</li>
+                    <li><strong>Операционная:</strong> одна ошибка в таблице = неправильные выплаты</li>
+                    <li><strong>Конкурентная:</strong> JetLend, Поток растут с лицензией ЦБ</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Smooth scroll for sidebar navigation
+document.querySelectorAll('.nav-item[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+// Intersection observer for active nav highlight
+const sections = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item[href^="#"]');
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            navItems.forEach(n => n.classList.remove('active'));
+            const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+            if (active) active.classList.add('active');
+        }
+    });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Animate sections on scroll
+const animObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.section, .kpi-card').forEach(el => animObserver.observe(el));
+</script>
+</body>
+</html>

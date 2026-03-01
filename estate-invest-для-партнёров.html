@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Для партнёров</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #080810;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.055);
+  --surface: #0f0f1a;
+  --text: #e8e8ef;
+  --text-2: #8888a0;
+  --text-3: #55556a;
+  --border: rgba(255,255,255,0.06);
+  --border-2: rgba(255,255,255,0.10);
+  --accent: #6366f1;
+  --accent-light: #a5b4fc;
+  --green: #22c55e; --green-bg: rgba(34,197,94,0.08);
+  --red: #ef4444;   --red-bg: rgba(239,68,68,0.08);
+  --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.08);
+  --cyan: #06b6d4;   --cyan-bg: rgba(6,182,212,0.08);
+  --purple: #a855f7; --purple-bg: rgba(168,85,247,0.08);
+  --orange: #f97316; --orange-bg: rgba(249,115,22,0.08);
+  --teal: #14b8a6;   --teal-bg: rgba(20,184,166,0.08);
+  --pink: #ec4899;   --pink-bg: rgba(236,72,153,0.08);
+  --r: 14px; --r-sm: 8px;
+  --tr: 0.2s cubic-bezier(.4,0,.2,1);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  background-image:
+    radial-gradient(ellipse at 5% 20%,  rgba(99,102,241,.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 95% 10%, rgba(168,85,247,.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%,rgba(6,182,212,.04) 0%, transparent 50%);
+}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  position: fixed; left:0; top:0; bottom:0; width:230px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+  display: flex; flex-direction: column;
+  z-index: 200; overflow-y: auto;
+}
+.sb-logo { padding: 0 8px 18px; border-bottom: 1px solid var(--border); margin-bottom:14px; }
+.sb-logo-name { font-size:15px; font-weight:800; letter-spacing:-.02em; }
+.sb-logo-name span { color: var(--accent); }
+.sb-logo-tag { font-size:10px; color:var(--text-3); margin-top:2px; font-weight:500; }
+.sb-sec { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); padding:14px 8px 5px; }
+.sb-link {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 10px; border-radius:var(--r-sm);
+  color:var(--text-2); font-size:12px; font-weight:500;
+  cursor:pointer; text-decoration:none; transition:all var(--tr);
+}
+.sb-link:hover { background:rgba(255,255,255,.05); color:var(--text); }
+.sb-link.active { background:rgba(99,102,241,.12); color:var(--accent-light); }
+.sb-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.sb-badge { margin-left:auto; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px; }
+
+/* ── MAIN ─────────────────────────────────── */
+.wrap { margin-left:230px; padding:0 0 120px; }
+
+/* ── HERO ─────────────────────────────────── */
+.hero {
+  padding: 64px 56px 56px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,.06) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--accent-light); background:rgba(99,102,241,.1);
+  border:1px solid rgba(99,102,241,.2); border-radius:999px;
+  padding:4px 12px; margin-bottom:20px;
+}
+.hero-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hero h1 {
+  font-size:48px; font-weight:900; letter-spacing:-.04em; line-height:1.08;
+  background: linear-gradient(140deg, #ffffff 30%, var(--accent-light) 70%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:12px;
+}
+.hero-sub { font-size:17px; color:var(--text-2); max-width:560px; line-height:1.6; margin-bottom:36px; }
+.hero-kpis { display:flex; gap:32px; flex-wrap:wrap; }
+.hero-kpi {}
+.hero-kpi-val { font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+.hero-kpi-lbl { font-size:12px; color:var(--text-2); margin-top:2px; }
+
+/* ── SECTION ──────────────────────────────── */
+.section { padding:56px 56px 0; }
+.section + .section { padding-top:48px; }
+.sec-header { margin-bottom:28px; }
+.sec-eyebrow { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:8px; }
+.sec-title { font-size:26px; font-weight:800; letter-spacing:-.02em; }
+.sec-sub { font-size:14px; color:var(--text-2); margin-top:6px; }
+
+/* ── DIVIDER ──────────────────────────────── */
+.divider { height:1px; background:var(--border); margin:48px 56px 0; }
+
+/* ── CARD ─────────────────────────────────── */
+.card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--r); padding:22px 24px;
+  transition:all var(--tr);
+}
+.card:hover { background:var(--bg-card-hover); border-color:var(--border-2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,.25); }
+
+/* ── GRID ─────────────────────────────────── */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.gauto { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }
+
+/* ── STAT CARDS ───────────────────────────── */
+.stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r); padding:20px 22px; }
+.stat-val { font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1.1; }
+.stat-lbl { font-size:12px; color:var(--text-2); margin-top:5px; }
+.stat-sub { font-size:11px; color:var(--text-3); margin-top:2px; }
+.badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:999px; margin-top:8px; }
+
+/* ── PHASE CARD ───────────────────────────── */
+.phase-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--r); padding:22px 24px;
+  display:flex; flex-direction:column; gap:14px;
+  transition:all var(--tr);
+}
+.phase-card:hover { background:var(--bg-card-hover); border-color:var(--border-2); transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.25); }
+.phase-num-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px;
+  font-size:12px; font-weight:800; flex-shrink:0;
+}
+.phase-header-row { display:flex; align-items:center; gap:10px; }
+.phase-name { font-size:15px; font-weight:700; letter-spacing:-.01em; }
+.phase-dept { font-size:11px; color:var(--text-2); margin-top:1px; }
+.phase-timing { font-size:10px; font-weight:600; margin-left:auto; opacity:.6; white-space:nowrap; }
+.phase-items { list-style:none; display:flex; flex-direction:column; gap:7px; }
+.phase-items li { font-size:12px; color:var(--text-2); line-height:1.5; padding-left:14px; position:relative; }
+.phase-items li::before { content:''; position:absolute; left:0; top:6px; width:5px; height:5px; border-radius:50%; }
+.phase-effect {
+  font-size:12px; font-weight:600; padding:8px 12px;
+  border-radius:var(--r-sm); margin-top:2px;
+}
+
+/* ── FLOW ─────────────────────────────────── */
+.flow {
+  display:flex; border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden; margin:16px 0;
+}
+.flow-step {
+  flex:1; padding:14px 10px; text-align:center;
+  background:var(--bg-card); border-right:1px solid var(--border);
+  transition:background var(--tr);
+}
+.flow-step:last-child { border-right:none; }
+.flow-step:hover { background:var(--bg-card-hover); }
+.flow-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); margin-bottom:4px; }
+.flow-val { font-size:11px; color:var(--text-2); line-height:1.4; }
+
+/* ── TG PREVIEW ───────────────────────────── */
+.tg {
+  background:#17212b; border-radius:var(--r);
+  padding:16px 20px; font-family:'JetBrains Mono',monospace;
+  font-size:12px; color:#c8d6df; border:1px solid rgba(255,255,255,.05);
+  line-height:1.75;
+}
+.tg-from { color:#5bb2f9; font-weight:600; margin-bottom:6px; display:block; }
+.tg .hi { color:#ffd54f; }
+.tg .ok { color:#4caf50; }
+.tg .dim { color:#7d8b93; }
+
+/* ── BENTO HERO (МЕТРИКИ) ─────────────────── */
+.bento { display:grid; grid-template-columns:repeat(12,1fr); gap:14px; }
+.b3 { grid-column:span 3; }
+.b4 { grid-column:span 4; }
+.b6 { grid-column:span 6; }
+.b12 { grid-column:span 12; }
+
+/* ── TABLE ────────────────────────────────── */
+.tbl-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { text-align:left; padding:11px 14px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); border-bottom:1px solid var(--border); background:rgba(255,255,255,.02); }
+tbody td { padding:11px 14px; color:var(--text-2); border-bottom:1px solid rgba(255,255,255,.025); vertical-align:middle; line-height:1.5; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:rgba(255,255,255,.02); }
+td strong { color:var(--text); }
+
+/* ── VERDICT ──────────────────────────────── */
+.verdict {
+  background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(168,85,247,.04));
+  border:1px solid rgba(99,102,241,.14); border-radius:var(--r);
+  padding:20px 24px; font-size:14px; color:var(--text-2); line-height:1.65;
+}
+.verdict strong { color:var(--accent-light); }
+
+/* ── LIST ─────────────────────────────────── */
+.dot-list { list-style:none; display:flex; flex-direction:column; gap:9px; }
+.dot-list li { font-size:13px; color:var(--text-2); line-height:1.5; padding-left:16px; position:relative; }
+.dot-list li::before { content:''; position:absolute; left:0; top:7px; width:6px; height:6px; border-radius:50%; background:var(--accent); opacity:.6; }
+
+/* ── ROADMAP LINE ─────────────────────────── */
+.roadmap { position:relative; padding-left:28px; display:flex; flex-direction:column; gap:0; }
+.roadmap::before { content:''; position:absolute; left:9px; top:8px; bottom:8px; width:2px; background:linear-gradient(to bottom,var(--red),var(--orange),var(--yellow),var(--green),var(--cyan),var(--teal),var(--purple),var(--pink)); border-radius:2px; }
+.rm-item { position:relative; padding:0 0 28px 20px; }
+.rm-item:last-child { padding-bottom:0; }
+.rm-dot { position:absolute; left:-22px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid; background:var(--bg); flex-shrink:0; }
+.rm-period { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px; }
+.rm-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+.rm-desc { font-size:12px; color:var(--text-2); line-height:1.5; }
+
+/* ── ENDGAME ──────────────────────────────── */
+.endgame-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+.eg-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; }
+.eg-who { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
+.eg-what { font-size:13px; color:var(--text-2); line-height:1.55; }
+
+/* ── PRIO TABLE BADGES ───────────────────── */
+.pb { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:999px; }
+.pb-now   { background:var(--red-bg);    color:var(--red); }
+.pb-soon  { background:var(--yellow-bg); color:var(--yellow); }
+.pb-later { background:var(--cyan-bg);   color:var(--cyan); }
+.pb-str   { background:var(--purple-bg); color:var(--purple); }
+
+/* ── FOOTER ───────────────────────────────── */
+.footer { padding:40px 56px; border-top:1px solid var(--border); margin-top:64px; display:flex; align-items:center; justify-content:space-between; }
+.footer-logo { font-size:16px; font-weight:800; letter-spacing:-.02em; }
+.footer-logo span { color:var(--accent); }
+.footer-note { font-size:12px; color:var(--text-3); }
+
+/* ── ANIMATIONS ───────────────────────────── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.fade { animation:fadeUp .5s ease forwards; opacity:0; }
+.fade:nth-child(1){animation-delay:.05s}
+.fade:nth-child(2){animation-delay:.1s}
+.fade:nth-child(3){animation-delay:.15s}
+.fade:nth-child(4){animation-delay:.2s}
+.fade:nth-child(5){animation-delay:.25s}
+.fade:nth-child(6){animation-delay:.3s}
+.fade:nth-child(7){animation-delay:.35s}
+.fade:nth-child(8){animation-delay:.4s}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+@media(max-width:900px){
+  .sidebar{display:none} .wrap{margin-left:0}
+  .hero{padding:32px 20px 28px} .section{padding:36px 20px 0}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .bento .b3,.bento .b4,.bento .b6,.bento .b12{grid-column:span 12}
+  .flow{flex-direction:column}
+  .flow-step{border-right:none;border-bottom:1px solid var(--border)}
+  .flow-step:last-child{border-bottom:none}
+  .footer{flex-direction:column;gap:12px;text-align:center;padding:32px 20px}
+  .divider{margin:40px 20px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name"><span>Estate</span> Invest</div>
+    <div class="sb-logo-tag">Материалы для партнёров</div>
+  </div>
+
+  <div class="sb-sec">AI-трансформация</div>
+  <a href="#ai-concept" class="sb-link active"><div class="sb-dot" style="background:#6366f1"></div>Концепция</a>
+  <a href="#parsing-now" class="sb-link"><div class="sb-dot" style="background:#f59e0b"></div>Парсинг и анализ<span class="sb-badge" style="background:rgba(245,158,11,.1);color:var(--yellow)">✓ №1</span></a>
+  <a href="#dashboard-now" class="sb-link"><div class="sb-dot" style="background:#22c55e"></div>Дашборд и данные<span class="sb-badge" style="background:var(--green-bg);color:var(--green)">✓ №2</span></a>
+  <a href="#content-factory" class="sb-link"><div class="sb-dot" style="background:#06b6d4"></div>Контент-завод</a>
+  <a href="#ai-phases" class="sb-link"><div class="sb-dot" style="background:#ef4444"></div>8 фаз<span class="sb-badge" style="background:var(--red-bg);color:var(--red)">старт</span></a>
+  <a href="#ai-endgame" class="sb-link"><div class="sb-dot" style="background:#22c55e"></div>Итоговое состояние</a>
+
+  <div class="sb-sec">О компании</div>
+  <a href="#company" class="sb-link"><div class="sb-dot" style="background:#06b6d4"></div>Профиль</a>
+  <a href="#metrics" class="sb-link"><div class="sb-dot" style="background:#a855f7"></div>Ключевые цифры</a>
+  <a href="#model" class="sb-link"><div class="sb-dot" style="background:#14b8a6"></div>Бизнес-модель</a>
+  <a href="#team" class="sb-link"><div class="sb-dot" style="background:#f97316"></div>Команда</a>
+  <a href="#objects" class="sb-link"><div class="sb-dot" style="background:#eab308"></div>Объекты и результаты</a>
+
+  <div class="sb-sec">Стратегия</div>
+  <a href="#recs" class="sb-link"><div class="sb-dot" style="background:#ec4899"></div>Рекомендации</a>
+  <a href="#prio" class="sb-link"><div class="sb-dot" style="background:#6366f1"></div>Приоритеты</a>
+  <a href="#goals" class="sb-link"><div class="sb-dot" style="background:#22c55e"></div>Цели на год</a>
+</nav>
+
+<!-- ═══ MAIN ════════════════════════════════════════════════ -->
+<div class="wrap">
+
+<!-- ─── HERO ──────────────────────────────────────────────── -->
+<div id="top" class="hero">
+  <div class="hero-tag"><div class="hero-dot"></div>Закрытый материал для партнёров</div>
+  <h1>Estate Invest</h1>
+  <div class="hero-sub">Инвестиционная компания. 120+ реализованных объектов. 900+ инвесторов. Путь к AI-управляемой компании.</div>
+  <div class="hero-kpis">
+    <div class="hero-kpi"><div class="hero-kpi-val" style="color:var(--green)">~388 млн</div><div class="hero-kpi-lbl">совокупная цена продажи</div></div>
+    <div class="hero-kpi"><div class="hero-kpi-val" style="color:var(--accent-light)">~37 млн</div><div class="hero-kpi-lbl">выплачено инвесторам</div></div>
+    <div class="hero-kpi"><div class="hero-kpi-val" style="color:var(--cyan)">900+</div><div class="hero-kpi-lbl">активных инвесторов</div></div>
+    <div class="hero-kpi"><div class="hero-kpi-val" style="color:var(--yellow)">10–40%</div><div class="hero-kpi-lbl">доходность объектов</div></div>
+    <div class="hero-kpi"><div class="hero-kpi-val" style="color:var(--purple)">120+</div><div class="hero-kpi-lbl">реализованных объектов</div></div>
+  </div>
+</div>
+
+<!-- ─── AI КОНЦЕПЦИЯ ───────────────────────────────────────── -->
+<div id="ai-concept" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">AI-трансформация</div>
+    <div class="sec-title">От ручного управления — к AI-компании</div>
+    <div class="sec-sub">Дорожная карта автоматизации 8 отделов. Цель: команда фокусируется на стратегии, AI делает операционку.</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:20px">
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:10px">Сейчас</div>
+      <ul class="dot-list">
+        <li>Люди делают работу — иногда используют инструменты</li>
+        <li>16 таблиц Google Sheets, 117 касс вручную</li>
+        <li>Объявления, кейсы, отчёты — всё руками</li>
+        <li>Поддержка 3 человека на типовые вопросы</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:10px">Цель (12–18 мес.)</div>
+      <ul class="dot-list">
+        <li>AI делает работу — партнёры принимают решения</li>
+        <li>Единая база, автоотчёты, автовыплаты</li>
+        <li>Контент, анализ, поддержка — автоматически</li>
+        <li>Компания работает в 5–10× эффективнее</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <strong>Главный принцип:</strong> не заменять людей — убирать рутину. Каждый сотрудник освобождается от ручного труда и переходит на уровень выше: стратегия, отношения, экспертиза.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ДАШБОРД И ДАННЫЕ ─────────────────────────────────── -->
+<!-- ─── ПАРСИНГ И АНАЛИЗ ──────────────────────────────────── -->
+<div id="parsing-now" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow" style="color:var(--yellow)">Подтверждённый проект №1 — делаем прямо сейчас</div>
+    <div class="sec-title">Умный парсер и AI-анализ недвижимости</div>
+    <div class="sec-sub">Автоматически находим самые ликвидные и интересные объекты по всей России — каждые 15 минут, без участия команды.</div>
+  </div>
+
+  <!-- Три компонента -->
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔍</div>
+        <div style="font-size:15px;font-weight:700">Парсинг аукционов</div>
+      </div>
+      <ul class="dot-list">
+        <li>Автоматический сбор объектов с торгов по 20+ городам</li>
+        <li>Мониторинг каждые 15 минут, 7 дней в неделю</li>
+        <li>Авито, Росимущество, региональные площадки</li>
+        <li>Дедупликация — каждый объект обрабатывается один раз</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🧠</div>
+        <div style="font-size:15px;font-weight:700">AI-скоринг объектов</div>
+      </div>
+      <ul class="dot-list">
+        <li>Анализ по 50+ параметрам: тип, локация, цена, состояние</li>
+        <li>Оценка ликвидности и потенциала прибыли</li>
+        <li>Сравнение с рыночными ценами в регионе</li>
+        <li>Флаги рисков: обременения, проблемные собственники</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(245,158,11,.15);background:rgba(245,158,11,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📬</div>
+        <div style="font-size:15px;font-weight:700">Дайджест Топ-5</div>
+      </div>
+      <ul class="dot-list">
+        <li>Каждое утро в Telegram — 5 лучших объектов дня</li>
+        <li>ROI, цена покупки vs рынок, ключевые параметры</li>
+        <li>Прямые ссылки на объявления для быстрого решения</li>
+        <li>История в Google Sheets для ретроспективы</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Пайплайн -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:16px">Как работает пайплайн</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--yellow)">Торговые площадки</div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">Парсер<br><span style="font-size:11px;color:var(--text-3)">каждые 15 мин</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">AI-скоринг<br><span style="font-size:11px;color:var(--text-3)">50+ параметров</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">База данных<br><span style="font-size:11px;color:var(--text-3)">Google Sheets</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--yellow)">Telegram<br><span style="font-size:11px">Топ-5 ежедневно</span></div>
+    </div>
+  </div>
+
+  <!-- Метрики -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">20+</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">городов России</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">15 мин</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">интервал мониторинга</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">50+</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">параметров AI-анализа</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">Топ-5</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">лучших объектов ежедневно</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">24/7</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">без участия команды</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">0</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">пропущенных объектов</div>
+    </div>
+  </div>
+
+  <div class="verdict" style="border-color:rgba(245,158,11,.15)">
+    <strong style="color:var(--yellow)">Прототип уже работает:</strong> СКАУТ мониторит Авито в тестовом режиме. Estate Invest получит ту же технологию, заточенную под недвижимость — аукционы, банкротства, вынужденные продажи.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ДАШБОРД И ДАННЫЕ ──────────────────────────────────── -->
+<div id="dashboard-now" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow" style="color:var(--green)">Подтверждённый проект №2 — делаем прямо сейчас</div>
+    <div class="sec-title">Дашборд и систематизация данных</div>
+    <div class="sec-sub">Фундамент для всей AI-трансформации. Без единой базы и удобного ввода — всё остальное невозможно.</div>
+  </div>
+
+  <!-- Три кита -->
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-color:rgba(34,197,94,.15);background:rgba(34,197,94,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📊</div>
+        <div style="font-size:15px;font-weight:700">Единый дашборд</div>
+      </div>
+      <ul class="dot-list">
+        <li>Командный центр партнёров в реальном времени</li>
+        <li>AUM, объекты по стадиям, денежный поток</li>
+        <li>Прогресс к годовым целям (24 объекта)</li>
+        <li>Доступ с любого устройства — браузер</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(99,102,241,.15);background:rgba(99,102,241,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✏️</div>
+        <div style="font-size:15px;font-weight:700">Упрощение ввода</div>
+      </div>
+      <ul class="dot-list">
+        <li>Новый объект — одна форма вместо 3 таблиц</li>
+        <li>Транзакция — одно поле, всё считается само</li>
+        <li>Мобильный ввод: телефон → сразу в базу</li>
+        <li>Автозаполнение из торговых площадок</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(6,182,212,.15);background:rgba(6,182,212,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--cyan-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🗄️</div>
+        <div style="font-size:15px;font-weight:700">Систематизация данных</div>
+      </div>
+      <ul class="dot-list">
+        <li>16 таблиц + 117 касс → одна структура</li>
+        <li>Каждый объект: финансы, этапы, документы</li>
+        <li>История всех 120+ объектов в одном месте</li>
+        <li>Основа для AI-анализа и прогнозов</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- До / после -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr">
+      <div style="padding:20px 24px;border-right:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:14px">Сейчас — боль</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--red);font-weight:700;font-size:16px">16</span> таблиц Google Sheets
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--red);font-weight:700;font-size:16px">117</span> индивидуальных касс
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--red);font-weight:700;font-size:16px">76К</span> строк транзакций вручную
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--red);font-weight:700;font-size:16px">∞</span> ручных копирований данных
+          </div>
+        </div>
+      </div>
+      <div style="padding:20px 24px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:14px">После — порядок</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--green);font-weight:700;font-size:16px">1</span> источник истины (1С + дашборд)
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--green);font-weight:700;font-size:16px">0</span> ручных касс — всё в системе
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--green);font-weight:700;font-size:16px">авто</span> расчёт доходности и выплат
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)">
+            <span style="color:var(--green);font-weight:700;font-size:16px">live</span> дашборд без обновлений руками
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Что видит партнёр на дашборде -->
+  <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px">Что партнёр видит на дашборде</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--green)">AUM</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">капитал под управлением</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">Канбан</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">объекты по стадиям</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--purple)">ROI</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">средняя доходность</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--yellow)">Выплаты</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">прогноз на квартал</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--orange)">24/год</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">прогресс к цели</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--teal)">Поток</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">деньги в / деньги из</div>
+    </div>
+  </div>
+
+  <div class="verdict" style="border-color:rgba(34,197,94,.15)">
+    <strong style="color:var(--green)">Почему это второе:</strong> единая база данных — фундамент. Без неё AI не на чём учиться, автоотчёты не из чего строить, прогнозы не на чём считать. Это не просто удобство — это условие для всего остального.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── КОНТЕНТ-ЗАВОД ─────────────────────────────────────── -->
+<div id="content-factory" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow" style="color:var(--cyan)">Проект автоматизации маркетинга</div>
+    <div class="sec-title">Контент-завод: AI генерирует и публикует сам</div>
+    <div class="sec-sub">Один завершённый кейс превращается в 5 форматов контента и уходит во все каналы — без участия команды.</div>
+  </div>
+
+  <!-- Три компонента -->
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-color:rgba(6,182,212,.15);background:rgba(6,182,212,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--cyan-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✍️</div>
+        <div style="font-size:15px;font-weight:700">AI-генерация</div>
+      </div>
+      <ul class="dot-list">
+        <li>На основе реальных кейсов, цифр и объектов</li>
+        <li>Заголовки, текст, призывы к действию — всё автоматически</li>
+        <li>Тон под канал: экспертный для VC.ru, живой для Telegram</li>
+        <li>Нет «воды» — только факты и цифры Estate Invest</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(6,182,212,.15);background:rgba(6,182,212,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--cyan-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔄</div>
+        <div style="font-size:15px;font-weight:700">Мультиформат</div>
+      </div>
+      <ul class="dot-list">
+        <li>1 кейс → 5 форматов одним кликом</li>
+        <li>Пост Telegram + сторис + статья VC.ru</li>
+        <li>Объявление Авито + email-рассылка инвесторам</li>
+        <li>Адаптация под каждую площадку автоматически</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:rgba(6,182,212,.15);background:rgba(6,182,212,.03)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--cyan-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📅</div>
+        <div style="font-size:15px;font-weight:700">Автопостинг</div>
+      </div>
+      <ul class="dot-list">
+        <li>Публикация по расписанию — Telegram, VK, Авито</li>
+        <li>Оптимальное время для максимального охвата</li>
+        <li>Аналитика просмотров и конверсий</li>
+        <li>Воронка работает 24/7 без участия маркетолога</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Пайплайн контент-завода -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:16px">Пайплайн контент-завода</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--cyan)">Закрытая сделка<br><span style="font-size:11px">кейс + цифры</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">AI пишет контент<br><span style="font-size:11px;color:var(--text-3)">5 форматов</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">Проверка (опц.)<br><span style="font-size:11px;color:var(--text-3)">1 мин</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text-2)">Планировщик<br><span style="font-size:11px;color:var(--text-3)">расписание</span></div>
+      <div style="color:var(--text-3);font-size:16px">→</div>
+      <div style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--cyan)">Все каналы<br><span style="font-size:11px">авто</span></div>
+    </div>
+  </div>
+
+  <!-- Результат в цифрах -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">20+</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">постов/месяц без усилий</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">5×</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">охват из одного кейса</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">0 ч</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">маркетолога в месяц</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">24/7</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">воронка привлечения</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">5</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">каналов одновременно</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--cyan)">авто</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:4px">аналитика охватов</div>
+    </div>
+  </div>
+
+  <div class="verdict" style="border-color:rgba(6,182,212,.15)">
+    <strong style="color:var(--cyan)">Главный инструмент привлечения:</strong> контент — единственный канал с нулевой стоимостью. Завод делает это стабильно и масштабируемо, без зависимости от личной активности команды.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── AI ФАЗЫ ────────────────────────────────────────────── -->
+<div id="ai-phases" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">8 фаз трансформации</div>
+    <div class="sec-title">По каждому отделу — конкретный AI-слой</div>
+  </div>
+
+  <!-- ФАЗА 1 -->
+  <div style="margin-bottom:32px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="background:var(--red-bg);border:1px solid rgba(239,68,68,.2);color:var(--red);font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px">Фаза 1 — СТАРТ 🔥</div>
+      <div style="font-size:18px;font-weight:800;letter-spacing:-.02em">Аналитика — Парсер объектов</div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text-3)">1–3 мес.</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-lbl">Источники</div><div class="flow-val">tbankrot, torgi.gov, m-ets, Росимущество</div></div>
+      <div class="flow-step"><div class="flow-lbl">Парсинг</div><div class="flow-val">n8n собирает лоты автоматически</div></div>
+      <div class="flow-step"><div class="flow-lbl">AI-анализ</div><div class="flow-val">ROI, риски, скоринг каждого лота</div></div>
+      <div class="flow-step"><div class="flow-lbl">Фильтр</div><div class="flow-val">горячий / интересный / пропустить</div></div>
+      <div class="flow-step"><div class="flow-lbl">Telegram</div><div class="flow-val">Топ-5 объектов каждое утро 08:00</div></div>
+    </div>
+    <div class="tg">
+      <span class="tg-from">📊 Estate Invest — Аналитика &nbsp;&nbsp; 08:00</span>
+      <span class="hi">🔥 Топ-5 объектов за 26.02.2026</span><br><br>
+      <span class="ok">1. Краснодар, ЗУ 12 сот.</span><br>
+      <span class="dim">&nbsp;&nbsp; Старт 800К → рынок 2.1М | ROI ~40% | Торги 05.03 ✅</span><br><br>
+      <span class="ok">2. Пермь, Соликамская, коммерция 420 м²</span><br>
+      <span class="dim">&nbsp;&nbsp; Старт 4.2М → рынок 9.8М | ROI ~35% | Торги 10.03 ⚠️ залог</span><br>
+      <span class="dim">...</span>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-3);padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-sm)">
+      <strong style="color:var(--text-2)">Расширение по РФ:</strong> &nbsp;Фаза 1: Пермь + Калининград + Самара → Фаза 2: + Краснодар + Нижний Новгород → Фаза 3: все регионы РФ (100+ площадок)
+    </div>
+  </div>
+
+  <!-- ФАЗЫ 2–8 СЕТКА -->
+  <div class="gauto fade">
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--orange-bg);color:var(--orange)">2</div>
+        <div><div class="phase-name">Реализация объектов</div><div class="phase-dept" style="color:var(--orange)">Единая база + AI-объявления</div></div>
+        <div class="phase-timing">2–4 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li style="--c:var(--orange)">16 таблиц → единая 1С, все 118+ объектов</li>
+        <li>Канбан: торги → выкуп → ремонт → продажа → закрыт</li>
+        <li>AI пишет объявление из карточки объекта</li>
+        <li>Дашборд партнёров в реальном времени</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--orange-bg);color:var(--orange)">−80% ручного труда со Sheets</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--yellow-bg);color:var(--yellow)">3</div>
+        <div><div class="phase-name">Маркетинг</div><div class="phase-dept" style="color:var(--yellow)">AI полностью берёт на себя</div></div>
+        <div class="phase-timing">3–5 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li>Закрылся объект → AI автоматически пишет кейс</li>
+        <li>Автопостинг: Telegram + VK + Дзен по расписанию</li>
+        <li>AI воронка прогрева новых лидов (7 дней)</li>
+        <li>UTM → CRM: откуда приходят инвесторы</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--yellow-bg);color:var(--yellow)">3 кейса/неделю автоматически</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--green-bg);color:var(--green)">4</div>
+        <div><div class="phase-name">Поддержка инвесторов</div><div class="phase-dept" style="color:var(--green)">AI первая линия</div></div>
+        <div class="phase-timing">4–6 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li>80% вопросов — AI-бот отвечает мгновенно</li>
+        <li>«Когда выплата по ИП №45?» → AI смотрит в базу</li>
+        <li>Умные уведомления о стадиях объекта</li>
+        <li>Автоонбординг новых инвесторов</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--green-bg);color:var(--green)">−70% нагрузки на поддержку</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--cyan-bg);color:var(--cyan)">5</div>
+        <div><div class="phase-name">Финансы и статистика</div><div class="phase-dept" style="color:var(--cyan)">Автоотчётность</div></div>
+        <div class="phase-timing">5–7 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li>Еженедельный автоотчёт партнёрам из 1С</li>
+        <li>Ежемесячный отчёт каждому инвестору</li>
+        <li>AI прогноз выплат на квартал вперёд</li>
+        <li>Автоматический расчёт и реестр выплат</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--cyan-bg);color:var(--cyan)">Александра → стратегия, не ввод</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--teal-bg);color:var(--teal)">6</div>
+        <div><div class="phase-name">Юридический</div><div class="phase-dept" style="color:var(--teal)">AI Due Diligence</div></div>
+        <div class="phase-timing">6–8 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li>PDF документов лота → AI анализирует риски</li>
+        <li>Итог: «Чисто» / «Риски: [список]» / «Стоп»</li>
+        <li>Инвестор + объект → AI заполняет договор</li>
+        <li>Мониторинг изменений ФЗ-259, ФЗ-335</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--teal-bg);color:var(--teal)">Due diligence за 10 мин вместо 2 дней</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--purple-bg);color:var(--purple)">7</div>
+        <div><div class="phase-name">Контент</div><div class="phase-dept" style="color:var(--purple)">AI-студия кейсов</div></div>
+        <div class="phase-timing">пар. с 3</div>
+      </div>
+      <ul class="phase-items">
+        <li>120+ объектов = вечный контент</li>
+        <li>1 кейс → 5 форматов: TG, VK, Reels, Дзен, email</li>
+        <li>Субтитры для видео через Whisper</li>
+        <li>Глеб проверяет — не пишет с нуля</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--purple-bg);color:var(--purple)">1 кейс → 5 форматов авто</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header-row">
+        <div class="phase-num-badge" style="background:var(--pink-bg);color:var(--pink)">8</div>
+        <div><div class="phase-name">IT / Платформа</div><div class="phase-dept" style="color:var(--pink)">Умный ЛК инвестора</div></div>
+        <div class="phase-timing">7–12 мес.</div>
+      </div>
+      <ul class="phase-items">
+        <li>AI-советник: «300К свободных → ИП №119, 28% прогноз»</li>
+        <li>Умный поиск и подбор объектов под профиль</li>
+        <li>Подписание договора одной кнопкой</li>
+        <li>Claude Code / Cursor ускоряет разработку</li>
+      </ul>
+      <div class="phase-effect" style="background:var(--pink-bg);color:var(--pink)">ЛК = конкурентное преимущество</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ENDGAME ────────────────────────────────────────────── -->
+<div id="ai-endgame" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Конечное состояние</div>
+    <div class="sec-title">Как выглядит компания через 12–18 месяцев</div>
+  </div>
+  <div class="endgame-grid">
+    <div class="eg-card"><div class="eg-who" style="color:var(--red)">Аналитик утром</div><div class="eg-what">Открывает Telegram → <strong style="color:var(--text)">топ-10 горячих лотов по всей России</strong> с AI-анализом. Выбирает, не ищет.</div></div>
+    <div class="eg-card"><div class="eg-who" style="color:var(--orange)">Иван (объекты)</div><div class="eg-what">Видит канбан → объект в «Продажа» → <strong style="color:var(--text)">объявление уже написано AI.</strong> Нужно только проверить.</div></div>
+    <div class="eg-card"><div class="eg-who" style="color:var(--yellow)">Глеб (контент)</div><div class="eg-what">Открывает очередь → <strong style="color:var(--text)">7 готовых кейсов ждут публикации.</strong> Нажимает «Опубликовать».</div></div>
+    <div class="eg-card"><div class="eg-who" style="color:var(--green)">Ирина (поддержка)</div><div class="eg-what">За день: <strong style="color:var(--text)">2–3 сложных случая.</strong> Всё остальное AI-бот закрыл сам мгновенно.</div></div>
+    <div class="eg-card"><div class="eg-who" style="color:var(--cyan)">Александра (статистика)</div><div class="eg-what">Получает <strong style="color:var(--text)">готовый автоотчёт.</strong> Проверяет цифры — не составляет с нуля.</div></div>
+    <div class="eg-card" style="background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(6,182,212,.04));border-color:rgba(99,102,241,.15)"><div class="eg-who" style="color:var(--accent-light)">Ярослав и партнёры</div><div class="eg-what" style="font-size:14px">Компания работает в <strong style="color:var(--text)">5–10 раз эффективнее</strong> при той же команде. Стратегия, сделки, рост — не операционка.</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ПРОФИЛЬ КОМПАНИИ ───────────────────────────────────── -->
+<div id="company" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">О компании</div>
+    <div class="sec-title">Estate Invest — кто мы</div>
+    <div class="sec-sub">Инвестиционная компания, специализирующаяся на выкупе недвижимости на торгах ниже рынка с последующей реализацией с прибылью.</div>
+  </div>
+  <div class="verdict" style="margin-bottom:20px">
+    <strong>Специализация:</strong> банкротные торги, залоги, муниципальные и арестованные объекты. Покупаем дешевле рынка, создаём добавленную стоимость (ремонт, раздел, межевание), продаём. Прибыль распределяется между инвесторами <strong>50/50</strong>.
+  </div>
+  <div class="g3">
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Юридическое лицо</div><div style="font-weight:600">ИП Мудров Иван Юрьевич</div></div>
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Мин. вход для инвестора</div><div style="font-weight:600">от 1 000 руб.</div></div>
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Распределение прибыли</div><div style="font-weight:600">50 / 50 (компания / инвесторы)</div></div>
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Реферальная программа</div><div style="font-weight:600">10% от прибыли за инвестора</div></div>
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Договор</div><div style="font-weight:600">Электронный (SignEasy)</div></div>
+    <div class="card"><div style="font-size:11px;color:var(--text-3);margin-bottom:6px">Сайт / ЛК</div><div style="font-weight:600">estateinvest.online</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── МЕТРИКИ ────────────────────────────────────────────── -->
+<div id="metrics" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Масштаб</div>
+    <div class="sec-title">Ключевые цифры</div>
+    <div class="sec-sub">Актуально на 25.02.2026</div>
+  </div>
+  <div class="bento">
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--green)">120+</div><div class="stat-lbl">реализованных объектов</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--accent-light)">900+</div><div class="stat-lbl">активных инвесторов</div><div class="stat-sub">~2 000 зарегистрированных</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--yellow)">~196 млн</div><div class="stat-lbl">общая сумма покупки</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--green)">~388 млн</div><div class="stat-lbl">совокупная цена продажи</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--purple)">~37 млн</div><div class="stat-lbl">прибыль инвесторам</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--cyan)">37%</div><div class="stat-lbl">конверсия воронки</div><div class="stat-sub">425 из 1 142 лидов</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--orange)">10–40%</div><div class="stat-lbl">доходность объектов</div></div>
+    <div class="b3 stat-card fade"><div class="stat-val" style="color:var(--teal)">3–12 мес.</div><div class="stat-lbl">средний срок объекта</div></div>
+  </div>
+
+  <!-- Лучшие объекты -->
+  <div style="margin-top:20px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px">Примеры завершённых объектов</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Объект</th><th>Тип</th><th>ROI</th><th>Срок</th></tr></thead>
+        <tbody>
+          <tr><td>Пермь, Карпинского, 110</td><td>Жилая</td><td><strong style="color:var(--green)">34.27%</strong></td><td>18 дней</td></tr>
+          <tr><td>Красный Восход</td><td>Земля</td><td><strong style="color:var(--green)">42.37%</strong></td><td>15 мес.</td></tr>
+          <tr><td>Пермь, Сальский, 11</td><td>Жилая</td><td><strong style="color:var(--green)">16.66%</strong></td><td>4 мес.</td></tr>
+          <tr><td>Самара, Ленинградская, 77</td><td>Коммерция</td><td><strong style="color:var(--green)">20.85%</strong></td><td>4 мес.</td></tr>
+          <tr><td>Калининград, Коврово</td><td>Земля</td><td><strong style="color:var(--green)">30.31%</strong></td><td>8.5 мес.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── БИЗНЕС-МОДЕЛЬ ──────────────────────────────────────── -->
+<div id="model" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Бизнес-модель</div>
+    <div class="sec-title">Цикл работы с объектом</div>
+  </div>
+  <div class="flow" style="margin-bottom:20px">
+    <div class="flow-step"><div class="flow-lbl">Поиск</div><div class="flow-val">Мониторинг торгов, анализ потенциала</div></div>
+    <div class="flow-step"><div class="flow-lbl">Выкуп</div><div class="flow-val">Участие в торгах ниже рынка</div></div>
+    <div class="flow-step"><div class="flow-lbl">Ценность</div><div class="flow-val">Ремонт, раздел, межевание</div></div>
+    <div class="flow-step"><div class="flow-lbl">Продажа</div><div class="flow-val">Авито, показы, закрытие</div></div>
+    <div class="flow-step"><div class="flow-lbl">Выплата</div><div class="flow-val">50/50 по долям инвесторов</div></div>
+  </div>
+
+  <!-- Типы объектов + География -->
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:14px">Типы объектов</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Земельные участки</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~70%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:70%;background:var(--green);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Жилая недвижимость</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~15%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:15%;background:var(--cyan);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Коммерческая</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~10%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:10%;background:var(--purple);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Авто / Зарубежная</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~5%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:5%;background:var(--yellow);border-radius:2px"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:14px">География</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Пермь и край</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~60%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:60%;background:var(--accent);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Калининград</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~20%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:20%;background:var(--cyan);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">Самара / Тольятти</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~10%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:10%;background:var(--teal);border-radius:2px"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-size:13px;color:var(--text-2)">СПб, Москва, другие</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">~10%</div>
+          <div style="width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:10%;background:var(--yellow);border-radius:2px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── КОМАНДА ────────────────────────────────────────────── -->
+<div id="team" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Команда</div>
+    <div class="sec-title">3 партнёра + ~10 сотрудников</div>
+  </div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Ярослав Балакин</div>
+      <div style="font-size:12px;color:var(--accent-light);margin-bottom:10px">Стратегия и аналитика</div>
+      <div style="font-size:12px;color:var(--text-2)">Подбор объектов, анализ торгов, выкуп, IT-инструменты</div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Иван Мудров</div>
+      <div style="font-size:12px;color:var(--orange);margin-bottom:10px">Реализация объектов</div>
+      <div style="font-size:12px;color:var(--text-2)">Обслуживание объектов, ремонт, раздел помещений</div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Глеб Хрянин</div>
+      <div style="font-size:12px;color:var(--purple);margin-bottom:10px">Контент и коммуникации</div>
+      <div style="font-size:12px;color:var(--text-2)">Ведение пабликов, коммуникация с аудиторией</div>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Отдел</th><th>Сотрудники</th><th>KPI</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Аналитика</strong></td><td>Кирилл Барсуков, Антонина Скурко, Татьяна Романова</td><td>50+ лотов/мес., скидка 30%+</td></tr>
+        <tr><td><strong>Работа с объектами</strong></td><td>Иван Мудров, Жанна Шпехт</td><td>Подготовка квартиры ≤30 дней</td></tr>
+        <tr><td><strong>Продажи</strong></td><td>Антонина Скурко, Наталья Валетко</td><td>Продажа ≤45 дней, 15–25% конв.</td></tr>
+        <tr><td><strong>Поддержка инвесторов</strong></td><td>Ирина Боброва, Наталия Титова, Снежана Подкорытова</td><td>Ответ ≤2 ч., решение с 1 контакта 95%+</td></tr>
+        <tr><td><strong>IT / Разработка</strong></td><td>Сергей Дмитриев, Александр Никулин</td><td>ЛК инвестора</td></tr>
+        <tr><td><strong>Юридический</strong></td><td>Галина Наборщикова</td><td>Договоры, проверка документов</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── АКТИВНЫЕ ОБЪЕКТЫ ───────────────────────────────────── -->
+<div id="objects" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Портфель</div>
+    <div class="sec-title">Крупные активные объекты</div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>ИП</th><th>Объект</th><th>Тип</th><th>Вложено</th><th>Цена продажи</th></tr></thead>
+      <tbody>
+        <tr><td><strong>№31</strong></td><td>Пермь, Соликамская, 319</td><td>Коммерция</td><td>29.4 млн</td><td><strong style="color:var(--green)">60 млн</strong></td></tr>
+        <tr><td><strong>№91</strong></td><td>Добрянка, Луначарского, 33</td><td>ЗУ + Дом</td><td>21 млн</td><td><strong style="color:var(--green)">54.5 млн</strong></td></tr>
+        <tr><td><strong>№92</strong></td><td>Нытва, Карла Маркса, 84</td><td>Коммерция</td><td>15.7 млн</td><td><strong style="color:var(--green)">27 млн</strong></td></tr>
+        <tr><td><strong>№75</strong></td><td>Лобаново, Путейская</td><td>Земля</td><td>981 тыс.</td><td><strong style="color:var(--green)">8 млн</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── РЕКОМЕНДАЦИИ ──────────────────────────────────────── -->
+<div id="recs" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Стратегические рекомендации</div>
+    <div class="sec-title">Ключевые направления развития</div>
+    <div class="sec-sub">Диагноз: компания выросла, но управляется как стартап. Следующий этап — институционализация.</div>
+  </div>
+  <div class="gauto">
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:10px">Немедленно</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">Завершить 1С</div>
+      <div style="font-size:13px;color:var(--text-2)">16 таблиц + 117 касс — бомба замедленного действия. Дедлайн: 2 месяца. Нанять 1С-администратора.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:10px">Немедленно</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">Нанять маркетолога</div>
+      <div style="font-size:13px;color:var(--text-2)">Нет маркетинга = потолок роста. Первый фокус: UTM → CRM, VK Ads + Яндекс.Директ от 50К/мес.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:10px">Немедленно</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">Юридический аудит</div>
+      <div style="font-size:13px;color:var(--text-2)">ИП + рамочный договор + 900 инвесторов = риск. Профильный юрист по ФЗ-259. Рассмотреть ООО.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--yellow);margin-bottom:10px">1–3 мес.</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">Диверсификация географии</div>
+      <div style="font-size:13px;color:var(--text-2)">60% в Перми — концентрационный риск. Цель: Пермь 40%, Калининград 25%, Самара 15%, новые 20%.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--cyan);margin-bottom:10px">3–6 мес.</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">Портфельный продукт</div>
+      <div style="font-size:13px;color:var(--text-2)">Авторазмещение по 3–5 объектам от 300К. Снижает риск инвестора, повышает средний чек.</div>
+    </div>
+    <div class="card">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--purple);margin-bottom:10px">6–12 мес.</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">PropTech / IT-статус</div>
+      <div style="font-size:13px;color:var(--text-2)">ООО + реестр Минцифры + Сколково. Доступ к грантам до 20 млн руб., налоговые льготы.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ПРИОРИТЕТЫ ─────────────────────────────────────────── -->
+<div id="prio" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Матрица приоритетов</div>
+    <div class="sec-title">Что делать первым</div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Действие</th><th>Влияние</th><th>Когда</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Завершить 1С</strong></td><td style="color:var(--red)">Критическое</td><td><span class="pb pb-now">Немедленно</span></td></tr>
+        <tr><td>2</td><td><strong>Нанять маркетолога</strong></td><td style="color:var(--red)">Высокое</td><td><span class="pb pb-now">Немедленно</span></td></tr>
+        <tr><td>3</td><td><strong>Юридический аудит</strong></td><td style="color:var(--red)">Критическое</td><td><span class="pb pb-now">Немедленно</span></td></tr>
+        <tr><td>4</td><td>Запустить контент-машину (кейсы)</td><td style="color:var(--yellow)">Высокое</td><td><span class="pb pb-soon">1–2 мес.</span></td></tr>
+        <tr><td>5</td><td>Расширить географию</td><td style="color:var(--yellow)">Высокое</td><td><span class="pb pb-soon">3–6 мес.</span></td></tr>
+        <tr><td>6</td><td>Развить ЛК инвестора</td><td style="color:var(--yellow)">Высокое</td><td><span class="pb pb-later">3–6 мес.</span></td></tr>
+        <tr><td>7</td><td>Запустить портфельный продукт</td><td style="color:var(--cyan)">Высокое</td><td><span class="pb pb-later">6 мес.</span></td></tr>
+        <tr><td>8</td><td>Лицензирование / IT-статус</td><td style="color:var(--purple)">Стратегическое</td><td><span class="pb pb-str">6–12 мес.</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ─── ЦЕЛИ ───────────────────────────────────────────────── -->
+<div id="goals" class="section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">Цели на год</div>
+    <div class="sec-title">Рекомендуемые целевые показатели</div>
+  </div>
+  <div class="g4 fade">
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">24</div><div class="stat-lbl">объекта за год</div><div class="stat-sub">2 в месяц</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent-light)">1 500</div><div class="stat-lbl">активных инвесторов</div><div class="stat-sub">+67% от 900</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--cyan)">150К</div><div class="stat-lbl">средний первый чек</div><div class="stat-sub">рост в 3–4×</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--yellow)">&lt;5К</div><div class="stat-lbl">CAC</div><div class="stat-sub">стоимость инвестора</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">&gt;70</div><div class="stat-lbl">NPS</div><div class="stat-sub">готовность рекомендовать</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--purple)">100%</div><div class="stat-lbl">учёта в 1С</div><div class="stat-sub">миграция с Sheets</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">ООО</div><div class="stat-lbl">юр. структура</div><div class="stat-sub">определена</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--teal)">Фаза 3</div><div class="stat-lbl">AI-трансформация</div><div class="stat-sub">аналитика + реализация + маркетинг</div></div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────── -->
+<div class="footer">
+  <div class="footer-logo"><span>Estate</span> Invest</div>
+  <div class="footer-note">Закрытый документ для партнёров &bull; 26.02.2026 &bull; estateinvest.online</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// Smooth scroll + active nav
+document.querySelectorAll('.sb-link[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const el = document.getElementById(link.getAttribute('href').slice(1));
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    document.querySelectorAll('.sb-link').forEach(n => n.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Active section highlight
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.sb-link').forEach(n => n.classList.remove('active'));
+      const a = document.querySelector(`.sb-link[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-15% 0px -75% 0px'});
+document.querySelectorAll('[id]').forEach(s => io.observe(s));
+
+// Animate on scroll
+const ao = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+}, {threshold:.08});
+document.querySelectorAll('.fade').forEach(el => ao.observe(el));
+</script>
+</body>
+</html>

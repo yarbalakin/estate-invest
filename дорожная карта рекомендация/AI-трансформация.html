@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — AI-трансформация</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg: #0a0a0f;
+    --bg-sidebar: #0e0e16;
+    --bg-card: rgba(255,255,255,0.03);
+    --bg-card-hover: rgba(255,255,255,0.055);
+    --text: #e4e4e7;
+    --text-secondary: #71717a;
+    --text-muted: #52525b;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #6366f1;
+    --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+    --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
+    --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.1);
+    --purple: #a855f7; --purple-bg: rgba(168,85,247,0.1);
+    --orange: #f97316; --orange-bg: rgba(249,115,22,0.1);
+    --pink: #ec4899; --pink-bg: rgba(236,72,153,0.1);
+    --teal: #14b8a6; --teal-bg: rgba(20,184,166,0.1);
+    --radius: 16px; --radius-sm: 10px;
+    --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    background-image:
+        radial-gradient(ellipse at 10% 40%, rgba(99,102,241,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 10%, rgba(168,85,247,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 95%, rgba(6,182,212,0.04) 0%, transparent 50%);
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed; left:0; top:0; bottom:0; width:250px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    display: flex; flex-direction: column;
+    z-index: 100; overflow-y: auto;
+}
+.sidebar-logo { font-size:14px; font-weight:800; padding:0 8px 18px; border-bottom:1px solid var(--border); margin-bottom:14px; letter-spacing:-0.02em; }
+.sidebar-logo span { color: var(--accent); }
+.logo-sub { font-size:10px; font-weight:500; color:var(--text-muted); margin-top:2px; }
+.nav-section { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); padding:14px 8px 5px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:var(--radius-sm); color:var(--text-secondary); font-size:13px; font-weight:500; cursor:pointer; transition:all var(--transition); text-decoration:none; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+.nav-item.active { color:#c4b5fd; }
+.phase-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.phase-num { font-size:10px; font-weight:700; margin-left:auto; opacity:.5; }
+
+/* MAIN */
+.main { margin-left:250px; padding:32px 40px 100px; max-width:1280px; }
+.page-header { margin-bottom:36px; }
+.page-header h1 { font-size:30px; font-weight:800; letter-spacing:-.03em; background:linear-gradient(135deg,#e4e4e7 20%,#a5b4fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.page-header .sub { font-size:14px; color:var(--text-secondary); margin-top:6px; }
+
+/* CONCEPT */
+.concept {
+    background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(168,85,247,0.04));
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: var(--radius);
+    padding: 22px 28px;
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.concept-side { display:flex; flex-direction:column; gap:6px; }
+.concept-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+.concept-label.now { color:var(--red); }
+.concept-label.goal { color:var(--green); }
+.concept-text { font-size:14px; color:var(--text-secondary); line-height:1.6; }
+.concept-text strong { color:var(--text); }
+.concept-divider { border:none; border-left:1px solid var(--border); }
+
+/* PHASE CARDS */
+.phase-section { margin-bottom:48px; animation:fadeInUp .4s ease forwards; opacity:0; }
+.phase-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.phase-badge {
+    display:flex; align-items:center; gap:8px;
+    padding:6px 14px; border-radius:9999px;
+    font-size:12px; font-weight:700;
+    border:1px solid;
+}
+.phase-title { font-size:20px; font-weight:800; letter-spacing:-.02em; }
+.phase-meta { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+/* CURRENT STATE */
+.state-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.state-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+.state-card-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+.state-card-label.now { color:var(--red); }
+.state-card-label.future { color:var(--green); }
+.state-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.state-list li { font-size:13px; color:var(--text-secondary); line-height:1.5; padding-left:16px; position:relative; }
+.state-card.now .state-list li::before { content:'—'; position:absolute; left:0; color:var(--red); font-weight:600; }
+.state-card.future .state-list li::before { content:'→'; position:absolute; left:0; color:var(--green); font-weight:600; }
+
+/* FLOW */
+.flow { display:flex; align-items:center; gap:0; margin-bottom:20px; overflow:hidden; border-radius:var(--radius); border:1px solid var(--border); }
+.flow-step { flex:1; padding:14px 10px; text-align:center; background:var(--bg-card); border-right:1px solid var(--border); position:relative; transition:all var(--transition); }
+.flow-step:last-child { border-right:none; }
+.flow-step:hover { background:var(--bg-card-hover); }
+.flow-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:3px; }
+.flow-value { font-size:12px; font-weight:500; color:var(--text-secondary); line-height:1.4; }
+
+/* FEATURES */
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+.feat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; transition:all var(--transition); }
+.feat-card:hover { background:var(--bg-card-hover); border-color:var(--border-hover); transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.2); }
+.feat-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.feat-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.feat-title { font-size:14px; font-weight:700; letter-spacing:-.01em; }
+.feat-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+.feat-list li { font-size:12px; color:var(--text-secondary); line-height:1.5; padding-left:14px; position:relative; }
+.feat-list li::before { content:''; position:absolute; left:0; top:6px; width:6px; height:6px; border-radius:50%; border:1.5px solid; }
+.feat-stack { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted); }
+.feat-stack strong { color:var(--text-secondary); }
+
+/* TELEGRAM PREVIEW */
+.tg-preview {
+    background: #17212b;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #c8d6df;
+    border: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.7;
+}
+.tg-preview .tg-sender { color: #5bb2f9; font-weight: 600; margin-bottom: 6px; }
+.tg-preview .hot { color: #ffd54f; }
+.tg-preview .green { color: #4caf50; }
+.tg-preview .gray { color: #7d8b93; }
+
+/* SUMMARY TABLE */
+.table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { text-align:left; padding:11px 14px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+tbody td { padding:11px 14px; color:var(--text-secondary); border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+td strong { color:var(--text); font-weight:600; }
+.badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:9999px; white-space:nowrap; }
+.badge-1 { background:var(--red-bg); color:var(--red); }
+.badge-2 { background:var(--orange-bg); color:var(--orange); }
+.badge-3 { background:var(--yellow-bg); color:var(--yellow); }
+.badge-4 { background:var(--green-bg); color:var(--green); }
+.badge-5 { background:var(--cyan-bg); color:var(--cyan); }
+.badge-6 { background:var(--teal-bg); color:var(--teal); }
+.badge-7 { background:var(--purple-bg); color:var(--purple); }
+.badge-8 { background:var(--pink-bg); color:var(--pink); }
+
+/* ENDGAME */
+.endgame { background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(6,182,212,.04)); border:1px solid rgba(99,102,241,.15); border-radius:var(--radius); padding:28px 32px; margin-top:40px; }
+.endgame h2 { font-size:20px; font-weight:800; letter-spacing:-.02em; margin-bottom:20px; }
+.endgame-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.endgame-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px; }
+.endgame-who { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.endgame-what { font-size:13px; color:var(--text-secondary); line-height:1.55; }
+.endgame-what strong { color:var(--text); }
+
+@keyframes fadeInUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.phase-section:nth-child(1){animation-delay:60ms}
+.phase-section:nth-child(2){animation-delay:120ms}
+.phase-section:nth-child(3){animation-delay:180ms}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+@media(max-width:860px){
+    .sidebar{display:none} .main{margin-left:0;padding:16px 14px 60px}
+    .concept{grid-template-columns:1fr} .concept-divider{display:none}
+    .state-row{grid-template-columns:1fr} .flow{flex-direction:column}
+    .flow-step{border-right:none;border-bottom:1px solid var(--border)}
+    .flow-step:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div><span>Estate</span> Invest</div>
+        <div class="logo-sub">AI-трансформация</div>
+    </div>
+
+    <div class="nav-section">Концепция</div>
+    <a href="#concept" class="nav-item active">
+        <div class="phase-dot" style="background:#6366f1"></div>
+        Обзор и цель
+    </a>
+    <a href="#summary" class="nav-item">
+        <div class="phase-dot" style="background:#a5b4fc"></div>
+        Сводная таблица
+    </a>
+
+    <div class="nav-section">Фазы</div>
+    <a href="#phase1" class="nav-item">
+        <div class="phase-dot" style="background:#ef4444"></div>
+        1 — Аналитика
+        <span class="phase-num">🔥</span>
+    </a>
+    <a href="#phase2" class="nav-item">
+        <div class="phase-dot" style="background:#f97316"></div>
+        2 — Реализация
+    </a>
+    <a href="#phase3" class="nav-item">
+        <div class="phase-dot" style="background:#eab308"></div>
+        3 — Маркетинг
+    </a>
+    <a href="#phase4" class="nav-item">
+        <div class="phase-dot" style="background:#22c55e"></div>
+        4 — Поддержка
+    </a>
+    <a href="#phase5" class="nav-item">
+        <div class="phase-dot" style="background:#06b6d4"></div>
+        5 — Финансы
+    </a>
+    <a href="#phase6" class="nav-item">
+        <div class="phase-dot" style="background:#14b8a6"></div>
+        6 — Юридический
+    </a>
+    <a href="#phase7" class="nav-item">
+        <div class="phase-dot" style="background:#a855f7"></div>
+        7 — Контент
+    </a>
+    <a href="#phase8" class="nav-item">
+        <div class="phase-dot" style="background:#ec4899"></div>
+        8 — IT / Платформа
+    </a>
+
+    <div class="nav-section">Итог</div>
+    <a href="#endgame" class="nav-item">
+        <div class="phase-dot" style="background:#6366f1"></div>
+        Конечное состояние
+    </a>
+</nav>
+
+<div class="main">
+
+    <div class="page-header">
+        <h1>AI-трансформация Estate Invest</h1>
+        <div class="sub">8 отделов &rarr; AI-управляемая компания &bull; Дорожная карта 2026</div>
+    </div>
+
+    <!-- CONCEPT -->
+    <div id="concept" class="concept">
+        <div class="concept-side">
+            <div class="concept-label now">Сейчас</div>
+            <div class="concept-text"><strong>Люди делают работу</strong> &mdash; иногда используют инструменты.<br>Ручной ввод, 16 таблиц, ответы вручную, посты вручную.</div>
+        </div>
+        <hr class="concept-divider">
+        <div class="concept-side">
+            <div class="concept-label goal">Цель</div>
+            <div class="concept-text"><strong>AI делает работу</strong> &mdash; люди принимают решения.<br>Аналитика, контент, поддержка, отчёты &mdash; всё автоматически.</div>
+        </div>
+    </div>
+
+    <!-- PHASE 1 — АНАЛИТИКА -->
+    <div id="phase1" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--red-bg);border-color:rgba(239,68,68,.25);color:var(--red)">
+                <span>Фаза 1</span>
+            </div>
+            <div>
+                <div class="phase-title">Аналитика — Парсер объектов</div>
+                <div class="phase-meta">1&ndash;3 мес. &bull; Старт здесь &bull; Стек: n8n + OpenRouter + Telegram</div>
+            </div>
+        </div>
+
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Сейчас</div>
+                <ul class="state-list">
+                    <li>Ручной мониторинг торговых площадок</li>
+                    <li>Аналитики смотрят лоты вручную</li>
+                    <li>Финмодели в таблицах руками</li>
+                    <li>Охват: несколько площадок, ограниченные регионы</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">После</div>
+                <ul class="state-list">
+                    <li>Ежедневный автопарсинг всей РФ</li>
+                    <li>AI скорит каждый лот за секунды</li>
+                    <li>Telegram-отчёт: топ-5 горячих объектов</li>
+                    <li>Охват: 100+ площадок, все регионы</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="flow">
+            <div class="flow-step"><div class="flow-label">Источники</div><div class="flow-value">tbankrot, torgi.gov, m-ets, Росимущество</div></div>
+            <div class="flow-step"><div class="flow-label">Парсинг</div><div class="flow-value">n8n собирает лоты</div></div>
+            <div class="flow-step"><div class="flow-label">AI-анализ</div><div class="flow-value">OpenRouter: ROI, риски, скоринг</div></div>
+            <div class="flow-step"><div class="flow-label">Фильтрация</div><div class="flow-value">горячий / интересный / пропустить</div></div>
+            <div class="flow-step"><div class="flow-label">Telegram</div><div class="flow-value">Топ-5 объектов 08:00 МСК</div></div>
+        </div>
+
+        <div class="tg-preview">
+            <div class="tg-sender">📊 Estate Invest — Аналитика</div>
+            <span class="hot">🔥 Топ-5 объектов за 26.02.2026</span><br><br>
+            <span class="green">1. Краснодар, ЗУ 12 сот.</span><br>
+            <span class="gray">   Старт 800К → рынок 2.1М | ROI ~40% | Торги 05.03</span><br>
+            <span class="gray">   Риски: нет обременений, задаток 80К ✅</span><br><br>
+            <span class="green">2. Пермь, Соликамская, коммерция 420 м²</span><br>
+            <span class="gray">   Старт 4.2М → рынок 9.8М | ROI ~35% | Торги 10.03</span><br>
+            <span class="gray">   Риски: залог банка, требует проверки ⚠️</span><br>
+            <span class="gray">...</span>
+        </div>
+
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--red-bg)">🔍</div>
+                    <div class="feat-title">AI-скоринг лота</div>
+                </div>
+                <ul class="feat-list">
+                    <li style="--c:var(--red)">Тип, регион, начальная цена, обременения</li>
+                    <li style="--c:var(--red)">Рыночная цена из Авито (авто-парсинг)</li>
+                    <li style="--c:var(--red)">Потенциал скидки от рынка (%)</li>
+                    <li style="--c:var(--red)">Ожидаемый ROI на основе 120+ сделок</li>
+                    <li style="--c:var(--red)">Итог: горячий / интересный / пропустить</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--orange-bg)">🗺️</div>
+                    <div class="feat-title">Расширение по РФ</div>
+                </div>
+                <ul class="feat-list">
+                    <li style="--c:var(--orange)">Фаза 1: Пермь + Калининград + Самара</li>
+                    <li style="--c:var(--orange)">Фаза 2: + Краснодар + Нижний + Екатеринбург</li>
+                    <li style="--c:var(--orange)">Фаза 3: все регионы РФ (100+ площадок)</li>
+                    <li style="--c:var(--orange)">Конкурентное преимущество: охват</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--yellow-bg)">📈</div>
+                    <div class="feat-title">Обучение на своих данных</div>
+                </div>
+                <ul class="feat-list">
+                    <li style="--c:var(--yellow)">120+ завершённых объектов = обучающая база</li>
+                    <li style="--c:var(--yellow)">AI точнее прогнозирует ROI с каждой сделкой</li>
+                    <li style="--c:var(--yellow)">Учёт специфики регионов в оценке</li>
+                    <li style="--c:var(--yellow)">История лотов в Google Sheets → накапливается</li>
+                </ul>
+            </div>
+        </div>
+        <div class="feat-stack" style="margin-top:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px">
+            <strong>Стек:</strong> n8n &bull; OpenRouter (Llama / GPT-4o) &bull; Telegram Bot API &bull; Google Sheets &bull; tbankrot.ru &bull; torgi.gov.ru &bull; m-ets.ru &bull; Авито (парсинг цен)
+        </div>
+    </div>
+
+    <!-- PHASE 2 — РЕАЛИЗАЦИЯ -->
+    <div id="phase2" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--orange-bg);border-color:rgba(249,115,22,.25);color:var(--orange)">Фаза 2</div>
+            <div>
+                <div class="phase-title">Реализация объектов — Единая база</div>
+                <div class="phase-meta">2&ndash;4 мес. &bull; Стек: 1С + n8n + OpenRouter + HTML-дашборд</div>
+            </div>
+        </div>
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Сейчас</div>
+                <ul class="state-list">
+                    <li>16 таблиц Google Sheets</li>
+                    <li>117 индивидуальных касс</li>
+                    <li>Объявления пишутся вручную</li>
+                    <li>Нет единой картины по объектам</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">После</div>
+                <ul class="state-list">
+                    <li>Единая база &mdash; все объекты в одном месте</li>
+                    <li>Канбан: торги → выкуп → ремонт → продажа</li>
+                    <li>AI пишет объявления из карточки объекта</li>
+                    <li>Дашборд партнёров в реальном времени</li>
+                </ul>
+            </div>
+        </div>
+        <div class="flow">
+            <div class="flow-step"><div class="flow-label">Торги</div><div class="flow-value">Лот найден AI</div></div>
+            <div class="flow-step"><div class="flow-label">Выкуп</div><div class="flow-value">Карточка объекта</div></div>
+            <div class="flow-step"><div class="flow-label">Документы</div><div class="flow-value">Auto-чеклист</div></div>
+            <div class="flow-step"><div class="flow-label">Ремонт</div><div class="flow-value">Бюджет + сроки</div></div>
+            <div class="flow-step"><div class="flow-label">Продажа</div><div class="flow-value">AI пишет объявление</div></div>
+            <div class="flow-step"><div class="flow-label">Закрыт</div><div class="flow-value">Автовыплаты</div></div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--orange-bg)">🗂️</div><div class="feat-title">Единая база объектов</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--orange)">118+ объектов в 1С вместо 117 касс</li>
+                    <li style="--c:var(--orange)">Статус, финансы, документы, таймлайн</li>
+                    <li style="--c:var(--orange)">Автосинхронизация 1С ↔ ЛК ↔ дашборд</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--yellow-bg)">✍️</div><div class="feat-title">AI-генерация объявлений</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--yellow)">Карточка объекта → AI пишет объявление</li>
+                    <li style="--c:var(--yellow)">Несколько вариантов заголовков (A/B)</li>
+                    <li style="--c:var(--yellow)">Оптимальная цена из анализа аналогов</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">📊</div><div class="feat-title">Дашборд партнёров</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">AUM, денежный поток в реальном времени</li>
+                    <li style="--c:var(--cyan)">Объекты по стадиям (канбан-вид)</li>
+                    <li style="--c:var(--cyan)">Прогресс к 24 объектам в год</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 3 — МАРКЕТИНГ -->
+    <div id="phase3" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--yellow-bg);border-color:rgba(234,179,8,.25);color:var(--yellow)">Фаза 3</div>
+            <div>
+                <div class="phase-title">Маркетинг — AI полностью</div>
+                <div class="phase-meta">3&ndash;5 мес. &bull; Стек: n8n + OpenRouter + Salebot + VK API + Telegram API</div>
+            </div>
+        </div>
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Сейчас</div>
+                <ul class="state-list">
+                    <li>Нет выделенного маркетолога</li>
+                    <li>Глеб делает контент вручную</li>
+                    <li>Нет платных каналов</li>
+                    <li>Реферальный учёт ручной</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">После</div>
+                <ul class="state-list">
+                    <li>AI генерирует кейсы из данных объектов</li>
+                    <li>Автопостинг: Telegram + VK + Дзен</li>
+                    <li>AI воронка прогрева новых лидов</li>
+                    <li>Автоматический трекинг рефералов в ЛК</li>
+                </ul>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--yellow-bg)">⚡</div><div class="feat-title">AI-контент из данных</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--yellow)">Закрылся объект → AI автоматически пишет кейс</li>
+                    <li style="--c:var(--yellow)">Форматы: TG пост, VK, Reels-сценарий</li>
+                    <li style="--c:var(--yellow)">Глеб только проверяет (10 мин вместо 2 ч)</li>
+                    <li style="--c:var(--yellow)">120+ кейсов = контент на год вперёд</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--orange-bg)">🎯</div><div class="feat-title">AI воронка прогрева</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--orange)">Новый лид → 7 дней автосерия в Salebot</li>
+                    <li style="--c:var(--orange)">День 1: кейс объекта «800К → 2.1М»</li>
+                    <li style="--c:var(--orange)">День 5: текущие объекты с ROI</li>
+                    <li style="--c:var(--orange)">День 7: приглашение на созвон</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--green-bg)">📡</div><div class="feat-title">Автопостинг</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--green)">n8n публикует по расписанию во все каналы</li>
+                    <li style="--c:var(--green)">AI определяет оптимальное время поста</li>
+                    <li style="--c:var(--green)">A/B тест заголовков автоматически</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">📈</div><div class="feat-title">AI-аналитика маркетинга</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">UTM-метки → CRM: откуда инвесторы</li>
+                    <li style="--c:var(--cyan)">Какой контент конвертирует лучше</li>
+                    <li style="--c:var(--cyan)">CAC по каналам в реальном времени</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 4 — ПОДДЕРЖКА -->
+    <div id="phase4" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--green-bg);border-color:rgba(34,197,94,.25);color:var(--green)">Фаза 4</div>
+            <div>
+                <div class="phase-title">Поддержка инвесторов — AI первая линия</div>
+                <div class="phase-meta">4&ndash;6 мес. &bull; Стек: Salebot + OpenRouter + n8n + ЛК API</div>
+            </div>
+        </div>
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Сейчас</div>
+                <ul class="state-list">
+                    <li>3 человека отвечают на одни и те же вопросы</li>
+                    <li>Salebot без AI — скрипты ограничены</li>
+                    <li>Онбординг вручную каждый раз</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">После</div>
+                <ul class="state-list">
+                    <li>80% вопросов — AI отвечает мгновенно</li>
+                    <li>Ирина и команда &mdash; только сложные случаи</li>
+                    <li>Онбординг полностью автоматический</li>
+                </ul>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--green-bg)">🤖</div><div class="feat-title">AI-бот первой линии</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--green)">«Когда выплата по ИП №45?» → AI смотрит в базу</li>
+                    <li style="--c:var(--green)">«Какая моя доходность?» → AI считает из ЛК</li>
+                    <li style="--c:var(--green)">Сложный вопрос → эскалация к Ирине</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--teal-bg)">🔔</div><div class="feat-title">Умные уведомления</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--teal)">Объект → «Продажа» → авто-рассылка инвесторам</li>
+                    <li style="--c:var(--teal)">До выплаты 7 дней → предупреждение + реквизиты</li>
+                    <li style="--c:var(--teal)">Новый объект → персональный подбор</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">🧠</div><div class="feat-title">AI-скоринг инвестора</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">Анкета → AI определяет тип инвестора</li>
+                    <li style="--c:var(--cyan)">Консервативный / Агрессивный / Диверс.</li>
+                    <li style="--c:var(--cyan)">Автоподбор объектов под профиль</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--purple-bg)">🚀</div><div class="feat-title">Автоонбординг</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--purple)">Регистрация → авто: договор → SignEasy</li>
+                    <li style="--c:var(--purple)">→ Инструкция → каналы → welcome-звонок</li>
+                    <li style="--c:var(--purple)">Сейчас 3 человека делают это вручную</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 5 — ФИНАНСЫ -->
+    <div id="phase5" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--cyan-bg);border-color:rgba(6,182,212,.25);color:var(--cyan)">Фаза 5</div>
+            <div>
+                <div class="phase-title">Финансы и статистика — Автоотчётность</div>
+                <div class="phase-meta">5&ndash;7 мес. &bull; Стек: 1С + n8n + Google Sheets + HTML-дашборд</div>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">📋</div><div class="feat-title">Автоотчёты</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">Еженедельный отчёт партнёрам из 1С</li>
+                    <li style="--c:var(--cyan)">Ежемесячный отчёт каждому инвестору</li>
+                    <li style="--c:var(--cyan)">Александра проверяет, не составляет</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--purple-bg)">🔮</div><div class="feat-title">AI-прогнозирование</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--purple)">Прогноз ROI нового объекта до выкупа</li>
+                    <li style="--c:var(--purple)">Прогноз выплат инвесторам на квартал</li>
+                    <li style="--c:var(--purple)">Алерт: объект задерживается → авто-предупреждение</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--green-bg)">💰</div><div class="feat-title">Автовыплаты</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--green)">Объект закрыт → AI рассчитывает доли</li>
+                    <li style="--c:var(--green)">Формирует реестр → на проверку партнёру</li>
+                    <li style="--c:var(--green)">После подтверждения → передача в банк</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 6 — ЮРИДИЧЕСКИЙ -->
+    <div id="phase6" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--teal-bg);border-color:rgba(20,184,166,.25);color:var(--teal)">Фаза 6</div>
+            <div>
+                <div class="phase-title">Юридический — AI Due Diligence</div>
+                <div class="phase-meta">6&ndash;8 мес. &bull; Стек: n8n + OpenRouter + Росреестр API + SignEasy</div>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--teal-bg)">🔎</div><div class="feat-title">AI-проверка лота</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--teal)">Загружаешь документы PDF → AI анализирует</li>
+                    <li style="--c:var(--teal)">Обременения, аресты, залоги, споры</li>
+                    <li style="--c:var(--teal)">Итог: «Чисто» / «Риски: [список]» / «Стоп»</li>
+                    <li style="--c:var(--teal)">10 минут вместо 2 дней</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">📝</div><div class="feat-title">Автодоговоры</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">Инвестор + объект + сумма → AI заполняет договор</li>
+                    <li style="--c:var(--cyan)">Отправка через SignEasy автоматически</li>
+                    <li style="--c:var(--cyan)">Подписанные хранятся в ЛК инвестора</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--yellow-bg)">⚖️</div><div class="feat-title">Мониторинг законодательства</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--yellow)">AI еженедельно мониторит ФЗ-259, ФЗ-335</li>
+                    <li style="--c:var(--yellow)">Уведомление партнёрам при изменениях</li>
+                    <li style="--c:var(--yellow)">Кадастровая проверка через API Росреестра</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 7 — КОНТЕНТ -->
+    <div id="phase7" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--purple-bg);border-color:rgba(168,85,247,.25);color:var(--purple)">Фаза 7</div>
+            <div>
+                <div class="phase-title">Контент — AI-студия</div>
+                <div class="phase-meta">Параллельно с Фазой 3 &bull; Стек: n8n + OpenRouter + Whisper + VK + Дзен</div>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--purple-bg)">🏭</div><div class="feat-title">Фабрика кейсов</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--purple)">120+ объектов с данными = вечный контент</li>
+                    <li style="--c:var(--purple)">AI пишет историю объекта + цифры + урок</li>
+                    <li style="--c:var(--purple)">Форматы: текст, видео-сценарий, карусель</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--pink-bg)">🎬</div><div class="feat-title">Видео-контент</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--pink)">AI пишет сценарий YouTube-видео из данных</li>
+                    <li style="--c:var(--pink)">Скрипт для Reels (60 сек: крючок+история+CTA)</li>
+                    <li style="--c:var(--pink)">Субтитры автоматически через Whisper</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--orange-bg)">🔄</div><div class="feat-title">1 кейс → 5 форматов</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--orange)">Telegram пост</li>
+                    <li style="--c:var(--orange)">VK пост</li>
+                    <li style="--c:var(--orange)">Reels-сценарий (60 сек)</li>
+                    <li style="--c:var(--orange)">Дзен-статья (SEO)</li>
+                    <li style="--c:var(--orange)">Email-рассылка</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 8 — IT -->
+    <div id="phase8" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:var(--pink-bg);border-color:rgba(236,72,153,.25);color:var(--pink)">Фаза 8</div>
+            <div>
+                <div class="phase-title">IT и Платформа — Умный ЛК</div>
+                <div class="phase-meta">7&ndash;12 мес. &bull; Стек: React + n8n + OpenRouter + Claude API</div>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--pink-bg)">🧠</div><div class="feat-title">AI-советник в ЛК</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--pink)">«У вас 300К свободного баланса»</li>
+                    <li style="--c:var(--pink)">«Открыт ИП №119, прогноз 28%. Инвестировать?»</li>
+                    <li style="--c:var(--pink)">Прогноз доходности портфеля на 12 мес.</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--purple-bg)">🔍</div><div class="feat-title">Умный поиск объектов</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--purple)">Фильтры: регион, тип, ROI, срок, сумма</li>
+                    <li style="--c:var(--purple)">AI-подбор по истории инвестора</li>
+                    <li style="--c:var(--purple)">«Вы вкладывали в ИП №40, вам подойдёт №115»</li>
+                </ul>
+            </div>
+            <div class="feat-card">
+                <div class="feat-header"><div class="feat-icon" style="background:var(--cyan-bg)">⚡</div><div class="feat-title">AI-разработка</div></div>
+                <ul class="feat-list">
+                    <li style="--c:var(--cyan)">Claude Code / Cursor ускоряет разработку</li>
+                    <li style="--c:var(--cyan)">Автотесты через AI</li>
+                    <li style="--c:var(--cyan)">Code review через AI</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY TABLE -->
+    <div id="summary" class="phase-section">
+        <div class="phase-header">
+            <div class="phase-badge" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.25);color:#a5b4fc">Итог</div>
+            <div>
+                <div class="phase-title">Сводная таблица фаз</div>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Фаза</th><th>Отдел</th><th>Что автоматизируем</th><th>Срок</th><th>Главный эффект</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="badge badge-1">1</span></td><td><strong>Аналитика</strong></td><td>Парсер объектов всей РФ + AI-скоринг</td><td>1&ndash;3 мес.</td><td>В 10× больше горячих лотов</td></tr>
+                    <tr><td><span class="badge badge-2">2</span></td><td><strong>Реализация</strong></td><td>Единая база + канбан + AI-объявления</td><td>2&ndash;4 мес.</td><td>&minus;80% ручного труда со Sheets</td></tr>
+                    <tr><td><span class="badge badge-3">3</span></td><td><strong>Маркетинг</strong></td><td>AI контент + воронка + автопостинг</td><td>3&ndash;5 мес.</td><td>3 кейса/неделю автоматически</td></tr>
+                    <tr><td><span class="badge badge-4">4</span></td><td><strong>Поддержка</strong></td><td>AI-бот 1 линии + умные уведомления</td><td>4&ndash;6 мес.</td><td>&minus;70% нагрузки на поддержку</td></tr>
+                    <tr><td><span class="badge badge-5">5</span></td><td><strong>Финансы</strong></td><td>Автоотчёты + прогнозы + автовыплаты</td><td>5&ndash;7 мес.</td><td>Александра → стратегия</td></tr>
+                    <tr><td><span class="badge badge-6">6</span></td><td><strong>Юридический</strong></td><td>AI-проверка лотов + автодоговоры</td><td>6&ndash;8 мес.</td><td>Due diligence за 10 мин</td></tr>
+                    <tr><td><span class="badge badge-7">7</span></td><td><strong>Контент</strong></td><td>Фабрика кейсов + мультиплатформа</td><td>пар. с 3</td><td>1 кейс → 5 форматов авто</td></tr>
+                    <tr><td><span class="badge badge-8">8</span></td><td><strong>IT / Платформа</strong></td><td>AI-советник в ЛК + умный поиск</td><td>7&ndash;12 мес.</td><td>ЛК = конкурентное преимущество</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ENDGAME -->
+    <div id="endgame" class="endgame">
+        <h2>Конечное состояние — через 12–18 месяцев</h2>
+        <div class="endgame-grid">
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--red)">Аналитик утром</div>
+                <div class="endgame-what">Открывает Telegram &rarr; <strong>топ-10 горячих лотов по всей России</strong> с AI-анализом. Кирилл выбирает, не ищет.</div>
+            </div>
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--orange)">Иван Мудров</div>
+                <div class="endgame-what">Видит канбан &rarr; ИП №119 перешёл в «Продажа» &rarr; <strong>объявление уже написано AI</strong>, нужно только проверить.</div>
+            </div>
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--yellow)">Глеб</div>
+                <div class="endgame-what">Открывает очередь постов &rarr; <strong>7 готовых кейсов ждут</strong>. Нажимает «Опубликовать» — всё.</div>
+            </div>
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--green)">Ирина (поддержка)</div>
+                <div class="endgame-what">За день: <strong>2–3 сложных эскалации</strong>. Всё остальное AI-бот закрыл сам.</div>
+            </div>
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--cyan)">Александра</div>
+                <div class="endgame-what">Получает <strong>готовый автоотчёт за неделю</strong>. Проверяет цифры — не составляет с нуля.</div>
+            </div>
+            <div class="endgame-card">
+                <div class="endgame-who" style="color:var(--purple)">Инвестор</div>
+                <div class="endgame-what">AI-советник в ЛК предложил реинвестировать. <strong>Подписал договор одной кнопкой.</strong></div>
+            </div>
+            <div class="endgame-card" style="grid-column:span 2; background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(6,182,212,.04)); border-color:rgba(99,102,241,.15)">
+                <div class="endgame-who" style="color:#a5b4fc">Ярослав и партнёры</div>
+                <div class="endgame-what" style="font-size:14px">Компания работает в <strong>5–10 раз эффективнее</strong> при той же команде. Вы фокусируетесь на стратегии, сделках и ключевых решениях &mdash; не на операционке.</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.nav-item[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.getElementById(link.getAttribute('href').slice(1));
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+// feat-list bullet colors via CSS var
+document.querySelectorAll('.feat-list li').forEach(li => {
+    const c = getComputedStyle(li).getPropertyValue('--c').trim();
+    if (c) li.style.setProperty('--bullet-color', c);
+});
+
+// Animate on scroll
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+}, {threshold: 0.08});
+document.querySelectorAll('.phase-section').forEach(el => obs.observe(el));
+
+// Active nav on scroll
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav-item[href^="#"]');
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            navLinks.forEach(n => n.classList.remove('active'));
+            const a = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+            if (a) a.classList.add('active');
+        }
+    });
+}, {rootMargin: '-20% 0px -70% 0px'});
+sections.forEach(s => io.observe(s));
+
+// Fix feat-list bullet colors inline
+document.querySelectorAll('.feat-list li').forEach(li => {
+    const parent = li.closest('.feat-card');
+    if (!parent) return;
+    const pseudo = li.querySelector('::before');
+    // apply color via inline style on ::before via attribute
+    li.style.cssText += li.style.cssText; // noop
+});
+</script>
+
+<style>
+.feat-list li:nth-child(1)::before,
+.feat-list li:nth-child(2)::before,
+.feat-list li:nth-child(3)::before,
+.feat-list li:nth-child(4)::before,
+.feat-list li:nth-child(5)::before { border-color: inherit; }
+
+/* Per-card bullet colors */
+#phase1 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--red); }
+#phase1 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--orange); }
+#phase1 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--yellow); }
+#phase2 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--orange); }
+#phase2 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--yellow); }
+#phase2 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--cyan); }
+#phase3 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--yellow); }
+#phase3 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--orange); }
+#phase3 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--green); }
+#phase3 .feat-card:nth-child(4) .feat-list li::before { border-color: var(--cyan); }
+#phase4 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--green); }
+#phase4 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--teal); }
+#phase4 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--cyan); }
+#phase4 .feat-card:nth-child(4) .feat-list li::before { border-color: var(--purple); }
+#phase5 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--cyan); }
+#phase5 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--purple); }
+#phase5 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--green); }
+#phase6 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--teal); }
+#phase6 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--cyan); }
+#phase6 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--yellow); }
+#phase7 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--purple); }
+#phase7 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--pink); }
+#phase7 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--orange); }
+#phase8 .feat-card:nth-child(1) .feat-list li::before { border-color: var(--pink); }
+#phase8 .feat-card:nth-child(2) .feat-list li::before { border-color: var(--purple); }
+#phase8 .feat-card:nth-child(3) .feat-list li::before { border-color: var(--cyan); }
+</style>
+</body>
+</html>
