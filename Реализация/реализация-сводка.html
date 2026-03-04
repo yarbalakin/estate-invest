@@ -52,7 +52,15 @@
 
   .card-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .city-tag { font-size: 11px; background: rgba(96, 165, 250, 0.15); color: var(--blue); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(96, 165, 250, 0.25); }
+  .type-tag { font-size: 11px; background: rgba(167, 139, 250, 0.1); color: var(--purple); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(167, 139, 250, 0.2); }
+  .area-tag { font-size: 11px; background: rgba(52, 211, 153, 0.1); color: var(--green); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.2); font-weight: 600; }
   .responsible { font-size: 11px; color: var(--text-muted); }
+
+  .card-location { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+  .kadastr-row, .address-row { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; line-height: 1.4; }
+  .kadastr-label { color: var(--text-muted); font-weight: 600; }
+  .kadastr-value { color: var(--amber); font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 11px; }
+  .address-value { color: var(--text-muted); }
 
   .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
   .badge-active { background: rgba(52, 211, 153, 0.15); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.3); }
@@ -100,7 +108,7 @@
 
 <div class="header">
   <h1>Estate Invest — Реализация объектов</h1>
-  <div class="subtitle">Сводка по активным объектам · Обновлено 03.03.2026</div>
+  <div class="subtitle">Сводка по активным объектам · Обновлено 04.03.2026</div>
 </div>
 
 <div class="stats-bar">
@@ -142,8 +150,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3290001:3232</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский район, сельское поселение Усть-Качкинское, поселок Красный Восход</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -178,8 +189,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">2000 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:18:3500203:1021 / 59:18:3500203:1024</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Добрянский район, Полазненское г/п, СПК &quot;Уральская Нива&quot;, ур. Бесово</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -214,8 +228,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">16874 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">уч. 13: 59:32:4310001:114/ уч. 15: 59:32:47310001:113</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Российская Федерация, Пермский край, м. р-н Пермский, с.п. Юго-Камское, д. Пашия, ул. Речная. з/у 13</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -250,8 +267,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">483 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:18:0020806:39</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">край Пермский, г. Добрянка, пгт. Полазна, с/т 'Заря', участок № 39</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -286,8 +306,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">389 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3030011:129 / 59:32:3030011:1521</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, р-н Пермский, с\о Хохловский снт &quot;Кабельщик № 276&quot;, участок 130</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -322,8 +345,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">10087 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:3810302:93 / 59:01:3810302:267 / 59:01:3810302:266</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Россия, край Пермский, г Пермь, ул Соликамская, дом 319</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -358,8 +384,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">824.34 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:07:0010102:46</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Краснокамск, Гражданский переулок, д. 37</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -394,8 +423,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">6800 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:1960001:96 / 59:32:0000000:11102</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский район, с/пос Усть-Качкинское, д. Гамы, п/х Гамы</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -430,8 +462,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1200 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:05:030402:540</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Поваровка, Зеленоградский муниципальный округ, Калининградская область, Россия</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -466,8 +501,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">17632 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3020003:815</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">р-н, Христофоровка, Пермский муниципальный округ, Пермский край, Россия, 614505</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -502,8 +540,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">9433 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, с. Лобаново, ул. Путейская</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -538,8 +579,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">900 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -574,8 +618,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">900 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:05:011009:618</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -610,8 +657,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">800 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:05:011009:319</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -646,8 +696,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1229 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:21567</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский район, Култаевское с/п, д. Шилово, ул. Тепличная, з/у 38</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -682,8 +735,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">606 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:15:120603:135</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Калининградская область, г. Калининград, ш. Люблинское, тер. СНТ «50 лет Октября», ул. Цветочная, 15</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -718,8 +774,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1200 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:03:060011:312</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">, Калининградская обл., Гурьевский р-н, пос. Заозерье, участок № 4, Светлогорск, Калининградская область, Россия</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -754,8 +813,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">604 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:14:010234:11</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">р-н балтийский, Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -790,8 +852,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">619 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:14:010234:9</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -826,8 +891,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">605 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:14:010234:8</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -862,8 +930,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">596 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:14:010234:10</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -898,8 +969,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">600 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:17:010048:10</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Новая улица, Светлогорск, Светлогорский городской округ, Калининградская область, Россия, 23856</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -934,8 +1008,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">901.2 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:18:0010402:2074</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Добрянка, ул. Луначарского, д. 33</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -970,8 +1047,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">870.7 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:26:0610475:236</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">улица Карла Маркса, 84, нытвенский, Нытва, Нытвенский городской округ, Пермский край, Россия, 617000</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1006,8 +1086,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1200 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3020003:3939</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, д. Загришинское, ул. Солнечная, зу 45</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1042,8 +1125,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">938 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:0430001:763</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский район, Двуреченское сельское поселение, д. Устиново, ул. Школьная, д. 3</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1078,8 +1164,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">591 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:2512475:175</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">край Пермский, г.о. Пермский, г Пермь, ул Затонская, з/у 16а</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1114,8 +1203,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">37.13 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1150,8 +1242,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">22.54 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1186,8 +1281,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">45.34 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1222,8 +1320,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">719 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:1910001:36</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Троица, Советская улица, 12</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1258,8 +1359,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">954 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">39:05:050405:76</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Вольное, Зеленоградский муниципальный округ, Калининградская область, Россия</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1294,8 +1398,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">82.02 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:1713044:1698</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">улица Липатова, 5, Пермь, Пермский городской округ, Пермский край, Россия, 614113</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1330,8 +1437,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">73.66 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1366,8 +1476,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">75.82 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:1713044:1698</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1402,8 +1515,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">453 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:1717072:127</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">г. Пермь, улица Новосельская, з/у 1в </span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1438,8 +1554,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1178 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:1810045:21</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Пермь, улица Башкирская, з/у 54</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1474,8 +1593,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1141 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:21548</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский муниципальный округ, д. Шилово, улица Разгуляевская, з/у 12</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1510,8 +1632,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1204 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3020003:4332</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский муниципальный округ, д. Загришинское, ул. Солнечная, зу 49</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1546,8 +1671,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1100 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:1713430:161</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, городской округ Пермский, город Пермь, улица Черногорская, зу 52д</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1582,8 +1710,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1264 м²</span>
       <span class="responsible">Антонина Скурко</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3020003:4504</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский муниципальный округ, деревня Загришинское, ул. Солнечная, з/у 59</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1622,8 +1753,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">11.2 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:4410946:5230</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №5)</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1658,8 +1792,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">75 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:4410946:5227</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №3)</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1694,8 +1831,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">77.5 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:4410946:5217</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №2)</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1730,8 +1870,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">86.2 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:01:4410946:5224</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №1) </span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1766,8 +1909,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1000 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:18:3630101:3735</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Добрянский р-н, Краснослудское с/пос., дер. Городище</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1802,8 +1948,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1824 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:07:0011102:511</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, г. Краснокамск, ул. Тупиковая, зу 2а</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1838,8 +1987,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">718 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:4070004:4329</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1874,8 +2026,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1196 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:07:0020115:159</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Молодёжная улица, Оверята, Краснокамский муниципальный округ, Пермский край, Россия, 617050</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1910,8 +2065,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1015 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3290001:13244</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">ул. пермская, Красный Восход, Пермский муниципальный округ, Пермский край, Россия, 614523</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1946,8 +2104,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">977 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:9044</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">село Култаево, ул.Царскосельская, з/у22</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -1982,8 +2143,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1013 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:9050</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value"> Култаево, ул.Царскосельская, з/у 21</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -2018,8 +2182,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Пермь</span>
+      <span class="type-tag">земельный участок</span>
+      <span class="area-tag">1093 м²</span>
       <span class="responsible">Наталья Ильиных</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:9039</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value">Пермский край, Пермский район, Култаевское с/п, с. Култаево</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
@@ -2058,8 +2225,11 @@
     </div>
     <div class="card-meta">
       <span class="city-tag">Калининград</span>
+      <span class="type-tag">коммерческая</span>
+      <span class="area-tag">116.2 м²</span>
       <span class="responsible">Ярослав Балакин</span>
     </div>
+    <div class="card-location"><div class="kadastr-row"><span class="kadastr-label">Кадастр:</span> <span class="kadastr-value">59:32:3250001:9050</span></div><div class="address-row"><span class="kadastr-label">Адрес:</span> <span class="address-value"> Култаево, ул.Царскосельская, з/у 21</span></div></div>
   </div>
   <div class="card-body">
     <div class="financials">
