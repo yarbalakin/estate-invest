@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estate Invest — Как анализировать недвижимость с помощью таблиц</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --accent: #10b981;
+            --warning: #f59e0b; --danger: #ef4444;
+            --bg: #0f172a; --bg-card: #1e293b; --text: #f1f5f9;
+            --text-muted: #94a3b8; --text-dim: #64748b; --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+        /* Hero */
+        .hero { background: linear-gradient(135deg, #1e1b4b, #312e81, #4338ca, #6366f1); padding: 80px 40px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle at 30% 50%, rgba(99,102,241,0.15), transparent 50%); animation: glow 8s ease-in-out infinite alternate; }
+        @keyframes glow { to { transform: translate(-5%,5%); } }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .hero-badge { display:inline-block; background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); padding:8px 20px; border-radius:30px; font-size:14px; font-weight:500; color:#c7d2fe; margin-bottom:24px; letter-spacing:1px; text-transform:uppercase; }
+        .hero h1 { font-size:48px; font-weight:800; line-height:1.1; margin-bottom:20px; background:linear-gradient(135deg,#fff,#c7d2fe); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero p { font-size:20px; color:#a5b4fc; max-width:600px; margin:0 auto 32px; }
+        .hero-stats { display:flex; justify-content:center; gap:40px; flex-wrap:wrap; }
+        .hero-stat-value { font-size:36px; font-weight:800; color:#fff; }
+        .hero-stat-label { font-size:13px; color:#a5b4fc; text-transform:uppercase; letter-spacing:1px; }
+
+        /* Nav */
+        .nav { background:rgba(30,41,59,0.95); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:0 40px; position:sticky; top:0; z-index:100; }
+        .nav-inner { max-width:1200px; margin:0 auto; display:flex; overflow-x:auto; }
+        .nav-item { padding:16px 24px; font-size:14px; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.3s; white-space:nowrap; display:flex; align-items:center; gap:8px; text-decoration:none; }
+        .nav-item:hover { color:var(--text); }
+        .nav-item.active { color:var(--primary-light); border-bottom-color:var(--primary); }
+        .nav-num { display:inline-flex; width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--text-muted); font-size:12px; font-weight:700; align-items:center; justify-content:center; }
+        .nav-item.active .nav-num { background:var(--primary); color:#fff; }
+
+        .container { max-width:1200px; margin:0 auto; padding:0 40px; }
+        .section { padding:80px 0; border-bottom:1px solid var(--border); }
+        .section:last-child { border-bottom:none; }
+        .section-number { display:inline-flex; width:48px; height:48px; border-radius:16px; font-size:20px; font-weight:800; align-items:center; justify-content:center; margin-bottom:16px; color:#fff; }
+        .s1 { background:linear-gradient(135deg,#6366f1,#8b5cf6); }
+        .s2 { background:linear-gradient(135deg,#10b981,#059669); }
+        .s3 { background:linear-gradient(135deg,#f59e0b,#d97706); }
+        .s4 { background:linear-gradient(135deg,#ef4444,#dc2626); }
+        .section h2 { font-size:36px; font-weight:800; margin-bottom:12px; }
+        .section-desc { font-size:18px; color:var(--text-muted); max-width:700px; margin-bottom:32px; }
+
+        .info-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px; margin-bottom:32px; }
+        .info-card h3 { font-size:20px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:12px; }
+        .info-card p { color:var(--text-muted); line-height:1.8; }
+
+        /* ===== GOOGLE SHEETS EXACT REPLICA ===== */
+        .gs-frame { border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4); margin:32px 0; border:1px solid #555; }
+        .gs-chrome { background:#dee1e6; padding:8px 12px; display:flex; align-items:center; gap:8px; }
+        .gs-dots { display:flex; gap:6px; }
+        .gs-dot { width:12px; height:12px; border-radius:50%; }
+        .gs-dot-r { background:#ff5f57; } .gs-dot-y { background:#febc2e; } .gs-dot-g { background:#28c840; }
+        .gs-url { flex:1; background:#fff; border-radius:20px; padding:4px 16px; font-family:'Roboto',sans-serif; font-size:12px; color:#5f6368; margin-left:8px; }
+        .gs-tabs { background:#f8f9fa; border-bottom:1px solid #dadce0; display:flex; }
+        .gs-tab { padding:8px 20px; font-family:'Roboto',sans-serif; font-size:12px; color:#5f6368; border-right:1px solid #e0e0e0; background:#e8eaed; }
+        .gs-tab.active { background:#fff; color:#1a73e8; font-weight:500; border-bottom:3px solid #1a73e8; margin-bottom:-1px; position:relative; z-index:1; }
+        .gs-body { background:#fff; overflow-x:auto; }
+        .gs { border-collapse:collapse; font-family:'Roboto',sans-serif; font-size:13px; color:#202124; width:100%; }
+        .gs .ch { background:#f8f9fa; }
+        .gs .ch th { padding:2px 4px; font-weight:400; font-size:10px; color:#5f6368; text-align:center; border:1px solid #e0e0e0; min-width:70px; }
+        .gs .ch th:first-child { min-width:28px; width:28px; }
+        .gs .rn { background:#f8f9fa; color:#5f6368; text-align:center; font-size:10px; border:1px solid #e0e0e0; padding:3px 4px; width:28px; }
+        .gs td { padding:3px 6px; border:1px solid #e0e0e0; white-space:nowrap; height:22px; background:#fff; }
+        .gs .empty { background:#fff; }
+        .gs .sep { background:#f0f0f0; }
+        /* Cell styles */
+        .gs .hdr-blue { background:#4285f4; color:#fff; font-weight:700; text-align:center; font-size:11px; padding:5px 6px; }
+        .gs .hdr-green { background:#34a853; color:#fff; font-weight:700; text-align:center; font-size:11px; padding:5px 6px; }
+        .gs .hdr-orange { background:#fb8c00; color:#fff; font-weight:700; text-align:center; font-size:11px; padding:5px 6px; }
+        .gs .hdr-red { background:#ea4335; color:#fff; font-weight:700; text-align:center; font-size:11px; padding:5px 6px; }
+        .gs .sub { background:#e8f0fe; color:#1967d2; font-weight:500; font-size:11px; }
+        .gs .lbl { color:#5f6368; }
+        .gs .b { font-weight:700; }
+        .gs .r { text-align:right; font-family:'Roboto Mono',monospace; font-size:12px; }
+        .gs .g { color:#137333; font-weight:700; }
+        .gs .rd { color:#c5221f; font-weight:700; }
+        .gs .bl { color:#1a73e8; }
+        .gs .yellow { background:#fef7e0; }
+        .gs .green-bg { background:#e6f4ea; }
+        .gs .big { font-size:15px; }
+        .gs .xl { font-size:18px; }
+
+        /* Pointer annotations */
+        .pointers { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0; }
+        .ptr { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+        .ptr-badge { display:inline-block; padding:2px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#fff; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+        .ptr-badge.bl { background:#4285f4; } .ptr-badge.gn { background:#34a853; }
+        .ptr-badge.or { background:#fb8c00; } .ptr-badge.re { background:#ea4335; }
+        .ptr h4 { font-size:15px; font-weight:700; margin-bottom:6px; }
+        .ptr p { color:var(--text-muted); font-size:14px; line-height:1.6; }
+
+        .formula-box { background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.05)); border:1px solid rgba(99,102,241,0.2); border-radius:12px; padding:24px; margin:24px 0; }
+        .formula-box .ft { font-size:13px; font-weight:600; color:var(--primary-light); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+        .formula-box .ff { font-size:18px; font-weight:600; font-family:'Roboto Mono',monospace; line-height:1.6; }
+        .formula-box .fd { font-size:14px; color:var(--text-muted); margin-top:12px; }
+
+        .callout { border-radius:12px; padding:20px 24px; margin:24px 0; display:flex; gap:16px; }
+        .callout-icon { font-size:24px; flex-shrink:0; }
+        .c-info { background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.2); }
+        .c-ok { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); }
+        .c-warn { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); }
+        .c-err { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); }
+        .callout h4 { font-size:15px; font-weight:700; margin-bottom:4px; }
+        .callout p { font-size:14px; color:var(--text-muted); line-height:1.6; }
+
+        .two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:24px 0; }
+        .flow { display:flex; align-items:center; justify-content:center; gap:0; margin:40px 0; flex-wrap:wrap; }
+        .flow-step { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px 24px; text-align:center; min-width:140px; }
+        .flow-step-num { font-size:12px; font-weight:700; color:var(--primary-light); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+        .flow-step-label { font-size:15px; font-weight:600; }
+        .flow-step-value { font-size:13px; color:var(--text-muted); margin-top:4px; }
+        .flow-arrow { font-size:24px; color:var(--text-dim); padding:0 8px; }
+
+        .metric-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin:24px 0; }
+        .metric { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+        .metric-label { font-size:12px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .metric-value { font-size:28px; font-weight:800; }
+        .metric-sub { font-size:13px; color:var(--text-muted); margin-top:4px; }
+
+        .gs-link { margin:24px 0; text-align:center; }
+        .gs-link a { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:10px; color:var(--primary-light); text-decoration:none; font-weight:600; font-size:14px; transition:all 0.2s; }
+        .gs-link a:hover { background:rgba(99,102,241,0.2); transform:translateY(-1px); }
+
+        .footer { background:var(--bg-card); border-top:1px solid var(--border); padding:40px; text-align:center; }
+        .footer p { color:var(--text-dim); font-size:14px; }
+        .footer a { color:var(--primary-light); text-decoration:none; }
+
+        @media (max-width:768px) {
+            .hero { padding:48px 20px; } .hero h1 { font-size:32px; }
+            .container { padding:0 16px; } .section { padding:48px 0; }
+            .section h2 { font-size:28px; } .two-col,.pointers { grid-template-columns:1fr; }
+            .flow { flex-direction:column; } .flow-arrow { transform:rotate(90deg); }
+            .nav { padding:0 12px; } .nav-item { padding:12px 14px; font-size:13px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">Estate Invest Academy</div>
+        <h1>Как анализировать недвижимость с помощью таблиц</h1>
+        <p>Полное руководство по работе с аналитическими таблицами для инвесторов Estate Invest</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-value">3</div><div class="hero-stat-label">Листа таблицы</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">ROI</div><div class="hero-stat-label">Расчёт доходности</div></div>
+            <div class="hero-stat"><div class="hero-stat-value">50/50</div><div class="hero-stat-label">Раздел прибыли</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav"><div class="nav-inner">
+    <a class="nav-item active" href="#sheet1"><span class="nav-num">1</span> Доходность лота + Аналоги</a>
+    <a class="nav-item" href="#sheet2"><span class="nav-num">2</span> Расходы (Касса)</a>
+    <a class="nav-item" href="#sheet3"><span class="nav-num">3</span> Дробная доходность</a>
+</div></div>
+
+<!-- INTRO -->
+<div class="container">
+    <div class="section">
+        <div class="info-card" style="border-left:4px solid var(--primary);">
+            <h3>О чём этот урок</h3>
+            <p>Перед вами — подробный разбор таблиц, которые мы используем для анализа каждого объекта недвижимости. Ниже — <strong>точные копии реальных таблиц</strong> из Google Sheets с пояснениями по каждой ячейке.</p>
+        </div>
+        <div class="flow">
+            <div class="flow-step"><div class="flow-step-num">Шаг 1</div><div class="flow-step-label">Доходность + Аналоги</div><div class="flow-step-value">Считаем ROI и дисконт</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-step-num">Шаг 2</div><div class="flow-step-label">Касса проекта</div><div class="flow-step-value">Контролируем финансы</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-step-num">Шаг 3</div><div class="flow-step-label">Дробная доходность</div><div class="flow-step-value">Учёт при рассрочке</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     ЛИСТ 1: РАСЧЁТ ДОХОДНОСТИ + АНАЛОГИ
+     ========================================== -->
+<div class="container" id="sheet1">
+<div class="section">
+    <div class="section-number s1">1</div>
+    <h2>Расчёт доходности лота + Аналоги</h2>
+    <p class="section-desc">Первый лист — здесь мы прикидываем расходы, считаем доходность и сравниваем с рыночными аналогами. Слева — расчёт доходности, справа — аналоги.</p>
+
+    <div class="info-card">
+        <h3><span style="color:var(--primary);">&#9679;</span> Как это работает</h3>
+        <p>Складываем <strong>сумму покупки</strong> и <strong>расходы до продажи</strong> = вложения. Из выручки от продажи вычитаем <strong>расходы после</strong> (риэлтор, налоги) = чистая прибыль. Делим на вложения = <strong>ROI</strong>. Справа — собираем аналоги и считаем дисконт.</p>
+    </div>
+
+    <!-- ТОЧНАЯ КОПИЯ ТАБЛИЦЫ ИЗ GOOGLE SHEETS -->
+    <div class="gs-frame">
+        <div class="gs-chrome">
+            <div class="gs-dots"><div class="gs-dot gs-dot-r"></div><div class="gs-dot gs-dot-y"></div><div class="gs-dot gs-dot-g"></div></div>
+            <div class="gs-url">docs.google.com/spreadsheets/d/1d3lbM9z.../edit</div>
+        </div>
+        <div class="gs-tabs">
+            <div class="gs-tab active">Расчёт доходности лота</div>
+            <div class="gs-tab">Расходы</div>
+            <div class="gs-tab">Расчёт дробной доходности</div>
+        </div>
+        <div class="gs-body">
+            <table class="gs">
+                <tr class="ch">
+                    <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th></th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th>
+                </tr>
+                <!-- Заголовок -->
+                <tr>
+                    <td class="rn">1</td>
+                    <td class="hdr-blue" colspan="4">Расчет доходности лота</td>
+                    <td class="sep"></td>
+                    <td class="hdr-green" colspan="5">Расчет аналогов</td>
+                </tr>
+                <!-- Подзаголовки аналогов -->
+                <tr>
+                    <td class="rn">2</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="lbl r">3 741,16</td><td class="lbl">Комиссия</td>
+                    <td class="sep"></td>
+                    <td class="sub">#</td><td class="sub">Цена</td><td class="sub">Площадь, сот</td><td class="sub">Цена/сот</td><td class="sub">Адрес</td>
+                </tr>
+                <!-- Данные -->
+                <tr>
+                    <td class="rn">3</td>
+                    <td class="r b">66 964,21</td><td class="lbl">Покупка</td>
+                    <td class="r">10 000,00</td><td class="lbl">Агент по торгам</td>
+                    <td class="sep"></td>
+                    <td>1</td><td class="r">2 300 000</td><td class="r">7,8</td><td class="r">294 871,79</td><td class="lbl" style="font-size:11px;"></td>
+                </tr>
+                <tr>
+                    <td class="rn">4</td>
+                    <td class="r b">57 741,16</td><td class="lbl">Расходы ДО</td>
+                    <td class="r">30 000,00</td><td class="lbl">Реклама</td>
+                    <td class="sep"></td>
+                    <td>2</td><td class="r">2 800 000</td><td class="r">7,4</td><td class="r">378 378,38</td><td class="lbl"></td>
+                </tr>
+                <tr>
+                    <td class="rn">5</td>
+                    <td class="r b g">380 000,00</td><td class="lbl">Продажа</td>
+                    <td class="r">10 000,00</td><td class="lbl">Колышки+баннер</td>
+                    <td class="sep"></td>
+                    <td>3</td><td class="r">2 850 000</td><td class="r">7,5</td><td class="r">380 000,00</td><td class="lbl"></td>
+                </tr>
+                <tr>
+                    <td class="rn">6</td>
+                    <td class="r b">124 705,37</td><td class="lbl">Вложения</td>
+                    <td class="r">4 000,00</td><td class="lbl">Госпошлины</td>
+                    <td class="sep"></td>
+                    <td>4</td><td class="r">2 300 000</td><td class="r">8</td><td class="r">287 500,00</td><td class="lbl"></td>
+                </tr>
+                <tr>
+                    <td class="rn">7</td>
+                    <td class="r b g">255 294,63</td><td class="lbl">Выручка общая EBITDA</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">8</td>
+                    <td class="r b rd">100 694,65</td><td class="lbl">Расходы ПОСЛЕ</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">9</td>
+                    <td class="r b g big">154 599,98</td><td class="b">EBITDA - расходы ПОСЛЕ</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Итоги -->
+                <tr>
+                    <td class="rn">10</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="r b yellow">57 741,16</td><td class="b yellow">Сумма ДО</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="b">Средняя цена сотки</td><td class="r b bl big">335 187,54</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">11</td>
+                    <td class="r b g green-bg xl">123,97%</td><td class="b green-bg">Доходность за проект</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="sub" colspan="2">Анализируемый участок</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">12</td>
+                    <td class="r b g green-bg xl">123,97%</td><td class="b green-bg">Доходность годовых</td>
+                    <td class="r">60 000,00</td><td class="lbl">Риелтор1</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="lbl">Площадь</td><td class="r b">8</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">13</td>
+                    <td class="r">20.12.2025</td><td class="lbl">Начало проекта</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="lbl">Рыночная цена</td><td class="r b g">2 681 500,35</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">14</td>
+                    <td class="r">20.12.2026</td><td class="lbl">Конец проекта</td>
+                    <td class="r rd">40 694,65</td><td class="lbl">Налог НДФЛ</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="lbl">Текущая цена</td><td class="r">1 197 686,64</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">15</td>
+                    <td class="r b">365</td><td class="lbl">Срок реализации, дни</td>
+                    <td class="r b yellow">100 694,65</td><td class="b yellow">Сумма ПОСЛЕ</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="b">Дисконт</td><td class="r b g green-bg xl">55,34%</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">16</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="sep"></td>
+                    <td class="lbl" colspan="5" style="font-size:11px; white-space:normal; color:#137333;">Дисконт уже сейчас составляет 55% от рыночной стоимости. Отличный момент для входа в торги.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Расшифровка -->
+    <div class="pointers">
+        <div class="ptr">
+            <span class="ptr-badge bl">Столбцы A-B (слева)</span>
+            <h4>Итоги доходности</h4>
+            <p>Покупка, расходы ДО, продажа, вложения, выручка EBITDA, расходы ПОСЛЕ, чистая прибыль. <strong>Доходность за проект</strong> и <strong>в годовых</strong> — главные цифры.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge bl">Столбцы C-D (середина)</span>
+            <h4>Детализация расходов</h4>
+            <p><strong>Сверху</strong> — расходы ДО: комиссия, агент, реклама, колышки+баннер, госпошлины. <strong>Снизу</strong> — расходы ПОСЛЕ: риэлтор, налог. Переключатель налога: НДФЛ / УСН / УСН 5%.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge gn">Столбцы F-J (справа)</span>
+            <h4>Расчёт аналогов</h4>
+            <p>4 аналога с ценами и площадями. Средняя цена за сотку &times; площадь нашего участка = рыночная цена. Сравниваем с ценой торгов = <strong>дисконт</strong>.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge gn">Дисконт 55,34%</span>
+            <h4>Правило дисконта</h4>
+            <p><strong>30-40%</strong> — рабочий. <strong>40-50%</strong> — очень хороший. <strong>Больше 50%</strong> — отличный момент для входа. Наш объект — 55%, это превосходно.</p>
+        </div>
+    </div>
+
+    <div class="formula-box">
+        <div class="ft">Формулы</div>
+        <div class="ff">ROI = (Продажа &minus; Покупка &minus; Расх.ДО &minus; Расх.ПОСЛЕ) / Вложения</div>
+        <div class="fd">Годовых = ROI / Срок(дни) &times; 365 &nbsp;&nbsp;|&nbsp;&nbsp; Дисконт = (Рыночная &minus; Торги) / Рыночная</div>
+    </div>
+
+    <div class="gs-link"><a href="https://docs.google.com/spreadsheets/d/1d3lbM9zWQqqy8qtTN3pBMVV_Zbyzl4_TMwHtpAM3igM/edit?gid=0" target="_blank">&#128196; Открыть этот лист в Google Sheets</a></div>
+</div>
+</div>
+
+<!-- ==========================================
+     ЛИСТ 2: РАСХОДЫ (КАССА)
+     ========================================== -->
+<div class="container" id="sheet2">
+<div class="section">
+    <div class="section-number s3">2</div>
+    <h2>Расходы (Касса проекта)</h2>
+    <p class="section-desc">Самая большая таблица — полная касса проекта. Слева — движение денег, справа — итоги, сроки и расчёт налогов.</p>
+
+    <div class="info-card">
+        <h3><span style="color:var(--warning);">&#9679;</span> Как это работает</h3>
+        <p>Сверху — блок обязательных платежей: задаток, окончательный платёж, вложения, налоги, риэлтор. По ходу проекта вносите каждую операцию: <strong>приход, расход, остаток</strong>. Справа — итоги проекта, сроки и расчёт УСН.</p>
+    </div>
+
+    <!-- ТОЧНАЯ КОПИЯ ЛИСТА РАСХОДЫ -->
+    <div class="gs-frame">
+        <div class="gs-chrome">
+            <div class="gs-dots"><div class="gs-dot gs-dot-r"></div><div class="gs-dot gs-dot-y"></div><div class="gs-dot gs-dot-g"></div></div>
+            <div class="gs-url">docs.google.com/spreadsheets/d/1d3lbM9z.../edit</div>
+        </div>
+        <div class="gs-tabs">
+            <div class="gs-tab">Расчёт доходности лота</div>
+            <div class="gs-tab active">Расходы</div>
+            <div class="gs-tab">Расчёт дробной доходности</div>
+        </div>
+        <div class="gs-body">
+            <table class="gs">
+                <tr class="ch">
+                    <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th></th><th>H</th><th>I</th><th>J</th><th>K</th><th>L</th><th>M</th>
+                </tr>
+                <!-- Заголовок -->
+                <tr>
+                    <td class="rn">1</td>
+                    <td class="hdr-orange" colspan="6">КАССА ПРОЕКТА</td>
+                    <td class="sep"></td>
+                    <td class="lbl">Кто</td><td class="r b g">36 000,00</td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Подзаголовки -->
+                <tr>
+                    <td class="rn"></td>
+                    <td class="sub">#</td><td class="sub">Наименование</td><td class="sub">Дата</td>
+                    <td class="sub" style="color:#137333!important;">Приход</td>
+                    <td class="sub" style="color:#c5221f!important;">Расход</td>
+                    <td class="sub">Остаток</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Задаток -->
+                <tr>
+                    <td class="rn">1</td>
+                    <td>1</td><td class="b">Задаток</td><td>22.02.2026</td>
+                    <td class="empty"></td><td class="r rd">66 964,21</td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="lbl">Альфа</td><td class="r rd">-102 964,21</td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Окончательный платёж -->
+                <tr>
+                    <td class="rn">2</td>
+                    <td>2</td><td class="b">Окончательный платеж</td><td class="empty"></td>
+                    <td class="r lbl">0,00 &#8381;</td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Вложения -->
+                <tr>
+                    <td class="rn">3</td>
+                    <td>3</td><td class="b">Вложения</td><td>02.03.2026</td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="lbl">В работе</td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Налог УСН -->
+                <tr>
+                    <td class="rn">4</td>
+                    <td>4</td><td class="b">Налог УСН</td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Налог на имущество -->
+                <tr>
+                    <td class="rn">5</td>
+                    <td>5</td><td class="b">Налог на имущество</td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="r b">1 000 000,00</td><td class="lbl">Покупка</td>
+                    <td class="r">1 000 000,00</td><td class="lbl">Купили факт.</td>
+                    <td class="sub">Срок проекта</td><td class="empty"></td>
+                </tr>
+                <!-- Риэлтор 1 -->
+                <tr>
+                    <td class="rn">6</td>
+                    <td>6</td><td class="b">Риелтор 1</td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="r b g">2 000 000,00</td><td class="lbl">Продажа</td>
+                    <td class="r">2 000 000,00</td><td class="lbl">Продали по дог.</td>
+                    <td class="lbl">Начало</td><td class="r">12.12.2025</td>
+                </tr>
+                <!-- Риэлтор 2 -->
+                <tr>
+                    <td class="rn">6</td>
+                    <td>6</td><td class="b">Риелтор 2</td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-66 964,21</td>
+                    <td class="sep"></td>
+                    <td class="r b">1 200 000,00</td><td class="lbl">Вложения</td>
+                    <td class="r">1 000 000,00</td><td class="lbl">Налоговая база</td>
+                    <td class="lbl">Конец</td><td class="r">12.06.2026</td>
+                </tr>
+                <!-- Авансовые -->
+                <tr>
+                    <td class="rn">7</td>
+                    <td>7</td><td class="b">Авансовые платежи</td><td class="empty"></td>
+                    <td class="empty"></td><td class="r b">36 000,00</td><td class="r rd">-102 964,21</td>
+                    <td class="sep"></td>
+                    <td class="r b">156 000,00</td><td class="lbl">Расходы</td>
+                    <td class="empty"></td><td class="lbl">Подтв. расходы</td>
+                    <td class="lbl">Дни</td><td class="r b">182</td>
+                </tr>
+                <!-- Разделитель -->
+                <tr>
+                    <td class="rn"></td>
+                    <td class="sub" colspan="6">Движение кассы</td>
+                    <td class="sep"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r b">1 000 000,00</td><td class="lbl">Итоговая база</td>
+                    <td class="sub">Срок владения</td><td class="empty"></td>
+                </tr>
+                <!-- Выручка, ROI -->
+                <tr>
+                    <td class="rn">8</td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="r rd">-102 964,21</td>
+                    <td class="sep"></td>
+                    <td class="r b g green-bg">844 000,00</td><td class="b green-bg">Выручка</td>
+                    <td class="r">120 000,00</td><td class="lbl">Налог УСН</td>
+                    <td class="lbl">Начало</td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">12</td>
+                    <td class="empty" colspan="6"></td>
+                    <td class="sep"></td>
+                    <td class="r b g green-bg xl">70,33%</td><td class="b green-bg">ROI за проект</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn">13</td>
+                    <td class="empty" colspan="6"></td>
+                    <td class="sep"></td>
+                    <td class="r b g green-bg xl">141,05%</td><td class="b green-bg">ROI годовых</td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Остаток по кассе -->
+                <tr>
+                    <td class="rn">15</td>
+                    <td class="empty" colspan="6"></td>
+                    <td class="sep"></td>
+                    <td class="r b">120 000,00</td><td class="lbl">Налог УСН</td>
+                    <td class="r b rd yellow">-102 964,21 &#8381;</td><td class="b yellow">Остаток по кассе</td>
+                    <td class="r">120 000,00 &#8381;</td><td class="lbl">Налог на имущ.</td>
+                </tr>
+                <tr>
+                    <td class="rn">16</td>
+                    <td class="empty" colspan="6"></td>
+                    <td class="sep"></td>
+                    <td class="r">0,00</td><td class="lbl">Налог на имущ.</td>
+                    <td class="r">1 200 000,00 &#8381;</td><td class="lbl">Тело инвесторов</td>
+                    <td class="r">0,00 &#8381;</td><td class="lbl">Налог УСН</td>
+                </tr>
+                <tr>
+                    <td class="rn">19</td>
+                    <td class="empty" colspan="6"></td>
+                    <td class="sep"></td>
+                    <td class="r b yellow">120 000,00</td><td class="b yellow">ИТОГО</td>
+                    <td class="r b yellow">1 200 000,00</td><td class="b yellow">РАСПРЕДЕЛЯЕМ</td>
+                    <td class="empty"></td><td class="empty"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="pointers">
+        <div class="ptr">
+            <span class="ptr-badge or">Столбцы A-F (слева)</span>
+            <h4>Касса: Приход / Расход / Остаток</h4>
+            <p>Строки 1-7 — обязательные платежи: задаток, основная оплата, вложения, налоги (УСН, на имущество), два риэлтора, авансы. Ниже — свободные строки для ежедневных операций.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge or">Столбцы H-I (справа вверху)</span>
+            <h4>Итоги проекта</h4>
+            <p>Покупка, продажа, вложения, расходы, <strong>выручка</strong>, <strong>ROI за проект</strong> (70,33%) и <strong>ROI годовых</strong> (141,05%). Если первая таблица — план, то здесь — факт.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge re">Столбцы J-K</span>
+            <h4>Налоги и распределение</h4>
+            <p>Расчёт УСН: продали &minus; купили &minus; подтв. расходы = налоговая база &times; 5%. Для НДФЛ проще: продали &minus; купили. Далее — распределение: тело инвесторов, проценты, остаток по кассе.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge or">Столбцы L-M</span>
+            <h4>Сроки проекта</h4>
+            <p><strong>Срок проекта</strong> (182 дня) — сколько работали деньги, влияет на ROI. <strong>Срок владения</strong> — сколько владели имуществом, влияет на налог на имущество (пересчёт по дням).</p>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="info-card">
+            <h3>Планируемые расходы</h3>
+            <p>Расход ещё не случился? Выносите в блок «Планируемые расходы» внизу. Таблица учтёт в прогнозе, но не отразит в кассе.</p>
+        </div>
+        <div class="info-card">
+            <h3>Данные по аренде</h3>
+            <p>Если объект сдаётся — считаем выплаты себе, доходность для инвестора, долю и средний арендный поток.</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- ==========================================
+     ЛИСТ 3: ДРОБНАЯ ДОХОДНОСТЬ
+     ========================================== -->
+<div class="container" id="sheet3">
+<div class="section">
+    <div class="section-number s4">3</div>
+    <h2>Расчёт дробной доходности</h2>
+    <p class="section-desc">Когда деньги возвращаются частями (рассрочка, аренда) — считаем доходность каждой выплаты отдельно.</p>
+
+    <div class="info-card">
+        <h3><span style="color:var(--danger);">&#9679;</span> Зачем нужен этот лист</h3>
+        <p>При продаже в рассрочку каждый «кусочек» денег работает разное время. Ранний возврат = высокая годовая доходность, поздний = низкая. Таблица считает <strong>средневзвешенную годовую доходность</strong> через промежуточный коэффициент.</p>
+    </div>
+
+    <!-- ТОЧНАЯ КОПИЯ ЛИСТА ДРОБНОЙ ДОХОДНОСТИ -->
+    <div class="gs-frame">
+        <div class="gs-chrome">
+            <div class="gs-dots"><div class="gs-dot gs-dot-r"></div><div class="gs-dot gs-dot-y"></div><div class="gs-dot gs-dot-g"></div></div>
+            <div class="gs-url">docs.google.com/spreadsheets/d/1d3lbM9z.../edit</div>
+        </div>
+        <div class="gs-tabs">
+            <div class="gs-tab">Расчёт доходности лота</div>
+            <div class="gs-tab">Расходы</div>
+            <div class="gs-tab active">Расчёт дробной доходности</div>
+        </div>
+        <div class="gs-body">
+            <table class="gs">
+                <tr class="ch">
+                    <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th><th>K</th><th>L</th>
+                </tr>
+                <!-- Заголовок -->
+                <tr>
+                    <td class="rn">1</td>
+                    <td class="hdr-red" colspan="12">РАСЧЁТ ДРОБНОЙ ДОХОДНОСТИ</td>
+                </tr>
+                <!-- Метаданные -->
+                <tr>
+                    <td class="rn"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                    <td class="sub">Вложили</td><td class="sub">Продажа</td><td class="sub">Прибыль</td><td class="sub">ЗА ПРОЕКТ</td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="rn"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                    <td class="r b">1 200 000,00</td><td class="empty"></td><td class="empty"></td><td class="r b g">70,33%</td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                </tr>
+                <!-- Подзаголовки -->
+                <tr>
+                    <td class="rn"></td>
+                    <td class="sub">#</td><td class="sub">Выплата</td><td class="sub">Аренда</td><td class="sub">Общая</td>
+                    <td class="sub">Остаток</td><td class="sub">Дата старта</td><td class="sub">Дата продажи</td><td class="sub">Дней</td>
+                    <td class="sub">% капитала</td><td class="sub">Прибыль</td><td class="sub">ROI проект</td><td class="sub">ROI год.</td>
+                </tr>
+                <!-- Строка 1: Продажа -->
+                <tr>
+                    <td class="rn">1</td>
+                    <td>1</td>
+                    <td class="r">546 000,00</td><td class="r">0,00</td><td class="r b">546 000,00</td>
+                    <td class="r">654 000,00</td><td class="r">21.11.2025</td><td class="r">27.01.2026</td><td class="r">67</td>
+                    <td class="r">45,50%</td><td class="r g">384 020,00</td><td class="r g">70,33%</td><td class="r b g big">383,16%</td>
+                </tr>
+                <!-- Строка 2: Аренда -->
+                <tr>
+                    <td class="rn"></td>
+                    <td></td>
+                    <td class="r">30 000,00</td><td class="r">30 000,00</td><td class="r b">60 000,00</td>
+                    <td class="r">594 000,00</td><td class="r">21.11.2025</td><td class="r">28.01.2026</td><td class="r">68</td>
+                    <td class="r">5,00%</td><td class="r g">42 200,00</td><td class="r g">70,33%</td><td class="r b" style="color:#ea8600;">377,52%</td>
+                </tr>
+                <!-- Строка 3: Аренда -->
+                <tr>
+                    <td class="rn"></td>
+                    <td></td>
+                    <td class="r">30 000,00</td><td class="r">30 000,00</td><td class="r b">60 000,00</td>
+                    <td class="r">534 000,00</td><td class="r">21.11.2025</td><td class="r">28.03.2026</td><td class="r">127</td>
+                    <td class="r">5,00%</td><td class="r g">42 200,00</td><td class="r g">70,33%</td><td class="r b" style="color:#ea8600;">202,14%</td>
+                </tr>
+                <!-- Строка 4: Остаток -->
+                <tr>
+                    <td class="rn"></td>
+                    <td></td>
+                    <td class="r">534 000,00</td><td class="r"></td><td class="r b">534 000,00</td>
+                    <td class="r g">0,00</td><td class="r">21.11.2025</td><td class="r">28.03.2026</td><td class="r">127</td>
+                    <td class="r">44,50%</td><td class="r g">375 580,00</td><td class="r g">70,33%</td><td class="r b" style="color:#ea8600;">202,14%</td>
+                </tr>
+                <!-- Итого -->
+                <tr>
+                    <td class="rn"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td>
+                    <td class="empty"></td><td class="empty"></td>
+                    <td class="r b g green-bg xl">293,27%</td>
+                    <td class="r b green-bg" style="font-size:12px;">Средневзвеш.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="pointers">
+        <div class="ptr">
+            <span class="ptr-badge re">Столбцы B-D</span>
+            <h4>Выплата / Аренда / Общая</h4>
+            <p><strong>Выплата</strong> — деньги с продажи. <strong>Аренда</strong> — арендный платёж. <strong>Общая</strong> — сумма обоих. Рекомендуем аренду записывать как возврат тела.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge or">Столбец E — Остаток</span>
+            <h4>Сколько осталось вернуть</h4>
+            <p>Когда <strong>0</strong> — тело полностью возвращено. Прибыль считайте только после этого момента.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge bl">Столбцы F-I</span>
+            <h4>Даты и срок каждой части</h4>
+            <p>Дата старта — когда купили. Дата продажи — когда вернулась конкретная часть. <strong>Дней</strong> — сколько этот кусочек проработал. <strong>% капитала</strong> — его доля.</p>
+        </div>
+        <div class="ptr">
+            <span class="ptr-badge gn">Столбцы K-L — ROI</span>
+            <h4>Доходность каждой части</h4>
+            <p>Первая выплата (67 дней) даёт <strong>383%</strong> годовых. Последняя (127 дней) — <strong>202%</strong>. Средневзвешенная: <strong>293,27%</strong> — честная средняя по всем выплатам.</p>
+        </div>
+    </div>
+
+    <div class="formula-box">
+        <div class="ft">Ключевая идея</div>
+        <div class="ff">Ранний возврат = высокая годовая<br>Поздний возврат = низкая годовая</div>
+        <div class="fd">Средневзвешенная учитывает и сумму, и срок каждой выплаты через промежуточный коэффициент. Крупные ранние возвраты влияют сильнее мелких поздних.</div>
+    </div>
+
+    <div class="callout c-err">
+        <div class="callout-icon">&#9888;</div>
+        <div>
+            <h4>Важно: считайте прибыль только после возврата тела</h4>
+            <p>Деньги от аренды и частичных продаж — это <strong>возврат тела</strong>. Прибыль начинается когда «остаток» = 0.</p>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- ИТОГИ -->
+<div class="container">
+<div class="section" style="border-bottom:none;">
+    <h2 style="text-align:center;">Подведём итоги</h2>
+    <p class="section-desc" style="text-align:center; margin:12px auto 40px;">3 листа — полный цикл анализа и контроля проекта</p>
+
+    <div class="metric-grid">
+        <div class="metric" style="border-left:4px solid var(--primary);"><div class="metric-label" style="color:var(--primary-light);">Лист 1</div><div class="metric-value" style="font-size:20px;">Доходность + Аналоги</div><div class="metric-sub">ROI, дисконт, расходы</div></div>
+        <div class="metric" style="border-left:4px solid var(--warning);"><div class="metric-label" style="color:var(--warning);">Лист 2</div><div class="metric-value" style="font-size:20px;">Расходы (Касса)</div><div class="metric-sub">Все операции, налоги, итоги</div></div>
+        <div class="metric" style="border-left:4px solid var(--danger);"><div class="metric-label" style="color:var(--danger);">Лист 3</div><div class="metric-value" style="font-size:20px;">Дробная доходность</div><div class="metric-sub">Рассрочка, частичные возвраты</div></div>
+    </div>
+
+    <div class="flow" style="margin-top:48px;">
+        <div class="flow-step" style="border-color:var(--primary);"><div class="flow-step-num" style="color:var(--primary-light);">До покупки</div><div class="flow-step-label">Анализ + Аналоги</div><div class="flow-step-value">Лист 1</div></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="border-color:var(--warning);"><div class="flow-step-num" style="color:var(--warning);">Во время проекта</div><div class="flow-step-label">Касса</div><div class="flow-step-value">Лист 2</div></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="border-color:var(--accent);"><div class="flow-step-num" style="color:var(--accent);">При продаже</div><div class="flow-step-label">Итоги + Дробная</div><div class="flow-step-value">Листы 2 и 3</div></div>
+    </div>
+
+    <div class="callout c-ok" style="margin-top:40px;">
+        <div class="callout-icon">&#10003;</div>
+        <div>
+            <h4>Эти таблицы — ваш главный инструмент</h4>
+            <p>Систематическое ведение таблиц позволяет контролировать каждый рубль и принимать обоснованные решения.</p>
+        </div>
+    </div>
+
+    <div class="gs-link" style="margin-top:32px;">
+        <a href="https://docs.google.com/spreadsheets/d/1d3lbM9zWQqqy8qtTN3pBMVV_Zbyzl4_TMwHtpAM3igM/edit" target="_blank">&#128196; Открыть таблицу в Google Sheets</a>
+    </div>
+</div>
+</div>
+
+<div class="footer">
+    <p>Estate Invest Academy &mdash; Руководство по аналитическим таблицам</p>
+    <p style="margin-top:8px;">&copy; 2026 Estate Invest. Все права защищены.</p>
+</div>
+
+<script>
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const t = this.getAttribute('href');
+            if (t) document.querySelector(t)?.scrollIntoView({ behavior:'smooth', block:'start' });
+        });
+    });
+    const secs = ['sheet1','sheet2','sheet3'];
+    const navs = document.querySelectorAll('.nav-item');
+    window.addEventListener('scroll', () => {
+        let cur = '';
+        secs.forEach(id => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= 120) cur = id; });
+        navs.forEach(n => { n.classList.remove('active'); if (n.getAttribute('href') === '#' + cur) n.classList.add('active'); });
+    });
+</script>
+</body>
+</html>
