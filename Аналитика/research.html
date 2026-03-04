@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Аналитика недвижимости: Исследование</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#09090b;--surface:#111116;--surface2:#1c1c22;--surface3:#242430;
+    --border:#2a2a3a;--border2:#3a3a4a;
+    --text:#e4e4ed;--text2:#8888a0;--text3:#555568;
+    --accent:#7c6cf0;--accent2:#a29bfe;
+    --green:#22c55e;--green-bg:#22c55e15;--green-bg2:#22c55e22;
+    --yellow:#eab308;--yellow-bg:#eab30815;
+    --red:#ef4444;--red-bg:#ef444415;
+    --blue:#3b82f6;--blue-bg:#3b82f615;
+    --orange:#f97316;--orange-bg:#f9731615;
+    --cyan:#06b6d4;--cyan-bg:#06b6d415;
+    --radius:10px;--transition:150ms ease;
+    --sidebar-w:260px;
+  }
+  body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;overflow:hidden}
+  .sb-head{padding:20px;border-bottom:1px solid var(--border)}
+  .sb-logo{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sb-sub{font-size:10px;color:var(--text3);margin-top:2px}
+  .sb-body{flex:1;overflow-y:auto;padding:12px 0}
+  .sb-body::-webkit-scrollbar{width:4px}
+  .sb-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .sb-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:14px 20px 6px}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;transition:var(--transition);border-left:3px solid transparent;font-size:13px;color:var(--text2);text-decoration:none}
+  .sb-item:hover{background:var(--surface2);color:var(--text)}
+  .sb-item.active{background:var(--surface2);border-left-color:var(--accent);color:var(--text)}
+  .sb-icon{width:18px;text-align:center;font-size:13px;flex-shrink:0}
+  .sb-divider{height:1px;background:var(--border);margin:6px 16px}
+  .sb-badge{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--green-bg2);color:var(--green);font-weight:600;margin-left:auto}
+
+  /* MAIN */
+  .main{padding:32px 48px;overflow-y:auto;max-width:1000px}
+
+  /* HERO */
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;margin-bottom:28px;border-left:4px solid var(--accent);position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;top:0;right:0;width:300px;height:100%;background:linear-gradient(135deg,transparent 40%,#7c6cf008);pointer-events:none}
+  .hero-eyebrow{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+  .hero-title{font-size:28px;font-weight:800;margin-bottom:6px;line-height:1.3}
+  .hero-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px;max-width:700px}
+  .hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .hero-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+  .hero-stat-val{font-size:22px;font-weight:800;color:var(--accent2)}
+  .hero-stat-label{font-size:11px;color:var(--text3);margin-top:3px}
+
+  /* HIGHLIGHT BOX (for MVP section) */
+  .highlight-box{background:linear-gradient(135deg,#7c6cf012,#3b82f608);border:1px solid var(--accent);border-radius:var(--radius);padding:28px 32px;margin:16px 0}
+  .highlight-box h3{color:var(--accent2) !important;margin-top:0 !important}
+
+  /* SECTIONS */
+  .section{margin-bottom:28px;scroll-margin-top:20px}
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px}
+  .section h2{font-size:18px;font-weight:800;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .section h2 .sec-icon{font-size:15px}
+  .section h2 .sec-tag{font-size:10px;padding:3px 10px;border-radius:5px;background:var(--accent);color:#fff;font-weight:600;margin-left:auto;text-transform:uppercase;letter-spacing:0.5px}
+  .section h3{font-size:14px;font-weight:700;color:var(--accent2);margin:20px 0 10px}
+  .section h3:first-child{margin-top:0}
+  .section p{font-size:13px;line-height:1.8;color:var(--text2);margin:6px 0}
+  .section strong{color:var(--text)}
+  .section a{color:var(--accent2);text-decoration:none}
+  .section a:hover{text-decoration:underline}
+  .section blockquote{border-left:3px solid var(--accent);padding:12px 16px;margin:14px 0;background:var(--surface2);border-radius:0 8px 8px 0;font-size:12px;color:var(--text2);line-height:1.7}
+
+  /* MVP SECTION SPECIAL */
+  .mvp-section .section-card{border-color:var(--green);border-width:2px;position:relative}
+  .mvp-section .section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--accent));border-radius:var(--radius) var(--radius) 0 0}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+  th{background:var(--surface2);padding:10px 14px;text-align:left;font-weight:600;border:1px solid var(--border);color:var(--accent2);white-space:nowrap}
+  td{padding:10px 14px;border:1px solid var(--border);line-height:1.6}
+  tr:hover td{background:var(--surface2)}
+
+  /* LISTS */
+  ul,ol{padding-left:20px;margin:8px 0}
+  li{font-size:13px;line-height:1.8;margin:3px 0;color:var(--text2)}
+  li strong{color:var(--text)}
+
+  /* TAGS */
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+  .tag{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+  .tag.green{background:var(--green-bg);color:var(--green);border-color:transparent}
+  .tag.yellow{background:var(--yellow-bg);color:var(--yellow);border-color:transparent}
+  .tag.red{background:var(--red-bg);color:var(--red);border-color:transparent}
+  .tag.blue{background:var(--blue-bg);color:var(--blue);border-color:transparent}
+  .tag.orange{background:var(--orange-bg);color:var(--orange);border-color:transparent}
+  .tag.cyan{background:var(--cyan-bg);color:var(--cyan);border-color:transparent}
+  .tag.accent{background:#7c6cf020;color:var(--accent2);border-color:transparent}
+
+  /* METRIC CARDS */
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+  .metric{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;text-align:center}
+  .metric-val{font-size:20px;font-weight:800;color:var(--accent2)}
+  .metric-label{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.4}
+  .metric.green .metric-val{color:var(--green)}
+  .metric.blue .metric-val{color:var(--blue)}
+  .metric.orange .metric-val{color:var(--orange)}
+  .metric.cyan .metric-val{color:var(--cyan)}
+
+  /* PHASE CARDS */
+  .phase{margin:12px 0;padding:18px 22px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent)}
+  .phase.green{border-left-color:var(--green)}
+  .phase.blue{border-left-color:var(--blue)}
+  .phase.orange{border-left-color:var(--orange)}
+  .phase-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .phase-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+  .phase.green .phase-num{background:var(--green)}
+  .phase.blue .phase-num{background:var(--blue)}
+  .phase.orange .phase-num{background:var(--orange)}
+  .phase-title{font-size:14px;font-weight:700}
+  .phase-cost{font-size:11px;color:var(--text3);margin-left:auto}
+  .phase ul{margin:0;padding-left:18px}
+  .phase li{font-size:12px;color:var(--text2);margin:3px 0}
+
+  /* TIMELINE */
+  .timeline{margin:16px 0}
+  .tl-item{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .tl-item:last-child{border-bottom:none}
+  .tl-week{font-size:12px;font-weight:700;color:var(--accent2);min-width:70px;flex-shrink:0}
+  .tl-content{flex:1}
+  .tl-task{font-size:13px;font-weight:600}
+  .tl-result{font-size:11px;color:var(--text3);margin-top:2px}
+
+  /* COMPARISON GRID */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+  .compare-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+  .compare-card h4{font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+  .compare-card ul{padding-left:16px;margin:0}
+  .compare-card li{font-size:12px;margin:2px 0}
+  .compare-card.good{border-color:#22c55e40}
+  .compare-card.bad{border-color:#ef444440}
+
+  /* COLLAPSIBLE */
+  .collapsible{margin:10px 0}
+  .coll-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;color:var(--text);width:100%;text-align:left;transition:var(--transition);font-family:inherit}
+  .coll-toggle:hover{border-color:var(--accent)}
+  .coll-arrow{transition:transform .2s;font-size:11px;color:var(--text3)}
+  .coll-toggle.open .coll-arrow{transform:rotate(90deg)}
+  .coll-body{display:none;padding:12px 0 0}
+  .coll-body.open{display:block}
+
+  /* DEAL EXAMPLE */
+  .deal-example{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:14px 0;font-family:'SF Mono','Fira Code',monospace}
+  .deal-example .de-header{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .deal-example .de-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+  .deal-example .de-label{color:var(--text3)}
+  .deal-example .de-val{color:var(--text);font-weight:600}
+  .deal-example .de-val.green{color:var(--green)}
+  .deal-example .de-val.red{color:var(--red)}
+  .deal-example .de-divider{height:1px;background:var(--border);margin:8px 0}
+
+  /* TOOLTIP */
+  .tip{position:relative;display:inline;border-bottom:1px dashed var(--accent2);color:var(--accent2);cursor:help}
+  .tip .tip-box{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:340px;padding:16px 18px;background:var(--surface);border:1px solid var(--accent);border-radius:8px;font-size:12px;line-height:1.7;color:var(--text2);z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:'Inter',-apple-system,sans-serif;font-weight:400;pointer-events:none}
+  .tip .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--accent)}
+  .tip:hover .tip-box{display:block}
+  .tip .tip-box strong{color:var(--text);font-weight:600}
+  .tip .tip-box .tip-title{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px;display:block;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .tip .tip-box .tip-example{background:var(--surface2);border-radius:6px;padding:8px 12px;margin-top:8px;font-size:11px}
+
+  /* SCROLLBAR */
+  .main::-webkit-scrollbar{width:6px}
+  .main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  /* Q&A ASSISTANT */
+  .qa-fab{display:none;position:fixed;z-index:200;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;box-shadow:0 4px 20px rgba(124,108,240,0.4);transition:all .15s;white-space:nowrap}
+  .qa-fab:hover{background:#6b5ce0;transform:scale(1.05)}
+
+  .qa-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(4px)}
+  .qa-overlay.open{display:flex;align-items:center;justify-content:center}
+
+  .qa-modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:560px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  .qa-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+  .qa-header-title{font-size:14px;font-weight:700;color:var(--accent2)}
+  .qa-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:inherit}
+  .qa-close:hover{background:var(--surface2);color:var(--text)}
+
+  .qa-body{padding:18px 22px;overflow-y:auto;flex:1}
+  .qa-context{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6;max-height:120px;overflow-y:auto;border-left:3px solid var(--accent)}
+  .qa-context-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+
+  .qa-input-wrap{display:flex;gap:8px;margin-bottom:16px}
+  .qa-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text);font-family:inherit;resize:none;outline:none;transition:border-color .15s}
+  .qa-input:focus{border-color:var(--accent)}
+  .qa-input::placeholder{color:var(--text3)}
+  .qa-send{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .qa-send:hover{background:#6b5ce0}
+  .qa-send:disabled{opacity:0.5;cursor:not-allowed}
+
+  .qa-answer{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-size:13px;line-height:1.8;color:var(--text);display:none;border-left:3px solid var(--green)}
+  .qa-answer.visible{display:block}
+  .qa-answer p{margin:8px 0}
+  .qa-answer p:first-child{margin-top:0}
+  .qa-answer strong{color:var(--accent2);font-weight:600}
+  .qa-answer ul,.qa-answer ol{padding-left:20px;margin:8px 0}
+  .qa-answer li{margin:4px 0;color:var(--text2)}
+
+  .qa-loading{display:flex;align-items:center;gap:10px;padding:16px;color:var(--text3);font-size:12px}
+  .qa-dots{display:flex;gap:4px}
+  .qa-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:qaPulse 1.2s ease-in-out infinite}
+  .qa-dots span:nth-child(2){animation-delay:.2s}
+  .qa-dots span:nth-child(3){animation-delay:.4s}
+  @keyframes qaPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+  .qa-error{background:var(--red-bg);border:1px solid #ef444440;border-radius:8px;padding:12px 16px;font-size:12px;color:var(--red);display:none}
+  .qa-error.visible{display:block}
+
+  .qa-no-key{text-align:center;padding:24px;color:var(--text3);font-size:12px;line-height:1.7}
+  .qa-no-key code{background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--yellow)}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    body{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .main{padding:20px 16px}
+    .hero-grid{grid-template-columns:repeat(2,1fr)}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+    .compare-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-head">
+    <div>
+      <div class="sb-logo">Estate Invest</div>
+      <div class="sb-sub">Аналитика недвижимости</div>
+    </div>
+  </div>
+  <div class="sb-body">
+    <div class="sb-label">Обзор</div>
+    <a class="sb-item active" href="#hero" onclick="nav(this)"><span class="sb-icon">&#9679;</span> О проекте</a>
+    <a class="sb-item" href="#opportunity" onclick="nav(this)"><span class="sb-icon">&#9670;</span> Возможность</a>
+    <a class="sb-item" href="#how" onclick="nav(this)"><span class="sb-icon">&#9654;</span> Как это работает</a>
+    <div class="sb-divider"></div>
+    <div class="sb-label">Исследование</div>
+    <a class="sb-item" href="#data" onclick="nav(this)"><span class="sb-icon">&#9632;</span> Источники данных</a>
+    <a class="sb-item" href="#valuation" onclick="nav(this)"><span class="sb-icon">&#9650;</span> Модель оценки</a>
+    <a class="sb-item" href="#world" onclick="nav(this)"><span class="sb-icon">&#9733;</span> Мировой опыт</a>
+    <a class="sb-item" href="#competition" onclick="nav(this)"><span class="sb-icon">&#9830;</span> Конкуренты</a>
+    <div class="sb-divider"></div>
+    <div class="sb-label">Применение</div>
+    <a class="sb-item" href="#mvp" onclick="nav(this)"><span class="sb-icon">&#9658;</span> MVP для Estate Invest <span class="sb-badge">KEY</span></a>
+    <a class="sb-item" href="#monetization" onclick="nav(this)"><span class="sb-icon">&#9671;</span> Монетизация</a>
+    <a class="sb-item" href="#roadmap" onclick="nav(this)"><span class="sb-icon">&#9660;</span> Дорожная карта</a>
+    <a class="sb-item" href="#risks" onclick="nav(this)"><span class="sb-icon">&#9888;</span> Риски</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- ═══ HERO ═══ -->
+<div class="hero" id="hero">
+  <div class="hero-eyebrow">Исследование / Март 2026</div>
+  <div class="hero-title">Аналитика недвижимости на торгах</div>
+  <div class="hero-sub">
+    Система, которая автоматически находит лоты на торговых площадках, оценивает их рыночную стоимость и показывает реальный дисконт. Незанятая ниша: в России никто не делает автоматический анализ банкротных торгов с оценкой.
+  </div>
+  <div class="hero-grid">
+    <div class="hero-stat">
+      <div class="hero-stat-val">500-600</div>
+      <div class="hero-stat-label">лотов недвижимости одновременно (Пермь)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">20-60%</div>
+      <div class="hero-stat-label">средний дисконт к рынку на торгах</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">10 000+</div>
+      <div class="hero-stat-label">рыночных объявлений для сравнения</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">0 руб</div>
+      <div class="hero-stat-label">стоимость запуска MVP (Фаза 1)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ВОЗМОЖНОСТЬ ═══ -->
+<div class="section" id="opportunity">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9670;</span> Рыночная возможность</h2>
+
+    <h3>Проблема</h3>
+    <p>Банкротные торги и аукционы госимущества -- один из самых доходных каналов покупки недвижимости. Средний дисконт к рыночной цене составляет <strong>20-60%</strong>. Но работать с ними сложно:</p>
+    <ul>
+      <li><strong>Информация разбросана</strong> по 10+ площадкам (torgi.gov.ru, ЕФРСБ, Сбербанк-АСТ, lot-online, РАД и др.)</li>
+      <li><strong>Нет оценки</strong> -- ни одна площадка не показывает рыночную стоимость лота</li>
+      <li><strong>Устаревший UX</strong> -- государственные площадки выглядят на уровне 2005 года</li>
+      <li><strong>Много мусора</strong> -- нужно вручную отфильтровывать тысячи неинтересных лотов</li>
+    </ul>
+
+    <h3>Решение</h3>
+    <p>Автоматический скринер, который:</p>
+    <ol>
+      <li>Собирает лоты со всех площадок в одном месте</li>
+      <li>Обогащает данными кадастра (площадь, стоимость, координаты)</li>
+      <li>Оценивает рыночную стоимость по аналогам с ЦИАН, Авито, Домклик</li>
+      <li>Считает реальный дисконт и показывает только выгодные лоты</li>
+      <li>Присылает уведомления в Telegram</li>
+    </ol>
+
+    <h3>Незанятая ниша</h3>
+    <div class="compare-grid">
+      <div class="compare-card good">
+        <h4>Что есть у конкурентов</h4>
+        <ul>
+          <li>Агрегация лотов с площадок</li>
+          <li>Фильтры по региону и типу</li>
+          <li>Уведомления о новых лотах</li>
+          <li>Веб-интерфейс</li>
+        </ul>
+      </div>
+      <div class="compare-card bad">
+        <h4>Чего НЕТ ни у кого</h4>
+        <ul>
+          <li><strong>AI-оценка рыночной стоимости</strong></li>
+          <li><strong>Автоматический расчёт дисконта</strong></li>
+          <li><strong>Telegram-first интерфейс</strong></li>
+          <li><strong>Интеграция с кадастром</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <blockquote>В США аналог -- <strong>PropStream</strong> ($49-79/мес, 150M+ объектов). Начинался с парсинга одного штата. Сейчас лидер рынка. Telegram-first продукта с аналитикой не существует нигде в мире -- это белое пятно.</blockquote>
+  </div>
+</div>
+
+<!-- ═══ КАК ЭТО РАБОТАЕТ ═══ -->
+<div class="section" id="how">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9654;</span> Как это работает</h2>
+
+    <h3>Пример: лот квартиры на торгах</h3>
+    <div class="deal-example">
+      <div class="de-header">НОВЫЙ ЛОТ | Квартира | Пермь, ул. Ленина 15</div>
+      <div class="de-row"><span class="de-label">Цена аукциона</span><span class="de-val">1 900 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Рыночная оценка</span><span class="de-val">3 200 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Дисконт</span><span class="de-val green">-41%</span></div>
+      <div class="de-row"><span class="de-label">Уверенность оценки</span><span class="de-val">высокая (8 аналогов)</span></div>
+      <div class="de-divider"></div>
+      <div class="de-row"><span class="de-label">Площадь</span><span class="de-val">70 кв.м, 2 комнаты</span></div>
+      <div class="de-row"><span class="de-label">Этаж</span><span class="de-val">5/9</span></div>
+      <div class="de-row"><span class="de-label">Кадастровый номер</span><span class="de-val">59:01:4410851:123</span></div>
+      <div class="de-divider"></div>
+      <div class="de-row"><span class="de-label">Торги до</span><span class="de-val">15.03.2026 18:00</span></div>
+      <div class="de-row"><span class="de-label">Задаток</span><span class="de-val">220 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Площадка</span><span class="de-val">torgi.gov.ru</span></div>
+    </div>
+
+    <h3>Алгоритм оценки (пошагово)</h3>
+    <ol>
+      <li>Получаем адрес и кадастровый номер лота с аукциона</li>
+      <li><strong>DaData</strong> -- нормализация адреса, координаты, привязка к <span class="tip">ФИАС<span class="tip-box"><span class="tip-title">ФИАС -- Федеральная информационная адресная система</span>Единая государственная база всех адресов в России. Каждому зданию присвоен уникальный ID (GUID). Это как ИНН, но для адресов. Позволяет однозначно определить, что "ул. Ленина 15", "Ленина, д.15" и "пр. Ленина 15" -- это один и тот же дом. Критично для дедупликации объектов с разных площадок.</span></span></li>
+      <li><strong>Росреестр</strong> -- кадастровая стоимость, площадь, год постройки</li>
+      <li><strong>ЦИАН + Авито + Домклик</strong> -- находим 5-10 аналогов в радиусе 1-2 км</li>
+      <li>Считаем медиану цены за кв.м. аналогов</li>
+      <li>Применяем <span class="tip">корректировки<span class="tip-box"><span class="tip-title">Корректировки</span>Поправки к цене аналога, чтобы учесть различия. Например, если аналог -- кирпич, а наш объект -- панель, применяем скидку -5-10%. Если 1-й этаж вместо 5-го -- ещё -5%. Сумма всех поправок не должна превышать 15-20%, иначе объекты слишком разные для сравнения.</span></span> (этаж, ремонт, тип дома)</li>
+      <li><strong>Результат:</strong> рыночная оценка + кадастровая + дисконт аукциона</li>
+    </ol>
+
+    <h3>Индикация выгодности</h3>
+    <div class="tags" style="margin:12px 0">
+      <span class="tag green">Более 40% -- отличная сделка</span>
+      <span class="tag" style="background:#22c55e08;color:#4ade80;border-color:transparent">20-40% -- хорошая</span>
+      <span class="tag yellow">10-20% -- средняя</span>
+      <span class="tag">Менее 10% -- слабая</span>
+      <span class="tag red">Выше рынка -- невыгодная</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ИСТОЧНИКИ ДАННЫХ ═══ -->
+<div class="section" id="data">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9632;</span> Источники данных</h2>
+
+    <h3>Откуда берём лоты (торги)</h3>
+    <table>
+      <tr><th>Источник</th><th>Юр. риск</th><th>API</th><th>Стоимость</th><th>Приоритет</th></tr>
+      <tr><td><strong>torgi.gov.ru</strong></td><td><span class="tag green">минимальный</span></td><td>REST API (JSON)</td><td>Бесплатно</td><td><span class="tag accent">P0</span></td></tr>
+      <tr><td><strong>ЕФРСБ</strong> (Федресурс)</td><td><span class="tag green">низкий</span></td><td>REST API (Bearer)</td><td>Бесплатно</td><td><span class="tag accent">P0</span></td></tr>
+      <tr><td>lot-online.ru</td><td><span class="tag yellow">средний</span></td><td>Внутренний XHR</td><td>Бесплатно</td><td><span class="tag">P2</span></td></tr>
+      <tr><td>Сбербанк-АСТ</td><td><span class="tag yellow">средний</span></td><td>Нет</td><td>Бесплатно</td><td><span class="tag">P2</span></td></tr>
+    </table>
+    <p><strong>torgi.gov.ru</strong> -- главный источник. Полноценный JSON API, открытые данные (Open Data), свободное коммерческое использование. CAPTCHA нет, rate limit мягкий (60-120 запросов/мин).</p>
+
+    <h3>Откуда берём рыночные цены (для оценки)</h3>
+    <table>
+      <tr><th>Источник</th><th>Юр. риск</th><th>Данные</th><th>Стоимость</th><th>Приоритет</th></tr>
+      <tr><td><strong>ads-api.ru</strong></td><td><span class="tag green">нет</span></td><td>ЦИАН + Авито + Домклик + Яндекс</td><td>2 000 руб/мес</td><td><span class="tag accent">P1</span></td></tr>
+      <tr><td><strong>DaData</strong></td><td><span class="tag green">нет</span></td><td>Координаты, кадастр, нормализация</td><td>10K/день бесплатно</td><td><span class="tag accent">P1</span></td></tr>
+      <tr><td><strong>Росреестр PKK</strong></td><td><span class="tag yellow">средний</span></td><td>Кадастровая стоимость, площадь</td><td>Бесплатно</td><td><span class="tag accent">P1</span></td></tr>
+      <tr><td>Авито / ЦИАН напрямую</td><td><span class="tag red">высокий</span></td><td>Цены, описания</td><td>Бесплатно</td><td><span class="tag">P2 fallback</span></td></tr>
+    </table>
+
+    <blockquote><strong>ads-api.ru</strong> -- легальный агрегатор, который объединяет данные ЦИАН, Авито, Домклик, Яндекс в едином API. Снимает юридические риски парсинга. 14 дней бесплатно для теста.</blockquote>
+
+    <h3>Объём данных по Перми (март 2026)</h3>
+    <div class="metrics">
+      <div class="metric"><div class="metric-val">~376</div><div class="metric-label">жилых лотов на торгах</div></div>
+      <div class="metric"><div class="metric-val">~93</div><div class="metric-label">нежилых + здания</div></div>
+      <div class="metric"><div class="metric-val">~71</div><div class="metric-label">земельных участков</div></div>
+      <div class="metric blue"><div class="metric-val">10 430+</div><div class="metric-label">квартир на ЦИАН</div></div>
+      <div class="metric blue"><div class="metric-val">8-15 тыс</div><div class="metric-label">объявлений на Авито</div></div>
+    </div>
+
+    <div class="collapsible">
+      <button class="coll-toggle" onclick="toggleCollapsible(this)">
+        <span class="coll-arrow">&#9654;</span> Юридические риски парсинга
+      </button>
+      <div class="coll-body">
+        <p><strong>Государственные площадки</strong> (torgi.gov.ru, ЕФРСБ) -- минимальный риск. Это Open Data, обязаны быть общедоступными по закону.</p>
+        <p><strong>Коммерческие площадки</strong> (Авито, ЦИАН) -- высокий риск при прямом парсинге. Есть прецеденты: дело Avito vs ЦИАН (ФАС), VK vs Double (суд). Поэтому используем легальный агрегатор ads-api.ru.</p>
+        <p><strong>Росреестр</strong> -- средний риск. Коммерческое использование через неофициальный API PKK. Данные кешируем.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ МОДЕЛЬ ОЦЕНКИ ═══ -->
+<div class="section" id="valuation">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9650;</span> Модель оценки недвижимости</h2>
+
+    <h3>Дисконты на торгах (реальные данные)</h3>
+    <table>
+      <tr><th>Этап торгов</th><th>Дисконт к рынку</th></tr>
+      <tr><td>Первичные (аукцион на повышение)</td><td>0% (может продаться дороже)</td></tr>
+      <tr><td>Повторные (-10% от начальной)</td><td>~10-20%</td></tr>
+      <tr><td>Публичное предложение (начало)</td><td>20-30%</td></tr>
+      <tr><td>Публичное предложение (середина)</td><td><strong>30-50%</strong></td></tr>
+      <tr><td>Публичное предложение (глубокое снижение)</td><td><strong>50-75%</strong></td></tr>
+    </table>
+    <p>По типу объекта: квартиры 15-30%, коммерция 30-50%, земля 40-70%.</p>
+
+    <h3>Как оцениваем рыночную стоимость</h3>
+
+    <div class="phase green">
+      <div class="phase-header">
+        <span class="phase-num">1</span>
+        <span class="phase-title">Фаза 1 (MVP): Сравнительный подход</span>
+        <span class="phase-cost">без ML</span>
+      </div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Находим 5-10 аналогов в радиусе 1-2 км, считаем медиану цены за кв.м., применяем <span class="tip">корректировки<span class="tip-box"><span class="tip-title">Что такое корректировки?</span>Это поправки к цене аналога, чтобы учесть различия с нашим объектом. Если аналог на 5-м этаже, а наш на 1-м -- применяем скидку -5%, потому что первый этаж дешевле.<span class="tip-example"><strong>Пример:</strong> Аналог стоит 4 000 000 руб (кирпич, 5 этаж, 55 кв.м.). Наш объект -- панель, 1 этаж, 50 кв.м.<br>Панель вместо кирпича: <strong>-7%</strong><br>1-й этаж вместо 5-го: <strong>-5%</strong><br>Площадь меньше: <strong>+5%</strong><br>Итого корректировка: -7% = <strong>3 720 000 руб</strong></span></span></span> по <span class="tip">ФСО V<span class="tip-box"><span class="tip-title">ФСО V -- Федеральный стандарт оценки №5</span>Официальный российский стандарт оценки недвижимости. Обязателен для профессиональных оценщиков. Устанавливает правила: сколько нужно аналогов, как корректировать цены, какие ограничения. Мы используем упрощённую версию этого стандарта для автоматической оценки.</span></span>.</p>
+      <table style="font-size:11px">
+        <tr><th>Фактор</th><th>Диапазон</th><th>Как определяем</th></tr>
+        <tr><td>Район</td><td>+-10-30%</td><td>Средняя цена за кв.м. по району</td></tr>
+        <tr><td>Этаж (1-й и последний)</td><td>-3% до -7%</td><td>Первый/последний этаж дешевле</td></tr>
+        <tr><td>Площадь</td><td>+-5-15%</td><td>Больше площадь = ниже цена за кв.м.</td></tr>
+        <tr><td>Состояние/ремонт</td><td>+-5-20%</td><td>Из описания лота / фото</td></tr>
+        <tr><td>Тип дома</td><td>+-5-10%</td><td>Кирпич > панель > блок</td></tr>
+        <tr><td>Год постройки</td><td>+-3-10%</td><td>Новые дома дороже</td></tr>
+      </table>
+      <p style="font-size:11px;color:var(--text3);margin-top:6px"><span class="tip" style="color:var(--text3)">Минимум 3-5 аналогов<span class="tip-box"><span class="tip-title">Почему минимум 3-5?</span>По ФСО V нужно <strong>число факторов + 1</strong> аналогов. Если корректируем по 3 факторам (этаж, площадь, тип дома), нужно минимум 4 аналога. Это как система уравнений: чтобы решить 3 неизвестных, нужно минимум 4 уравнения. Иначе корректировки статистически не обоснованы.</span></span>. <span class="tip" style="color:var(--text3)">Сумма всех корректировок не более 15-20%<span class="tip-box"><span class="tip-title">Лимит корректировок 15-20%</span>Если приходится слишком сильно корректировать аналог -- значит, он слишком отличается от нашего объекта и не годится для сравнения.<span class="tip-example"><strong>Пример:</strong> Аналог в другом районе (+15%), другой этаж (-5%), другой тип дома (-7%), площадь разная (+8%). Итого: 35% корректировок -- <strong>слишком много</strong>, аналог нужно заменить на более похожий.</span></span></span>. Для земли и коммерции -- кадастровая стоимость x 1.3-1.5 как fallback.</p>
+    </div>
+
+    <div class="phase blue">
+      <div class="phase-header">
+        <span class="phase-num">2</span>
+        <span class="phase-title">Фаза 2: ML-модель (LightGBM)</span>
+        <span class="phase-cost">нужно 2000+ объектов</span>
+      </div>
+      <ul>
+        <li>20+ признаков: площадь, этаж, расстояние до центра, тип дома, год постройки, инфраструктура</li>
+        <li>Ожидаемая точность для Перми: <span class="tip">MAPE<span class="tip-box"><span class="tip-title">MAPE -- Mean Absolute Percentage Error</span>Средняя ошибка оценки в процентах. Если MAPE = 15%, значит наша оценка в среднем отличается от реальной цены на 15%. Для контекста: профессиональный оценщик ошибается на 10-15%, а Zillow -- на 2-7%.</span></span> 15-25% на старте, цель -- довести до 10-15%</li>
+        <li><span class="tip">SHAP<span class="tip-box"><span class="tip-title">SHAP -- объяснение оценки</span>Метод, который показывает, какие факторы и насколько повлияли на итоговую цену. Например: "площадь 65 кв.м. добавила +800 000 руб, а первый этаж убавил -300 000 руб". Повышает доверие к оценке -- пользователь видит не просто цифру, а логику.</span></span> для объяснения оценки ("почему такая цена")</li>
+      </ul>
+    </div>
+
+    <div class="phase orange">
+      <div class="phase-header">
+        <span class="phase-num">3</span>
+        <span class="phase-title">Фаза 3: Ensemble + Computer Vision</span>
+        <span class="phase-cost">стратегия</span>
+      </div>
+      <ul>
+        <li>Ансамбль моделей (LightGBM + XGBoost + CatBoost)</li>
+        <li>Оценка состояния по фото (нейросеть CLIP)</li>
+        <li>ARV-калькулятор (стоимость после ремонта)</li>
+      </ul>
+    </div>
+
+    <div class="collapsible">
+      <button class="coll-toggle" onclick="toggleCollapsible(this)">
+        <span class="coll-arrow">&#9654;</span> Бенчмарки точности (научные данные)
+      </button>
+      <div class="coll-body">
+        <p><strong>Нижний Новгород</strong> (научная статья, 9050 квартир):</p>
+        <table>
+          <tr><th>Модель</th><th>MAPE</th><th>R2</th></tr>
+          <tr><td>Random Forest</td><td>8.1%</td><td>0.81</td></tr>
+          <tr><td>Gradient Boosting</td><td>8.6%</td><td>0.78</td></tr>
+          <tr><td>XGBoost</td><td>9.0%</td><td>0.78</td></tr>
+          <tr><td>Linear Regression</td><td>11.5%</td><td>0.66</td></tr>
+        </table>
+        <p><strong>Ключевые факторы</strong> (по важности): район (24%), год постройки (17%), территориальная зона (13%), этажность дома (10%), площадь (8%), ремонт (8%).</p>
+        <blockquote>Бенчмарк 8-12% -- для чистого датасета из 9000+ объектов. У нас на старте будет ~1000-3000. Реалистичная цель для Перми: 15-25% на старте, 10-15% через 3-6 месяцев сбора данных.</blockquote>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ МИРОВОЙ ОПЫТ ═══ -->
+<div class="section" id="world">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9733;</span> Мировой опыт</h2>
+
+    <h3>Лидеры автоматической оценки (<span class="tip">AVM<span class="tip-box"><span class="tip-title">AVM -- Automated Valuation Model</span>Автоматическая модель оценки недвижимости. Алгоритм, который за секунды определяет рыночную стоимость объекта на основе данных о продажах, характеристиках и локации. Используется банками для ипотеки, инвесторами для анализа, порталами для подсказок. Самый известный пример -- Zillow Zestimate.</span></span>)</h3>
+    <table>
+      <tr><th>Платформа</th><th>Страна</th><th>Модель</th><th>Точность</th><th>Масштаб</th></tr>
+      <tr><td><strong>Zillow Zestimate</strong></td><td>США</td><td>Нейросеть</td><td>1.83% on-market</td><td>100M+ домов</td></tr>
+      <tr><td><strong>Redfin Estimate</strong></td><td>США</td><td>ML + MLS</td><td>1.98%</td><td>Прямой доступ к MLS</td></tr>
+      <tr><td><strong>HouseCanary</strong></td><td>США</td><td>ML + CV</td><td>2.7%</td><td>114M+ объектов</td></tr>
+      <tr><td><strong>CoreLogic</strong></td><td>США/Австралия</td><td>ML unified</td><td>не раскрыв.</td><td>99.9% покрытие, 50 лет</td></tr>
+      <tr><td><strong>Домклик</strong></td><td>Россия</td><td>LightGBM</td><td>не раскрыв.</td><td>Ипотечные сделки Сбера</td></tr>
+      <tr><td><strong>ЦИАН</strong></td><td>Россия</td><td>ML</td><td>не раскрыв.</td><td>200 параметров, 7 лет</td></tr>
+    </table>
+    <p><strong>Ключевой инсайт:</strong> LightGBM и XGBoost доминируют в production AVM по всему миру. Нейросети -- только у Zillow (и это 3 поколения разработки с миллионными инвестициями).</p>
+
+    <h3>Прозрачность данных по странам</h3>
+    <table>
+      <tr><th>Страна</th><th>Система</th><th>Что доступно</th></tr>
+      <tr><td>Великобритания</td><td>Land Registry</td><td>20M+ реальных цен сделок с 1995 года, бесплатно</td></tr>
+      <tr><td>Франция</td><td>DVF</td><td>ВСЕ сделки в открытом доступе (CSV, API) с 2019</td></tr>
+      <tr><td>Германия</td><td>GREIX</td><td>2M+ транзакций с 1960 года, бесплатно</td></tr>
+      <tr><td>Швеция</td><td>Hemnet</td><td>90% рынка, финальные цены продаж публичны</td></tr>
+      <tr><td>Австралия</td><td>CoreLogic AU</td><td>10M+ объектов, 40 лет истории</td></tr>
+      <tr><td><strong>Россия</strong></td><td><strong>---</strong></td><td><strong>Закрытые данные. Только кадастр + объявления</strong></td></tr>
+    </table>
+    <blockquote>В России данные о реальных сделках закрыты (ФИО убрали из ЕГРН в 2023). Это и проблема, и возможность: кто первый соберёт качественную базу -- получит конкурентное преимущество.</blockquote>
+
+    <h3>Кейс PropertyRadar -- от нуля до лидера</h3>
+    <p>Основатель Sean O'Toole, запуск 2007. Начал с парсинга trustee sales <strong>только в Калифорнии</strong>. Первые 2 года -- убытки ($50K/мес). Появление на 60 Minutes (CBS) дало взрывной рост. Сейчас: <strong>150M+ properties, $49-79/мес</strong>.</p>
+    <p><strong>Паттерн:</strong> один штат -> один тип данных -> расширение. Мы идём тем же путём: Пермь -> торги -> расширение.</p>
+  </div>
+</div>
+
+<!-- ═══ КОНКУРЕНТЫ ═══ -->
+<div class="section" id="competition">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9830;</span> Конкурентный ландшафт</h2>
+
+    <h3>Российские агрегаторы торгов</h3>
+    <table>
+      <tr><th>Сервис</th><th>Лотов</th><th>Тариф</th><th>Что делает</th><th>Чего НЕ делает</th></tr>
+      <tr><td><strong>TBankrot</strong></td><td>90 000+</td><td>1 500-5 800 руб/мес</td><td>AI-проверка карточек, аналитика победителей</td><td><span class="tag red">Нет AVM, нет ML-оценки</span></td></tr>
+      <tr><td><strong>Bankrot-Spy</strong></td><td>--</td><td>Basic/VIP</td><td>Сравнение с рыночной ценой, аукционный робот</td><td><span class="tag red">Ручная оценка</span></td></tr>
+      <tr><td><strong>EI.ru</strong></td><td>1 000 000+</td><td>--</td><td>55 площадок, данные Росреестра</td><td><span class="tag red">Нет автооценки</span></td></tr>
+      <tr><td><strong>Rutorgi</strong></td><td>--</td><td>бесплатно</td><td>47 площадок в реальном времени</td><td><span class="tag red">Только агрегация</span></td></tr>
+    </table>
+
+    <h3>Наши конкурентные преимущества</h3>
+    <div class="metrics">
+      <div class="metric green"><div class="metric-val" style="font-size:14px">AI-оценка</div><div class="metric-label">автоматическая рыночная стоимость -- никто не делает</div></div>
+      <div class="metric blue"><div class="metric-val" style="font-size:14px">Telegram</div><div class="metric-label">first-class UX в мессенджере -- все конкуренты web-first</div></div>
+      <div class="metric cyan"><div class="metric-val" style="font-size:14px">Кадастр</div><div class="metric-label">автообогащение данными Росреестра</div></div>
+      <div class="metric orange"><div class="metric-val" style="font-size:14px">Опыт EI</div><div class="metric-label">118 объектов, 900+ инвесторов -- реальная экспертиза</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MVP ДЛЯ ESTATE INVEST ═══ -->
+<div class="section mvp-section" id="mvp">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9658;</span> Применение к Estate Invest: MVP <span class="sec-tag">Ключевой раздел</span></h2>
+
+    <div class="highlight-box">
+      <h3>Зачем это нам</h3>
+      <p>Estate Invest уже работает с аукционной недвижимостью: <strong>118 объектов, 900+ инвесторов, ~196 млн покупок, ~388 млн продаж</strong>. Сейчас поиск и оценка объектов -- ручной процесс. Автоматизация даст:</p>
+      <ul>
+        <li><strong>Скорость</strong> -- узнавать о выгодных лотах первыми, а не из ручного мониторинга</li>
+        <li><strong>Объём</strong> -- обрабатывать 500+ лотов вместо десятков</li>
+        <li><strong>Объективность</strong> -- оценка на данных, а не на интуиции</li>
+        <li><strong>Масштабирование</strong> -- из внутреннего инструмента в продукт для инвесторов</li>
+      </ul>
+    </div>
+
+    <h3>Что делаем в MVP (Фаза 1)</h3>
+    <div class="phase green">
+      <div class="phase-header">
+        <span class="phase-num">1</span>
+        <span class="phase-title">Мониторинг торгов -- Telegram-бот</span>
+        <span class="phase-cost">0 руб/мес</span>
+      </div>
+      <ul>
+        <li>Парсим torgi.gov.ru (госимущество) + ЕФРСБ (банкротство) каждые 6 часов через REST API</li>
+        <li>Фильтруем: только недвижимость + Пермский край</li>
+        <li>Сохраняем в Google Sheets (до 10K строк)</li>
+        <li>Отправляем в Telegram новые лоты с базовой информацией</li>
+        <li>Простая оценка: дисконт к кадастровой стоимости (без ML)</li>
+        <li>Правило: дисконт > 30% к кадастровой = подсветить</li>
+      </ul>
+      <p style="font-size:12px;color:var(--text2);margin-top:8px"><strong>Инструменты:</strong> n8n Cloud (уже есть) + Google Sheets + Telegram бот</p>
+      <p style="font-size:12px;color:var(--text2)"><strong>Срок:</strong> 2-3 недели</p>
+    </div>
+
+    <div class="phase blue">
+      <div class="phase-header">
+        <span class="phase-num">2</span>
+        <span class="phase-title">Рыночная оценка -- сравнение с аналогами</span>
+        <span class="phase-cost">~2-3 тыс. руб/мес</span>
+      </div>
+      <ul>
+        <li>Подключаем ads-api.ru -- рыночные цены с ЦИАН, Авито, Домклик</li>
+        <li>DaData -- координаты, нормализация адресов, кадастровые номера</li>
+        <li>Росреестр PKK -- кадастровая стоимость</li>
+        <li>Автоматический поиск аналогов в радиусе 1-2 км</li>
+        <li>Расчёт реального дисконта: цена торгов vs рыночная оценка</li>
+        <li>Telegram: полная карточка лота с оценкой и аналогами</li>
+      </ul>
+      <p style="font-size:12px;color:var(--text2);margin-top:8px"><strong>Инструменты:</strong> + ads-api.ru (2 000 руб/мес) + DaData (бесплатно) + Supabase (бесплатно)</p>
+      <p style="font-size:12px;color:var(--text2)"><strong>Срок:</strong> +3-4 недели после Фазы 1</p>
+    </div>
+
+    <div class="phase orange">
+      <div class="phase-header">
+        <span class="phase-num">3</span>
+        <span class="phase-title">ML-оценка + внешние пользователи</span>
+        <span class="phase-cost">~2.5-3.5 тыс. руб/мес</span>
+      </div>
+      <ul>
+        <li>Когда накопим 2000+ объектов -- обучаем LightGBM модель</li>
+        <li>FastAPI сервис на Railway ($5/мес): /predict, /comps, /roi</li>
+        <li>SHAP-объяснение: "почему такая цена" (факторы + их вклад)</li>
+        <li>Открываем бот для внешних инвесторов (freemium)</li>
+        <li>Начинаем набор аудитории</li>
+      </ul>
+      <p style="font-size:12px;color:var(--text2);margin-top:8px"><strong>Инструменты:</strong> + Railway (500 руб/мес) + LightGBM + SHAP</p>
+      <p style="font-size:12px;color:var(--text2)"><strong>Срок:</strong> +4-6 недель после Фазы 2</p>
+    </div>
+
+    <h3>Стоимость по фазам</h3>
+    <table>
+      <tr><th>Компонент</th><th>Фаза 1</th><th>Фаза 2</th><th>Фаза 3</th></tr>
+      <tr><td>n8n Cloud</td><td>0 (уже есть)</td><td>0</td><td>0</td></tr>
+      <tr><td>ads-api.ru</td><td>--</td><td>2 000</td><td>2 000</td></tr>
+      <tr><td>DaData</td><td>--</td><td>0-1 000</td><td>0-1 000</td></tr>
+      <tr><td>Railway (FastAPI)</td><td>--</td><td>--</td><td>500</td></tr>
+      <tr><td>Supabase</td><td>--</td><td>0</td><td>0</td></tr>
+      <tr><td><strong>Итого, руб/мес</strong></td><td><strong>0</strong></td><td><strong>2 000-3 000</strong></td><td><strong>2 500-3 500</strong></td></tr>
+    </table>
+
+    <h3>Что мы получим на каждой фазе</h3>
+    <div class="compare-grid">
+      <div class="compare-card good">
+        <h4>После Фазы 1 (через 3 недели)</h4>
+        <ul>
+          <li>Telegram-бот с уведомлениями о новых лотах</li>
+          <li>Таблица всех лотов в Google Sheets</li>
+          <li>Базовый фильтр по выгодности (кадастр)</li>
+          <li>Внутренний инструмент для команды EI</li>
+        </ul>
+      </div>
+      <div class="compare-card good">
+        <h4>После Фазы 2 (через 6-7 недель)</h4>
+        <ul>
+          <li>Автоматическая оценка каждого лота</li>
+          <li>Реальный дисконт к рынку (не к кадастру)</li>
+          <li>Аналоги в радиусе 1-2 км с ценами</li>
+          <li>Готовность к открытию для инвесторов</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Как это выглядит в Telegram</h3>
+    <div class="deal-example">
+      <div class="de-header">НОВЫЙ ЛОТ | Квартира | Пермь</div>
+      <div class="de-row"><span class="de-label">Аукцион</span><span class="de-val">1 900 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Рынок</span><span class="de-val">3 200 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Скидка</span><span class="de-val green">-41% | Confidence: высокий (8 аналогов)</span></div>
+      <div class="de-divider"></div>
+      <div class="de-row"><span class="de-label">Объект</span><span class="de-val">70 м2 | 2 комнаты | 5/9 этаж</span></div>
+      <div class="de-row"><span class="de-label">Адрес</span><span class="de-val">ул. Ленина 15</span></div>
+      <div class="de-row"><span class="de-label">Кадастр</span><span class="de-val">59:01:4410851:123</span></div>
+      <div class="de-divider"></div>
+      <div class="de-row"><span class="de-label">Торги до</span><span class="de-val">15.03.2026 18:00</span></div>
+      <div class="de-row"><span class="de-label">Задаток</span><span class="de-val">220 000 руб</span></div>
+      <div class="de-row"><span class="de-label">Площадка</span><span class="de-val">torgi.gov.ru</span></div>
+      <div class="de-divider"></div>
+      <div class="de-row"><span class="de-label" style="color:var(--text3)">[ Открыть лот ]  [ Аналоги на ЦИАН ]</span><span class="de-val"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ МОНЕТИЗАЦИЯ ═══ -->
+<div class="section" id="monetization">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9671;</span> Монетизация</h2>
+
+    <h3>Стратегия: от внутреннего инструмента к продукту</h3>
+    <div class="phase green">
+      <div class="phase-header">
+        <span class="phase-num">1</span>
+        <span class="phase-title">0-6 месяцев: бесплатный бот</span>
+      </div>
+      <ul>
+        <li>Внутренний инструмент для Estate Invest</li>
+        <li>Открытый Telegram-бот для набора аудитории</li>
+        <li>Бесплатные уведомления о новых лотах</li>
+      </ul>
+    </div>
+    <div class="phase blue">
+      <div class="phase-header">
+        <span class="phase-num">2</span>
+        <span class="phase-title">6-12 месяцев: Freemium</span>
+      </div>
+      <ul>
+        <li>Бесплатно: уведомления о лотах</li>
+        <li><strong>Платно (1 500 руб/мес):</strong> AI-оценка, аналоги, дисконт, ROI</li>
+        <li>Отчёты по конкретным лотам: 500-2 000 руб за штуку</li>
+      </ul>
+    </div>
+    <div class="phase orange">
+      <div class="phase-header">
+        <span class="phase-num">3</span>
+        <span class="phase-title">12+ месяцев: масштабирование</span>
+      </div>
+      <ul>
+        <li>Расширение на другие регионы</li>
+        <li>API для партнёров</li>
+        <li>Агентская модель (сопровождение сделки)</li>
+        <li>Веб-дашборд</li>
+      </ul>
+    </div>
+
+    <h3>Ориентиры по рынку</h3>
+    <table>
+      <tr><th>Метрика</th><th>Россия</th><th>США</th></tr>
+      <tr><td>Базовая подписка</td><td>1 500 руб/мес (~$15)</td><td>$49/мес</td></tr>
+      <tr><td>Профессиональная</td><td>3 500-5 800 руб/мес</td><td>$79-150/мес</td></tr>
+      <tr><td>Средний лот</td><td>500K-5M руб</td><td>$50K-500K</td></tr>
+      <tr><td>Маржа участника</td><td>30-70%</td><td>20-40%</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ ДОРОЖНАЯ КАРТА ═══ -->
+<div class="section" id="roadmap">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9660;</span> Дорожная карта</h2>
+
+    <h3>План по неделям</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--green)">Нед. 1-2</div>
+        <div class="tl-content">
+          <div class="tl-task">Парсер torgi.gov.ru + Google Sheets + Telegram</div>
+          <div class="tl-result">Результат: база лотов Перми, уведомления в Telegram</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--green)">Нед. 2-3</div>
+        <div class="tl-content">
+          <div class="tl-task">Подключение ads-api.ru + дедупликация</div>
+          <div class="tl-result">Результат: рыночные цены с ЦИАН/Авито/Домклик</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--blue)">Нед. 3-4</div>
+        <div class="tl-content">
+          <div class="tl-task">Rule-based оценка + расчёт дисконта</div>
+          <div class="tl-result">Результат: автоматическая оценка лотов, Telegram с полной карточкой</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--blue)">Нед. 4-5</div>
+        <div class="tl-content">
+          <div class="tl-task">Росреестр + DaData + price history</div>
+          <div class="tl-result">Результат: кадастровые данные, история цен, обогащённые карточки</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--orange)">Нед. 5-6</div>
+        <div class="tl-content">
+          <div class="tl-task">Мониторинг изменений + аналитика</div>
+          <div class="tl-result">Результат: отслеживание снижений цен, рейтинг лотов</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-week" style="color:var(--orange)">Нед. 6-8</div>
+        <div class="tl-content">
+          <div class="tl-task">ML-модель LightGBM (когда 2000+ объектов)</div>
+          <div class="tl-result">Результат: точная ML-оценка с объяснением факторов</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Техническая архитектура (итог)</h3>
+    <p><strong>Гибрид:</strong> n8n Cloud как оркестратор + Python-бэкенд для тяжёлой работы.</p>
+    <div class="tags">
+      <span class="tag accent">n8n Cloud (есть)</span>
+      <span class="tag blue">Google Sheets (MVP)</span>
+      <span class="tag green">Telegram бот</span>
+      <span class="tag cyan">Supabase (Фаза 2)</span>
+      <span class="tag orange">FastAPI + LightGBM (Фаза 3)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ РИСКИ ═══ -->
+<div class="section" id="risks">
+  <div class="section-card">
+    <h2><span class="sec-icon">&#9888;</span> Риски и ограничения</h2>
+
+    <table>
+      <tr><th>Риск</th><th>Влияние</th><th>Митигация</th></tr>
+      <tr>
+        <td><strong>Мало данных в Перми</strong></td>
+        <td><span class="tag yellow">среднее</span></td>
+        <td>Пермь не Москва. 3000 чистых объектов -- оптимистичная цель. Начинаем с rule-based подхода, ML -- когда данные накопятся</td>
+      </tr>
+      <tr>
+        <td><strong>n8n Cloud лимиты</strong></td>
+        <td><span class="tag yellow">среднее</span></td>
+        <td>5 concurrent executions. Уже используем для других проектов. Тяжёлую работу выносим на FastAPI</td>
+      </tr>
+      <tr>
+        <td><strong>Точность оценки на старте</strong></td>
+        <td><span class="tag yellow">среднее</span></td>
+        <td>MAPE 15-25% -- нормально для старта. У конкурентов оценки нет вообще. Показываем confidence рядом с ценой</td>
+      </tr>
+      <tr>
+        <td><strong>ads-api.ru тестовый тариф</strong></td>
+        <td><span class="tag green">низкое</span></td>
+        <td>Тестовый тариф отдаёт price=0. Нельзя оценить до оплаты (2000 руб). Альтернатива: cianparser (бесплатно, но юр. риск)</td>
+      </tr>
+      <tr>
+        <td><strong>Юридические риски парсинга</strong></td>
+        <td><span class="tag green">низкое</span></td>
+        <td>torgi.gov.ru = Open Data (минимальный). Для коммерческих площадок используем легальный API</td>
+      </tr>
+    </table>
+
+    <h3>Что точно работает</h3>
+    <ul>
+      <li>torgi.gov.ru имеет JSON API (подтверждено несколькими источниками, Open Data)</li>
+      <li>LightGBM -- proven подход для оценки недвижимости по всему миру</li>
+      <li>n8n Cloud + HTTP Request + Telegram -- уже используем для других проектов</li>
+      <li>DaData возвращает координаты и кадастровые данные</li>
+      <li>Overpass API (OpenStreetMap) бесплатно покрывает инфраструктуру Перми</li>
+    </ul>
+
+    <h3>Что нужно проверить перед стартом</h3>
+    <ul>
+      <li>torgi.gov.ru: точный catCode и структура ответа (живой HTTP-запрос)</li>
+      <li>DaData Suggestions: какие enriched-поля возвращает бесплатный эндпоинт</li>
+      <li>ads-api.ru: реальное качество данных на платном тарифе</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div style="text-align:center;padding:40px 0 60px;color:var(--text3);font-size:11px">
+  Estate Invest | Исследование аналитики недвижимости | Март 2026<br>
+  3 исследовательских сессии, 8 детальных отчётов, 80+ источников
+</div>
+
+</div><!-- /main -->
+
+<!-- Q&A FLOATING BUTTON -->
+<button class="qa-fab" id="qaFab">Задать вопрос</button>
+
+<!-- Q&A MODAL -->
+<div class="qa-overlay" id="qaOverlay">
+  <div class="qa-modal">
+    <div class="qa-header">
+      <span class="qa-header-title">Задать вопрос по исследованию</span>
+      <button class="qa-close" id="qaClose">&times;</button>
+    </div>
+    <div class="qa-body">
+      <div class="qa-context-label">Выделенный фрагмент</div>
+      <div class="qa-context" id="qaContext"></div>
+      <div class="qa-input-wrap">
+        <textarea class="qa-input" id="qaInput" rows="2" placeholder="Что хотите узнать об этом фрагменте?"></textarea>
+        <button class="qa-send" id="qaSend">Отправить</button>
+      </div>
+      <div class="qa-loading" id="qaLoading" style="display:none">
+        <div class="qa-dots"><span></span><span></span><span></span></div>
+        Claude думает...
+      </div>
+      <div class="qa-answer" id="qaAnswer"></div>
+      <div class="qa-error" id="qaError"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function nav(el){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleCollapsible(btn){
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+// Auto-highlight sidebar on scroll
+(function(){
+  const sections = [];
+  document.querySelectorAll('.section, .hero').forEach(s=>{
+    if(s.id) sections.push(s);
+  });
+
+  function updateActive(){
+    const cutoff = window.innerHeight * 0.3;
+    let currentId = sections[0]?.id;
+    for(const s of sections){
+      if(s.getBoundingClientRect().top <= cutoff) currentId = s.id;
+    }
+    document.querySelectorAll('.sb-item').forEach(i=>{
+      i.classList.toggle('active', i.getAttribute('href') === '#' + currentId);
+    });
+  }
+
+  window.addEventListener('scroll', updateActive, {passive:true});
+  document.addEventListener('scroll', updateActive, {passive:true});
+  updateActive();
+})();
+
+// ═══ Q&A ASSISTANT ═══
+(function(){
+  // ▼▼▼ ВСТАВЬ СВОЙ API-КЛЮЧ СЮДА ▼▼▼
+  const ANTHROPIC_API_KEY = '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';
+  // ▲▲▲ Формат: sk-ant-api03-... ▲▲▲
+
+  const fab = document.getElementById('qaFab');
+  const overlay = document.getElementById('qaOverlay');
+  const ctx = document.getElementById('qaContext');
+  const input = document.getElementById('qaInput');
+  const sendBtn = document.getElementById('qaSend');
+  const answer = document.getElementById('qaAnswer');
+  const loading = document.getElementById('qaLoading');
+  const error = document.getElementById('qaError');
+
+  let selectedText = '';
+
+  // Показать кнопку при выделении текста
+  document.addEventListener('mouseup', function(e){
+    // Игнорируем клики внутри модалки и сайдбара
+    if(e.target.closest('.qa-overlay') || e.target.closest('.sidebar')) return;
+
+    setTimeout(()=>{
+      const sel = window.getSelection();
+      const text = sel.toString().trim();
+      if(text.length > 5){
+        selectedText = text;
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        // position:fixed → координаты относительно viewport (без scrollY)
+        fab.style.display = 'block';
+        fab.style.top = Math.max(4, rect.top - 42) + 'px';
+        fab.style.left = Math.max(4, Math.min(window.innerWidth - 140, rect.left + rect.width/2 - 60)) + 'px';
+      } else {
+        fab.style.display = 'none';
+      }
+    }, 10);
+  });
+
+  // Скрыть кнопку при клике в пустое место
+  document.addEventListener('mousedown', function(e){
+    if(e.target !== fab && !e.target.closest('.qa-overlay')){
+      fab.style.display = 'none';
+    }
+  });
+
+  // Открыть модалку
+  fab.addEventListener('click', function(){
+    fab.style.display = 'none';
+    ctx.textContent = selectedText.length > 500
+      ? selectedText.slice(0, 500) + '...'
+      : selectedText;
+    input.value = '';
+    answer.className = 'qa-answer';
+    answer.innerHTML = '';
+    error.className = 'qa-error';
+    loading.style.display = 'none';
+    overlay.classList.add('open');
+    setTimeout(()=> input.focus(), 100);
+  });
+
+  // Закрыть
+  document.getElementById('qaClose').addEventListener('click', ()=> overlay.classList.remove('open'));
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) overlay.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') overlay.classList.remove('open');
+  });
+
+  // Отправить по Enter (Shift+Enter = новая строка)
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
+  // Отправка запроса
+  sendBtn.addEventListener('click', async function(){
+    const question = input.value.trim();
+    if(!question) return;
+
+    if(!ANTHROPIC_API_KEY){
+      error.innerHTML = 'API-ключ не настроен. Открой файл research.html, найди <code>ANTHROPIC_API_KEY</code> и вставь свой ключ.';
+      error.className = 'qa-error visible';
+      return;
+    }
+
+    sendBtn.disabled = true;
+    loading.style.display = 'flex';
+    answer.className = 'qa-answer';
+    error.className = 'qa-error';
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: 'Ты — эксперт по аналитике недвижимости и инвестициям. Отвечай на русском языке. Отвечай кратко, по существу, ориентируясь на контекст выделенного фрагмента из исследования Estate Invest. Используй простой язык, понятный бизнес-партнёрам без технического бэкграунда. Форматируй ответ с абзацами.',
+          messages: [{
+            role: 'user',
+            content: 'Фрагмент из исследования:\n\n«' + selectedText + '»\n\nВопрос: ' + question
+          }]
+        })
+      });
+
+      if(!resp.ok){
+        const err = await resp.json().catch(()=>({}));
+        throw new Error(err.error?.message || 'Ошибка API: ' + resp.status);
+      }
+
+      const data = await resp.json();
+      const text = data.content[0].text;
+
+      // Простой markdown → HTML (абзацы, жирный, списки)
+      let html = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .split(/\n\n+/).map(p => {
+          p = p.trim();
+          if(!p) return '';
+          if(p.match(/^[-•]\s/m)){
+            const items = p.split(/\n/).map(l => '<li>' + l.replace(/^[-•]\s*/, '') + '</li>').join('');
+            return '<ul>' + items + '</ul>';
+          }
+          if(p.match(/^\d+\.\s/m)){
+            const items = p.split(/\n/).map(l => '<li>' + l.replace(/^\d+\.\s*/, '') + '</li>').join('');
+            return '<ol>' + items + '</ol>';
+          }
+          return '<p>' + p.replace(/\n/g, '<br>') + '</p>';
+        }).join('');
+
+      answer.innerHTML = html;
+      answer.className = 'qa-answer visible';
+
+    } catch(e){
+      error.textContent = e.message;
+      error.className = 'qa-error visible';
+    } finally {
+      sendBtn.disabled = false;
+      loading.style.display = 'none';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
