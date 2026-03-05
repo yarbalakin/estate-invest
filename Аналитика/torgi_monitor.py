@@ -289,14 +289,28 @@ def parse_lot(lot):
 def extract_city(address):
     if not address:
         return "Пермь"
-    # Ищем "г. Город" или "город Город"
+    addr_lower = address.lower()
+    # "г. Город" или "г.Город" или "город Город"
     m = re.search(r"(?:г\.\s*|город\s+)([А-ЯЁа-яё\-]+)", address)
     if m:
         return m.group(1)
-    # Если адрес содержит "Пермь"
-    if "пермь" in address.lower():
-        return "Пермь"
-    return "Пермь"  # default для Пермского края
+    # Известные города Пермского края
+    cities = [
+        "Пермь", "Краснокамск", "Березники", "Соликамск", "Чайковский",
+        "Лысьва", "Кунгур", "Чусовой", "Добрянка", "Чернушка",
+        "Оса", "Верещагино", "Нытва", "Губаха", "Кизел",
+        "Александровск", "Горнозаводск", "Очёр", "Суксун",
+    ]
+    for city in cities:
+        if city.lower() in addr_lower:
+            return city
+    # Район → ищем на уровне района
+    m = re.search(r"(\w+)\s+(?:район|р-н|муниципальн)", address, re.IGNORECASE)
+    if m:
+        district = m.group(1)
+        # Для сельских районов ищем по названию района
+        return district
+    return "Пермь"
 
 
 # === Поиск аналогов (ads-api.ru) ===
@@ -308,11 +322,12 @@ def fetch_analogs(parsed_lot):
     category = parsed_lot["category"]
     ads_category = ADS_CATEGORY_MAP.get(category)
     if not ads_category:
-        log.debug(f"No ads-api.ru mapping for category: {category}")
+        log.info(f"  ads-api: нет маппинга для категории '{category}', пропуск")
         return None
 
     area_num = parsed_lot["areaNum"]
     city = extract_city(parsed_lot["address"])
+    log.info(f"  ads-api: ищу аналоги — {category}, г.{city}, площадь={area_num}")
 
     params = {
         "user": ADS_API_USER,
@@ -334,11 +349,13 @@ def fetch_analogs(parsed_lot):
             log.error(f"ads-api.ru error: {r.status_code}")
             return None
         data = r.json()
+        items = []
         if isinstance(data, dict) and "data" in data:
-            return data["data"]
-        if isinstance(data, list):
-            return data
-        return None
+            items = data["data"]
+        elif isinstance(data, list):
+            items = data
+        log.info(f"  ads-api: получено {len(items)} объявлений")
+        return items if items else None
     except Exception as e:
         log.error(f"ads-api.ru exception: {e}")
         return None
@@ -354,6 +371,7 @@ def calculate_market_price(analogs, parsed_lot):
     lot_price = parsed_lot["price"]
 
     if area_num <= 0 or lot_price <= 0:
+        log.info(f"  оценка: пропуск (площадь={area_num}, цена={lot_price})")
         return None
 
     # Площадь лота для фильтрации аналогов
@@ -398,7 +416,10 @@ def calculate_market_price(analogs, parsed_lot):
             unit_prices.append(a_price / a_area)  # руб/м2
 
     if len(unit_prices) < 2:
+        log.info(f"  оценка: мало аналогов с площадью ({len(unit_prices)} из {len(analogs)})")
         return None
+
+    log.info(f"  оценка: {len(unit_prices)} аналогов с площадью из {len(analogs)} всего")
 
     # Убрать выбросы (IQR)
     unit_prices.sort()
@@ -436,13 +457,16 @@ def calculate_market_price(analogs, parsed_lot):
     else:
         confidence = "высокая"
 
-    return {
+    result = {
         "marketPrice": int(market_price),
         "marketPricePerUnit": market_per_unit,
         "discount": round(discount, 1),
         "confidence": confidence,
         "analogsCount": count,
     }
+    mp_fmt = f"{int(market_price):,}".replace(",", " ")
+    log.info(f"  оценка: рынок ~{mp_fmt} руб, скидка {result['discount']}%, аналогов {count} ({confidence})")
+    return result
 
 
 # === Форматирование Telegram ===
@@ -580,6 +604,8 @@ def main():
             continue
 
         new_count += 1
+        price_fmt = f"{int(parsed['price']):,}".replace(",", " ") if parsed["price"] else "0"
+        log.info(f"[{new_count}] {parsed['category']} | {parsed['name'][:60]} | {price_fmt} руб")
 
         # Лимит на первый запуск (не спамить)
         if first_run and new_count > 10:
