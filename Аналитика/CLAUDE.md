@@ -1,0 +1,36 @@
+# Аналитика — Streamlit-приложение
+
+## Что это
+Python-приложение для аналитики Estate Invest: загрузка данных из Google Sheets, расчёт метрик, визуализация в Streamlit.
+
+## Архитектура
+- `config.py` — конфиг: ID таблицы, маппинг листов (gid, header_row), имена колонок
+- `data_loader.py` — загрузчик данных из Google Sheets через gviz API (без API-ключей)
+- `analytics.py` — расчёт метрик: портфель, инвесторы, объекты, ROI
+- `app.py` — Streamlit UI (6 вкладок)
+- `requirements.txt` — зависимости
+
+## Данные
+- Источник: Google Sheets (`1dWTjYF8sEc20SKeyl-e6PomBFq3VlfX-m8K2ZRopZJ0`)
+- 6 листов: Общая база, Инвесторы, Объекты, Свод инвесторы, Свод объекты, Свод объекты+инвесторы
+- Парсинг русского формата чисел: "5 228 170,99р." → 5228170.99
+- Мультивалютность: RUB, USD, EUR, USDT
+
+## Запуск
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+## Правила разработки
+- Не менять gid и header_row без проверки в Google Sheets — это хрупкие привязки
+- Финансовые данные чувствительные — не публиковать
+- Кэш данных 10 минут (CACHE_TTL в config.py)
+- При добавлении новых листов — добавлять в SHEETS dict в config.py
+
+## Статус
+- [x] Блок 1: DATA LOADER
+- [x] Блок 2: ANALYTICS ENGINE
+- [ ] Блок 3: ADMIN DASHBOARD
+- [ ] Блок 4: INVESTOR PORTAL
+- [ ] Блок 5: DEPLOY
