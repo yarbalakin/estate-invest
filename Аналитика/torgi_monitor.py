@@ -54,6 +54,15 @@ ADS_CATEGORY_MAP = {
     "Прочее": 7,      # fallback → коммерческая
 }
 
+# Серверные param_id площади для ads-api.ru (по категориям)
+ADS_AREA_PARAMS = {
+    5: "4616",   # Земля — площадь в сотках
+    7: "4920",   # Коммерция — площадь кв.м
+    2: "2313",   # Квартиры — площадь кв.м
+    4: "2313",   # Дома — площадь кв.м
+    6: None,     # Гаражи — нет серверного фильтра
+}
+
 # Фильтр biddType
 SKIP_BIDD_TYPES = ["Реализация имущества должников"]
 
@@ -266,6 +275,10 @@ def parse_lot(lot):
     torgi_url = f"https://torgi.gov.ru/new/public/lots/lot/{lot_id}"
     short_name = (lot_name[:120] + "...") if len(lot_name) > 120 else (lot_name or "Объект")
 
+    # Тип земли / вид коммерции (для фильтрации аналогов)
+    land_type = extract_land_type(lot_name, lot_desc) if is_land else ""
+    commercial_type = extract_commercial_type(lot_name, lot_desc) if category == "Нежилое" else ""
+
     return {
         "lotId": lot_id,
         "dateAdded": datetime.now().strftime("%Y-%m-%d"),
@@ -285,6 +298,10 @@ def parse_lot(lot):
         "etpUrl": etp_url,
         "status": lot.get("lotStatus", ""),
         "url": torgi_url,
+        "landType": land_type,
+        "commercialType": commercial_type,
+        "lotName": lot_name,
+        "lotDesc": lot_desc,
     }
 
 
@@ -316,7 +333,72 @@ def extract_city(address):
     return "Пермь"
 
 
+# === Определение типа земли из описания лота ===
+def extract_land_type(lot_name, lot_desc):
+    """Определить назначение земельного участка → значение для param[4313]."""
+    text = (lot_name + " " + lot_desc).lower()
+    if any(w in text for w in ("ижс", "индивидуальное жилищное", "жилая застройка",
+                                "жилой дом", "для жилищного")):
+        return "Поселений (ИЖС)"
+    if any(w in text for w in ("снт", "днп", "садовод", "огородничеств", "дачн",
+                                "садовый", "дачный")):
+        return "Сельхозназначения (СНТ, ДНП)"
+    if any(w in text for w in ("промышлен", "производств", "промназначени", "промышленн")):
+        return "Промназначения"
+    return ""
+
+
+# === Определение вида коммерческой недвижимости ===
+def extract_commercial_type(lot_name, lot_desc):
+    """Определить вид коммерции → значение для param[4869]."""
+    text = (lot_name + " " + lot_desc).lower()
+    if any(w in text for w in ("офис", "офисн")):
+        return "Офисное помещение"
+    if any(w in text for w in ("торгов", "магазин", "торговл")):
+        return "Торговое помещение"
+    if any(w in text for w in ("склад",)):
+        return "Складское помещение"
+    if any(w in text for w in ("производств", "цех")):
+        return "Производственное помещение"
+    if any(w in text for w in ("свободн", "универсальн")):
+        return "Помещение свободного назначения"
+    return ""
+
+
+# === Извлечение района из адреса ===
+def extract_district(address):
+    """Извлечь район города из адреса (для фильтра metro в ads-api)."""
+    if not address:
+        return ""
+    m = re.search(r"(?:р-н|район)\s+([А-ЯЁа-яё]+)", address, re.IGNORECASE)
+    if m:
+        return m.group(1)
+    m = re.search(r"([А-ЯЁа-яё]+)\s+(?:р-н|район)", address, re.IGNORECASE)
+    if m:
+        return m.group(1)
+    return ""
+
+
 # === Поиск аналогов (ads-api.ru) ===
+def _ads_api_request(params):
+    """Выполнить запрос к ads-api.ru, вернуть список объявлений."""
+    try:
+        time.sleep(ADS_API_DELAY)
+        r = requests.get(ADS_API_URL, params=params, timeout=30)
+        if r.status_code != 200:
+            log.error(f"ads-api.ru error: {r.status_code}")
+            return []
+        data = r.json()
+        if isinstance(data, dict) and "data" in data:
+            return data["data"]
+        elif isinstance(data, list):
+            return data
+        return []
+    except Exception as e:
+        log.error(f"ads-api.ru exception: {e}")
+        return []
+
+
 def fetch_analogs(parsed_lot):
     if not ADS_API_USER or not ADS_API_TOKEN:
         log.debug("ads-api.ru credentials not set, skipping market evaluation")
@@ -329,39 +411,86 @@ def fetch_analogs(parsed_lot):
         return None
 
     area_num = parsed_lot["areaNum"]
+    is_land = parsed_lot["isLand"]
     city = extract_city(parsed_lot["address"])
-    log.info(f"  ads-api: ищу аналоги — {category}, г.{city}, площадь={area_num}")
+    district = extract_district(parsed_lot["address"])
 
-    params = {
+    # Серверная площадь: для земли в сотках, для остального в м2
+    area_param_id = ADS_AREA_PARAMS.get(ads_category)
+    if is_land and area_num > 0:
+        area_value = int(area_num / 100)  # м2 → сотки
+    else:
+        area_value = int(area_num) if area_num > 0 else 0
+
+    # Доп. фильтры
+    land_type = parsed_lot.get("landType", "")
+    commercial_type = parsed_lot.get("commercialType", "")
+    date_from = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+
+    filters_desc = f"{category}, г.{city}"
+    if district:
+        filters_desc += f", р-н {district}"
+    if land_type:
+        filters_desc += f", {land_type}"
+    if commercial_type:
+        filters_desc += f", {commercial_type}"
+    if area_value > 0:
+        unit = "сот" if is_land else "м2"
+        filters_desc += f", ~{area_value} {unit}"
+    log.info(f"  ads-api: ищу аналоги — {filters_desc}")
+
+    # === Базовые параметры ===
+    base_params = {
         "user": ADS_API_USER,
         "token": ADS_API_TOKEN,
         "category_id": ads_category,
         "city": city,
         "nedvigimost_type": "1",  # продажа
+        "is_actual": "11,1",      # только актуальные
         "limit": "50",
         "sort": "desc",
     }
 
-    # Фильтр по площади — на стороне клиента (API не поддерживает для всех категорий)
-    # Передаём nedvigimost_type=1 (продажа) и person_type=1 (частные лица — чище данные)
+    # === Точный запрос (все фильтры) ===
+    precise_params = dict(base_params)
+    precise_params["date1"] = date_from
 
-    try:
-        time.sleep(ADS_API_DELAY)
-        r = requests.get(ADS_API_URL, params=params, timeout=30)
-        if r.status_code != 200:
-            log.error(f"ads-api.ru error: {r.status_code}")
-            return None
-        data = r.json()
-        items = []
-        if isinstance(data, dict) and "data" in data:
-            items = data["data"]
-        elif isinstance(data, list):
-            items = data
-        log.info(f"  ads-api: получено {len(items)} объявлений")
-        return items if items else None
-    except Exception as e:
-        log.error(f"ads-api.ru exception: {e}")
-        return None
+    if area_param_id and area_value > 0:
+        precise_params[f"param[{area_param_id}]"] = str(area_value)
+
+    if ads_category == 5 and land_type:
+        precise_params["param[4313]"] = land_type
+
+    if ads_category == 7 and commercial_type:
+        precise_params["param[4869]"] = commercial_type
+
+    if district and city == "Пермь":
+        precise_params["metro"] = district
+
+    items = _ads_api_request(precise_params)
+    log.info(f"  ads-api: точный запрос → {len(items)} объявлений")
+
+    # === Fallback: если мало результатов, убираем узкие фильтры ===
+    if len(items) < 5:
+        relaxed_params = dict(base_params)
+        # Оставляем площадь и дату, убираем назначение/вид/район
+        if area_param_id and area_value > 0:
+            relaxed_params[f"param[{area_param_id}]"] = str(area_value)
+        relaxed_params["date1"] = date_from
+
+        items2 = _ads_api_request(relaxed_params)
+        log.info(f"  ads-api: расширенный запрос → {len(items2)} объявлений")
+        if len(items2) > len(items):
+            items = items2
+
+    # === Fallback 2: без даты и площади ===
+    if len(items) < 5:
+        items3 = _ads_api_request(base_params)
+        log.info(f"  ads-api: базовый запрос → {len(items3)} объявлений")
+        if len(items3) > len(items):
+            items = items3
+
+    return items if items else None
 
 
 # === Расчёт рыночной оценки ===
