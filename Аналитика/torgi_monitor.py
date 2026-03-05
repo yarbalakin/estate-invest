@@ -12,6 +12,9 @@ import logging
 import statistics
 from datetime import datetime, timedelta
 
+import gspread
+from google.oauth2.service_account import Credentials
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -564,10 +567,46 @@ def send_telegram(text, chat_id):
         return False
 
 
-# === Google Sheets (через Sheets API v4) ===
-# TODO: добавить после решения с авторизацией (service account или OAuth)
+# === Google Sheets ===
+GSHEET_ID = "1Wji_7UYqIRmxbsd1Ob52NutSrKThd3m37fkXDFuBfPk"
+GSHEET_SA_FILE = "/opt/torgi-proxy/google-sa.json"
+GSHEET_COLUMNS = [
+    "lotId", "dateAdded", "category", "name", "address", "area",
+    "price", "deposit", "cadastralNumber", "auctionDate", "applicationEnd",
+    "biddType", "pricePerUnit", "etpUrl", "status", "url",
+    "marketPrice", "marketPricePerUnit", "discount", "confidence", "analogsCount",
+]
+
+_gs_client = None
+
+
+def _get_sheet():
+    global _gs_client
+    if _gs_client is None:
+        creds = Credentials.from_service_account_file(
+            GSHEET_SA_FILE,
+            scopes=["https://www.googleapis.com/auth/spreadsheets"],
+        )
+        _gs_client = gspread.authorize(creds)
+    spreadsheet = _gs_client.open_by_key(GSHEET_ID)
+    try:
+        ws = spreadsheet.worksheet("Лоты")
+    except gspread.WorksheetNotFound:
+        ws = spreadsheet.sheet1
+        # Записать заголовки если лист пустой
+        if not ws.row_values(1):
+            ws.append_row(GSHEET_COLUMNS)
+    return ws
+
+
 def append_google_sheets(row):
-    pass
+    try:
+        ws = _get_sheet()
+        values = [row.get(col, "") for col in GSHEET_COLUMNS]
+        ws.append_row(values, value_input_option="USER_ENTERED")
+        log.info(f"  Google Sheets: записан лот {row.get('lotId', '?')}")
+    except Exception as e:
+        log.error(f"Google Sheets error: {e}")
 
 
 # === Main ===
