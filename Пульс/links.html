@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Реестр ссылок</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --text-dim: #8b8d97;
+    --accent: #6366f1;
+    --accent-dim: #4f46e5;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --blue: #3b82f6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: rgba(99,102,241,0.05); }
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(99,102,241,0.15);
+    color: var(--accent);
+  }
+  .chevron {
+    transition: transform 0.2s;
+    color: var(--text-dim);
+    font-size: 18px;
+  }
+  .section.open .chevron { transform: rotate(90deg); }
+  .section-body {
+    display: none;
+    padding: 0 20px 16px;
+  }
+  .section.open .section-body { display: block; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    color: var(--text-dim);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(42,45,58,0.5);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(99,102,241,0.03); }
+  a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    background: rgba(99,102,241,0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+    word-break: break-all;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .tag-active { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-closed { background: rgba(239,68,68,0.15); color: var(--red); }
+  .tag-warn { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .search-box {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text-dim); }
+  .stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    min-width: 120px;
+  }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<h1>Estate Invest — Реестр ссылок</h1>
+<p class="subtitle">Обновлено: 07.03.2026 | Все credentials, API, таблицы, боты</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">13</div><div class="stat-label">Google Sheets</div></div>
+  <div class="stat"><div class="stat-value">9</div><div class="stat-label">Telegram</div></div>
+  <div class="stat"><div class="stat-value">6</div><div class="stat-label">API</div></div>
+  <div class="stat"><div class="stat-value">2</div><div class="stat-label">GitHub</div></div>
+  <div class="stat"><div class="stat-value">1</div><div class="stat-label">VPS</div></div>
+  <div class="stat"><div class="stat-value">1</div><div class="stat-label">CRM</div></div>
+</div>
+
+<input type="text" class="search-box" placeholder="Поиск по названию, ID, URL..." oninput="filterAll(this.value)">
+
+<!-- Google Sheets -->
+<div class="section open" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Google Sheets <span class="badge">13</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Название</th><th>Spreadsheet ID</th><th>Назначение</th></tr>
+      <tr><td>Основная таблица учёта</td><td><code>1dWTjYF8sEc20SKeyl-e6PomBFq3VlfX-m8K2ZRopZJ0</code></td><td>Транзакции (~76K строк), инвесторы, объекты</td></tr>
+      <tr><td>Монитор объектов</td><td><code>1oTRqpqS5GIunhi26TO8X6quWR5wWIWoTe0LzFqEGrDs</code></td><td>118 ИП, финансы, ROI, ссылки Авито</td></tr>
+      <tr><td>Таблица торгов</td><td><code>1Ulf_odOSRFcs4Ihi3waCo1Py_a0SgI3-FHlIKdCQvSU</code></td><td>Лоты tbankrot.ru, статусы, даты, задатки</td></tr>
+      <tr><td>Монитор торгов — Лоты</td><td><code>1Wji_7UYqIRmxbsd1Ob52NutSrKThd3m37fkXDFuBfPk</code></td><td>Python-монитор torgi.gov.ru + ЕФРСБ</td></tr>
+      <tr><td>Касса компании</td><td><code>1aRi5YLORBWDY5oU7hNo1XAWUoIvAM3ArxX7L2dbJHEc</code></td><td>Движение денежных средств</td></tr>
+      <tr><td>Статистика продаж</td><td><code>18S6crJXwHXCh1FKEzgc4444yn4T1KQd30ycpvmVx2Mk</code></td><td>7 листов: 2025, объекты, люди, доходы</td></tr>
+      <tr><td>Контент-план</td><td><code>1lV3gZiWGX8IxsMbKHyMYCAfJB5BeGa33raIFqMLtthk</code></td><td>10 листов-календарей по каналам</td></tr>
+      <tr><td>Шаблоны писем</td><td><code>1odfnhaeg6HWRgiMu0ASuMPXTgSx673t6BUUoVh7JIts</code></td><td>Email: договор, welcome, уведомления</td></tr>
+      <tr><td>Аккаунты соцсетей</td><td><code>1nwaS6lhg5SycS5B8gPQl3F-5qx6NuBeexnP782Nx_to</code></td><td>VK-паблики, стратегия</td></tr>
+      <tr><td>(неизвестно)</td><td><code>1DCxgwIKwJHSa5RwrCrqLUmb8ZCAFOnaHijtEfqXEiQA</code></td><td>Закрытый доступ</td></tr>
+      <tr><td>СКАУТ (Авито)</td><td><code>1fpyfpejSFW_3xw_XyVW7PX9YpBfxWAfL1yN9o5062Vo</code></td><td>Сырые данные объявлений Авито</td></tr>
+      <tr><td>Аналитик Авито</td><td><code>1WaV19O7IwltPtUxHIzbHZwACF_bq1llPNPlBupTHEjc</code></td><td>AI-услуги + История отчётов</td></tr>
+      <tr><td>Денежный бот</td><td><code>1vXz68HpNyQXh3uJ-iklQfPgB2WeINUoSuXe-AYGwzZY</code></td><td>Транзакции: дата, категория, приход/расход</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Telegram -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Telegram <span class="badge">9</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <h3 style="font-size:13px; color:var(--text-dim); margin:8px 0">Каналы</h3>
+    <table>
+      <tr><th>ID / Username</th><th>Описание</th></tr>
+      <tr><td><a href="https://t.me/russianestateincome" target="_blank">@russianestateincome</a></td><td>Публичный канал — новости, кейсы</td></tr>
+      <tr><td><a href="https://t.me/+TOpOcVlVmJwxMWRj" target="_blank">t.me/+TOpOcVlVmJwxMWRj</a></td><td>Закрытый канал инвесторов</td></tr>
+      <tr><td><a href="https://t.me/torgiigrot" target="_blank">@torgiigrot</a></td><td>Канал торгов</td></tr>
+      <tr><td><a href="https://t.me/+FtOHpdRQfPJmOWQy" target="_blank">t.me/+FtOHpdRQfPJmOWQy</a></td><td>Сообщество ФГ (практикум)</td></tr>
+      <tr><td>@topparsing <code>-1003759471621</code></td><td>"Лоты по Перми" — монитор торгов</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Боты</h3>
+    <table>
+      <tr><th>Название</th><th>Токен</th><th>Назначение</th></tr>
+      <tr><td>@monitor_estate_bot</td><td><code>8650381430:AAFKGNZ...</code></td><td>Монитор торгов (VPS)</td></tr>
+      <tr><td>Аналитик Авито</td><td><code>8243536588:AAGQvqV...</code></td><td>Ежедневные отчёты</td></tr>
+      <tr><td>Техн. уведомления</td><td><code>8604957943:AAF37XN...</code></td><td>Claude Code hooks</td></tr>
+      <tr><td>Денежный бот</td><td><code>8250956506:AAEZSY-...</code></td><td>Учёт расходов/доходов</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Chat IDs</h3>
+    <table>
+      <tr><th>Chat ID</th><th>Кто</th></tr>
+      <tr><td><code>191260933</code></td><td>Ярослав (основной)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Битрикс24 -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Битрикс24 CRM <span class="badge">1</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Параметр</th><th>Значение</th></tr>
+      <tr><td>Инстанс</td><td><a href="https://estateinvest.bitrix24.ru" target="_blank">estateinvest.bitrix24.ru</a></td></tr>
+      <tr><td>REST API</td><td><code>https://estateinvest.bitrix24.ru/rest/1/qlmnwa8sza8pvx14/</code></td></tr>
+      <tr><td>Скоупы</td><td>73</td></tr>
+      <tr><td>Сделки / Контакты / Лиды</td><td>4 030 / 3 188 / 1 343</td></tr>
+      <tr><td>Пользователей</td><td>26</td></tr>
+      <tr><td>Воронки</td><td>Инвестирование (0), <strong>Регистрация (2)</strong>, Агентство (6), Продажи (8)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Salebot -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Salebot <span class="badge">1</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Параметр</th><th>Значение</th></tr>
+      <tr><td>Бот</td><td>@Estate_invest_RF_bot</td></tr>
+      <tr><td>Project ID</td><td><code>214444</code></td></tr>
+      <tr><td>API Key</td><td><code>a27bfc4e3e8a7b856433529d75827851</code></td></tr>
+      <tr><td>Endpoint</td><td><code>chatter.salebot.pro/api/&lt;key&gt;/&lt;action&gt;</code></td></tr>
+      <tr><td>Клиентов</td><td>2 127</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Авито API -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Авито API <span class="badge">2 аккаунта</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <h3 style="font-size:13px; color:var(--text-dim); margin:8px 0">Аккаунт yarbalakin (AI-услуги)</h3>
+    <table>
+      <tr><th>Параметр</th><th>Значение</th></tr>
+      <tr><td>Client ID</td><td><code>09mdH5WZURZgntFe9B49</code></td></tr>
+      <tr><td>Client Secret</td><td><code>4M1OpnyYcCV8sPZjEP27ednptjxoRvdZrHPUd45v</code></td></tr>
+      <tr><td>User ID</td><td><code>422949348</code></td></tr>
+      <tr><td>Email</td><td>estatetorgi@yandex.ru</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Аккаунт Аналитик</h3>
+    <table>
+      <tr><th>Параметр</th><th>Значение</th></tr>
+      <tr><td>Client ID</td><td><code>rFREM-5Cj1o4AlZhVZQp</code></td></tr>
+      <tr><td>User ID</td><td><code>427914223</code></td></tr>
+    </table>
+    <p style="font-size:12px; color:var(--text-dim); margin-top:8px">Token endpoint: POST <code>https://api.avito.ru/token</code> (client_credentials)</p>
+  </div>
+</div>
+
+<!-- n8n Cloud -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>n8n Cloud <span class="badge">4 workflows</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <p style="font-size:13px; margin-bottom:8px">Инстанс: <a href="https://estateinvest.app.n8n.cloud" target="_blank">estateinvest.app.n8n.cloud</a></p>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:8px 0">Credentials</h3>
+    <table>
+      <tr><th>Credential</th><th>ID</th></tr>
+      <tr><td>Redis</td><td><code>BLUkom4dAdgmswX1</code></td></tr>
+      <tr><td>Telegram (Авито)</td><td><code>len1hyHe6BeNXVS4</code></td></tr>
+      <tr><td>Telegram (Денежный)</td><td><code>jm6dd8L1v7OTVVaF</code></td></tr>
+      <tr><td>Google Sheets</td><td><code>EHQ0L5e8dznnC9ZT</code></td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Workflows (Estate Invest)</h3>
+    <table>
+      <tr><th>Workflow ID</th><th>Статус</th><th>Название</th></tr>
+      <tr><td><code>H12Q90yhl9q1MNiI</code></td><td><span class="tag tag-warn">deprecated</span></td><td>Монитор торгов (заменён Python)</td></tr>
+      <tr><td><code>RXbhtdi37u50TYQf</code></td><td><span class="tag tag-closed">DEV</span></td><td>Монитор торгов DEV</td></tr>
+      <tr><td><code>IeavPlixA41UsGdX</code></td><td><span class="tag tag-active">ACTIVE</span></td><td>Аналитик Авито — Ежедневный отчёт</td></tr>
+      <tr><td><code>Etm8KIEVJzfBszGv</code></td><td><span class="tag tag-active">ACTIVE</span></td><td>AI-услуги Авито — Аналитика</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- VPS -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>VPS (Монитор торгов) <span class="badge">1</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Параметр</th><th>Значение</th></tr>
+      <tr><td>IP</td><td><code>5.42.102.36</code></td></tr>
+      <tr><td>SSH</td><td><code>ssh root@5.42.102.36</code> / пароль: <code>sp8hWiGY+kHsN6</code></td></tr>
+      <tr><td>ОС</td><td>Ubuntu 24.04, Timeweb Cloud, 350 руб/мес</td></tr>
+      <tr><td>Код</td><td><code>/opt/torgi-proxy/</code></td></tr>
+      <tr><td>Скрипты</td><td>torgi_monitor.py, efrsb_monitor.py, main.py</td></tr>
+      <tr><td>Cron</td><td><code>0 */4 * * *</code></td></tr>
+      <tr><td>Systemd</td><td>torgi-proxy.service (FastAPI :8080)</td></tr>
+      <tr><td>Proxy API</td><td><code>http://127.0.0.1:8080/api/torgi</code> (key: ei-torgi-2026-mvp)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- GitHub -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>GitHub <span class="badge">2</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>URL</th><th>Тип</th><th>Описание</th></tr>
+      <tr><td><a href="https://github.com/yarbalakin/estate-invest" target="_blank">yarbalakin/estate-invest</a></td><td><span class="tag tag-closed">private</span></td><td>Основной код</td></tr>
+      <tr><td><a href="https://github.com/yarbalakin/estate-invest-academy" target="_blank">yarbalakin/estate-invest-academy</a></td><td><span class="tag tag-active">public</span></td><td>GitHub Pages</td></tr>
+      <tr><td><a href="https://yarbalakin.github.io/estate-invest-academy/" target="_blank">yarbalakin.github.io/estate-invest-academy</a></td><td>Pages</td><td>index, ai-analytics</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Сайт -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Сайт Estate Invest <span class="badge">12</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>URL</th><th>Описание</th></tr>
+      <tr><td><a href="https://estateinvest.online" target="_blank">estateinvest.online</a></td><td>ЛК инвестора (главная)</td></tr>
+      <tr><td><a href="https://estateinvest.online/sign-in" target="_blank">/sign-in</a></td><td>Вход</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard/all-properties" target="_blank">/dashboard/all-properties</a></td><td>Все объекты</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard/news" target="_blank">/dashboard/news</a></td><td>Новости</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard/faq" target="_blank">/dashboard/faq</a></td><td>FAQ</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard#portfolio" target="_blank">/dashboard#portfolio</a></td><td>Портфель</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard#txs" target="_blank">/dashboard#txs</a></td><td>Операции</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard#referral" target="_blank">/dashboard#referral</a></td><td>Реферальная система</td></tr>
+      <tr><td><a href="https://estateinvest.online/result" target="_blank">/result</a></td><td>Результаты проекта</td></tr>
+      <tr><td><a href="https://estateinvest.online/dashboard/setup-bot" target="_blank">/dashboard/setup-bot</a></td><td>Настройка бота</td></tr>
+      <tr><td><a href="https://estateinvest.online/docs/terms" target="_blank">/docs/terms</a></td><td>Политика конфиденциальности</td></tr>
+      <tr><td>/?r=&lt;КОД&gt;</td><td>Реферальная ссылка (формат)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Внешние API -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Внешние API <span class="badge">6</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>Endpoint</th><th>Описание</th></tr>
+      <tr><td><code>https://ads-api.ru/main/api</code></td><td>Агрегатор ЦИАН+Авито+Домклик (user: yabalakin@yandex.ru)</td></tr>
+      <tr><td><code>https://api.avito.ru/token</code></td><td>Авито OAuth</td></tr>
+      <tr><td><code>https://openrouter.ai/api/v1/chat/completions</code></td><td>AI (Llama 3.3 70B, free)</td></tr>
+      <tr><td><code>https://queue.fal.run/fal-ai/flux-pro/v1.1</code></td><td>Генерация фото ($0.05/шт)</td></tr>
+      <tr><td><code>https://torgi.gov.ru</code></td><td>Торги (JSON API, нужен RU IP)</td></tr>
+      <tr><td><code>https://fedresurs.ru</code></td><td>ЕФРСБ (банкротства)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Соцсети, Notion, Drive, Docs -->
+<div class="section" data-search>
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Соцсети, Notion, Drive, Docs <span class="badge">15+</span></h2>
+    <span class="chevron">&#9654;</span>
+  </div>
+  <div class="section-body">
+    <h3 style="font-size:13px; color:var(--text-dim); margin:8px 0">Соцсети</h3>
+    <table>
+      <tr><th>URL</th><th>Описание</th></tr>
+      <tr><td><a href="https://vk.com/estateinvest.online" target="_blank">vk.com/estateinvest.online</a></td><td>Основной паблик</td></tr>
+      <tr><td><a href="https://vk.com/gleb_khrianin" target="_blank">vk.com/gleb_khrianin</a></td><td>Глеб</td></tr>
+      <tr><td><a href="https://vk.com/ivanmudrov" target="_blank">vk.com/ivanmudrov</a></td><td>Иван</td></tr>
+      <tr><td><a href="https://dzen.ru/estateinvest" target="_blank">dzen.ru/estateinvest</a></td><td>Дзен</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Notion</h3>
+    <table>
+      <tr><th>URL</th><th>Описание</th></tr>
+      <tr><td><a href="https://estateinvest.notion.site" target="_blank">estateinvest.notion.site</a></td><td>Корневая страница</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Google Drive / Docs</h3>
+    <table>
+      <tr><th>URL</th><th>Описание</th></tr>
+      <tr><td><a href="https://drive.google.com/drive/folders/1d69F1D8WuCw1fZhs4fwBQ1KrOrLIlzaW" target="_blank">Корневая папка</a></td><td>12 подпапок по отделам</td></tr>
+      <tr><td><a href="https://docs.google.com/document/d/1M8nbyRvb7nEPgKUl9D4RYdkTXQQCA9gj/edit" target="_blank">Инвестиционный договор</a></td><td>Шаблон</td></tr>
+      <tr><td><a href="https://docs.google.com/document/d/1t-NLglsvON2JobBdKO-07JA-m13_3nt5InMIxfMEl-8/edit" target="_blank">Заявление на вывод</a></td><td>Шаблон</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Dropbox Paper (закрытый доступ)</h3>
+    <table>
+      <tr><th>Описание</th></tr>
+      <tr><td>Папка регламентов (2 шт), документация Salebot, ещё 2 документа</td></tr>
+    </table>
+    <h3 style="font-size:13px; color:var(--text-dim); margin:12px 0 8px">Прочее</h3>
+    <table>
+      <tr><th>URL</th><th>Описание</th></tr>
+      <tr><td><a href="https://telegra.ph/Nashi-rezultaty-04-17-2" target="_blank">telegra.ph</a></td><td>Результаты (Telegra.ph)</td></tr>
+      <tr><td><a href="https://clck.ru/34ciFz" target="_blank">clck.ru/34ciFz</a></td><td>Инструкция ЛК на смартфон</td></tr>
+      <tr><td>tbankrot.ru</td><td>Парсинг лотов (estatetorgi@yandex.ru / agent2025)</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+function toggle(el) {
+  el.closest('.section').classList.toggle('open');
+}
+
+function filterAll(query) {
+  if (!query) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('hidden'));
+    document.querySelectorAll('tr').forEach(r => r.style.display = '');
+    return;
+  }
+  const q = query.toLowerCase();
+  document.querySelectorAll('.section[data-search]').forEach(section => {
+    const rows = section.querySelectorAll('tbody tr, table tr:not(:first-child)');
+    let anyVisible = false;
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const match = text.includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) anyVisible = true;
+    });
+    // Also check header
+    const headerText = section.querySelector('h2').textContent.toLowerCase();
+    if (headerText.includes(q)) anyVisible = true;
+    section.classList.toggle('hidden', !anyVisible);
+    if (anyVisible && q.length > 1) section.classList.add('open');
+  });
+}
+</script>
+
+</body>
+</html>

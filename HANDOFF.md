@@ -1,134 +1,136 @@
-# Estate Invest — Handoff (обновлено: 2026-03-04, сессия 1)
+# Estate Invest — Handoff (обновлено: 2026-03-05, сессия 3)
 
 ## Что это
 Передаточный документ между сессиями. Содержит полный контекст для продолжения работы.
 
 ---
 
-## Текущий статус: MVP v0 "Монитор торгов Пермь" — РАБОТАЕТ
+## Текущий статус: Python-монитор торгов — РАБОТАЕТ на VPS
 
-### Что сделано
-- Исследование (8 отчётов, 80+ источников) → `Аналитика/RESEARCH.md`
-- VPS в Москве для проксирования torgi.gov.ru (недоступен из EU)
-- n8n workflow: парсинг торгов → дедупликация → Telegram уведомления
-- Первый тест прошёл успешно — лоты приходят в Telegram
+### Что сделано (хронология)
+1. **Сессия 1**: Исследование (80+ источников), VPS, n8n workflow MVP
+2. **Сессия 2**: Python-монитор (`torgi_monitor.py`) заменил n8n, Google Sheets интеграция, улучшенные фильтры аналогов, ЕФРСБ мониторинг
+3. **Сессия 3**: HTML-презентация AI-аналитики для партнёров, архитектура PropertyCard (план)
 
-### Архитектура
+### Архитектура (текущая)
 ```
-Schedule (4ч) / Webhook GET
+Cron (каждые 4 часа)
         ↓
-n8n HTTP Request → VPS (FastAPI прокси) → torgi.gov.ru JSON API
+torgi_monitor.py на VPS → torgi.gov.ru API (catCodes: 2,3,4,5,7,8,10,11,47)
         ↓
-Code нода (парсинг + дедупликация через staticData)
+parse_lot() → extract_land_type() / extract_commercial_type() / extract_district()
         ↓
-HTTP Request → Telegram Bot API → чат Ярослава
+fetch_analogs() → ads-api.ru (3-уровневый фаллбек: точный → мягкий → базовый)
+        ↓
+evaluate_market_price() → медиана цены за м2/сотку
+        ↓
+send_telegram() → @topparsing канал + Google Sheets запись
+```
+
+```
+efrsb_monitor.py на VPS → fedresurs.ru API (curl, Qrator bypass)
+        ↓
+Telegram уведомления о банкротных торгах
 ```
 
 ---
 
 ## Инфраструктура
 
-### n8n Cloud
-- URL: `https://estateinvest.app.n8n.cloud`
-- Workflow ID: `H12Q90yhl9q1MNiI`
-- Workflow name: "Монитор торгов Пермь — MVP v0"
-- Статус: **ACTIVE**
-- Webhook: `GET https://estateinvest.app.n8n.cloud/webhook/torgi-monitor-v0`
-
 ### VPS (Timeweb Cloud, Москва)
 - IP: `5.42.102.36`
 - SSH: `ssh root@5.42.102.36` / пароль: `sp8hWiGY+kHsN6`
-- IPv6: `2a03:6f00:a::1:9551`
-- ОС: Ubuntu 24.04
-- Тариф: Cloud MSK 15 (350 руб/мес)
-- Сервис: FastAPI прокси на порту 8080
-  - Health: `http://5.42.102.36:8080/health`
-  - API: `http://5.42.102.36:8080/api/torgi?catCode=2&dynSubjRF=59&size=100`
-  - API Key (header): `X-API-Key: ei-torgi-2026-mvp`
-  - Systemd: `torgi-proxy.service` (auto-restart)
-  - Код: `/opt/torgi-proxy/main.py`
-  - Venv: `/opt/torgi-proxy/venv/`
+- ОС: Ubuntu 24.04, тариф: 350 руб/мес
+- Код: `/opt/torgi-proxy/`
+  - `torgi_monitor.py` — основной монитор торгов (~710 строк)
+  - `efrsb_monitor.py` — мониторинг ЕФРСБ
+  - `main.py` — FastAPI прокси (legacy, для n8n)
+  - `google-sa.json` — service account для Google Sheets
+  - `seen_lots.json` — дедупликация torgi.gov.ru
+  - `seen_efrsb.json` — дедупликация ЕФРСБ
+- Cron: `0 */4 * * *` для обоих скриптов
+- Systemd: `torgi-proxy.service` (FastAPI прокси на 8080)
+
+### n8n Cloud
+- URL: `https://estateinvest.app.n8n.cloud`
+- Workflow PROD: `H12Q90yhl9q1MNiI` (ACTIVE, но заменён Python-скриптом)
+- Workflow DEV: `RXbhtdi37u50TYQf`
+- **TODO**: деактивировать n8n PROD после проверки стабильности Python
 
 ### Telegram
-- Bot: @monitor_estate_bot "Мониторолог Estate Invest" (token: `8650381430:AAFKGNZbjQmhAd3ogse9gOWs7_2xoypuo-A`)
-- Chat ID личный: `191260933` (Ярослав Балакин)
-- Канал: `@topparsing` "Лоты по Перми" (chat_id: `-1003759471621`)
-- Бот техн. уведомлений Claude Code: token `8604957943:AAF37XNjilxzwZV39MMTeGvVAalr95UrSpo`
+- Бот мониторинга: @monitor_estate_bot (`8650381430:AAFKGNZbjQmhAd3ogse9gOWs7_2xoypuo-A`)
+- Канал: @topparsing "Лоты по Перми" (chat_id: `-1003759471621`)
+- Chat ID Ярослав: `191260933`
+- Бот техн. уведомлений: `8604957943:AAF37XNjilxzwZV39MMTeGvVAalr95UrSpo`
 
-### Прокси (asocks, НЕ РАБОТАЕТ для torgi.gov.ru)
-- `https://...@62.112.8.229:443` — блокирует .gov.ru домены, не использовать
+### Google Sheets
+- Таблица: `1Wji_7UYqIRmxbsd1Ob52NutSrKThd3m37fkXDFuBfPk` "Монитор торгов — Лоты"
+- Лист: "Лоты", 21 колонка (lotId...analogsCount)
+- Service Account: `google-sa.json` на VPS
 
----
-
-## torgi.gov.ru API
-
-### Эндпоинт
-```
-GET https://torgi.gov.ru/new/api/public/lotcards/search
-  ?catCode=2              # недвижимость
-  &dynSubjRF=59           # Пермский край
-  &size=100&page=0
-  &sort=firstVersionPublicationDate,desc
-  &lotStatus=PUBLISHED,APPLICATIONS_SUBMISSION
-```
-
-### Особенности
-- SSL: российский CA — недоступен из EU, нужен российский IP
-- Rate limit: ~60-120 req/min, пауза 1-3 сек достаточно
-- Макс 10 000 результатов (100 стр x 100)
-- characteristics[] — сложная структура: значения бывают string, number, object, array
-- Ключевые коды характеристик: `Square`, `SquareZU_project`, `TotalArea`, `CadastralNumber`, `Address`, `addressFIAS`
-- Лицензия: Open Data, свободное коммерческое использование
+### GitHub
+- Приватный: `yarbalakin/estate-invest` (основной код)
+- Публичный: `yarbalakin/estate-invest-academy` (GitHub Pages)
+  - URL: `https://yarbalakin.github.io/estate-invest-academy/`
+  - Файлы: `index.html`, `реализация-сводка.html`, `ai-analytics.html`
 
 ---
 
-## Известные проблемы
+## Ключевые файлы
 
-1. **Адрес парсится плохо** — приходит "Российская Федерация" вместо полного адреса. Нужно брать из `lotDescription` или из вложенных характеристик
-2. **Цена = 0** у некоторых лотов (земельные участки без начальной цены)
-3. **n8n cloud: webhook не регистрируется** при добавлении к существующему workflow — нужно создавать workflow сразу с webhook
-4. **n8n cloud: Telegram ноды** — работают (через webhook), НЕ через встроенный Telegram Trigger
-5. **asocks прокси** — блокирует .gov.ru, не использовать
+| Файл | Что |
+|------|-----|
+| `HANDOFF.md` | Этот файл |
+| `Аналитика/torgi_monitor.py` | Основной Python-монитор (~710 строк) |
+| `Аналитика/RESEARCH.md` | Исследование (550 строк) |
+| `Аналитика/research.html` | Визуальная версия исследования |
+| `Аналитика/ai-analytics-для-партнёров.html` | Презентация для партнёров (тултипы, Q&A) |
+| `estate-invest-для-партнёров.html` | Презентация компании для партнёров |
+
+---
+
+## torgi_monitor.py — ключевые функции
+
+- `parse_lot()` — парсинг лота, возвращает dict с landType, commercialType, lotName, lotDesc
+- `extract_land_type(name, desc)` — определяет ИЖС/СНТ/промка из текста
+- `extract_commercial_type(name, desc)` — определяет офис/торговое/склад/производство
+- `extract_district(address)` — извлекает район из адреса
+- `fetch_analogs()` — 3-уровневый фаллбек поиска аналогов на ads-api.ru
+- `evaluate_market_price()` — медиана цены за м2/сотку
+- `append_google_sheets()` — запись лота в Google Sheets
+- `ADS_AREA_PARAMS` — маппинг серверных фильтров площади по категориям
+
+---
+
+## Архитектура PropertyCard (СПЛАНИРОВАНА, НЕ РЕАЛИЗОВАНА)
+
+Полный план: `.claude/plans/enchanted-wandering-swan.md`
+
+Суть: для каждого лота создаём полный профиль из нескольких источников (torgi, кадастр, ads-api), для аналогов тоже. Сравниваем профили по 5 параметрам (площадь 25%, расстояние 25%, назначение 20%, кадастр 15%, тип 15%). Взвешенная оценка вместо медианы.
+
+### Фазы реализации
+1. **PropertyCard + Кадастр** (2 нед) — модуль property_card.py, PKK Росреестр API, SQLite
+2. **Скоринг похожести** (2 нед) — 5-параметрический scoring, взвешенная оценка
+3. **ML + расширение** (1-2 мес) — XGBoost, SHAP, расширение регионов
 
 ---
 
 ## Следующие шаги (приоритет)
 
-### Итерация 1.1 — Улучшение парсинга
-- [ ] Исправить парсинг адреса (lotDescription / карточка лота)
-- [ ] Фильтр: только жильё + банкротство (убрать землю сельхоз)
-- [ ] Добавить Google Sheets для хранения лотов
-- [ ] Улучшить формат Telegram-сообщения
+### Сейчас
+- [ ] Деактивировать n8n PROD workflow (Python-скрипт его заменил)
+- [ ] Реализовать PropertyCard (Фаза 1): property_card.py + cadastral.py + SQLite
 
-### Итерация 2 — Оценка (price gap)
-- [ ] Подключить ads-api.ru (14 дней free) или cianparser
-- [ ] Rule-based оценка: медиана цены за м2 аналогов
-- [ ] Добавить в сообщение: рыночная цена, % скидки, confidence
-
-### Итерация 3 — Масштабирование
-- [ ] ЕФРСБ (банкротные торги)
-- [ ] ML-модель (XGBoost/LightGBM)
-- [ ] Веб-дашборд
-- [ ] Переход на Python (когда n8n упрётся в потолок)
+### Далее
+- [ ] Скоринг похожести (Фаза 2)
+- [ ] ML-модель XGBoost (Фаза 3, когда 500+ объектов в базе)
+- [ ] Доходный подход для коммерции (аренда → капитализация)
 
 ---
 
-## Ключевые файлы проекта
-
-| Файл | Что |
-|------|-----|
-| `HANDOFF.md` | Этот файл — передача контекста |
-| `Аналитика/RESEARCH.md` | Полное исследование (550 строк) |
-| `Аналитика/research.html` | Визуальная версия исследования |
-| `ПЛАН_РЕАЛИЗАЦИИ.md` | План Streamlit-дашборда (5 блоков) |
-| `company-profile.md` | Справочник компании (708 строк) |
-| `CLAUDE.md` | Инструкции для AI |
-
----
-
-## Параллельные проекты (не трогать)
-
-- **Streamlit аналитика** (`Аналитика/`) — блоки 1-2 сделаны, блок 3 в процессе
-- **Командная панель** (`командная панель/`) — 28 файлов исследования дизайна
-- **Авито мониторинг** — несколько n8n workflows (СКАУТ, АНАЛИТИК, АРХИВАРИУС)
-- **Денежный бот** — Telegram бот для учёта расходов (ACTIVE)
+## Известные проблемы
+- torgi.gov.ru недоступен из EU — нужен российский IP (VPS)
+- asocks прокси блокирует .gov.ru — не использовать
+- fedresurs.ru: Python requests блокируется Qrator, curl работает
+- ads-api.ru: тестовый тариф отдаёт price=0, нужен платный (2000 руб/мес)
+- n8n cloud: лимит 5 concurrent executions, webhook только на новых workflows
