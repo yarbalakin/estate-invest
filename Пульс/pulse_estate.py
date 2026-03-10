@@ -38,6 +38,7 @@ SS_TORGI   = "1Ulf_odOSRFcs4Ihi3waCo1Py_a0SgI3-FHlIKdCQvSU"  # Таблица т
 SS_TORGI_GID = "1389523539"
 SS_MONITOR = "1oTRqpqS5GIunhi26TO8X6quWR5wWIWoTe0LzFqEGrDs"  # Монитор объектов
 SS_KASSA   = "1aRi5YLORBWDY5oU7hNo1XAWUoIvAM3ArxX7L2dbJHEc"  # Касса
+SS_MAIN    = "1dWTjYF8sEc20SKeyl-e6PomBFq3VlfX-m8K2ZRopZJ0"  # Эстейт Инвест Учёт
 
 # Bitrix24
 B24_BASE = "https://estateinvest.bitrix24.ru/rest/1/qlmnwa8sza8pvx14"
@@ -336,6 +337,23 @@ def _within_days(d: date | None, n: int) -> bool:
     return d is not None and (today_kld() - d).days <= n
 
 
+# ── [ИНВЕСТОРЫ] Свободные средства на балансе ─────────────────
+
+def get_free_funds() -> str:
+    """ИТОГО остаток инвестора в рублях из листа 'Свод инвесторы' (строка 0, кол 20)."""
+    try:
+        gc = get_gc()
+        sh = gc.open_by_key(SS_MAIN)
+        ws = sh.worksheet("Свод инвесторы")
+        row0 = ws.row_values(1)  # gspread: строки с 1
+        # col 20 (0-indexed) = "ИТОГО остаток инвестора в рублях"
+        val = row0[20].strip().replace("\xa0", " ") if len(row0) > 20 else "н/д"
+        return val or "н/д"
+    except Exception as e:
+        log.error("free_funds error: %s", e)
+        return "н/д"
+
+
 # ── [ФИНАНСЫ] Касса ────────────────────────────────────────────
 
 def get_finance_data() -> dict:
@@ -411,7 +429,7 @@ def get_ai_summary(report_text: str) -> str:
 
 # ── Сборка отчёта ──────────────────────────────────────────────
 
-def build_report(lots, torgi, objects, investors, finance) -> str:
+def build_report(lots, torgi, objects, investors, finance, free_funds="н/д") -> str:
     d = datetime.now(KLD).strftime("%d.%m.%Y")
     day = datetime.now(KLD).strftime("%A")
     day_ru = {"Monday":"Понедельник","Tuesday":"Вторник","Wednesday":"Среда",
@@ -458,7 +476,8 @@ def build_report(lots, torgi, objects, investors, finance) -> str:
         f"├ В работе: <b>{investors['in_work']}</b>",
         f"├ На подписании: <b>{investors['signing']}</b>",
         f"├ WON за 7 дней: <b>{investors['won_week']}</b>",
-        f"└ Всего инвесторов: <b>{investors['won_all']}</b>",
+        f"├ Всего инвесторов: <b>{investors['won_all']}</b>",
+        f"└ Свободные средства: <b>{free_funds} ₽</b>",
         "",
     ]
 
@@ -477,13 +496,14 @@ def build_report(lots, torgi, objects, investors, finance) -> str:
 def main():
     log.info("=== Пульс Estate Invest START ===")
 
-    lots      = get_lots_data()
-    torgi     = get_torgi_data()
-    objects   = get_objects_data()
-    investors = get_investors_data()
-    finance   = get_finance_data()
+    lots       = get_lots_data()
+    torgi      = get_torgi_data()
+    objects    = get_objects_data()
+    investors  = get_investors_data()
+    finance    = get_finance_data()
+    free_funds = get_free_funds()
 
-    report = build_report(lots, torgi, objects, investors, finance)
+    report = build_report(lots, torgi, objects, investors, finance, free_funds)
     log.info("Отчёт собран:\n%s", report)
 
     ai = get_ai_summary(report)
