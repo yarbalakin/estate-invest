@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Монитор лотов — Estate Invest</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Yandex Maps API -->
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+<style>
+:root {
+  --bg: #0a0b14; --bg2: #0f1120; --bg3: #161829;
+  --card: rgba(22,24,41,0.85); --card-hover: rgba(30,33,58,0.95);
+  --border: rgba(99,102,241,0.18); --border2: rgba(99,102,241,0.35);
+  --accent: #6366f1; --accent2: #818cf8; --accent3: #a5b4fc;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+  --radius: 14px; --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse 80% 50% at 10% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 90% 100%, rgba(129,140,248,0.08) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+/* === HEADER === */
+header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(10,11,20,0.92); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo { display:flex; align-items:center; gap:12px; font-size:17px; font-weight:600; letter-spacing:-.3px; }
+.logo-dot {
+  width:32px; height:32px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;
+}
+.header-stats { display:flex; gap:24px; align-items:center; }
+.hstat { text-align:right; }
+.hstat-val { font-size:15px; font-weight:600; color:var(--accent3); }
+.hstat-label { font-size:11px; color:var(--text3); }
+
+/* === MAIN === */
+main { position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:24px 32px; }
+
+/* === VIEW TABS === */
+.view-tabs {
+  display:flex; gap:4px; margin-bottom:20px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:10px; padding:4px; width:fit-content;
+}
+.view-tab {
+  padding:7px 18px; border-radius:7px; border:none;
+  font-size:13px; font-weight:500; font-family:'Inter',sans-serif;
+  cursor:pointer; transition:all .2s; color:var(--text3); background:transparent;
+  display:flex; align-items:center; gap:7px;
+}
+.view-tab.active { background:var(--accent); color:#fff; }
+.view-tab:not(.active):hover { color:var(--text2); background:rgba(255,255,255,0.06); }
+
+/* === FILTERS === */
+.filters { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
+.filter-group { display:flex; align-items:center; gap:7px; }
+.filter-label { font-size:12px; color:var(--text3); white-space:nowrap; }
+select, input[type="text"] {
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  border-radius:8px; padding:7px 12px; font-size:13px; font-family:'Inter',sans-serif;
+  outline:none; cursor:pointer; transition:border-color .2s;
+}
+select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus { border-color:var(--accent); }
+.search-wrap { position:relative; flex:1; max-width:300px; }
+.search-wrap input { width:100%; padding-left:34px; cursor:text; }
+.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); pointer-events:none; }
+.btn { padding:7px 16px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; transition:all .2s; border:none; font-family:'Inter',sans-serif; }
+.btn-ghost { background:var(--bg3); color:var(--text2); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--accent); color:var(--text); }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:var(--accent2); }
+.btn-small { padding:5px 12px; font-size:12px; }
+
+/* === RESULTS BAR === */
+.results-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:13px; color:var(--text3); }
+.results-count { font-weight:500; color:var(--text2); }
+.active-filters { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.filter-tag {
+  display:flex; align-items:center; gap:5px; padding:3px 10px;
+  border-radius:20px; background:rgba(99,102,241,0.15); color:var(--accent3);
+  font-size:11px; font-weight:500; border:1px solid rgba(99,102,241,0.25);
+}
+.filter-tag button { background:none; border:none; color:var(--accent3); cursor:pointer; padding:0; font-size:14px; line-height:1; }
+
+/* === CARD GRID === */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+.lot-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; cursor:pointer; transition:all .25s; position:relative; overflow:hidden;
+  backdrop-filter:blur(12px);
+}
+.lot-card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(99,102,241,0.06) 0%,transparent 60%);
+  opacity:0; transition:opacity .25s;
+}
+.lot-card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow:0 8px 32px rgba(99,102,241,0.15); background:var(--card-hover); }
+.lot-card:hover::before { opacity:1; }
+.card-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:8px; }
+.type-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:500; letter-spacing:.3px; white-space:nowrap; }
+.type-apartment { background:rgba(99,102,241,0.2); color:var(--accent3); }
+.type-land      { background:rgba(16,185,129,0.18); color:#6ee7b7; }
+.type-house     { background:rgba(245,158,11,0.18); color:#fcd34d; }
+.type-commercial{ background:rgba(239,68,68,0.18); color:#fca5a5; }
+.type-unknown   { background:rgba(100,116,139,0.2); color:var(--text2); }
+.discount-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+.discount-high { background:rgba(16,185,129,0.2); color:#34d399; }
+.discount-mid  { background:rgba(245,158,11,0.2); color:#fbbf24; }
+.discount-low  { background:rgba(100,116,139,0.18); color:var(--text2); }
+.card-title { font-size:13px; font-weight:500; color:var(--text); line-height:1.4; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card-address { font-size:12px; color:var(--text3); margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+.card-metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.metric { background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 12px; }
+.metric-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.metric-val { font-size:14px; font-weight:600; color:var(--text); }
+.metric-val.accent { color:var(--accent3); }
+.metric-val.green  { color:var(--green); }
+.card-score { display:flex; gap:6px; align-items:center; padding-top:12px; border-top:1px solid var(--border); }
+.score-item { flex:1; text-align:center; }
+.score-val { font-size:16px; font-weight:700; display:block; margin-bottom:2px; }
+.score-label { font-size:10px; color:var(--text3); }
+.score-divider { width:1px; height:32px; background:var(--border); }
+.score-track { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,0.08); overflow:hidden; }
+.score-fill { height:4px; border-radius:2px; transition:width .4s; }
+
+/* === TABLE VIEW === */
+#view-table { overflow-x:auto; }
+.lot-table { width:100%; border-collapse:collapse; }
+.lot-table thead th {
+  padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.6px; color:var(--text3);
+  background:var(--bg3); border-bottom:1px solid var(--border);
+  white-space:nowrap; position:sticky; top:0; z-index:1;
+}
+.lot-table thead th.sortable { cursor:pointer; user-select:none; }
+.lot-table thead th.sortable:hover { color:var(--accent3); }
+.lot-table thead th .sort-icon { margin-left:4px; opacity:.5; }
+.lot-table thead th.sort-asc .sort-icon::after  { content:'↑'; opacity:1; color:var(--accent3); }
+.lot-table thead th.sort-desc .sort-icon::after { content:'↓'; opacity:1; color:var(--accent3); }
+.lot-table thead th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content:'↕'; }
+.lot-table tbody tr { cursor:pointer; transition:background .15s; border-bottom:1px solid rgba(255,255,255,0.04); }
+.lot-table tbody tr:hover { background:rgba(99,102,241,0.08); }
+.lot-table tbody td { padding:11px 14px; font-size:13px; color:var(--text2); vertical-align:middle; }
+.lot-table tbody td:first-child { color:var(--text); }
+.tbl-discount-high { color:#34d399; font-weight:600; }
+.tbl-discount-mid  { color:#fbbf24; font-weight:600; }
+.tbl-discount-low  { color:var(--text3); }
+.tbl-score { display:inline-flex; align-items:center; gap:6px; }
+.tbl-score-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.lot-table .td-name { max-width:240px; }
+.lot-table .td-name span { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; color:var(--text); }
+.lot-table .td-addr span { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; max-width:200px; }
+
+/* === MAP VIEW === */
+#view-map { position:relative; }
+.map-wrap {
+  border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden; position:relative;
+}
+#main-map { height:620px; background:var(--bg2); }
+.map-controls {
+  position:absolute; top:12px; right:12px; z-index:1000;
+  display:flex; flex-direction:column; gap:6px;
+}
+.map-control-btn {
+  background:rgba(15,17,32,0.9); backdrop-filter:blur(10px);
+  border:1px solid var(--border); color:var(--text2); border-radius:8px;
+  padding:7px 12px; font-size:12px; font-weight:500; cursor:pointer;
+  font-family:'Inter',sans-serif; transition:all .2s; white-space:nowrap;
+}
+.map-control-btn:hover { border-color:var(--accent); color:var(--text); }
+.map-control-btn.active { background:rgba(99,102,241,0.3); border-color:var(--accent); color:var(--accent3); }
+.map-base-btn {
+  background:transparent; border:none; color:var(--text3); border-radius:6px;
+  padding:5px 10px; font-size:11px; font-weight:500; cursor:pointer;
+  font-family:'Inter',sans-serif; transition:all .2s;
+}
+.map-base-btn:hover { color:var(--text); }
+.map-base-btn.active { background:var(--accent); color:#fff; }
+.cadastral-polygon { cursor:pointer; }
+.map-geocode-progress {
+  position:absolute; bottom:12px; left:12px; z-index:1000;
+  background:rgba(15,17,32,0.9); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:8px;
+  padding:7px 14px; font-size:12px; color:var(--text3);
+  display:none;
+}
+.map-legend {
+  position:absolute; bottom:12px; right:12px; z-index:1000;
+  background:rgba(15,17,32,0.9); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:8px;
+  padding:10px 14px; font-size:11px;
+}
+.legend-item { display:flex; align-items:center; gap:7px; margin-bottom:5px; color:var(--text2); }
+.legend-item:last-child { margin-bottom:0; }
+.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+/* === STATES === */
+.loading { display:flex; align-items:center; justify-content:center; min-height:300px; flex-direction:column; gap:16px; color:var(--text3); }
+.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty-state { text-align:center; padding:80px 20px; color:var(--text3); }
+.empty-icon { font-size:48px; margin-bottom:16px; opacity:.4; }
+.empty-title { font-size:18px; font-weight:500; color:var(--text2); margin-bottom:8px; }
+.empty-sub { font-size:13px; }
+
+/* === MODAL === */
+.modal-overlay { position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); display:none; align-items:flex-start; justify-content:center; padding:32px 16px; overflow-y:auto; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--border); border-radius:20px; width:100%; max-width:860px; box-shadow:0 24px 80px rgba(0,0,0,0.6); animation:slideUp .25s ease; flex-shrink:0; }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.modal-header { padding:24px 28px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.modal-title-group { flex:1; }
+.modal-badges { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.modal-title { font-size:18px; font-weight:600; line-height:1.35; margin-bottom:6px; }
+.modal-subtitle { font-size:13px; color:var(--text3); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.modal-close { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text2); border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; flex-shrink:0; font-size:18px; }
+.modal-close:hover { background:rgba(255,255,255,0.1); color:var(--text); }
+.modal-body { padding:24px 28px; }
+.modal-section { margin-bottom:24px; }
+.section-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.modal-kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+.kpi-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; padding:14px 16px; text-align:center; }
+.kpi-val { font-size:22px; font-weight:700; margin-bottom:4px; display:block; }
+.kpi-label { font-size:11px; color:var(--text3); }
+.kpi-val.accent { color:var(--accent3); }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-radius:8px; background:rgba(255,255,255,0.03); gap:8px; }
+.detail-key { font-size:12px; color:var(--text3); white-space:nowrap; }
+.detail-val { font-size:12px; font-weight:500; color:var(--text); text-align:right; word-break:break-word; }
+.detail-val.good { color:var(--green); }
+.detail-val.warn { color:var(--yellow); }
+.detail-val.bad  { color:var(--red); }
+.score-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.score-block { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+.score-circle { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; position:relative; }
+.score-inner { width:52px; height:52px; border-radius:50%; background:var(--bg2); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; }
+.score-block-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; }
+.recommendation { padding:14px 18px; border-radius:12px; border-left:3px solid var(--accent); background:rgba(99,102,241,0.08); font-size:13px; line-height:1.6; color:var(--text2); }
+.spec-block { background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); border-radius:12px; padding:16px; margin-bottom:12px; }
+.spec-block-title { font-size:12px; font-weight:600; color:var(--accent3); margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px; }
+.modal-links { display:flex; gap:10px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--border); }
+.link-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:500; text-decoration:none; transition:all .2s; border:1px solid var(--border); color:var(--text2); background:var(--bg3); }
+.link-btn:hover { border-color:var(--accent); color:var(--accent3); }
+.link-btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+.link-btn.primary:hover { background:var(--accent2); }
+
+/* === MODAL MAP === */
+.modal-map-container { position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border); margin-bottom:14px; }
+#modal-map { height:340px; background:var(--bg3); }
+
+/* Переключатель схема/спутник/гибрид */
+.map-basemap-ctrl {
+  position:absolute; top:10px; left:10px; z-index:500;
+  display:flex; gap:3px;
+  background:rgba(15,17,32,0.88); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:3px;
+}
+.map-bm-btn {
+  padding:5px 11px; border-radius:6px; border:none;
+  font-size:11px; font-weight:500; font-family:'Inter',sans-serif;
+  cursor:pointer; color:rgba(255,255,255,0.6); background:transparent; transition:all .15s;
+}
+.map-bm-btn.active { background:rgba(99,102,241,0.8); color:#fff; }
+.map-bm-btn:not(.active):hover { color:#fff; background:rgba(255,255,255,0.1); }
+
+
+/* === АНАЛОГИ === */
+.analogs-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin:14px 0 10px;
+}
+.analogs-subtitle { font-size:11px; color:var(--text3); }
+.analogs-count-badge {
+  background:rgba(99,102,241,0.15); color:var(--accent2);
+  border:1px solid rgba(99,102,241,0.25);
+  border-radius:12px; padding:2px 9px; font-size:11px; font-weight:600;
+}
+.analog-row {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:9px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  margin-bottom:6px; cursor:pointer; transition:border-color .15s;
+}
+.analog-row:hover { border-color:var(--accent); }
+.analog-num-dot {
+  width:20px; height:20px; border-radius:50%;
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
+}
+.analog-row-price { font-size:13px; font-weight:600; color:var(--text); min-width:90px; }
+.analog-row-pu { font-size:11px; color:var(--accent3); min-width:95px; }
+.analog-row-area { font-size:11px; color:var(--text3); min-width:70px; }
+.analog-row-dist {
+  font-size:10px; background:rgba(99,102,241,0.1); color:var(--accent2);
+  border-radius:8px; padding:2px 7px; white-space:nowrap;
+}
+.analog-row-link {
+  margin-left:auto; font-size:10px; color:var(--accent2); text-decoration:none; flex-shrink:0;
+}
+.analog-row-link:hover { text-decoration:underline; }
+.modal-map-status { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:var(--bg3); z-index:10; font-size:13px; color:var(--text3); flex-direction:column; gap:10px; }
+.modal-map-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* Yandex Maps overrides */
+.lot-popup { min-width:200px; font-family:'Inter',sans-serif; }
+.lot-popup-title { font-weight:600; font-size:13px; margin-bottom:6px; color:#1e293b; }
+.lot-popup-price { color:#6366f1; font-weight:700; font-size:14px; margin-bottom:4px; }
+.lot-popup-sub { font-size:11px; color:#64748b; }
+.lot-popup-btn { margin-top:8px;width:100%;padding:6px 12px;border-radius:6px;background:#6366f1;color:#fff;border:none;cursor:pointer;font-size:12px;font-weight:500;font-family:Inter,sans-serif; }
+.lot-popup-btn:hover { background:#818cf8; }
+.lot-popup-btns { display:flex;gap:6px;margin-top:8px; }
+.lot-popup-btn-outline { flex:1;padding:6px 10px;border-radius:6px;background:rgba(99,102,241,0.1);color:#6366f1;border:1px solid rgba(99,102,241,0.3);cursor:pointer;font-size:11px;font-weight:500;font-family:Inter,sans-serif; }
+.lot-popup-btn-outline:hover { background:rgba(99,102,241,0.2); }
+[class*="ymaps-2"][class*="balloon__content"] { padding:0 !important; }
+
+@media (max-width:768px) {
+  main { padding:16px; } header { padding:0 16px; }
+  .header-stats { display:none; }
+  .modal-kpi { grid-template-columns:repeat(2,1fr); }
+  .detail-grid { grid-template-columns:1fr; }
+  .modal { border-radius:16px; }
+  #main-map { height:450px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot">EI</div>
+    Монитор лотов
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-val" id="hstat-total">—</div><div class="hstat-label">лотов</div></div>
+    <div class="hstat"><div class="hstat-val" id="hstat-avg-discount">—</div><div class="hstat-label">ср. дисконт</div></div>
+    <div class="hstat"><div class="hstat-val" id="hstat-avg-price">—</div><div class="hstat-label">ср. цена</div></div>
+    <button class="btn btn-primary btn-small" onclick="loadData()">Обновить</button>
+  </div>
+</header>
+
+<main>
+  <!-- Вид -->
+  <div class="view-tabs">
+    <button class="view-tab active" id="tab-grid" onclick="setView('grid')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Карточки
+    </button>
+    <button class="view-tab" id="tab-table" onclick="setView('table')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M21 3h-4M9 21H5a2 2 0 0 1-2-2v-4"/><path d="M21 21h-4M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+      Таблица
+    </button>
+    <button class="view-tab" id="tab-map" onclick="setView('map')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Карта
+    </button>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="filters">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Поиск по адресу, названию..." oninput="applyFilters()">
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Тип</span>
+      <select id="filter-type" onchange="applyFilters()">
+        <option value="">Все</option>
+        <option value="apartment">Квартиры</option>
+        <option value="land">Земля</option>
+        <option value="house">Дома</option>
+        <option value="commercial">Коммерция</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Дисконт от</span>
+      <select id="filter-discount" onchange="applyFilters()">
+        <option value="">Любой</option>
+        <option value="10">10%+</option>
+        <option value="20">20%+</option>
+        <option value="30">30%+</option>
+        <option value="50">50%+</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Район</span>
+      <select id="filter-district" onchange="applyFilters()"><option value="">Все районы</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Сортировка</span>
+      <select id="sort-by" onchange="applyFilters()">
+        <option value="date_desc">Новые</option>
+        <option value="discount_desc">Дисконт ↓</option>
+        <option value="price_asc">Цена ↑</option>
+        <option value="price_desc">Цена ↓</option>
+        <option value="score_desc">Скоринг ↓</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="results-bar">
+    <span class="results-count" id="results-count">Загрузка...</span>
+    <div class="active-filters" id="active-filters"></div>
+  </div>
+
+  <!-- Карточки -->
+  <div id="view-grid">
+    <div id="grid" class="grid">
+      <div class="loading"><div class="spinner"></div><span>Загрузка лотов...</span></div>
+    </div>
+  </div>
+
+  <!-- Таблица -->
+  <div id="view-table" style="display:none">
+    <div id="table-container"></div>
+  </div>
+
+  <!-- Карта -->
+  <div id="view-map" style="display:none">
+    <div class="map-wrap">
+      <div id="main-map"></div>
+      <div class="map-controls">
+        <button class="map-control-btn active" id="btn-pkk-layer" onclick="togglePkkLayer()">Кадастр</button>
+        <button class="map-control-btn" onclick="fitMapToMarkers()">Показать все</button>
+      </div>
+      <div class="map-geocode-progress" id="geocode-progress"></div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Квартира</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Земля</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Дом</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Коммерция</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Модал -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+// ============================================================
+// Config & Init
+// ============================================================
+const SUPABASE_URL = 'https://eeahxalvnvbroswzyfjx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JO8ZrGiCpncWrffYQO9LoQ_OOAwQj2V';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Яндекс Карты API key — получить бесплатно: https://developer.tech.yandex.ru
+// Без ключа карта загружается, но со строкой предупреждения
+const YANDEX_MAPS_KEY = '';
+
+// State
+let allLots = [], filteredLots = [];
+let currentView = 'grid';
+let tableSortCol = 'date_added', tableSortDir = 'desc';
+
+// Map state
+let mainMap = null, mainClusterer = null, pkkLayer = null, pkkEnabled = true;
+let modalMapInstance = null;
+const _loadedCadastralIds = new Set();
+
+// ============================================================
+// Data loading
+// ============================================================
+async function loadData() {
+  showLoading();
+  try {
+    const { data, error } = await db.from('properties').select('*').order('date_added', { ascending: false }).limit(500);
+    if (error) throw error;
+    allLots = data || [];
+    updateHeaderStats();
+    populateDistrictFilter();
+    applyFilters();
+  } catch(err) {
+    showError(err.message);
+  }
+}
+
+function showLoading() {
+  document.getElementById('grid').innerHTML = `<div class="loading" style="grid-column:1/-1"><div class="spinner"></div><span>Загрузка...</span></div>`;
+}
+function showError(msg) {
+  document.getElementById('grid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><div class="empty-title">Ошибка загрузки</div><div class="empty-sub">${escHtml(msg)}</div></div>`;
+  document.getElementById('results-count').textContent = 'Ошибка';
+}
+
+// ============================================================
+// View switching
+// ============================================================
+function setView(v) {
+  currentView = v;
+  ['grid','table','map'].forEach(id => {
+    document.getElementById('view-' + id).style.display = id === v ? '' : 'none';
+    document.getElementById('tab-' + id).classList.toggle('active', id === v);
+  });
+  if (v === 'map') {
+    initMainMap();
+    updateMapMarkers();
+  } else if (v === 'table') {
+    renderTable();
+  }
+}
+
+// ============================================================
+// Filters & sorting
+// ============================================================
+function applyFilters() {
+  const search   = document.getElementById('search-input').value.toLowerCase();
+  const type     = document.getElementById('filter-type').value;
+  const discount = parseFloat(document.getElementById('filter-discount').value) || 0;
+  const district = document.getElementById('filter-district').value;
+  const sort     = document.getElementById('sort-by').value;
+
+  filteredLots = allLots.filter(lot => {
+    if (type && lot.property_type !== type) return false;
+    if (discount && (lot.discount || 0) < discount) return false;
+    if (district && lot.district !== district) return false;
+    if (search) {
+      const hay = [lot.name, lot.address, lot.address_std, lot.lot_id].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  filteredLots.sort((a, b) => {
+    switch(sort) {
+      case 'discount_desc': return (b.discount||0)-(a.discount||0);
+      case 'price_asc':     return (a.price||0)-(b.price||0);
+      case 'price_desc':    return (b.price||0)-(a.price||0);
+      case 'score_desc':    return (b.invest_score||0)-(a.invest_score||0);
+      default: return new Date(b.date_added||0)-new Date(a.date_added||0);
+    }
+  });
+
+  document.getElementById('results-count').textContent = `${filteredLots.length} из ${allLots.length} лотов`;
+  renderResultsTags(search, type, discount, district);
+
+  if (currentView === 'grid') renderGrid();
+  else if (currentView === 'table') renderTable();
+  else if (currentView === 'map') updateMapMarkers();
+}
+
+function populateDistrictFilter() {
+  const districts = [...new Set(allLots.map(l => l.district).filter(Boolean))].sort();
+  const sel = document.getElementById('filter-district');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Все районы</option>';
+  districts.forEach(d => sel.innerHTML += `<option value="${d}"${d===cur?' selected':''}>${d}</option>`);
+}
+
+function renderResultsTags(search, type, discount, district) {
+  const tags = [];
+  if (type)     tags.push({ label: typeLabel(type), clear: () => { document.getElementById('filter-type').value=''; applyFilters(); }});
+  if (discount) tags.push({ label: `дисконт ${discount}%+`, clear: () => { document.getElementById('filter-discount').value=''; applyFilters(); }});
+  if (district) tags.push({ label: district, clear: () => { document.getElementById('filter-district').value=''; applyFilters(); }});
+  if (search)   tags.push({ label: `"${search}"`, clear: () => { document.getElementById('search-input').value=''; applyFilters(); }});
+  window._tagClears = tags.map(t => t.clear);
+  document.getElementById('active-filters').innerHTML = tags.map((t,i) =>
+    `<span class="filter-tag">${escHtml(t.label)}<button onclick="window._tagClears[${i}]()">×</button></span>`).join('');
+}
+
+// ============================================================
+// Grid rendering
+// ============================================================
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  if (!filteredLots.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-title">Лоты не найдены</div><div class="empty-sub">Измените фильтры</div></div>`;
+    return;
+  }
+  grid.innerHTML = filteredLots.map(lot => {
+    const discount = lot.discount ? Math.round(lot.discount) : null;
+    const dCls = discount>=30?'discount-high':discount>=15?'discount-mid':'discount-low';
+    const score = lot.invest_score ? Math.round(lot.invest_score) : null;
+    const sColor = scoreColor(score);
+    return `
+    <div class="lot-card" onclick="openModal('${escHtml(lot.lot_id)}')">
+      <div class="card-head">
+        <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+        ${discount ? `<span class="discount-badge ${dCls}">−${discount}%</span>` : ''}
+      </div>
+      <div class="card-title">${escHtml(lot.name||lot.category||'Без названия')}</div>
+      <div class="card-address">📍 ${escHtml(lot.address_std||lot.address||'Адрес не указан')}</div>
+      <div class="card-metrics">
+        <div class="metric"><div class="metric-label">Цена торгов</div><div class="metric-val accent">${formatPrice(lot.price)}</div></div>
+        <div class="metric"><div class="metric-label">Рыночная</div><div class="metric-val ${lot.market_price?'green':''}">${lot.market_price?formatPrice(lot.market_price):'—'}</div></div>
+        <div class="metric"><div class="metric-label">Площадь</div><div class="metric-val">${lot.area?(lot.area+' '+areaUnit(lot.area_unit)):'—'}</div></div>
+        <div class="metric"><div class="metric-label">Аукцион</div><div class="metric-val">${lot.auction_date?formatDate(lot.auction_date):'—'}</div></div>
+      </div>
+      <div class="card-score">
+        ${score ? `
+          <div class="score-item"><span class="score-val" style="color:${sColor}">${score}</span><span class="score-label">скоринг</span></div>
+          <div class="score-divider"></div>
+          <div style="flex:2;display:flex;align-items:center;gap:6px">
+            <div class="score-track"><div class="score-fill" style="width:${score}%;background:${sColor}"></div></div>
+            <span style="font-size:10px;color:var(--text3)">${score>=70?'Высокий':score>=40?'Средний':'Низкий'}</span>
+          </div>` : `<span style="font-size:11px;color:var(--text3)">Скоринг не рассчитан</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// Table rendering
+// ============================================================
+const TABLE_COLS = [
+  { key:'property_type', label:'Тип',     sortable:true,  w:'100px' },
+  { key:'name',          label:'Название',sortable:true,  w:'240px' },
+  { key:'address',       label:'Адрес',   sortable:false, w:'200px' },
+  { key:'area',          label:'Площадь', sortable:true,  w:'90px'  },
+  { key:'price',         label:'Цена',    sortable:true,  w:'110px' },
+  { key:'market_price',  label:'Рыночная',sortable:true,  w:'110px' },
+  { key:'discount',      label:'Дисконт', sortable:true,  w:'90px'  },
+  { key:'auction_date',  label:'Торги',   sortable:true,  w:'100px' },
+  { key:'invest_score',  label:'Скоринг', sortable:true,  w:'90px'  },
+];
+
+function renderTable() {
+  if (!filteredLots.length) {
+    document.getElementById('table-container').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Лоты не найдены</div></div>`;
+    return;
+  }
+
+  // Sort for table
+  const sorted = [...filteredLots].sort((a,b) => {
+    let va = a[tableSortCol], vb = b[tableSortCol];
+    if (va === null || va === undefined) va = tableSortDir==='asc' ? Infinity : -Infinity;
+    if (vb === null || vb === undefined) vb = tableSortDir==='asc' ? Infinity : -Infinity;
+    if (typeof va === 'string') return tableSortDir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    return tableSortDir==='asc' ? va-vb : vb-va;
+  });
+
+  const headers = TABLE_COLS.map(c => {
+    const sortCls = c.sortable ? `sortable ${c.key===tableSortCol ? 'sort-'+tableSortDir : ''}` : '';
+    const onclick = c.sortable ? `onclick="sortTable('${c.key}')"` : '';
+    return `<th class="${sortCls}" style="width:${c.w}" ${onclick}>${c.label}<span class="sort-icon"></span></th>`;
+  }).join('');
+
+  const rows = sorted.map(lot => {
+    const discount = lot.discount ? Math.round(lot.discount) : null;
+    const dCls = discount>=30?'tbl-discount-high':discount>=15?'tbl-discount-mid':'tbl-discount-low';
+    const score = lot.invest_score ? Math.round(lot.invest_score) : null;
+    const sColor = scoreColor(score);
+    return `
+    <tr onclick="openModal('${escHtml(lot.lot_id)}')">
+      <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
+      <td class="td-name"><span title="${escHtml(lot.name||'')}"> ${escHtml(lot.name||lot.category||'—')}</span></td>
+      <td class="td-addr"><span title="${escHtml(lot.address_std||lot.address||'')}"> ${escHtml(lot.address_std||lot.address||'—')}</span></td>
+      <td>${lot.area ? lot.area+' '+areaUnit(lot.area_unit) : '—'}</td>
+      <td style="color:var(--accent3);font-weight:500">${formatPrice(lot.price)}</td>
+      <td style="color:var(--green)">${lot.market_price ? formatPrice(lot.market_price) : '—'}</td>
+      <td class="${dCls}">${discount ? '−'+discount+'%' : '—'}</td>
+      <td>${lot.auction_date ? formatDate(lot.auction_date) : '—'}</td>
+      <td>${score ? `<span class="tbl-score"><span class="tbl-score-dot" style="background:${sColor}"></span>${score}</span>` : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('table-container').innerHTML = `
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)">
+      <table class="lot-table">
+        <thead><tr>${headers}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function sortTable(col) {
+  if (tableSortCol === col) tableSortDir = tableSortDir==='asc' ? 'desc' : 'asc';
+  else { tableSortCol = col; tableSortDir = 'desc'; }
+  renderTable();
+}
+
+// ============================================================
+// Main map
+// ============================================================
+const TYPE_COLORS = { apartment:'#6366f1', land:'#10b981', house:'#f59e0b', commercial:'#ef4444' };
+
+function initMainMap() {
+  if (mainMap) return;
+
+  mainMap = L.map('main-map', { zoomControl: false }).setView([58.0, 56.2], 8);
+  L.control.zoom({ position:'topleft' }).addTo(mainMap);
+
+  // Base layers
+  mainBaseLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  });
+  mainBaseLayers.sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri', maxZoom: 19
+  });
+  mainBaseLayers.hybridLabels = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OSM', maxZoom: 19, opacity: 0.45
+  });
+
+  mainBaseLayers.osm.addTo(mainMap);
+
+  // PKK cadastral overlay
+  pkkLayer = L.tileLayer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Росреестр', maxZoom: 19, opacity: 0.7
+  });
+  if (pkkEnabled) pkkLayer.addTo(mainMap);
+
+  // Слой для кадастровых полигонов
+  cadastralPolygons = L.layerGroup().addTo(mainMap);
+
+  // Cluster group
+  clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 17,
+    iconCreateFunction: cluster => {
+      const n = cluster.getChildCount();
+      return L.divIcon({ html: `<div style="background:rgba(99,102,241,0.85);width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;border:2px solid rgba(255,255,255,0.3)">${n}</div>`, className:'', iconSize:[38,38] });
+    }
+  });
+  mainMap.addLayer(clusterGroup);
+
+  // При зуме >= 15 загружаем контуры видимых лотов
+  mainMap.on('zoomend moveend', () => {
+    if (mainMap.getZoom() >= 15) loadVisibleCadastralPolygons();
+  });
+}
+
+// Переключение базового слоя
+function switchMainBase(type) {
+  if (!mainMap) return;
+  [mainBaseLayers.osm, mainBaseLayers.sat, mainBaseLayers.hybridLabels].forEach(l => {
+    if (mainMap.hasLayer(l)) mainMap.removeLayer(l);
+  });
+  if (type === 'osm') {
+    mainBaseLayers.osm.addTo(mainMap);
+  } else if (type === 'sat') {
+    mainBaseLayers.sat.addTo(mainMap);
+  } else if (type === 'hybrid') {
+    mainBaseLayers.sat.addTo(mainMap);
+    mainBaseLayers.hybridLabels.addTo(mainMap);
+  }
+  currentBase = type;
+  // Переставляем PKK и контуры наверх
+  if (pkkEnabled && pkkLayer) { pkkLayer.remove(); pkkLayer.addTo(mainMap); }
+  cadastralPolygons.remove(); cadastralPolygons.addTo(mainMap);
+
+  ['osm','sat','hybrid'].forEach(id => {
+    const btn = document.getElementById('bm-' + id);
+    if (btn) btn.classList.toggle('active', id === type);
+  });
+}
+
+// Загрузка контуров для видимых лотов
+const _loadedCadastralIds = new Set();
+function loadVisibleCadastralPolygons() {
+  const bounds = mainMap.getBounds();
+  filteredLots.forEach(lot => {
+    if (!lot.cadastral_number || _loadedCadastralIds.has(lot.cadastral_number)) return;
+    const lat = lot.lat, lon = lot.lon;
+    if (!lat || !lon || !bounds.contains([lat, lon])) return;
+    _loadedCadastralIds.add(lot.cadastral_number);
+    loadCadastralPolygonLeaflet(lot);
+  });
+}
+
+// Загрузка контура участка из PKK API
+async function loadCadastralPolygonLeaflet(lot) {
+  const cn = lot.cadastral_number;
+  const color = TYPE_COLORS[lot.property_type] || '#6366f1';
+  for (const featureType of [1, 5]) { // 1=участки, 5=ОКС
+    try {
+      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${featureType}/${encodeURIComponent(cn)}`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const geom = data?.feature?.geometry;
+      if (!geom) continue;
+
+      const style = { color: color, weight: 3, fillColor: color, fillOpacity: 0.15, dashArray: '' };
+      let layer;
+      if (geom.type === 'Polygon') {
+        layer = L.polygon(geom.coordinates.map(ring => ring.map(([lo,la]) => [la,lo])), style);
+      } else if (geom.type === 'MultiPolygon') {
+        const polys = geom.coordinates.map(poly => poly.map(ring => ring.map(([lo,la]) => [la,lo])));
+        layer = L.polygon(polys, style);
+      }
+      if (layer) {
+        const discount = lot.discount ? Math.round(lot.discount) : null;
+        layer.bindPopup(`
+          <div class="lot-popup">
+            <div class="lot-popup-title">${escHtml(lot.name||lot.category||'').substring(0,60)}</div>
+            <div class="lot-popup-price">${formatPrice(lot.price)}${discount?` · −${discount}%`:''}</div>
+            <div class="lot-popup-sub">${escHtml(cn)}</div>
+            <button onclick="window.openModal('${escHtml(lot.lot_id)}')" style="margin-top:8px;width:100%;padding:6px 12px;border-radius:6px;background:${color};color:#fff;border:none;cursor:pointer;font-size:12px;font-weight:500;font-family:Inter,sans-serif">Открыть карточку</button>
+          </div>`, { closeButton: false, maxWidth: 240 });
+        cadastralPolygons.addLayer(layer);
+      }
+      return; // нашли контур — выходим
+    } catch(e) {}
+  }
+}
+
+function updateMapMarkers() {
+  if (!mainMap) return;
+  clusterGroup.clearLayers();
+
+  const lotsToGeocode = [];
+
+  filteredLots.forEach(lot => {
+    // Берём сохранённые координаты или из geoCache
+    let lat = lot.lat, lon = lot.lon;
+    const cacheKey = (lot.address_std||lot.address||'').toLowerCase().trim();
+    if ((!lat || !lon) && geoCache[cacheKey]) {
+      lat = geoCache[cacheKey].lat;
+      lon = geoCache[cacheKey].lon;
+    }
+
+    if (lat && lon) {
+      addMapMarker(lot, lat, lon);
+    } else if (lot.address || lot.address_std) {
+      lotsToGeocode.push(lot);
+    }
+  });
+
+  // Запускаем геокодирование для лотов без координат
+  if (lotsToGeocode.length > 0) {
+    geoQueue = [...lotsToGeocode];
+    runGeocodeQueue();
+  } else {
+    document.getElementById('geocode-progress').style.display = 'none';
+  }
+}
+
+function addMapMarker(lot, lat, lon) {
+  const color = TYPE_COLORS[lot.property_type] || '#94a3b8';
+  const discount = lot.discount ? Math.round(lot.discount) : null;
+  const score = lot.invest_score ? Math.round(lot.invest_score) : null;
+
+  const icon = L.divIcon({
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
+    className: '', iconSize: [16,16], iconAnchor: [8,8]
+  });
+
+  const marker = L.marker([lat, lon], { icon });
+
+  const popupContent = `
+    <div class="lot-popup">
+      <div class="lot-popup-title">${escHtml(lot.name||lot.category||'Объект').substring(0,60)}</div>
+      <div class="lot-popup-price">${formatPrice(lot.price)}${discount?` · −${discount}%`:''}</div>
+      <div class="lot-popup-sub">${escHtml(lot.address_std||lot.address||'').substring(0,60)}</div>
+      ${lot.cadastral_number?`<div class="lot-popup-sub" style="opacity:.7">${escHtml(lot.cadastral_number)}</div>`:''}
+      ${score?`<div class="lot-popup-sub" style="margin-top:4px">Скоринг: ${score}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button onclick="window.openModal('${escHtml(lot.lot_id)}')" style="flex:1;padding:6px 10px;border-radius:6px;background:#6366f1;color:#fff;border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:Inter,sans-serif">Карточка</button>
+        ${lot.cadastral_number?`<button onclick="window.zoomToLotCadastre('${escHtml(lot.lot_id)}')" style="flex:1;padding:6px 10px;border-radius:6px;background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);cursor:pointer;font-size:11px;font-weight:500;font-family:Inter,sans-serif">Контур</button>`:''}
+      </div>
+    </div>`;
+
+  marker.bindPopup(popupContent, { closeButton: false, maxWidth: 260 });
+
+  // При открытии popup на zoom>=15 — автоматически грузим контур
+  marker.on('popupopen', () => {
+    if (lot.cadastral_number && mainMap.getZoom() >= 13) {
+      if (!_loadedCadastralIds.has(lot.cadastral_number)) {
+        loadCadastralPolygonLeaflet(lot);
+      }
+    }
+  });
+
+  clusterGroup.addLayer(marker);
+}
+
+function fitMapToMarkers() {
+  if (!mainMap) return;
+  const layers = clusterGroup.getLayers();
+  if (!layers.length) return;
+  const group = L.featureGroup(layers);
+  mainMap.fitBounds(group.getBounds().pad(0.1));
+}
+
+function togglePkkLayer() {
+  if (!mainMap) return;
+  pkkEnabled = !pkkEnabled;
+  if (pkkEnabled) mainMap.addLayer(pkkLayer);
+  else mainMap.removeLayer(pkkLayer);
+  document.getElementById('btn-pkk-layer').classList.toggle('active', pkkEnabled);
+}
+
+// ============================================================
+// Geocoding queue (Nominatim, 1 req/sec)
+// ============================================================
+async function runGeocodeQueue() {
+  if (geoRunning) return;
+  geoRunning = true;
+
+  const progress = document.getElementById('geocode-progress');
+  const total = geoQueue.length;
+
+  while (geoQueue.length > 0) {
+    const lot = geoQueue.shift();
+    const addr = (lot.address_std || lot.address || '').trim();
+    if (!addr) continue;
+
+    const cacheKey = addr.toLowerCase();
+    progress.style.display = 'block';
+    progress.textContent = `Геокодирование: ${total - geoQueue.length}/${total}`;
+
+    if (!geoCache[cacheKey]) {
+      const coords = await nominatimGeocode(addr);
+      if (coords) geoCache[cacheKey] = coords;
+    }
+
+    if (geoCache[cacheKey]) {
+      const { lat, lon } = geoCache[cacheKey];
+      addMapMarker(lot, lat, lon);
+    }
+
+    if (geoQueue.length > 0) await sleep(1100); // соблюдаем лимит Nominatim
+  }
+
+  progress.style.display = 'none';
+  geoRunning = false;
+}
+
+async function nominatimGeocode(address) {
+  try {
+    const q = address.includes('Пермь') || address.includes('Пермский') ? address : 'Пермский край, ' + address;
+    const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({ q, format:'json', limit:1, countrycodes:'ru' });
+    const r = await fetch(url);
+    const data = await r.json();
+    if (data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+  } catch(e) {}
+  return null;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ============================================================
+// Modal
+// ============================================================
+function openModal(lotId) {
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (!lot) return;
+  destroyModalMap();
+  document.getElementById('modal-content').innerHTML = renderModalContent(lot);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Инициализируем карту в модале асинхронно
+  requestAnimationFrame(() => initModalMap(lot));
+}
+
+function closeModal(e) {
+  if (e === true || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    destroyModalMap();
+  }
+}
+
+function destroyModalMap() {
+  if (window._yandexMapInstance) {
+    try { window._yandexMapInstance.destroy(); } catch(e) {}
+    window._yandexMapInstance = null;
+    window._ymapLayers = null;
+  }
+  if (modalMapInstance) { modalMapInstance.remove(); modalMapInstance = null; }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(true); });
+
+function renderModalContent(lot) {
+  const discount = lot.discount ? Math.round(lot.discount) : null;
+  const dCls = discount>=30?'discount-high':discount>=15?'discount-mid':'discount-low';
+  const score = lot.invest_score ? Math.round(lot.invest_score) : null;
+  const sColor = scoreColor(score);
+
+  let html = `
+  <div class="modal-header">
+    <div class="modal-title-group">
+      <div class="modal-badges">
+        <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+        ${discount ? `<span class="discount-badge ${dCls}">−${discount}% дисконт</span>` : ''}
+        ${lot.status ? `<span class="type-badge type-unknown">${escHtml(lot.status)}</span>` : ''}
+      </div>
+      <div class="modal-title">${escHtml(lot.name||lot.category||'Без названия')}</div>
+      <div class="modal-subtitle">
+        <span>🔑 ${escHtml(lot.lot_id)}</span>
+        ${lot.date_added?`<span>· ${formatDate(lot.date_added)}</span>`:''}
+        ${lot.source?`<span>· ${escHtml(lot.source)}</span>`:''}
+      </div>
+    </div>
+    <button class="modal-close" onclick="closeModal(true)">×</button>
+  </div>
+  <div class="modal-body">`;
+
+  // KPI
+  html += `<div class="modal-kpi">
+    <div class="kpi-card"><span class="kpi-val accent">${formatPrice(lot.price)}</span><span class="kpi-label">Цена лота</span></div>
+    <div class="kpi-card"><span class="kpi-val" style="color:var(--green)">${lot.market_price?formatPrice(lot.market_price):'—'}</span><span class="kpi-label">Рыночная</span></div>
+    <div class="kpi-card"><span class="kpi-val" style="color:${discount>=30?'var(--green)':discount>=15?'var(--yellow)':'var(--text2)'}">${discount?discount+'%':'—'}</span><span class="kpi-label">Дисконт</span></div>
+    <div class="kpi-card"><span class="kpi-val" style="color:${sColor}">${score||'—'}</span><span class="kpi-label">Invest Score</span></div>
+  </div>`;
+
+  // Карта локации
+  html += `<div class="modal-section">
+    <div class="section-title">Локация на карте</div>
+    <div class="modal-map-container">
+      <div id="modal-map"></div>
+      <div class="modal-map-status" id="modal-map-status"><div class="spinner"></div><span>Загрузка карты...</span></div>
+    </div>
+    <div class="modal-map-actions">
+      ${lot.cadastral_number ? `<a href="https://pkk.rosreestr.ru/#text=${encodeURIComponent(lot.cadastral_number)}&type=5" target="_blank" class="link-btn">ПКК Росреестра ↗</a>` : ''}
+      ${lot.cadastral_number ? `<a href="https://nspd.gov.ru/map?search=${encodeURIComponent(lot.cadastral_number)}" target="_blank" class="link-btn">НСПД ↗</a>` : ''}
+      ${lot.address ? `<a href="https://yandex.ru/maps/?text=${encodeURIComponent(lot.address_std||lot.address)}" target="_blank" class="link-btn">Яндекс Карты ↗</a>` : ''}
+    </div>
+  </div>`;
+
+  // Адрес
+  if (lot.address || lot.address_std || lot.district) {
+    html += `<div class="modal-section"><div class="section-title">Адрес</div><div class="detail-grid">
+      ${lot.address     ? detailRow('Адрес', escHtml(lot.address)):''}
+      ${lot.address_std ? detailRow('Стандартизированный', escHtml(lot.address_std)):''}
+      ${lot.district    ? detailRow('Район', escHtml(lot.district)):''}
+      ${lot.lat && lot.lon ? detailRow('Координаты', `${lot.lat.toFixed(5)}, ${lot.lon.toFixed(5)}`):''}
+    </div></div>`;
+  }
+
+  // Торги
+  html += `<div class="modal-section"><div class="section-title">Торги</div><div class="detail-grid">
+    ${detailRow('Тип торгов', escHtml(lot.bidd_type||'—'))}
+    ${detailRow('Площадь', lot.area?(lot.area+' '+areaUnit(lot.area_unit)):'—')}
+    ${lot.price_per_unit  ? detailRow('Цена за ед.', escHtml(lot.price_per_unit)):''}
+    ${detailRow('Задаток', lot.deposit?formatPrice(lot.deposit):'—')}
+    ${lot.auction_date    ? detailRow('Дата торгов', formatDate(lot.auction_date)):''}
+    ${lot.application_end ? detailRow('Подача заявок до', formatDate(lot.application_end)):''}
+    ${lot.category        ? detailRow('Категория', escHtml(lot.category)):''}
+  </div></div>`;
+
+  // Кадастр
+  if (lot.cadastral_number||lot.cadastral_value) {
+    html += `<div class="modal-section"><div class="section-title">Кадастр</div><div class="detail-grid">
+      ${lot.cadastral_number      ? detailRow('Кад. номер', escHtml(lot.cadastral_number)):''}
+      ${lot.cadastral_value       ? detailRow('Кад. стоимость', formatPrice(lot.cadastral_value)):''}
+      ${lot.cadastral_area        ? detailRow('Кад. площадь', lot.cadastral_area+' м²'):''}
+      ${lot.cadastral_category    ? detailRow('Категория земли', escHtml(lot.cadastral_category)):''}
+      ${lot.cadastral_permitted_use ? detailRow('ВРИ', escHtml(lot.cadastral_permitted_use)):''}
+      ${lot.cadastral_price_ratio ? detailRow('Кад./рынок', (lot.cadastral_price_ratio*100).toFixed(0)+'%'):''}
+      ${lot.has_encumbrances!=null ? detailRow('Обременения', lot.has_encumbrances?`<span class="detail-val bad">${escHtml(lot.encumbrance_type||'Есть')}</span>`:'<span class="detail-val good">Нет</span>', true):''}
+    </div></div>`;
+  }
+
+  // Рыночная оценка
+  if (lot.market_price||lot.analogs_count) {
+    const analogsList = Array.isArray(lot.analogs_list) ? lot.analogs_list : [];
+    const aUnit = lot.area_unit === 'sotka' ? '₽/сот' : '₽/м²';
+
+    html += `<div class="modal-section"><div class="section-title">Рыночная оценка</div><div class="detail-grid">
+      ${lot.market_price          ? detailRow('Рыночная цена', formatPrice(lot.market_price)):''}
+      ${lot.market_price_per_unit ? detailRow('Рынок за ед.', escHtml(String(lot.market_price_per_unit))):''}
+      ${lot.analogs_count         ? detailRow('Аналогов', lot.analogs_count+' объектов'):''}
+      ${lot.analogs_median_price  ? detailRow('Медиана', formatPrice(lot.analogs_median_price)+' '+aUnit):''}
+      ${lot.analogs_min_price && lot.analogs_max_price ? detailRow('Разброс', formatPrice(lot.analogs_min_price)+' — '+formatPrice(lot.analogs_max_price)+' '+aUnit):''}
+      ${lot.analogs_radius_m      ? detailRow('Радиус поиска', (lot.analogs_radius_m>=1000?(lot.analogs_radius_m/1000).toFixed(1)+' км':lot.analogs_radius_m+' м')):''}
+      ${lot.confidence            ? detailRow('Точность', escHtml(lot.confidence)):''}
+    </div>`;
+
+    // Список аналогов
+    if (analogsList.length > 0) {
+      html += `<div class="analogs-header">
+        <span class="analogs-subtitle">Объекты из выборки</span>
+        <span class="analogs-count-badge">${analogsList.length}</span>
+      </div>`;
+      html += analogsList.map((a, i) => {
+        const dist = a.distance_m != null
+          ? (a.distance_m >= 1000 ? (a.distance_m/1000).toFixed(1)+' км' : a.distance_m+' м')
+          : null;
+        return `<div class="analog-row" onclick="${a.url ? `window.open('${escHtml(a.url)}','_blank')` : ''}">
+          <span class="analog-num-dot">${i+1}</span>
+          <span class="analog-row-price">${formatPrice(a.price)}</span>
+          <span class="analog-row-pu">${a.pricePerUnit ? a.pricePerUnit.toLocaleString('ru-RU')+' '+aUnit : '—'}</span>
+          <span class="analog-row-area">${a.area ? a.area+' '+(lot.area_unit==='sotka'?'сот':'м²') : '—'}</span>
+          ${dist ? `<span class="analog-row-dist">${dist}</span>` : ''}
+          ${a.url ? `<a class="analog-row-link" href="${escHtml(a.url)}" target="_blank" onclick="event.stopPropagation()">↗</a>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    html += `</div>`; // close modal-section
+  }
+
+  // Скоринг
+  if (lot.invest_score||lot.risk_score||lot.liquidity_score) {
+    html += `<div class="modal-section"><div class="section-title">Скоринг</div>
+      <div class="score-grid">
+        ${scoreBlock('Invest', lot.invest_score)}
+        ${scoreBlock('Риск', lot.risk_score, true)}
+        ${scoreBlock('Ликвидность', lot.liquidity_score)}
+      </div>
+      ${lot.estimated_profit||lot.estimated_roi?`<div class="detail-grid" style="margin-top:12px">
+        ${lot.estimated_profit    ? detailRow('Ожид. прибыль', formatPrice(lot.estimated_profit),false,'good'):''}
+        ${lot.estimated_roi       ? detailRow('Ожид. ROI', lot.estimated_roi.toFixed(1)+'%',false,'good'):''}
+        ${lot.estimated_sell_time ? detailRow('Срок продажи', lot.estimated_sell_time+' мес.'):''}
+      </div>`:''}
+    </div>`;
+  }
+
+  if (lot.recommendation) {
+    html += `<div class="modal-section"><div class="section-title">Рекомендация AI</div><div class="recommendation">${escHtml(lot.recommendation)}</div></div>`;
+  }
+
+  // Должник
+  if (lot.debtor_name||lot.fssp_count) {
+    html += `<div class="modal-section"><div class="section-title">Должник</div><div class="detail-grid">
+      ${lot.debtor_name     ? detailRow('Должник', escHtml(lot.debtor_name)):''}
+      ${lot.debtor_inn      ? detailRow('ИНН', escHtml(lot.debtor_inn)):''}
+      ${lot.debtor_type     ? detailRow('Тип', escHtml(lot.debtor_type)):''}
+      ${lot.bankruptcy_case ? detailRow('Дело о банкротстве', escHtml(lot.bankruptcy_case)):''}
+      ${lot.fssp_debts      ? detailRow('Долги ФССП', formatPrice(lot.fssp_debts)):''}
+      ${lot.fssp_count!=null&&lot.fssp_count!==undefined ? detailRow('Производств ФССП', lot.fssp_count):''}
+      ${lot.court_cases!=null&&lot.court_cases!==undefined ? detailRow('Суд. дел', lot.court_cases):''}
+    </div></div>`;
+  }
+
+  // Спец блоки
+  const specDefs = [
+    { key:'apartment', title:'Квартира', labels:{ rooms:'Комнат', floor:'Этаж', floors_total:'Этажей в доме', condition:'Состояние', balcony:'Балкон' }},
+    { key:'land', title:'Земельный участок', labels:{ land_category:'Категория', permitted_use:'ВРИ', land_shape:'Форма', has_electricity:'Электричество', has_gas:'Газ', has_water:'Водопровод', has_sewage:'Канализация', communications_note:'Примечание' }},
+    { key:'house', title:'Дом', labels:{ rooms:'Комнат', floors_total:'Этажей', wall_material:'Материал стен', build_year:'Год постройки', condition:'Состояние', house_area:'Площадь дома м²', land_area:'Площадь участка сот.', garage_on_site:'Гараж', bathhouse:'Баня' }},
+    { key:'building', title:'Здание', labels:{ year:'Год', material:'Материал', floors:'Этажей', wear:'Износ %', building_type:'Тип здания', is_emergency:'Аварийное', heating_type:'Отопление' }},
+    { key:'commercial', title:'Коммерция', labels:{ commercial_type:'Тип', floor:'Этаж', ceiling_height:'Высота потолков м', entrance:'Вход', parking:'Парковок' }},
+    { key:'rental', title:'Аренда', labels:{ rent_price_month:'Аренда/мес', annual_yield:'Доходность год %', payback_years:'Окупаемость лет', cap_rate:'Cap Rate' }},
+    { key:'infra', title:'Инфраструктура', labels:{ metro_distance:'До метро км', schools_nearby:'Школ рядом', shops_nearby:'Магазинов', transport_score:'Транспорт', infra_score:'Инфра' }},
+  ];
+
+  const specParts = specDefs.filter(b => lot[b.key] && typeof lot[b.key]==='object').map(b => {
+    const fields = Object.entries(lot[b.key]).filter(([k,v])=>v!=null&&v!=='').map(([k,v])=>{
+      const val = typeof v==='boolean'?(v?'Да':'Нет'):v;
+      return detailRow(b.labels[k]||k, val);
+    }).join('');
+    return fields ? `<div class="spec-block"><div class="spec-block-title">${b.title}</div><div class="detail-grid">${fields}</div></div>` : '';
+  }).join('');
+
+  if (specParts) html += `<div class="modal-section"><div class="section-title">Характеристики</div>${specParts}</div>`;
+
+  // Ссылки
+  const links = [];
+  if (lot.url)     links.push({ href:lot.url, label:'Открыть на torgi.gov.ru', primary:true });
+  if (lot.etp_url) links.push({ href:lot.etp_url, label:'Страница ЭТП' });
+  if (links.length) {
+    html += `<div class="modal-links">${links.map(l=>`<a href="${escHtml(l.href)}" target="_blank" class="link-btn ${l.primary?'primary':''}">${escHtml(l.label)}</a>`).join('')}</div>`;
+  }
+
+  html += `</div>`; // modal-body
+  return html;
+}
+
+// ============================================================
+// Яндекс Карты — загрузка API
+// ============================================================
+let _ymapsLoadPromise = null;
+
+function loadYandexMaps() {
+  if (_ymapsLoadPromise) return _ymapsLoadPromise;
+  _ymapsLoadPromise = new Promise((resolve, reject) => {
+    if (window.ymaps && window._ymapsReady) { resolve(); return; }
+    if (window.ymaps) { window.ymaps.ready(() => { window._ymapsReady = true; resolve(); }); return; }
+    const script = document.createElement('script');
+    const keyParam = YANDEX_MAPS_KEY ? `apikey=${YANDEX_MAPS_KEY}&` : '';
+    script.src = `https://api-maps.yandex.ru/2.1/?${keyParam}lang=ru_RU`;
+    script.onload = () => window.ymaps.ready(() => { window._ymapsReady = true; resolve(); });
+    script.onerror = () => reject(new Error('Не удалось загрузить Яндекс Карты'));
+    document.head.appendChild(script);
+  });
+  return _ymapsLoadPromise;
+}
+
+// ============================================================
+// Modal map — Яндекс Карты 2.1
+// ============================================================
+async function initModalMap(lot) {
+  const statusEl = document.getElementById('modal-map-status');
+  const mapEl = document.getElementById('modal-map');
+  if (!mapEl) return;
+
+  // Геокодирование если нет координат
+  let lat = lot.lat, lon = lot.lon;
+  if (!lat || !lon) {
+    const addr = (lot.address_std || lot.address || '').trim();
+    if (addr) {
+      const cacheKey = addr.toLowerCase();
+      if (geoCache[cacheKey]) { lat = geoCache[cacheKey].lat; lon = geoCache[cacheKey].lon; }
+      else {
+        if (statusEl) statusEl.innerHTML = `<div class="spinner"></div><span>Геокодирование...</span>`;
+        const coords = await nominatimGeocode(addr);
+        if (coords) { geoCache[cacheKey] = coords; lat = coords.lat; lon = coords.lon; }
+      }
+    }
+  }
+
+  // Загружаем Яндекс Карты API
+  if (statusEl) statusEl.innerHTML = `<div class="spinner"></div><span>Загрузка Яндекс Карт...</span>`;
+  try {
+    await loadYandexMaps();
+  } catch(e) {
+    if (statusEl) { statusEl.style.display='flex'; statusEl.innerHTML=`<span style="font-size:12px;color:var(--red)">Ошибка загрузки карты</span>`; }
+    return;
+  }
+
+  if (!lat || !lon) {
+    if (statusEl) { statusEl.style.display='flex'; statusEl.innerHTML=`<span style="font-size:12px">Координаты недоступны. <a href="https://pkk.rosreestr.ru" target="_blank" style="color:var(--accent3)">Открыть ПКК →</a></span>`; }
+    return;
+  }
+
+  if (statusEl) statusEl.style.display = 'none';
+
+  // === Создаём карту ===
+  const ymap = new ymaps.Map('modal-map', {
+    center: [lat, lon],
+    zoom: 17,
+    type: 'yandex#satellite',         // спутник по умолчанию как в bankrot.ru
+    controls: ['typeSelector', 'zoomControl'],  // встроенный Схема/Спутник/Гибрид
+  }, { suppressMapOpenBlock: true });
+
+  window._yandexMapInstance = ymap;
+
+  // === PKK/ЕГРН слои Росреестра ===
+  // URL формат для Яндекс Maps 2.1: %z/%y/%x
+  window._ymapLayers = {
+    cadastre:  new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/%z/%y/%x',          { tileTransparent: true, opacity: 0.7 }),
+    buildings: new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/CadastreSelected/MapServer/tile/%z/%y/%x',  { tileTransparent: true, opacity: 0.7 }),
+    zones:     new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/ZONES/MapServer/tile/%z/%y/%x',             { tileTransparent: true, opacity: 0.6 }),
+    quart:     new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/KQ/MapServer/tile/%z/%y/%x',                { tileTransparent: true, opacity: 0.5 }),
+  };
+  ymap.layers.add(window._ymapLayers.cadastre); // включён по умолчанию
+
+  // === Маркер объекта ===
+  const presetMap = { apartment:'islands#violetDotIcon', land:'islands#greenDotIcon', house:'islands#yellowDotIcon', commercial:'islands#redDotIcon' };
+  const lotMark = new ymaps.Placemark([lat, lon], {
+    balloonContentHeader: escHtml(lot.name || lot.category || 'Объект'),
+    balloonContentBody: `<b style="color:#6366f1">${formatPrice(lot.price)}</b>`,
+  }, {
+    preset: presetMap[lot.property_type] || 'islands#violetDotIcon',
+  });
+  ymap.geoObjects.add(lotMark);
+
+  // === Маркеры аналогов ===
+  const analogsList = Array.isArray(lot.analogs_list) ? lot.analogs_list : [];
+  const analogPoints = [];
+
+  if (analogsList.length > 0) {
+    // Пунктирная окружность радиуса поиска
+    if (lot.analogs_radius_m) {
+      ymap.geoObjects.add(new ymaps.Circle([[lat, lon], lot.analogs_radius_m], {}, {
+        fillColor: '#6366f110', strokeColor: '#6366f166', strokeWidth: 2, strokeStyle: 'dash',
+      }));
+    }
+
+    const aUnit = lot.area_unit === 'sotka' ? '₽/сот' : '₽/м²';
+    analogsList.forEach((a, i) => {
+      if (!a.lat || !a.lon) return;
+      analogPoints.push([a.lat, a.lon]);
+      const dist = a.distance_m != null ? (a.distance_m >= 1000 ? (a.distance_m/1000).toFixed(1)+' км' : a.distance_m+' м') : '';
+      ymap.geoObjects.add(new ymaps.Placemark([a.lat, a.lon], {
+        iconContent: String(i + 1),
+        balloonContentHeader: `Аналог ${i+1}`,
+        balloonContentBody: `Цена: <b>${formatPrice(a.price)}</b><br>${aUnit}: <b>${a.pricePerUnit ? a.pricePerUnit.toLocaleString('ru-RU') : '—'}</b>${dist ? `<br>Расстояние: <b>${dist}</b>` : ''}${a.url ? `<br><a href="${escHtml(a.url)}" target="_blank">Открыть ↗</a>` : ''}`,
+      }, { preset: 'islands#blueStretchyIcon' }));
+    });
+  }
+
+  // === Автомасштаб и граница участка ===
+  if (analogPoints.length > 0) {
+    try {
+      const allPts = [[lat, lon], ...analogPoints];
+      ymap.setBounds(ymaps.util.bounds.fromPoints(allPts), { checkZoomRange: true, margin: 40 });
+    } catch(e) {}
+  } else if (lot.cadastral_number) {
+    loadCadastralGeometryYmaps(lot.cadastral_number, ymap);
+  }
+}
+
+// Загружаем геометрию участка из ПКК API и рисуем полигон
+async function loadCadastralGeometryYmaps(cadastralNumber, ymap) {
+  for (const t of [1, 5]) { // 1=участки, 5=ОКС
+    try {
+      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${t}/${encodeURIComponent(cadastralNumber)}`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const geom = data?.feature?.geometry;
+      if (!geom) continue;
+
+      // GeoJSON [lon, lat] → Яндекс [lat, lon]
+      const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
+      let coords;
+      if (geom.type === 'Polygon') {
+        coords = geom.coordinates.map(convertRing);
+      } else if (geom.type === 'MultiPolygon') {
+        // Рисуем все контуры
+        geom.coordinates.forEach(poly => {
+          ymap.geoObjects.add(new ymaps.Polygon(poly.map(convertRing), {}, {
+            fillColor: '#e879f928', strokeColor: '#c026d3', strokeWidth: 3,
+          }));
+        });
+        // Центрируем на первом
+        coords = geom.coordinates[0].map(convertRing);
+      }
+
+      if (coords) {
+        const polygon = new ymaps.Polygon(coords, {}, {
+          fillColor: '#e879f928',  // розово-фиолетовый как в bankrot.ru/ПКК
+          strokeColor: '#c026d3',
+          strokeWidth: 3,
+        });
+        ymap.geoObjects.add(polygon);
+        // Центрируем на участке
+        const bounds = polygon.geometry.getBounds();
+        if (bounds) ymap.setBounds(bounds, { checkZoomRange: true, margin: 40 });
+      }
+      return;
+    } catch(e) {}
+  }
+}
+
+// ============================================================
+// Header stats
+// ============================================================
+function updateHeaderStats() {
+  document.getElementById('hstat-total').textContent = allLots.length;
+  const wd = allLots.filter(l=>l.discount);
+  if (wd.length) document.getElementById('hstat-avg-discount').textContent = Math.round(wd.reduce((s,l)=>s+l.discount,0)/wd.length)+'%';
+  const wp = allLots.filter(l=>l.price>0);
+  if (wp.length) document.getElementById('hstat-avg-price').textContent = formatPrice(wp.reduce((s,l)=>s+l.price,0)/wp.length);
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+function typeLabel(t) { return {apartment:'Квартира',land:'Земля',house:'Дом',commercial:'Коммерция'}[t]||'Прочее'; }
+function areaUnit(u) { return {m2:'м²',sotka:'сот.',ha:'га'}[u]||'м²'; }
+function scoreColor(s) { return s>=70?'#34d399':s>=40?'#fbbf24':s?'#f87171':'#64748b'; }
+
+function formatPrice(v) {
+  if (!v && v!==0) return '—';
+  v = parseFloat(v);
+  if (v>=1e6)  return (v/1e6).toFixed(2).replace(/\.?0+$/,'') + ' млн ₽';
+  if (v>=1000) return Math.round(v/1000) + ' тыс ₽';
+  return v.toFixed(0) + ' ₽';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}); } catch{ return d; }
+}
+
+function escHtml(s) {
+  if (s==null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function detailRow(key, val, raw=false, cls='') {
+  return `<div class="detail-row">
+    <span class="detail-key">${key}</span>
+    ${raw ? val : `<span class="detail-val ${cls}">${escHtml(String(val))}</span>`}
+  </div>`;
+}
+
+function scoreBlock(label, val, inverted=false) {
+  const s = val ? Math.round(val) : null;
+  const pct = s||0;
+  const eff = inverted ? 100-pct : pct;
+  const color = eff>=70?'#34d399':eff>=40?'#fbbf24':'#f87171';
+  const deg = Math.round(pct*3.6);
+  return `<div class="score-block">
+    <div class="score-circle" style="background:conic-gradient(${color} ${deg}deg,rgba(255,255,255,0.06) ${deg}deg)">
+      <div class="score-inner" style="color:${color}">${s||'—'}</div>
+    </div>
+    <div class="score-block-label">${label}</div>
+  </div>`;
+}
+
+// ============================================================
+// Управление слоями карты в модале
+// ============================================================
+function switchBasemap(type) {
+  if (!modalMapInstance || !window._modalBaseLayers) return;
+  const layers = window._modalBaseLayers;
+
+  // Убираем все базовые слои
+  [layers.schema, layers.sat, layers.hybridBase, layers.hybridLabels].forEach(l => {
+    if (modalMapInstance.hasLayer(l)) modalMapInstance.removeLayer(l);
+  });
+
+  if (type === 'schema') {
+    layers.schema.addTo(modalMapInstance);
+  } else if (type === 'sat') {
+    layers.sat.addTo(modalMapInstance);
+  } else if (type === 'hybrid') {
+    layers.hybridBase.addTo(modalMapInstance);
+    layers.hybridLabels.addTo(modalMapInstance);
+  }
+  window._modalCurrentBase = type;
+
+  // Обновляем кнопки
+  ['schema','sat','hybrid'].forEach(id => {
+    const btn = document.getElementById('bm-' + id);
+    if (btn) btn.classList.toggle('active', id === type);
+  });
+
+  // Возвращаем оверлеи поверх нового base слоя
+  if (window._modalOverlays) {
+    Object.entries(window._modalOverlays).forEach(([key, layer]) => {
+      const cb = document.getElementById('layer-' + key);
+      if (cb && cb.checked && !modalMapInstance.hasLayer(layer)) layer.addTo(modalMapInstance);
+    });
+  }
+}
+
+function toggleMapLayer(layerKey, enabled) {
+  if (!modalMapInstance || !window._modalOverlays) return;
+  const layer = window._modalOverlays[layerKey];
+  if (!layer) return;
+  if (enabled) layer.addTo(modalMapInstance);
+  else if (modalMapInstance.hasLayer(layer)) modalMapInstance.removeLayer(layer);
+}
+
+// ============================================================
+// Start
+// ============================================================
+window.openModal = openModal;
+window.switchBasemap = switchBasemap;
+window.switchMainBase = switchMainBase;
+
+// Зум к лоту и загрузка контура
+window.zoomToLotCadastre = function(lotId) {
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (!lot || !lot.lat || !lot.lon) return;
+  mainMap.closePopup();
+  mainMap.setView([lot.lat, lot.lon], 17);
+  if (lot.cadastral_number && !_loadedCadastralIds.has(lot.cadastral_number)) {
+    loadCadastralPolygonLeaflet(lot);
+  }
+};
+window.toggleMapLayer = toggleMapLayer;
+loadData();
+</script>
+</body>
+</html>

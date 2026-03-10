@@ -38,6 +38,13 @@ ADS_API_TOKEN = os.environ.get("ADS_API_TOKEN", "de5f6b208f2348f909fa7c3eb8793d9
 ADS_API_URL = "https://ads-api.ru/main/api"
 ADS_API_DELAY = 5  # секунд между запросами
 
+# DaData (геокодирование для координатной фильтрации аналогов)
+DADATA_TOKEN = os.environ.get("DADATA_TOKEN", "04143a2e63d9dd14241088e18e89d4ee34fdd8b1")
+DADATA_SECRET = os.environ.get("DADATA_SECRET", "8e40f11034823d741339058fbbeadfd545039157")
+DADATA_CLEAN_URL = "https://cleaner.dadata.ru/api/v1/clean/address"
+
+_ADS_API_KEYS_LOGGED = False  # однократный вывод структуры ответа ads-api
+
 # Telegram
 TG_BOT_TOKEN = "8650381430:AAFKGNZbjQmhAd3ogse9gOWs7_2xoypuo-A"
 TG_CHAT_PERSONAL = "191260933"
@@ -382,6 +389,7 @@ def extract_district(address):
 # === Поиск аналогов (ads-api.ru) ===
 def _ads_api_request(params):
     """Выполнить запрос к ads-api.ru, вернуть список объявлений."""
+    global _ADS_API_KEYS_LOGGED
     try:
         time.sleep(ADS_API_DELAY)
         r = requests.get(ADS_API_URL, params=params, timeout=30)
@@ -390,10 +398,21 @@ def _ads_api_request(params):
             return []
         data = r.json()
         if isinstance(data, dict) and "data" in data:
-            return data["data"]
+            items = data["data"]
         elif isinstance(data, list):
-            return data
-        return []
+            items = data
+        else:
+            return []
+        # Однократно логируем структуру ответа (для диагностики наличия coords)
+        if items and not _ADS_API_KEYS_LOGGED:
+            sample = items[0]
+            log.info(f"  ads-api sample keys: {sorted(sample.keys())}")
+            for key in ("lat", "latitude", "lon", "longitude", "geo_lat", "geo_lon",
+                        "coords", "coord", "location", "address"):
+                if key in sample:
+                    log.info(f"  ads-api field '{key}': {sample[key]!r}")
+            _ADS_API_KEYS_LOGGED = True
+        return items
     except Exception as e:
         log.error(f"ads-api.ru exception: {e}")
         return []
@@ -440,6 +459,7 @@ def fetch_analogs(parsed_lot):
     log.info(f"  ads-api: ищу аналоги — {filters_desc}")
 
     # === Базовые параметры ===
+    # limit=100 — берём больше кандидатов, filter_analogs_by_proximity отберёт топ-10
     base_params = {
         "user": ADS_API_USER,
         "token": ADS_API_TOKEN,
@@ -447,11 +467,11 @@ def fetch_analogs(parsed_lot):
         "city": city,
         "nedvigimost_type": "1",  # продажа
         "is_actual": "11,1",      # только актуальные
-        "limit": "50",
+        "limit": "100",
         "sort": "desc",
     }
 
-    # === Точный запрос (все фильтры) ===
+    # === Точный запрос (фильтр по площади и дате; район убран — фильтруем по coords) ===
     precise_params = dict(base_params)
     precise_params["date1"] = date_from
 
@@ -464,8 +484,7 @@ def fetch_analogs(parsed_lot):
     if ads_category == 7 and commercial_type:
         precise_params["param[4869]"] = commercial_type
 
-    if district and city == "Пермь":
-        precise_params["metro"] = district
+    # Примечание: metro (район) убран — координатная фильтрация в filter_analogs_by_proximity
 
     items = _ads_api_request(precise_params)
     log.info(f"  ads-api: точный запрос → {len(items)} объявлений")
@@ -514,6 +533,7 @@ def calculate_market_price(analogs, parsed_lot):
 
     # Собираем цены за единицу (фильтруем по площади ±50%)
     unit_prices = []
+    valid_analogs = []  # аналоги прошедшие фильтр площади
     for a in analogs:
         a_price = a.get("price", 0)
         if not a_price or a_price <= 0:
@@ -541,11 +561,12 @@ def calculate_market_price(analogs, parsed_lot):
                 continue
 
         if is_land:
-            # ads-api возвращает площадь земли в сотках
-            if a_area > 0:
-                unit_prices.append(a_price / a_area)  # руб/сотка
+            unit_price = a_price / a_area  # руб/сотка
         else:
-            unit_prices.append(a_price / a_area)  # руб/м2
+            unit_price = a_price / a_area  # руб/м2
+
+        unit_prices.append(unit_price)
+        valid_analogs.append((a, a_area, unit_price))
 
     if len(unit_prices) < 2:
         log.info(f"  оценка: мало аналогов с площадью ({len(unit_prices)} из {len(analogs)})")
@@ -554,19 +575,26 @@ def calculate_market_price(analogs, parsed_lot):
     log.info(f"  оценка: {len(unit_prices)} аналогов с площадью из {len(analogs)} всего")
 
     # Убрать выбросы (IQR)
-    unit_prices.sort()
-    n = len(unit_prices)
-    q1 = unit_prices[n // 4] if n >= 4 else unit_prices[0]
-    q3 = unit_prices[(3 * n) // 4] if n >= 4 else unit_prices[-1]
+    unit_prices_sorted = sorted(unit_prices)
+    n = len(unit_prices_sorted)
+    q1 = unit_prices_sorted[n // 4] if n >= 4 else unit_prices_sorted[0]
+    q3 = unit_prices_sorted[(3 * n) // 4] if n >= 4 else unit_prices_sorted[-1]
     iqr = q3 - q1
     lower = q1 - 1.5 * iqr
     upper = q3 + 1.5 * iqr
-    filtered = [p for p in unit_prices if lower <= p <= upper]
 
-    if len(filtered) < 2:
-        filtered = unit_prices  # fallback
+    filtered_prices = []
+    filtered_analogs = []
+    for (a, a_area, up) in valid_analogs:
+        if lower <= up <= upper:
+            filtered_prices.append(up)
+            filtered_analogs.append((a, a_area, up))
 
-    median_unit = statistics.median(filtered)
+    if len(filtered_prices) < 2:
+        filtered_prices = unit_prices
+        filtered_analogs = valid_analogs  # fallback
+
+    median_unit = statistics.median(filtered_prices)
 
     # Рыночная оценка
     if is_land:
@@ -581,7 +609,7 @@ def calculate_market_price(analogs, parsed_lot):
     discount = ((market_price - lot_price) / market_price * 100) if market_price > 0 else 0
 
     # Confidence
-    count = len(filtered)
+    count = len(filtered_prices)
     if count < 3:
         confidence = "низкая"
     elif count <= 5:
@@ -589,16 +617,177 @@ def calculate_market_price(analogs, parsed_lot):
     else:
         confidence = "высокая"
 
+    # Список аналогов с деталями (для карты и Telegram)
+    analogs_list = []
+    for (a, a_area, up) in filtered_analogs:
+        a_url = a.get("url") or a.get("item_url") or a.get("link") or ""
+        a_address = a.get("address") or a.get("location") or ""
+        a_lat = a.get("lat") or a.get("latitude") or a.get("geo_lat")
+        a_lon = a.get("lon") or a.get("longitude") or a.get("geo_lon")
+        dist = a.get("_distance_m")
+        analogs_list.append({
+            "price": int(a.get("price", 0)),
+            "area": round(a_area, 1),
+            "pricePerUnit": int(up),
+            "distance_m": dist,
+            "address": a_address,
+            "url": a_url,
+            "lat": float(a_lat) if a_lat else None,
+            "lon": float(a_lon) if a_lon else None,
+        })
+
     result = {
         "marketPrice": int(market_price),
         "marketPricePerUnit": market_per_unit,
         "discount": round(discount, 1),
         "confidence": confidence,
         "analogsCount": count,
+        "analogsMedianPrice": int(median_unit),
+        "analogsMinPrice": int(min(filtered_prices)),
+        "analogsMaxPrice": int(max(filtered_prices)),
+        "analogsList": analogs_list,
     }
     mp_fmt = f"{int(market_price):,}".replace(",", " ")
     log.info(f"  оценка: рынок ~{mp_fmt} руб, скидка {result['discount']}%, аналогов {count} ({confidence})")
     return result
+
+
+# === Геокодирование и пространственная фильтрация аналогов ===
+
+from math import radians, sin, cos, sqrt, atan2
+
+_SETTLEMENT_RE = re.compile(
+    r"\b(?:дер\.|д\.|с\.|п\.|г\.п\.|с\.п\.|пос\.|деревня|село|посёлок)\s+([\w\-]+)",
+    re.IGNORECASE,
+)
+
+
+def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Расстояние между двумя точками (WGS-84) в метрах."""
+    R = 6_371_000
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    return R * 2 * atan2(sqrt(a), sqrt(1 - a))
+
+
+def extract_settlement(address: str) -> str | None:
+    """Извлечь название нас. пункта (д., с., п.) из адреса."""
+    m = _SETTLEMENT_RE.search(address or "")
+    return m.group(1).lower() if m else None
+
+
+def _proximity_radius_m(category: str, address: str) -> int:
+    """Радиус поиска аналогов (м) по типу объекта и типу местности."""
+    is_rural = bool(extract_settlement(address))
+    cat = category.lower()
+    if any(w in cat for w in ("квартир", "комнат")):
+        return 1500
+    if any(w in cat for w in ("нежил", "гараж", "здани", "помещен", "сооружен")):
+        return 2000
+    if any(w in cat for w in ("земл", "участ")):
+        return 10_000 if is_rural else 2500
+    if "дом" in cat:
+        return 5000 if is_rural else 3000
+    return 3000
+
+
+def _dadata_geocode(address: str) -> tuple[float | None, float | None]:
+    """Быстрое геокодирование адреса через DaData. Возвращает (lat, lon) или (None, None)."""
+    if not DADATA_TOKEN or not address:
+        return None, None
+    try:
+        r = requests.post(
+            DADATA_CLEAN_URL,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Token {DADATA_TOKEN}",
+                "X-Secret": DADATA_SECRET,
+            },
+            json=[address],
+            timeout=8,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            if data and isinstance(data, list):
+                geo_lat = data[0].get("geo_lat")
+                geo_lon = data[0].get("geo_lon")
+                if geo_lat and geo_lon:
+                    return float(geo_lat), float(geo_lon)
+    except Exception as e:
+        log.debug(f"  DaData geocode error: {e}")
+    return None, None
+
+
+def filter_analogs_by_proximity(
+    analogs: list,
+    lat: float | None,
+    lon: float | None,
+    category: str,
+    address: str,
+    top_n: int = 10,
+) -> list:
+    """Фильтрует аналоги по близости к объекту, возвращает max top_n ближайших.
+
+    Стратегия:
+      1. Если у объекта есть coords И у аналога есть coords → фильтр по радиусу.
+      2. Для сельских объектов без coords аналога → матч по нас. пункту.
+      3. Без coords → возвращает top_n без пространственного фильтра (деградация).
+
+    Добавляет поле _distance_m к каждому аналогу.
+    """
+    radius_m = _proximity_radius_m(category, address)
+    our_settlement = extract_settlement(address)
+    has_our_coords = lat is not None and lon is not None
+
+    result = []
+    no_filter_list = []  # аналоги без возможности пространственного фильтра
+
+    for raw_a in analogs:
+        a = dict(raw_a)  # копия чтобы не мутировать исходный
+
+        # Попытка взять coords аналога (разные поля в зависимости от API)
+        a_lat = a.get("lat") or a.get("latitude") or a.get("geo_lat")
+        a_lon = a.get("lon") or a.get("longitude") or a.get("geo_lon")
+
+        if has_our_coords and a_lat and a_lon:
+            try:
+                dist = haversine_m(lat, lon, float(a_lat), float(a_lon))
+                a["_distance_m"] = int(dist)
+                if dist <= radius_m:
+                    result.append(a)
+            except (ValueError, TypeError):
+                pass
+            continue
+
+        # Fallback: текстовый матч по нас. пункту (для сельских объектов)
+        a_address = a.get("address") or a.get("location") or ""
+        a_settlement = extract_settlement(a_address)
+
+        if our_settlement and a_settlement:
+            if our_settlement == a_settlement:
+                a["_distance_m"] = None
+                result.append(a)
+        else:
+            # Нет coords и нет нас. пункта → фильтруем по дистанции невозможно
+            a["_distance_m"] = None
+            no_filter_list.append(a)
+
+    # Сортируем: с дистанцией — по дистанции, остальные в конце
+    result.sort(key=lambda a: a.get("_distance_m") or 0)
+
+    # Если пространственный фильтр ничего не дал — используем все кандидаты
+    if not result:
+        result = no_filter_list
+
+    kept = result[:top_n]
+    with_coords = sum(1 for a in kept if a.get("_distance_m") is not None)
+    log.info(
+        f"  близость: {len(kept)}/{len(analogs)} аналогов"
+        f" (радиус {radius_m // 1000:.1f} км, {with_coords} с координатами)"
+    )
+    return kept
 
 
 # === Форматирование Telegram ===
@@ -782,9 +971,19 @@ def main():
 
         # Оценка рынка (ads-api.ru)
         market = None
-        analogs = fetch_analogs(parsed)
-        if analogs:
-            market = calculate_market_price(analogs, parsed)
+        analogs_raw = fetch_analogs(parsed)
+        if analogs_raw:
+            # Геокодирование нашего объекта (нужно для радиусной фильтрации)
+            lot_lat, lot_lon = _dadata_geocode(parsed["address"])
+            if lot_lat:
+                log.info(f"  DaData: ({lot_lat:.4f}, {lot_lon:.4f})")
+            # Фильтруем аналоги по близости → топ-10
+            analogs = filter_analogs_by_proximity(
+                analogs_raw, lot_lat, lot_lon,
+                parsed.get("category", ""), parsed["address"],
+            )
+            if analogs:
+                market = calculate_market_price(analogs, parsed)
 
         # Telegram
         msg = format_telegram(parsed, market)

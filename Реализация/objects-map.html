@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта объектов — Estate Invest</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg: #0a0b14; --bg2: #0f1120; --bg3: #161829;
+  --card: rgba(22,24,41,0.95);
+  --border: rgba(99,102,241,0.18); --border2: rgba(99,102,241,0.35);
+  --accent: #6366f1; --accent2: #818cf8;
+  --green: #10b981; --amber: #f59e0b; --blue: #60a5fa; --purple: #a78bfa;
+  --red: #ef4444;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
+
+header {
+  flex-shrink: 0;
+  background: rgba(10,11,20,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  z-index: 1000; position: relative;
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+.logo-dot {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.header-stats { display: flex; gap: 20px; }
+.hstat { display: flex; flex-direction: column; align-items: center; }
+.hstat-v { font-size: 15px; font-weight: 700; }
+.hstat-l { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.hstat-v.green { color: var(--green); }
+.hstat-v.blue { color: var(--blue); }
+.hstat-v.amber { color: var(--amber); }
+
+.map-container { flex: 1; position: relative; }
+
+#map {
+  position: absolute; inset: 0;
+  background: #0f1120;
+}
+
+/* Popup стиль */
+.leaflet-popup-content-wrapper {
+  background: var(--card) !important;
+  border: 1px solid var(--border2) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  color: var(--text) !important;
+  backdrop-filter: blur(20px);
+  max-width: 320px;
+}
+.leaflet-popup-tip { background: rgba(22,24,41,0.95) !important; }
+.leaflet-popup-content { margin: 0 !important; }
+
+.popup {
+  padding: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+}
+.popup-header { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.popup-id {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  background: var(--accent); color: white; padding: 2px 8px;
+  border-radius: 5px; margin-bottom: 6px;
+}
+.popup-name { font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 6px; }
+.popup-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+.tag-type { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.25); }
+.tag-status-active { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.tag-status-collect { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.tag-responsible { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+
+.popup-body { display: flex; flex-direction: column; gap: 7px; }
+.popup-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.popup-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.popup-value { font-size: 12px; font-weight: 600; }
+.popup-value.green { color: var(--green); }
+.popup-value.purple { color: var(--purple); }
+.popup-value.amber { color: var(--amber); font-family: monospace; font-size: 11px; }
+
+.popup-kadastr { font-size: 10px; color: var(--text3); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+.popup-address { font-size: 10px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+
+.popup-links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.popup-link {
+  font-size: 10px; color: var(--accent); text-decoration: none;
+  background: rgba(99,102,241,0.1); padding: 2px 8px; border-radius: 4px;
+  border: 1px solid rgba(99,102,241,0.2);
+}
+.popup-link:hover { background: rgba(99,102,241,0.2); }
+
+/* Легенда */
+.legend {
+  position: absolute; bottom: 20px; right: 20px; z-index: 500;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 11px; backdrop-filter: blur(20px);
+  min-width: 160px;
+}
+.legend-title { font-weight: 600; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+/* Фильтры */
+.filters {
+  position: absolute; top: 12px; left: 60px; z-index: 500;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.filter-btn {
+  font-size: 11px; padding: 4px 12px; border-radius: 16px; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--card);
+  color: var(--text2); transition: all 0.2s; backdrop-filter: blur(10px);
+}
+.filter-btn:hover, .filter-btn.active {
+  background: var(--accent); color: white; border-color: var(--accent);
+}
+
+/* Кнопка ПКК слоя */
+.layer-toggle {
+  position: absolute; top: 12px; right: 20px; z-index: 500;
+  font-size: 11px; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--card);
+  color: var(--text2); transition: all 0.2s; backdrop-filter: blur(10px);
+}
+.layer-toggle.active { background: rgba(99,102,241,0.2); color: var(--accent2); border-color: var(--accent); }
+
+.leaflet-control-zoom a {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--bg2) !important;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot">EI</div>
+    <span>Карта объектов</span>
+  </div>
+  <div class="header-stats" id="hstats">
+    <div class="hstat"><div class="hstat-v blue" id="h-total">—</div><div class="hstat-l">Объектов</div></div>
+    <div class="hstat"><div class="hstat-v green" id="h-active">—</div><div class="hstat-l">Реализация</div></div>
+    <div class="hstat"><div class="hstat-v amber" id="h-collect">—</div><div class="hstat-l">Сбор</div></div>
+    <div class="hstat"><div class="hstat-v" id="h-geodone">—</div><div class="hstat-l">На карте</div></div>
+  </div>
+</header>
+
+<div class="map-container">
+  <div id="map"></div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">Все</button>
+    <button class="filter-btn" data-filter="земельный участок">Земля</button>
+    <button class="filter-btn" data-filter="квартира">Квартиры</button>
+    <button class="filter-btn" data-filter="нежилое помещение">Нежилые</button>
+  </div>
+
+  <button class="layer-toggle" id="pkk-toggle">ПКК слой</button>
+
+  <div class="legend">
+    <div class="legend-title">Тип объекта</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span>Земельный участок</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div><span>Квартира</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span>Нежилое</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div><span>Другое</span></div>
+    <div class="legend-item" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(99,102,241,0.18)">
+      <div class="legend-dot" style="background:rgba(99,102,241,0.5);border:2px solid #6366f1"></div>
+      <span style="color:#8b92a8">Сбор средств</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const PROPERTIES = [
+  {
+    "id": "ИП 19",
+    "name": "ИП 19 ЗУ_Перм. край, с_п Усть-Качкинское, п. Красный Восход",
+    "cadastral": "59:32:3290001:3232",
+    "cadastral_primary": "59:32:3290001:3232",
+    "address": "Пермский край, Пермский район, сельское поселение Усть-Качкинское, поселок Красный Восход",
+    "type": "земельный участок",
+    "area": "",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 13,82% (4,43%/год)",
+    "date_info": "Старт: 12.05.2023 → Конец: 23.06.2026",
+    "price_buy": "845 тыс ₽",
+    "price_sell": "2.1 млн ₽",
+    "profit": "124 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/ust-kachka/zemelnye_uchastki/uchastok_15sot._izhs_3007226532",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/ust-kachka/zemelnye_uchastki/uchastok_7sot._izhs_3007197662",
+        "Авито ↗"
+      ]
+    ],
+    "lat": null,
+    "lon": null
+  },
+  {
+    "id": "ИП 20",
+    "name": "ИП 20 _2 ЗУ_Пермский край, Добрянский район, СПК _Уральская Нива_, ур. Бесово",
+    "cadastral": "59:18:3500203:1021 / 59:18:3500203:1024",
+    "cadastral_primary": "59:18:3500203:1021",
+    "address": "Пермский край, Добрянский район, Полазненское г/п, СПК \"Уральская Нива\", ур. Бесово",
+    "type": "земельный участок",
+    "area": "2000 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 61,48% (22,06%/год)",
+    "date_info": "Старт: 19.05.2023 → Конец: 01.03.2026",
+    "price_buy": "160 тыс ₽",
+    "price_sell": "490 тыс ₽",
+    "profit": "111 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_10sot._izhs_3007582896",
+        "Авито ↗"
+      ]
+    ],
+    "lat": null,
+    "lon": null
+  },
+  {
+    "id": "ИП 22",
+    "name": "ИП 22 _2 ЗУ_Пермский край, д. Пашия, ул. Речная, з_у 13 и 15",
+    "cadastral": "уч. 13: 59:32:4310001:114/ уч. 15: 59:32:47310001:113",
+    "cadastral_primary": "59:32:4310001:114",
+    "address": "Российская Федерация, Пермский край, м. р-н Пермский, с.п. Юго-Камское, д. Пашия, ул. Речная. з/у 13",
+    "type": "земельный участок",
+    "area": "16874 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 12,23% (4,07%/год)",
+    "date_info": "Старт: 14.06.2023 → Конец: 14.06.2026",
+    "price_buy": "336 тыс ₽",
+    "price_sell": "540 тыс ₽",
+    "profit": "45 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/yugo-kamskiy/zemelnye_uchastki/uchastok_12sot._izhs_3167657910",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.6760452,
+    "lon": 55.5285814
+  },
+  {
+    "id": "ИП 27",
+    "name": "ИП 27_ЗУ_Пермский край, г. Добрянка, с_т Заря, участок № 39",
+    "cadastral": "59:18:0020806:39",
+    "cadastral_primary": "59:18:0020806:39",
+    "address": "край Пермский, г. Добрянка, пгт. Полазна, с/т 'Заря', участок № 39",
+    "type": "земельный участок",
+    "area": "483 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 28,76% (11,93%/год)",
+    "date_info": "Старт: 01.09.2023 → Конец: 28.01.2026",
+    "price_buy": "129 тыс ₽",
+    "price_sell": "270 тыс ₽",
+    "profit": "46 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_5sot._izhs_3263046910",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.2949213,
+    "lon": 56.4051544
+  },
+  {
+    "id": "ИП 30",
+    "name": "ИП 30 _ ЗУ_Пермский край, СНТ _Кабельщик № 276_, уч. 130",
+    "cadastral": "59:32:3030011:129 / 59:32:3030011:1521",
+    "cadastral_primary": "59:32:3030011:129",
+    "address": "Пермский край, р-н Пермский, с\\о Хохловский снт \"Кабельщик № 276\", участок 130",
+    "type": "земельный участок",
+    "area": "389 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 40,12% (16,24%/год)",
+    "date_info": "Старт: 11.10.2023 → Конец: 31.03.2026",
+    "price_buy": "173 тыс ₽",
+    "price_sell": "450 тыс ₽",
+    "profit": "81 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/doma_dachi_kottedzhi/dacha_40m_na_uchastke_4sot._3326736298",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.2616967,
+    "lon": 56.250721
+  },
+  {
+    "id": "ИП 31",
+    "name": "ИП 31_ Соликамская",
+    "cadastral": "59:01:3810302:93 / 59:01:3810302:267 / 59:01:3810302:266",
+    "cadastral_primary": "59:01:3810302:93",
+    "address": "Россия, край Пермский, г Пермь, ул Соликамская, дом 319",
+    "type": "коммерческая",
+    "area": "10087 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI -12,53% (-4,05%/год)",
+    "date_info": "Старт: 21.11.2023 → Конец: 25.12.2026",
+    "price_buy": "25.9 млн ₽",
+    "price_sell": "56.8 млн ₽",
+    "profit": "-3.6 млн ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/zdanie_700_m_3391481769",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_15sot._promnaznacheniya_3390711514",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/proizvodstvo_980_m_3391299525",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/proizvodstvo_2000_m_3422766649",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/proizvodstvo_2000_m_3422766649",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_22sot._promnaznacheniya_3390832727",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/gotoviy_biznes/gotovyy_arendnyy_biznes_s_arendatorami_4382993069",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/gotoviy_biznes/gab_gotovyy_arendnyy_biznes_7454000407",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.1480502,
+    "lon": 56.4190692
+  },
+  {
+    "id": "ИП 35",
+    "name": "ИП 35_ЗУ+ЖД_Пермский край, г. Краснокамск, Гражданский переулок, д. 37",
+    "cadastral": "59:07:0010102:46",
+    "cadastral_primary": "59:07:0010102:46",
+    "address": "Пермский край, г. Краснокамск, Гражданский переулок, д. 37",
+    "type": "земельный участок",
+    "area": "824.34 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 34,93% (19,06%/год)",
+    "date_info": "Старт: 21.02.2024 → Конец: 21.12.2025",
+    "price_buy": "5.3 млн ₽",
+    "price_sell": "17.0 млн ₽",
+    "profit": "3.0 млн ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/krasnokamsk/gotoviy_biznes/gab_gotovyy_arendnyy_biznes_7454439666",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.0766761,
+    "lon": 55.6641853
+  },
+  {
+    "id": "ИП 50",
+    "name": "ИП 50/ЗУ/Пермский край, д. Гамы",
+    "cadastral": "59:32:1960001:96 / 59:32:0000000:11102",
+    "cadastral_primary": "59:32:1960001:96",
+    "address": "Пермский край, Пермский район, с/пос Усть-Качкинское, д. Гамы, п/х Гамы",
+    "type": "земельный участок",
+    "area": "6800 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 38,04% (19,67%/год)",
+    "date_info": "Старт: 24.04.2024 → Конец: 31.03.2026",
+    "price_buy": "599 тыс ₽",
+    "price_sell": "2.0 млн ₽",
+    "profit": "304 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_8_sot._izhs_4095281310",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.0197753,
+    "lon": 55.7982337
+  },
+  {
+    "id": "ИП 73",
+    "name": "ИП 73 Аренда ЗУ Калинингр.обл., п. Поваровка, лот14",
+    "cadastral": "39:05:030402:540",
+    "cadastral_primary": "39:05:030402:540",
+    "address": "Поваровка, Зеленоградский муниципальный округ, Калининградская область, Россия",
+    "type": "земельный участок",
+    "area": "1200 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 2,79% (2,14%/год)",
+    "date_info": "Старт: 17.10.2024 → Конец: 05.02.2026",
+    "price_buy": "480 тыс ₽",
+    "price_sell": "700 тыс ₽",
+    "profit": "14 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/yantarnyy/zemelnye_uchastki/uchastok_12_sot._izhs_4254888371",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.8320499,
+    "lon": 20.0107262
+  },
+  {
+    "id": "ИП 74",
+    "name": "ИП 74 ЗУ Пермский край, д. Христофоровка",
+    "cadastral": "59:32:3020003:815",
+    "cadastral_primary": "59:32:3020003:815",
+    "address": "р-н, Христофоровка, Пермский муниципальный округ, Пермский край, Россия, 614505",
+    "type": "земельный участок",
+    "area": "17632 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 19,07% (13,46%/год)",
+    "date_info": "Старт: 24.09.2024 → Конец: 23.02.2026",
+    "price_buy": "809 тыс ₽",
+    "price_sell": "1.5 млн ₽",
+    "profit": "173 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_18_ga_izhs_4287250787",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_18_ga_promnaznacheniya_4382922090",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.2162009,
+    "lon": 56.2991822
+  },
+  {
+    "id": "ИП 75",
+    "name": "ИП 75/ЗУ/Пермский край, с. Лобаново, ул. Путейская (квартал Магистральный)",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "Пермский край, с. Лобаново, ул. Путейская",
+    "type": "земельный участок",
+    "area": "9433 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 172,73% (129,46%/год)",
+    "date_info": "Старт: 18.11.2024 → Конец: 20.03.2026",
+    "price_buy": "2.9 млн ₽",
+    "price_sell": "8.0 млн ₽",
+    "profit": "1.7 млн ₽",
+    "avito_links": [],
+    "lat": 57.863425,
+    "lon": 56.2887742
+  },
+  {
+    "id": "ИП 77",
+    "name": "ИП 77 ЗУ Калининградская обл., п. Сосновка, л.12",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка",
+    "type": "земельный участок",
+    "area": "900 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 2,12% (2,28%/год)",
+    "date_info": "Старт: 19.11.2024 → Конец: 25.10.2025",
+    "price_buy": "677 тыс ₽",
+    "price_sell": "900 тыс ₽",
+    "profit": "17 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.9318222,
+    "lon": 20.5103346
+  },
+  {
+    "id": "ИП 78",
+    "name": "ИП 78 ЗУ Калининградская обл., п. Сосновка, л.9",
+    "cadastral": "39:05:011009:618",
+    "cadastral_primary": "39:05:011009:618",
+    "address": "Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка",
+    "type": "земельный участок",
+    "area": "900 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 1,39% (1,49%/год)",
+    "date_info": "Старт: 19.11.2024 → Конец: 25.10.2025",
+    "price_buy": "713 тыс ₽",
+    "price_sell": "1.0 млн ₽",
+    "profit": "10 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.9318222,
+    "lon": 20.5103346
+  },
+  {
+    "id": "ИП 79",
+    "name": "ИП 79 ЗУ Калининградская обл., п. Сосновка, л.2",
+    "cadastral": "39:05:011009:319",
+    "cadastral_primary": "39:05:011009:319",
+    "address": "Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка",
+    "type": "земельный участок",
+    "area": "800 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 7,03% (7,55%/год)",
+    "date_info": "Старт: 19.11.2024 → Конец: 25.10.2025",
+    "price_buy": "603 тыс ₽",
+    "price_sell": "870 тыс ₽",
+    "profit": "45 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.9318222,
+    "lon": 20.5103346
+  },
+  {
+    "id": "ИП 80",
+    "name": "ИП 80 ЗУ Пермский край, д. Шилово, ул. Тепличная, з/у 38",
+    "cadastral": "59:32:3250001:21567",
+    "cadastral_primary": "59:32:3250001:21567",
+    "address": "Пермский край, Пермский район, Култаевское с/п, д. Шилово, ул. Тепличная, з/у 38",
+    "type": "земельный участок",
+    "area": "1229 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 11,93% (9,45%/год)",
+    "date_info": "Старт: 21.11.2024 → Конец: 25.02.2026",
+    "price_buy": "864 тыс ₽",
+    "price_sell": "1.4 млн ₽",
+    "profit": "109 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_65_sot._izhs_4318775437",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_12_sot._izhs_4318812780",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.9203991,
+    "lon": 55.8871204
+  },
+  {
+    "id": "ИП 82",
+    "name": "ИП 82 ЗУ+Дом г. Калининград, СНТ «50 лет Октября»",
+    "cadastral": "39:15:120603:135",
+    "cadastral_primary": "39:15:120603:135",
+    "address": "Калининградская область, г. Калининград, ш. Люблинское, тер. СНТ «50 лет Октября», ул. Цветочная, 15",
+    "type": "земельный участок",
+    "area": "606 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 29,21% (21,49%/год)",
+    "date_info": "Старт: 20.11.2024 → Конец: 31.03.2026",
+    "price_buy": "3.6 млн ₽",
+    "price_sell": "7.2 млн ₽",
+    "profit": "1.2 млн ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/kaliningrad/doma_dachi_kottedzhi/dom_1041_m_na_uchastke_6_sot._4350659273",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.759105,
+    "lon": 20.43039
+  },
+  {
+    "id": "ИП 83",
+    "name": "ИП 83 ЗУ Калининградская обл., пос. Заозерье, уч. №4",
+    "cadastral": "39:03:060011:312",
+    "cadastral_primary": "39:03:060011:312",
+    "address": ", Калининградская обл., Гурьевский р-н, пос. Заозерье, участок № 4, Светлогорск, Калининградская область, Россия",
+    "type": "земельный участок",
+    "area": "1200 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 8,10% (7,58%/год)",
+    "date_info": "Старт: 18.02.2025 → Конец: 15.03.2026",
+    "price_buy": "2.1 млн ₽",
+    "price_sell": "3.0 млн ₽",
+    "profit": "192 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/kaliningrad/zemelnye_uchastki/uchastok_6_sot._izhs_4351203859",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/kaliningrad/zemelnye_uchastki/uchastok_12_sot._izhs_4350558353",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.9439073,
+    "lon": 20.1514612
+  },
+  {
+    "id": "ИП 84",
+    "name": "ИП 84 ЗУ Калининградская область, г. Балтийск, л.1",
+    "cadastral": "39:14:010234:11",
+    "cadastral_primary": "39:14:010234:11",
+    "address": "р-н балтийский, Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520",
+    "type": "земельный участок",
+    "area": "604 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 26,21% (16,58%/год)",
+    "date_info": "Старт: 27.11.2024 → Конец: 27.06.2026",
+    "price_buy": "645 тыс ₽",
+    "price_sell": "1.3 млн ₽",
+    "profit": "185 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.6513858,
+    "lon": 19.9140642
+  },
+  {
+    "id": "ИП 85",
+    "name": "ИП 85 ЗУ Калининградская область, г. Балтийск, л.2",
+    "cadastral": "39:14:010234:9",
+    "cadastral_primary": "39:14:010234:9",
+    "address": "Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520",
+    "type": "земельный участок",
+    "area": "619 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 23,41% (22,91%/год)",
+    "date_info": "Старт: 27.11.2024 → Конец: 05.12.2025",
+    "price_buy": "658 тыс ₽",
+    "price_sell": "1.3 млн ₽",
+    "profit": "169 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.6513858,
+    "lon": 19.9140642
+  },
+  {
+    "id": "ИП 86",
+    "name": "ИП 86 ЗУ Калининградская область, г. Балтийск, л.3",
+    "cadastral": "39:14:010234:8",
+    "cadastral_primary": "39:14:010234:8",
+    "address": "Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520",
+    "type": "земельный участок",
+    "area": "605 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 24,60% (24,07%/год)",
+    "date_info": "Старт: 27.11.2024 → Конец: 05.12.2025",
+    "price_buy": "646 тыс ₽",
+    "price_sell": "1.3 млн ₽",
+    "profit": "174 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.6513858,
+    "lon": 19.9140642
+  },
+  {
+    "id": "ИП 87",
+    "name": "ИП 87 ЗУ Калининградская область, г. Балтийск, л.4",
+    "cadastral": "39:14:010234:10",
+    "cadastral_primary": "39:14:010234:10",
+    "address": "Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520",
+    "type": "земельный участок",
+    "area": "596 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 26,95% (26,37%/год)",
+    "date_info": "Старт: 27.11.2024 → Конец: 05.12.2025",
+    "price_buy": "639 тыс ₽",
+    "price_sell": "1.3 млн ₽",
+    "profit": "189 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.6513858,
+    "lon": 19.9140642
+  },
+  {
+    "id": "ИП 89",
+    "name": "ИП 89 ЗУ Калининградская обл., г. Светлогорск, ул. Новая",
+    "cadastral": "39:17:010048:10",
+    "cadastral_primary": "39:17:010048:10",
+    "address": "Новая улица, Светлогорск, Светлогорский городской округ, Калининградская область, Россия, 23856",
+    "type": "земельный участок",
+    "area": "600 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 21,11% (17,92%/год)",
+    "date_info": "Старт: 27.11.2024 → Конец: 31.01.2026",
+    "price_buy": "3.9 млн ₽",
+    "price_sell": "6.0 млн ₽",
+    "profit": "848 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/svetlogorsk/zemelnye_uchastki/uchastok_6_sot._izhs_4383052350",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/svetlogorsk/zemelnye_uchastki/uchastok_6_sot._izhs_4383226249",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.9439073,
+    "lon": 20.1514612
+  },
+  {
+    "id": "ИП 91",
+    "name": "ИП 91 ЗУ+Дом Пермский край, г. Добрянка, ул. Луначарского, д. 33",
+    "cadastral": "59:18:0010402:2074",
+    "cadastral_primary": "59:18:0010402:2074",
+    "address": "Пермский край, г. Добрянка, ул. Луначарского, д. 33",
+    "type": "земельный участок",
+    "area": "901.2 м²",
+    "status": "сбор средств",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 12,53% (12,74%/год)",
+    "date_info": "Старт: 11.12.2024 → Конец: 05.12.2025",
+    "price_buy": "2.3 млн ₽",
+    "price_sell": "11.5 млн ₽",
+    "profit": "1.3 млн ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/dobryanka/kommercheskaya_nedvizhimost/zdanie_980_m_7454244982",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.44965,
+    "lon": 56.4106538
+  },
+  {
+    "id": "ИП 92",
+    "name": "ИП 92 КП Пермский край, г. Нытва, ул. Карла Маркса, зд. 84",
+    "cadastral": "59:26:0610475:236",
+    "cadastral_primary": "59:26:0610475:236",
+    "address": "улица Карла Маркса, 84, нытвенский, Нытва, Нытвенский городской округ, Пермский край, Россия, 617000",
+    "type": "коммерческая",
+    "area": "870.7 м²",
+    "status": "сбор средств",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 24,76% (24,76%/год)",
+    "date_info": "Старт: 25.12.2024 → Конец: 25.12.2025",
+    "price_buy": "4.5 млн ₽",
+    "price_sell": "28.2 млн ₽",
+    "profit": "3.9 млн ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/nytva/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_18_m_4543058271",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/nytva/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_12_m_4543445249",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.9419857,
+    "lon": 55.3255315
+  },
+  {
+    "id": "ИП 93",
+    "name": "ИП 93 ЗУ Пермский край, д. Загришинское, ул. Солнечная, зу 45",
+    "cadastral": "59:32:3020003:3939",
+    "cadastral_primary": "59:32:3020003:3939",
+    "address": "Пермский край, д. Загришинское, ул. Солнечная, зу 45",
+    "type": "земельный участок",
+    "area": "1200 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 29,03% (38,67%/год)",
+    "date_info": "Старт: 25.12.2024 → Конец: 25.09.2025",
+    "price_buy": "360 тыс ₽",
+    "price_sell": "700 тыс ₽",
+    "profit": "114 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_14_sot._izhs_4254667721",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_7_sot._izhs_4255457126",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.2348071,
+    "lon": 56.3036615
+  },
+  {
+    "id": "ИП 94",
+    "name": "ИП 94 ЗУ+Дом Пермский край, д. Устиново, ул. Школьная, д. 3",
+    "cadastral": "59:32:0430001:763",
+    "cadastral_primary": "59:32:0430001:763",
+    "address": "Пермский край, Пермский район, Двуреченское сельское поселение, д. Устиново, ул. Школьная, д. 3",
+    "type": "земельный участок",
+    "area": "938 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 9,70% (9,97%/год)",
+    "date_info": "Старт: 25.12.2024 → Конец: 15.12.2025",
+    "price_buy": "2.2 млн ₽",
+    "price_sell": "7.5 млн ₽",
+    "profit": "562 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9092938,
+    "lon": 56.2047085
+  },
+  {
+    "id": "ИП 101",
+    "name": "ИП 101 ЗУ г. Пермь, ул. Затонская, з/у 16а",
+    "cadastral": "59:01:2512475:175",
+    "cadastral_primary": "59:01:2512475:175",
+    "address": "край Пермский, г.о. Пермский, г Пермь, ул Затонская, з/у 16а",
+    "type": "земельный участок",
+    "area": "591 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 20,49% (40,86%/год)",
+    "date_info": "Старт: 31.03.2025 → Конец: 30.09.2025",
+    "price_buy": "1.6 млн ₽",
+    "price_sell": "2.5 млн ₽",
+    "profit": "336 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_6_sot._izhs_7230559170",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.147635,
+    "lon": 56.3109351
+  },
+  {
+    "id": "ИП 105",
+    "name": "ИП 105 КП г. Пермь, ул. Теплогорская, д. 22, лот 25",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088",
+    "type": "коммерческая",
+    "area": "37.13 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 42,98% (63,77%/год)",
+    "date_info": "Старт: 14.05.2025 → Конец: 15.01.2026",
+    "price_buy": "735 тыс ₽",
+    "price_sell": "2.8 млн ₽",
+    "profit": "705 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9659743,
+    "lon": 56.1761282
+  },
+  {
+    "id": "ИП 106",
+    "name": "ИП 106 КП г. Пермь, ул. Теплогорская, д. 22, лот 3",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088",
+    "type": "коммерческая",
+    "area": "22.54 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 15,35% (10,18%/год)",
+    "date_info": "Старт: 14.05.2025 → Конец: 15.11.2026",
+    "price_buy": "682 тыс ₽",
+    "price_sell": "1.2 млн ₽",
+    "profit": "179 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9659743,
+    "lon": 56.1761282
+  },
+  {
+    "id": "ИП 107",
+    "name": "ИП 107 КП г. Пермь, ул. Теплогорская, д. 22, лот 23",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088",
+    "type": "коммерческая",
+    "area": "45.34 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 17,37% (11,53%/год)",
+    "date_info": "Старт: 14.05.2025 → Конец: 15.11.2026",
+    "price_buy": "948 тыс ₽",
+    "price_sell": "3.9 млн ₽",
+    "profit": "352 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9659743,
+    "lon": 56.1761282
+  },
+  {
+    "id": "ИП 110",
+    "name": "ИП 110 НП Пермский край, с Троица, ул Советская, 12",
+    "cadastral": "59:32:1910001:36",
+    "cadastral_primary": "59:32:1910001:36",
+    "address": "Троица, Советская улица, 12",
+    "type": "земельный участок",
+    "area": "719 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 33,95% (33,95%/год)",
+    "date_info": "Старт: 01.06.2025 → Конец: 01.06.2026",
+    "price_buy": "718 тыс ₽",
+    "price_sell": "2.8 млн ₽",
+    "profit": "472 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/sylva/zemelnye_uchastki/uchastok_8_sot._promnaznacheniya_7486454527",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/sylva/zemelnye_uchastki/uchastok_8_sot._izhs_7454316869",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 54.4007901,
+    "lon": 40.2316608
+  },
+  {
+    "id": "ИП 111",
+    "name": "ИП 111 ЗУ Калининградская обл., СНТ «Сосновка», уч.14б",
+    "cadastral": "39:05:050405:76",
+    "cadastral_primary": "39:05:050405:76",
+    "address": "Вольное, Зеленоградский муниципальный округ, Калининградская область, Россия",
+    "type": "земельный участок",
+    "area": "954 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 34,75% (34,75%/год)",
+    "date_info": "Старт: 09.06.2024 → Конец: 09.06.2025",
+    "price_buy": "589 тыс ₽",
+    "price_sell": "1.3 млн ₽",
+    "profit": "225 тыс ₽",
+    "avito_links": [],
+    "lat": 54.9218394,
+    "lon": 20.5200337
+  },
+  {
+    "id": "ИП 112",
+    "name": "ИП 112 КП г. Пермь, ул. Липатова, д. 5, лот 7",
+    "cadastral": "59:01:1713044:1698",
+    "cadastral_primary": "59:01:1713044:1698",
+    "address": "улица Липатова, 5, Пермь, Пермский городской округ, Пермский край, Россия, 614113",
+    "type": "коммерческая",
+    "area": "82.02 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 13,32% (22,72%/год)",
+    "date_info": "Старт: 09.06.2025 → Конец: 09.01.2026",
+    "price_buy": "1.4 млн ₽",
+    "price_sell": "3.5 млн ₽",
+    "profit": "807 тыс ₽",
+    "avito_links": [],
+    "lat": 58.0207428,
+    "lon": 56.3444954
+  },
+  {
+    "id": "ИП 113",
+    "name": "ИП 113 КП г. Пермь, ул. Липатова, д. 5, лот 11",
+    "cadastral": "",
+    "cadastral_primary": "",
+    "address": "",
+    "type": "коммерческая",
+    "area": "73.66 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "",
+    "date_info": "Старт: 09.06.2025",
+    "price_buy": "1.4 млн ₽",
+    "price_sell": "—",
+    "profit": "-608 тыс ₽",
+    "avito_links": [],
+    "lat": 58.010446,
+    "lon": 56.229429
+  },
+  {
+    "id": "ИП 114",
+    "name": "ИП 114 КП г. Пермь, ул. Липатова, д. 5, каб. 5-7",
+    "cadastral": "59:01:1713044:1698",
+    "cadastral_primary": "59:01:1713044:1698",
+    "address": "",
+    "type": "коммерческая",
+    "area": "75.82 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "",
+    "date_info": "Старт: 09.06.2025",
+    "price_buy": "1.4 млн ₽",
+    "price_sell": "—",
+    "profit": "-608 тыс ₽",
+    "avito_links": [],
+    "lat": 58.010446,
+    "lon": 56.229429
+  },
+  {
+    "id": "ИП 115",
+    "name": "ИП 115 ЗУ г. Пермь, ул. Новосельская, з/у 1в",
+    "cadastral": "59:01:1717072:127",
+    "cadastral_primary": "59:01:1717072:127",
+    "address": "г. Пермь, улица Новосельская, з/у 1в",
+    "type": "земельный участок",
+    "area": "453 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 27,96% (112,16%/год)",
+    "date_info": "Старт: 18.09.2025 → Конец: 18.12.2025",
+    "price_buy": "1.6 млн ₽",
+    "price_sell": "2.8 млн ₽",
+    "profit": "509 тыс ₽",
+    "avito_links": [],
+    "lat": 58.0487603,
+    "lon": 56.0469202
+  },
+  {
+    "id": "ИП 119",
+    "name": "ИП 119 Аренда ЗУ г. Пермь, ул. Башкирская, зу 54",
+    "cadastral": "59:01:1810045:21",
+    "cadastral_primary": "59:01:1810045:21",
+    "address": "Пермский край, г. Пермь, улица Башкирская, з/у 54",
+    "type": "земельный участок",
+    "area": "1178 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI 42,12% (80,91%/год)",
+    "date_info": "Старт: 20.12.2025 → Конец: 28.06.2026",
+    "price_buy": "915 тыс ₽",
+    "price_sell": "2.0 млн ₽",
+    "profit": "447 тыс ₽",
+    "avito_links": [],
+    "lat": 58.0575722,
+    "lon": 56.0185186
+  },
+  {
+    "id": "ИП 120",
+    "name": "ИП 120 ЗУ Пермский край, д. Шилово, ул. Разгуляевская, з/у 12",
+    "cadastral": "59:32:3250001:21548",
+    "cadastral_primary": "59:32:3250001:21548",
+    "address": "Пермский край, Пермский муниципальный округ, д. Шилово, улица Разгуляевская, з/у 12",
+    "type": "земельный участок",
+    "area": "1141 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI -41,56% (/год)",
+    "date_info": "",
+    "price_buy": "713 тыс ₽",
+    "price_sell": "—",
+    "profit": "-333 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9211223,
+    "lon": 55.8895448
+  },
+  {
+    "id": "ИП 121",
+    "name": "ИП 121 ЗУ Пермский край, д. Загришинское, ул. Солнечная, з/у 49",
+    "cadastral": "59:32:3020003:4332",
+    "cadastral_primary": "59:32:3020003:4332",
+    "address": "Пермский край, Пермский муниципальный округ, д. Загришинское, ул. Солнечная, зу 49",
+    "type": "земельный участок",
+    "area": "1204 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "ROI -39,88% (/год)",
+    "date_info": "",
+    "price_buy": "393 тыс ₽",
+    "price_sell": "—",
+    "profit": "-184 тыс ₽",
+    "avito_links": [],
+    "lat": 58.2348071,
+    "lon": 56.3036615
+  },
+  {
+    "id": "ИП 122",
+    "name": "ИП 122 ЗУ Аренда г. Пермь, ул. Черногорская, зу 52д",
+    "cadastral": "59:01:1713430:161",
+    "cadastral_primary": "59:01:1713430:161",
+    "address": "Пермский край, городской округ Пермский, город Пермь, улица Черногорская, зу 52д",
+    "type": "земельный участок",
+    "area": "1100 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "",
+    "date_info": "",
+    "price_buy": "518 тыс ₽",
+    "price_sell": "1.5 млн ₽",
+    "profit": "404 тыс ₽",
+    "avito_links": [],
+    "lat": 58.0487603,
+    "lon": 56.0469202
+  },
+  {
+    "id": "ИП 123",
+    "name": "ИП 123 ЗУ Аренда Пермский край, д. Загришинское, ул. Солнечная, зу 59",
+    "cadastral": "59:32:3020003:4504",
+    "cadastral_primary": "59:32:3020003:4504",
+    "address": "Пермский край, Пермский муниципальный округ, деревня Загришинское, ул. Солнечная, з/у 59",
+    "type": "земельный участок",
+    "area": "1264 м²",
+    "status": "реализация",
+    "responsible": "Антонина Скурко",
+    "roi": "",
+    "date_info": "",
+    "price_buy": "67 тыс ₽",
+    "price_sell": "—",
+    "profit": "-30 тыс ₽",
+    "avito_links": [],
+    "lat": 58.2348071,
+    "lon": 56.3036615
+  },
+  {
+    "id": "ИП 60",
+    "name": "ИП 60 КП Пермь, ул. Солдатова, 32, л.5 - 11,2 м2",
+    "cadastral": "59:01:4410946:5230",
+    "cadastral_primary": "59:01:4410946:5230",
+    "address": "Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №5)",
+    "type": "коммерческая",
+    "area": "11.2 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 38,59% (22,57%/год)",
+    "date_info": "Старт: 15.07.2024 → Конец: 31.03.2026",
+    "price_buy": "455 тыс ₽",
+    "price_sell": "1.2 млн ₽",
+    "profit": "208 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/ofis_12_m_7518576834",
+        "Авито ↗"
+      ],
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_12_m_4031010517",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.973731,
+    "lon": 56.234697
+  },
+  {
+    "id": "ИП 62",
+    "name": "ИП 62 КП Пермь, ул. Солдатова, 32, л.3 - 75 м2",
+    "cadastral": "59:01:4410946:5227",
+    "cadastral_primary": "59:01:4410946:5227",
+    "address": "Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №3)",
+    "type": "коммерческая",
+    "area": "75 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 26,45% (29,08%/год)",
+    "date_info": "Старт: 17.09.2024 → Конец: 15.08.2025",
+    "price_buy": "2.2 млн ₽",
+    "price_sell": "7.0 млн ₽",
+    "profit": "941 тыс ₽",
+    "avito_links": [],
+    "lat": 57.973731,
+    "lon": 56.234697
+  },
+  {
+    "id": "ИП 63",
+    "name": "ИП 63 КП Пермь, ул. Солдатова, 32, л.2 - 77,5 м2",
+    "cadastral": "59:01:4410946:5217",
+    "cadastral_primary": "59:01:4410946:5217",
+    "address": "Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №2)",
+    "type": "коммерческая",
+    "area": "77.5 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 15,09% (9,83%/год)",
+    "date_info": "Старт: 17.09.2024 → Конец: 31.03.2026",
+    "price_buy": "2.3 млн ₽",
+    "price_sell": "6.0 млн ₽",
+    "profit": "555 тыс ₽",
+    "avito_links": [],
+    "lat": 57.973731,
+    "lon": 56.234697
+  },
+  {
+    "id": "ИП 64",
+    "name": "ИП 64 КП Пермь, ул. Солдатова, 32, л.1 - 86,2 м2",
+    "cadastral": "59:01:4410946:5224",
+    "cadastral_primary": "59:01:4410946:5224",
+    "address": "Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №1)",
+    "type": "коммерческая",
+    "area": "86.2 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 20,07% (13,08%/год)",
+    "date_info": "Старт: 17.09.2024 → Конец: 31.03.2026",
+    "price_buy": "2.6 млн ₽",
+    "price_sell": "7.0 млн ₽",
+    "profit": "823 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_86.7_m_4382949702",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.973731,
+    "lon": 56.234697
+  },
+  {
+    "id": "ИП 95",
+    "name": "ИП 95 ЗУ Пермский край, дер. Городище",
+    "cadastral": "59:18:3630101:3735",
+    "cadastral_primary": "59:18:3630101:3735",
+    "address": "Пермский край, Добрянский р-н, Краснослудское с/пос., дер. Городище",
+    "type": "земельный участок",
+    "area": "1000 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 16,71% (24,10%/год)",
+    "date_info": "Старт: 15.01.2025 → Конец: 25.09.2025",
+    "price_buy": "279 тыс ₽",
+    "price_sell": "500 тыс ₽",
+    "profit": "54 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_10_sot._izhs_4447116084",
+        "Авито ↗"
+      ]
+    ],
+    "lat": null,
+    "lon": null
+  },
+  {
+    "id": "ИП 96",
+    "name": "ИП 96 ЗУ Пермский край, Краснокамск, ул. Тупиковая/ул.Осинская",
+    "cadastral": "59:07:0011102:511",
+    "cadastral_primary": "59:07:0011102:511",
+    "address": "Пермский край, г. Краснокамск, ул. Тупиковая, зу 2а",
+    "type": "земельный участок",
+    "area": "1824 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 38,71% (31,05%/год)",
+    "date_info": "Старт: 23.01.2025 → Конец: 23.04.2026",
+    "price_buy": "1.2 млн ₽",
+    "price_sell": "2.6 млн ₽",
+    "profit": "554 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/krasnokamsk/zemelnye_uchastki/uchastok_10_sot._izhs_4479175763",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.0820673,
+    "lon": 55.7478889
+  },
+  {
+    "id": "ИП 99",
+    "name": "ИП 99 ЗУ Пермский край, сп Култаевское",
+    "cadastral": "59:32:4070004:4329",
+    "cadastral_primary": "59:32:4070004:4329",
+    "address": "",
+    "type": "земельный участок",
+    "area": "718 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 19,23% (33,91%/год)",
+    "date_info": "Старт: 07.03.2025 → Конец: 30.09.2025",
+    "price_buy": "364 тыс ₽",
+    "price_sell": "600 тыс ₽",
+    "profit": "73 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_72_sot._izhs_7230206625",
+        "Авито ↗"
+      ]
+    ],
+    "lat": null,
+    "lon": null
+  },
+  {
+    "id": "ИП 102",
+    "name": "ИП 102 ЗУ Пермский край, рп Оверята, ул Молодежная, зу 108",
+    "cadastral": "59:07:0020115:159",
+    "cadastral_primary": "59:07:0020115:159",
+    "address": "Молодёжная улица, Оверята, Краснокамский муниципальный округ, Пермский край, Россия, 617050",
+    "type": "земельный участок",
+    "area": "1196 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 30,15% (30,15%/год)",
+    "date_info": "Старт: 24.03.2025 → Конец: 24.03.2026",
+    "price_buy": "451 тыс ₽",
+    "price_sell": "1.0 млн ₽",
+    "profit": "164 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/overyata/zemelnye_uchastki/uchastok_12_sot._izhs_7230315750",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 58.0920406,
+    "lon": 55.857351
+  },
+  {
+    "id": "ИП 108",
+    "name": "ИП 108 ЗУ Пермский край, п. Красный Восход, ул. Пермская, зу 37",
+    "cadastral": "59:32:3290001:13244",
+    "cadastral_primary": "59:32:3290001:13244",
+    "address": "ул. пермская, Красный Восход, Пермский муниципальный округ, Пермский край, Россия, 614523",
+    "type": "земельный участок",
+    "area": "1015 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 27,02% (26,94%/год)",
+    "date_info": "Старт: 14.05.2025 → Конец: 15.05.2026",
+    "price_buy": "225 тыс ₽",
+    "price_sell": "500 тыс ₽",
+    "profit": "68 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9935313,
+    "lon": 55.712637
+  },
+  {
+    "id": "ИП 116",
+    "name": "ИП 116 ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у22 (лот 2)",
+    "cadastral": "59:32:3250001:9044",
+    "cadastral_primary": "59:32:3250001:9044",
+    "address": "село Култаево, ул.Царскосельская, з/у22",
+    "type": "земельный участок",
+    "area": "977 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 35,94% (35,94%/год)",
+    "date_info": "Старт: 10.12.2025 → Конец: 10.12.2026",
+    "price_buy": "750 тыс ₽",
+    "price_sell": "1.5 млн ₽",
+    "profit": "297 тыс ₽",
+    "avito_links": [],
+    "lat": 57.8937927,
+    "lon": 55.9342434
+  },
+  {
+    "id": "ИП 117",
+    "name": "ИП 117 ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у21 (лот 4)",
+    "cadastral": "59:32:3250001:9050",
+    "cadastral_primary": "59:32:3250001:9050",
+    "address": "Култаево, ул.Царскосельская, з/у 21",
+    "type": "земельный участок",
+    "area": "1013 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 32,12% (77,63%/год)",
+    "date_info": "Старт: 16.12.2025 → Конец: 16.05.2026",
+    "price_buy": "735 тыс ₽",
+    "price_sell": "1.4 млн ₽",
+    "profit": "274 тыс ₽",
+    "avito_links": [],
+    "lat": 57.9012289,
+    "lon": 55.895672
+  },
+  {
+    "id": "ИП 118",
+    "name": "ИП 118 ЗУ Пермский край, село Култаево (лот 1)",
+    "cadastral": "59:32:3250001:9039",
+    "cadastral_primary": "59:32:3250001:9039",
+    "address": "Пермский край, Пермский район, Култаевское с/п, с. Култаево",
+    "type": "земельный участок",
+    "area": "1093 м²",
+    "status": "реализация",
+    "responsible": "Наталья Ильиных",
+    "roi": "ROI 31,71% (31,71%/год)",
+    "date_info": "Старт: 19.12.2025 → Конец: 19.12.2026",
+    "price_buy": "869 тыс ₽",
+    "price_sell": "1.7 млн ₽",
+    "profit": "305 тыс ₽",
+    "avito_links": [],
+    "lat": 57.8937927,
+    "lon": 55.9342434
+  },
+  {
+    "id": "ИП 4",
+    "name": "ИП 4 Калининград, Краснодонская, 4",
+    "cadastral": "59:32:3250001:9050",
+    "cadastral_primary": "59:32:3250001:9050",
+    "address": "Култаево, ул.Царскосельская, з/у 21",
+    "type": "коммерческая",
+    "area": "116.2 м²",
+    "status": "реализация",
+    "responsible": "Ярослав Балакин",
+    "roi": "ROI 7,40% (1,97%/год)",
+    "date_info": "Старт: 02.07.2022 → Конец: 31.03.2026",
+    "price_buy": "5.0 млн ₽",
+    "price_sell": "7.0 млн ₽",
+    "profit": "387 тыс ₽",
+    "avito_links": [
+      [
+        "https://www.avito.ru/kaliningrad/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_116_m_3007153946",
+        "Авито ↗"
+      ]
+    ],
+    "lat": 57.9012289,
+    "lon": 55.895672
+  }
+];
+
+// Цвет по типу
+function typeColor(type) {
+  if (!type) return '#a78bfa';
+  const t = type.toLowerCase();
+  if (t.includes('земел') || t.includes('участок')) return '#10b981';
+  if (t.includes('кварт') || t.includes('жил')) return '#60a5fa';
+  if (t.includes('нежил') || t.includes('помещен') || t.includes('здани') || t.includes('офис')) return '#f59e0b';
+  return '#a78bfa';
+}
+
+function makeIcon(color, status) {
+  const isCollect = status && status.includes('сбор');
+  const size = 14;
+  const opacity = isCollect ? 0.6 : 1;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.4"/>
+    </filter>
+    <path d="M16 0C7.163 0 0 7.163 0 16c0 8.837 16 24 16 24s16-15.163 16-24C32 7.163 24.837 0 16 0z"
+      fill="${color}" opacity="${opacity}" filter="url(#shadow)"/>
+    <circle cx="16" cy="15" r="6" fill="white" opacity="0.9"/>
+    ${isCollect ? '<circle cx="25" cy="6" r="5" fill="#f59e0b"/>' : ''}
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -40],
+  });
+}
+
+function makePopup(p) {
+  const statusClass = p.status && p.status.includes('сбор') ? 'tag-status-collect' : 'tag-status-active';
+  const links = (p.avito_links || []).map(([url, text]) =>
+    `<a href="${url}" class="popup-link" target="_blank">${text} ↗</a>`
+  ).join('');
+  return `<div class="popup">
+    <div class="popup-header">
+      <div class="popup-id">${p.id}</div>
+      <div class="popup-name">${p.name}</div>
+      <div class="popup-tags">
+        ${p.type ? `<span class="tag tag-type">${p.type}</span>` : ''}
+        ${p.status ? `<span class="tag ${statusClass}">${p.status}</span>` : ''}
+        ${p.responsible ? `<span class="tag tag-responsible">${p.responsible.split(' ')[0]}</span>` : ''}
+      </div>
+    </div>
+    <div class="popup-body">
+      ${p.price_buy ? `<div class="popup-row">
+        <span class="popup-label">Покупка</span>
+        <span class="popup-value">${p.price_buy}</span>
+      </div>` : ''}
+      ${p.price_sell ? `<div class="popup-row">
+        <span class="popup-label">Целевая</span>
+        <span class="popup-value green">${p.price_sell}</span>
+      </div>` : ''}
+      ${p.roi ? `<div class="popup-row">
+        <span class="popup-label">ROI</span>
+        <span class="popup-value purple">${p.roi}</span>
+      </div>` : ''}
+      ${p.area ? `<div class="popup-row">
+        <span class="popup-label">Площадь</span>
+        <span class="popup-value">${p.area}</span>
+      </div>` : ''}
+    </div>
+    ${p.cadastral ? `<div class="popup-kadastr">Кадастр: <span style="color:var(--amber);font-family:monospace">${p.cadastral}</span></div>` : ''}
+    ${p.address ? `<div class="popup-address">${p.address}</div>` : ''}
+    ${links ? `<div class="popup-links">${links}</div>` : ''}
+  </div>`;
+}
+
+// Инициализация карты
+const map = L.map('map', {
+  center: [57.1900, 47.1527],
+  zoom: 9,
+  zoomControl: true,
+});
+
+// Яндекс тайлы (тёмные)
+const yandexLayer = L.tileLayer(
+  'https://core-renderer-tiles.maps.yandex.net/tiles?l=map&x={x}&y={y}&z={z}&lang=ru_RU',
+  { attribution: '© Яндекс', maxZoom: 18, tileSize: 256 }
+).addTo(map);
+
+// ПКК слой (кадастровые границы)
+const pkkLayer = L.tileLayer(
+  'https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/CadastreObjects/MapServer/tile/{z}/{y}/{x}',
+  { attribution: '© Росреестр ПКК', maxZoom: 20, opacity: 0.6 }
+);
+let pkkActive = false;
+
+document.getElementById('pkk-toggle').addEventListener('click', function() {
+  pkkActive = !pkkActive;
+  if (pkkActive) { pkkLayer.addTo(map); this.classList.add('active'); }
+  else { map.removeLayer(pkkLayer); this.classList.remove('active'); }
+});
+
+// Маркеры
+const markers = [];
+const markerLayers = L.layerGroup().addTo(map);
+
+let filterType = 'all';
+
+function renderMarkers() {
+  markerLayers.clearLayers();
+  const visible = PROPERTIES.filter(p => {
+    if (!p.lat || !p.lon) return false;
+    if (filterType === 'all') return true;
+    return p.type && p.type.toLowerCase().includes(filterType.toLowerCase());
+  });
+
+  visible.forEach(p => {
+    const color = typeColor(p.type);
+    const icon = makeIcon(color, p.status);
+    const marker = L.marker([p.lat, p.lon], { icon })
+      .bindPopup(makePopup(p), { maxWidth: 320, className: 'dark-popup' });
+    markerLayers.addLayer(marker);
+  });
+}
+
+// Фильтры
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    filterType = this.dataset.filter === 'all' ? 'all' : this.dataset.filter;
+    renderMarkers();
+  });
+});
+
+// Статистика в шапке
+const total = PROPERTIES.length;
+const withCoords = PROPERTIES.filter(p => p.lat).length;
+const active = PROPERTIES.filter(p => p.status && p.status.includes('реализ')).length;
+const collect = PROPERTIES.filter(p => p.status && p.status.includes('сбор')).length;
+
+document.getElementById('h-total').textContent = total;
+document.getElementById('h-active').textContent = active;
+document.getElementById('h-collect').textContent = collect;
+document.getElementById('h-geodone').textContent = withCoords;
+
+renderMarkers();
+
+// Кластеризация при зуме
+map.on('zoomend', function() {
+  // При зуме < 10 показываем все, при > 14 увеличиваем маркеры
+});
+</script>
+</body>
+</html>

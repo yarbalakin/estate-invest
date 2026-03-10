@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта аналогов — Estate Invest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg: #0a0b14; --bg2: #0f1120; --bg3: #161829;
+  --card: rgba(22,24,41,0.85); --card-hover: rgba(30,33,58,0.95);
+  --border: rgba(99,102,241,0.18); --border2: rgba(99,102,241,0.35);
+  --accent: #6366f1; --accent2: #818cf8; --accent3: #a5b4fc;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b; --orange: #f97316;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+  --radius: 14px; --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(99,102,241,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(129,140,248,0.06) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+
+/* HEADER */
+header {
+  flex-shrink: 0;
+  position: relative; z-index: 10;
+  background: rgba(10,11,20,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+.logo-dot {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.header-title { font-size: 13px; color: var(--text2); }
+
+/* CONTENT */
+.content {
+  flex: 1;
+  position: relative; z-index: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* TARGET CARD */
+.target-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.target-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 8px;
+}
+.target-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text); margin-bottom: 10px;
+  line-height: 1.4;
+}
+.price-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.price-label { font-size: 11px; color: var(--text3); }
+.price-val { font-size: 14px; font-weight: 600; color: var(--text); }
+.price-val.market { color: var(--accent3); }
+.discount-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  margin-top: 10px;
+}
+.discount-badge.great { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.discount-badge.good  { background: rgba(99,102,241,0.15); color: var(--accent3); border: 1px solid rgba(99,102,241,0.3); }
+.discount-badge.ok    { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+.discount-badge.low   { background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.3); }
+.discount-badge.neg   { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+/* STATS ROW */
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px; margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 10px 12px;
+  text-align: center;
+}
+.stat-val { font-size: 16px; font-weight: 700; color: var(--accent3); }
+.stat-label { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* SECTION TITLE */
+.section-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .8px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-title span {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 2px 8px;
+  font-size: 11px; color: var(--accent2);
+}
+
+/* ANALOG ITEM */
+.analog-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.analog-item:hover { border-color: var(--accent); background: var(--card-hover); }
+.analog-item.active { border-color: var(--accent2); background: var(--card-hover); }
+.analog-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 700;
+  margin-right: 6px; flex-shrink: 0;
+}
+.analog-header { display: flex; align-items: center; margin-bottom: 6px; }
+.analog-price { font-size: 14px; font-weight: 600; color: var(--text); }
+.analog-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.analog-pu {
+  margin-left: auto; font-size: 12px; font-weight: 600;
+  color: var(--accent3); text-align: right;
+}
+.analog-address { font-size: 11px; color: var(--text2); margin-top: 4px; }
+.analog-dist {
+  display: inline-block; font-size: 10px;
+  background: rgba(99,102,241,0.12); color: var(--accent2);
+  border-radius: 8px; padding: 1px 6px; margin-top: 4px;
+}
+.analog-link {
+  display: inline-block; font-size: 10px;
+  color: var(--accent2); text-decoration: none;
+  margin-top: 4px;
+}
+.analog-link:hover { text-decoration: underline; }
+
+/* RADIUS INFO */
+.radius-info {
+  background: rgba(99,102,241,0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 8px 12px;
+  font-size: 11px; color: var(--text3);
+  margin-bottom: 14px;
+}
+.radius-info strong { color: var(--accent3); }
+
+/* MAP */
+#map {
+  flex: 1;
+  z-index: 1;
+}
+
+/* Leaflet popup override */
+.leaflet-popup-content-wrapper {
+  background: #1a1c2e !important;
+  border: 1px solid rgba(99,102,241,0.4) !important;
+  border-radius: 10px !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-tip { background: #1a1c2e !important; }
+.leaflet-popup-content { margin: 10px 14px !important; font-family: 'Inter', sans-serif !important; font-size: 12px !important; }
+.popup-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.popup-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 3px; color: #94a3b8; }
+.popup-row strong { color: #e2e8f0; }
+.popup-link { display: block; margin-top: 6px; color: #818cf8; font-size: 11px; text-decoration: none; }
+.popup-link:hover { text-decoration: underline; }
+
+/* NO-DATA */
+.no-data {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--text3);
+  font-size: 14px;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot">EI</div>
+    Карта аналогов
+  </div>
+  <div class="header-title" id="header-title">—</div>
+</header>
+
+<div class="content">
+  <div class="sidebar">
+    <div class="sidebar-inner">
+
+      <!-- TARGET -->
+      <div class="target-card" id="target-card">
+        <div class="target-label">Наш объект</div>
+        <div class="target-name" id="target-name">—</div>
+        <div class="price-row">
+          <span class="price-label">Цена торгов</span>
+          <span class="price-val" id="target-price">—</span>
+        </div>
+        <div class="price-row">
+          <span class="price-label">Рыночная (медиана)</span>
+          <span class="price-val market" id="target-market">—</span>
+        </div>
+        <div id="discount-badge-wrap"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val" id="stat-count">—</div>
+          <div class="stat-label">аналогов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-median-pu">—</div>
+          <div class="stat-label">медиана</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-confidence">—</div>
+          <div class="stat-label">точность</div>
+        </div>
+      </div>
+
+      <!-- RADIUS -->
+      <div class="radius-info" id="radius-info" style="display:none">
+        Радиус поиска: <strong id="radius-val">—</strong>
+      </div>
+
+      <!-- ANALOGS LIST -->
+      <div class="section-title">
+        Аналоги <span id="analog-count-badge">0</span>
+      </div>
+      <div id="analogs-list"></div>
+
+    </div>
+  </div>
+
+  <div id="map"></div>
+</div>
+
+<script>
+// ============================================================
+// ДАННЫЕ — заменяются при генерации Python-скриптом
+// ============================================================
+window.ANALOG_DATA = window.ANALOG_DATA || {
+  // Demo data (если файл открыт без реальных данных)
+  target: {
+    name: "Земельный участок, 12.5 сот. — демо",
+    address: "Пермь, ул. Ленина, 10",
+    lat: 58.0105, lon: 56.2502,
+    price: 450000,
+    area: 12.5,
+    area_unit: "сот",
+    category: "Земля",
+    url: "",
+  },
+  market: {
+    marketPrice: 720000,
+    marketPricePerUnit: "57 600 руб/сотка",
+    discount: 37.5,
+    confidence: "средняя",
+    analogsCount: 6,
+    analogsMedianPrice: 57600,
+    analogsMinPrice: 44000,
+    analogsMaxPrice: 75000,
+  },
+  analogs: [
+    {price: 600000, area: 10, pricePerUnit: 60000, distance_m: 420, address: "Пермь, ул. Пушкина, 5", url: "https://avito.ru/", lat: 58.0138, lon: 56.2455},
+    {price: 780000, area: 15, pricePerUnit: 52000, distance_m: 850, address: "Пермь, ул. Куйбышева, 11", url: "https://avito.ru/", lat: 58.0072, lon: 56.2580},
+    {price: 550000, area: 11, pricePerUnit: 50000, distance_m: 1100, address: "Пермь, пер. Садовый, 3", url: "https://cian.ru/", lat: 58.0185, lon: 56.2490},
+    {price: 900000, area: 14, pricePerUnit: 64286, distance_m: 1350, address: "Пермь, ул. Мира, 7", url: "https://avito.ru/", lat: 58.0050, lon: 56.2610},
+    {price: 690000, area: 13, pricePerUnit: 53077, distance_m: 1800, address: "Пермь, ул. Советская, 22", url: "", lat: 58.0200, lon: 56.2420},
+    {price: 820000, area: 12, pricePerUnit: 68333, distance_m: null, address: "", url: "https://cian.ru/", lat: null, lon: null},
+  ],
+  radius_m: 2500,
+};
+
+// ============================================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+const D = window.ANALOG_DATA;
+const T = D.target;
+const M = D.market || {};
+const analogs = D.analogs || [];
+
+function fmt(n) {
+  if (n == null) return "—";
+  return Math.round(n).toLocaleString("ru-RU");
+}
+
+function discountClass(d) {
+  if (d > 40) return "great";
+  if (d > 20) return "good";
+  if (d > 10) return "ok";
+  if (d > 0)  return "low";
+  return "neg";
+}
+function discountLabel(d) {
+  if (d > 40) return "Отличная скидка";
+  if (d > 20) return "Хорошая скидка";
+  if (d > 10) return "Средняя скидка";
+  if (d > 0)  return "Слабая скидка";
+  return "Выше рынка";
+}
+
+// Header
+document.getElementById("header-title").textContent = T.category ? `${T.category} · ${T.address}` : T.address;
+
+// Target card
+document.getElementById("target-name").textContent = T.name || T.address;
+document.getElementById("target-price").textContent = T.price ? fmt(T.price) + " ₽" : "—";
+document.getElementById("target-market").textContent = M.marketPrice ? fmt(M.marketPrice) + " ₽" : "—";
+
+if (M.discount != null) {
+  const dc = discountClass(M.discount);
+  document.getElementById("discount-badge-wrap").innerHTML =
+    `<div class="discount-badge ${dc}">${M.discount > 0 ? "−" : "+"}${Math.abs(M.discount)}% — ${discountLabel(M.discount)}</div>`;
+}
+
+// Stats
+document.getElementById("stat-count").textContent = M.analogsCount || analogs.length;
+if (M.analogsMedianPrice) {
+  const unit = T.area_unit === "сот" ? "₽/сот" : "₽/м²";
+  document.getElementById("stat-median-pu").textContent = fmt(M.analogsMedianPrice) + " " + unit;
+} else {
+  document.getElementById("stat-median-pu").textContent = M.marketPricePerUnit || "—";
+}
+const confMap = {высокая: "высокая", средняя: "средняя", низкая: "низкая"};
+document.getElementById("stat-confidence").textContent = confMap[M.confidence] || M.confidence || "—";
+
+// Radius info
+if (D.radius_m) {
+  document.getElementById("radius-info").style.display = "";
+  const km = D.radius_m >= 1000 ? (D.radius_m / 1000).toFixed(1) + " км" : D.radius_m + " м";
+  document.getElementById("radius-val").textContent = km;
+}
+
+document.getElementById("analog-count-badge").textContent = analogs.length;
+
+// ============================================================
+// MAP INIT
+// ============================================================
+const mapCenter = (T.lat && T.lon) ? [T.lat, T.lon] : [58.01, 56.25];
+const map = L.map("map", { zoomControl: true }).setView(mapCenter, 13);
+
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  attribution: '© <a href="https://carto.com/">CARTO</a>',
+  maxZoom: 19,
+}).addTo(map);
+
+// Target marker (красный)
+const targetIcon = L.divIcon({
+  className: "",
+  html: `<div style="
+    width:28px; height:28px; border-radius:50%;
+    background: linear-gradient(135deg,#ef4444,#f97316);
+    border: 2.5px solid #fff;
+    box-shadow: 0 2px 8px rgba(239,68,68,.6);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:#fff; font-weight:700; font-family:Inter,sans-serif;
+  ">★</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+});
+
+if (T.lat && T.lon) {
+  const targetPopup = `
+    <div class="popup-title">★ Наш объект</div>
+    <div class="popup-row"><span>Цена торгов</span><strong>${fmt(T.price)} ₽</strong></div>
+    <div class="popup-row"><span>Площадь</span><strong>${T.area} ${T.area_unit || "м²"}</strong></div>
+    ${T.url ? `<a class="popup-link" href="${T.url}" target="_blank">Открыть на torgi.gov.ru ↗</a>` : ""}
+  `;
+  L.marker([T.lat, T.lon], {icon: targetIcon, zIndexOffset: 1000})
+    .addTo(map)
+    .bindPopup(targetPopup);
+
+  // Окружность радиуса
+  if (D.radius_m) {
+    L.circle([T.lat, T.lon], {
+      radius: D.radius_m,
+      color: "rgba(99,102,241,0.6)",
+      weight: 1.5,
+      fillColor: "rgba(99,102,241,0.06)",
+      fillOpacity: 1,
+      dashArray: "6 4",
+    }).addTo(map);
+  }
+}
+
+// Аналоги (синие с номерами)
+const markerRefs = [];
+const analogsList = document.getElementById("analogs-list");
+
+function analogMarkerIcon(n, hasCoords) {
+  const bg = hasCoords ? "linear-gradient(135deg,#6366f1,#818cf8)" : "linear-gradient(135deg,#475569,#64748b)";
+  return L.divIcon({
+    className: "",
+    html: `<div style="
+      width:24px; height:24px; border-radius:50%;
+      background:${bg}; border:2px solid #fff;
+      box-shadow:0 2px 6px rgba(0,0,0,.4);
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; color:#fff; font-weight:700; font-family:Inter,sans-serif;
+    ">${n}</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
+}
+
+analogs.forEach((a, i) => {
+  const n = i + 1;
+  const hasCoords = a.lat != null && a.lon != null;
+  const dist = a.distance_m != null
+    ? (a.distance_m >= 1000 ? (a.distance_m / 1000).toFixed(1) + " км" : a.distance_m + " м")
+    : null;
+  const unit = T.area_unit === "сот" ? "₽/сот" : "₽/м²";
+
+  // Список аналогов
+  const el = document.createElement("div");
+  el.className = "analog-item";
+  el.innerHTML = `
+    <div class="analog-header">
+      <span class="analog-num">${n}</span>
+      <span class="analog-price">${fmt(a.price)} ₽</span>
+      <div class="analog-pu">${fmt(a.pricePerUnit)}<br><small style="font-weight:400;color:var(--text3)">${unit}</small></div>
+    </div>
+    <div class="analog-meta">Площадь: ${a.area} ${T.area_unit || "м²"}</div>
+    ${a.address ? `<div class="analog-address">${a.address}</div>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      ${dist ? `<span class="analog-dist">${dist}</span>` : '<span class="analog-dist" style="opacity:.5">дистанция неизв.</span>'}
+      ${a.url ? `<a class="analog-link" href="${a.url}" target="_blank">Открыть ↗</a>` : ""}
+    </div>
+  `;
+
+  // Клик — подсветить маркер
+  let marker = null;
+  if (hasCoords) {
+    const popup = `
+      <div class="popup-title">Аналог ${n}</div>
+      <div class="popup-row"><span>Цена</span><strong>${fmt(a.price)} ₽</strong></div>
+      <div class="popup-row"><span>Площадь</span><strong>${a.area} ${T.area_unit || "м²"}</strong></div>
+      <div class="popup-row"><span>${unit}</span><strong>${fmt(a.pricePerUnit)}</strong></div>
+      ${dist ? `<div class="popup-row"><span>Расстояние</span><strong>${dist}</strong></div>` : ""}
+      ${a.address ? `<div style="margin-top:6px;font-size:11px;color:#94a3b8">${a.address}</div>` : ""}
+      ${a.url ? `<a class="popup-link" href="${a.url}" target="_blank">Открыть объявление ↗</a>` : ""}
+    `;
+    marker = L.marker([a.lat, a.lon], {icon: analogMarkerIcon(n, true)})
+      .addTo(map)
+      .bindPopup(popup);
+    markerRefs.push(marker);
+
+    el.addEventListener("click", () => {
+      document.querySelectorAll(".analog-item").forEach(e => e.classList.remove("active"));
+      el.classList.add("active");
+      map.setView([a.lat, a.lon], 15, {animate: true});
+      marker.openPopup();
+    });
+  } else {
+    markerRefs.push(null);
+    el.style.opacity = "0.7";
+  }
+
+  analogsList.appendChild(el);
+});
+
+// Автомасштаб по всем маркерам с координатами
+const allCoords = [];
+if (T.lat && T.lon) allCoords.push([T.lat, T.lon]);
+analogs.forEach(a => { if (a.lat && a.lon) allCoords.push([a.lat, a.lon]); });
+if (allCoords.length > 1) {
+  map.fitBounds(L.latLngBounds(allCoords).pad(0.15));
+}
+</script>
+</body>
+</html>
