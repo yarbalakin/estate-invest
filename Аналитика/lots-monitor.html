@@ -436,7 +436,6 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
     <div class="map-wrap">
       <div id="main-map"></div>
       <div class="map-controls">
-        <button class="map-control-btn active" id="btn-pkk-layer" onclick="togglePkkLayer()">Кадастр</button>
         <button class="map-control-btn" onclick="fitMapToMarkers()">Показать все</button>
       </div>
       <div class="map-geocode-progress" id="geocode-progress"></div>
@@ -463,10 +462,6 @@ const SUPABASE_URL = 'https://eeahxalvnvbroswzyfjx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_JO8ZrGiCpncWrffYQO9LoQ_OOAwQj2V';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Яндекс Карты API key — получить бесплатно: https://developer.tech.yandex.ru
-// Без ключа карта загружается, но со строкой предупреждения
-const YANDEX_MAPS_KEY = '';
-
 // State
 let allLots = [], filteredLots = [];
 let currentView = 'grid';
@@ -474,7 +469,6 @@ let tableSortCol = 'date_added', tableSortDir = 'desc';
 
 // Map state
 let mainMap = null, mainClusterer = null, pkkLayer = null, pkkEnabled = true;
-let modalMapInstance = null;
 const _loadedCadastralIds = new Set();
 
 // ============================================================
@@ -697,254 +691,146 @@ const TYPE_COLORS = { apartment:'#6366f1', land:'#10b981', house:'#f59e0b', comm
 function initMainMap() {
   if (mainMap) return;
 
-  mainMap = L.map('main-map', { zoomControl: false }).setView([58.0, 56.2], 8);
-  L.control.zoom({ position:'topleft' }).addTo(mainMap);
+  ymaps.ready(() => {
+    mainMap = new ymaps.Map('main-map', {
+      center: [58.0, 56.2],
+      zoom: 8,
+      type: 'yandex#hybrid',
+      controls: ['typeSelector', 'zoomControl', 'rulerControl'],
+    }, { suppressMapOpenBlock: true });
 
-  // Base layers
-  mainBaseLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap', maxZoom: 19
+    // PKK кадастровый слой
+    pkkLayer = new ymaps.Layer(
+      'https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/%z/%y/%x',
+      { tileTransparent: true, opacity: 0.7 }
+    );
+    if (pkkEnabled) mainMap.layers.add(pkkLayer);
+
+    // Кластеризатор
+    mainClusterer = new ymaps.Clusterer({
+      preset: 'islands#invertedVioletClusterIcons',
+      clusterDisableClickZoom: false,
+      clusterOpenBalloonOnClick: false,
+      groupByCoordinates: false,
+    });
+    mainMap.geoObjects.add(mainClusterer);
+
+    // При зуме >= 15 загружаем контуры
+    mainMap.events.add('boundschange', () => {
+      if (mainMap.getZoom() >= 15) loadVisibleCadastralPolygons();
+    });
+
+    // Обновляем маркеры
+    updateMapMarkers();
   });
-  mainBaseLayers.sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Esri', maxZoom: 19
-  });
-  mainBaseLayers.hybridLabels = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OSM', maxZoom: 19, opacity: 0.45
-  });
-
-  mainBaseLayers.osm.addTo(mainMap);
-
-  // PKK cadastral overlay
-  pkkLayer = L.tileLayer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Росреестр', maxZoom: 19, opacity: 0.7
-  });
-  if (pkkEnabled) pkkLayer.addTo(mainMap);
-
-  // Слой для кадастровых полигонов
-  cadastralPolygons = L.layerGroup().addTo(mainMap);
-
-  // Cluster group
-  clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 60,
-    spiderfyOnMaxZoom: true,
-    disableClusteringAtZoom: 17,
-    iconCreateFunction: cluster => {
-      const n = cluster.getChildCount();
-      return L.divIcon({ html: `<div style="background:rgba(99,102,241,0.85);width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;border:2px solid rgba(255,255,255,0.3)">${n}</div>`, className:'', iconSize:[38,38] });
-    }
-  });
-  mainMap.addLayer(clusterGroup);
-
-  // При зуме >= 15 загружаем контуры видимых лотов
-  mainMap.on('zoomend moveend', () => {
-    if (mainMap.getZoom() >= 15) loadVisibleCadastralPolygons();
-  });
-}
-
-// Переключение базового слоя
-function switchMainBase(type) {
-  if (!mainMap) return;
-  [mainBaseLayers.osm, mainBaseLayers.sat, mainBaseLayers.hybridLabels].forEach(l => {
-    if (mainMap.hasLayer(l)) mainMap.removeLayer(l);
-  });
-  if (type === 'osm') {
-    mainBaseLayers.osm.addTo(mainMap);
-  } else if (type === 'sat') {
-    mainBaseLayers.sat.addTo(mainMap);
-  } else if (type === 'hybrid') {
-    mainBaseLayers.sat.addTo(mainMap);
-    mainBaseLayers.hybridLabels.addTo(mainMap);
-  }
-  currentBase = type;
-  // Переставляем PKK и контуры наверх
-  if (pkkEnabled && pkkLayer) { pkkLayer.remove(); pkkLayer.addTo(mainMap); }
-  cadastralPolygons.remove(); cadastralPolygons.addTo(mainMap);
-
-  ['osm','sat','hybrid'].forEach(id => {
-    const btn = document.getElementById('bm-' + id);
-    if (btn) btn.classList.toggle('active', id === type);
-  });
-}
-
-// Загрузка контуров для видимых лотов
-const _loadedCadastralIds = new Set();
-function loadVisibleCadastralPolygons() {
-  const bounds = mainMap.getBounds();
-  filteredLots.forEach(lot => {
-    if (!lot.cadastral_number || _loadedCadastralIds.has(lot.cadastral_number)) return;
-    const lat = lot.lat, lon = lot.lon;
-    if (!lat || !lon || !bounds.contains([lat, lon])) return;
-    _loadedCadastralIds.add(lot.cadastral_number);
-    loadCadastralPolygonLeaflet(lot);
-  });
-}
-
-// Загрузка контура участка из PKK API
-async function loadCadastralPolygonLeaflet(lot) {
-  const cn = lot.cadastral_number;
-  const color = TYPE_COLORS[lot.property_type] || '#6366f1';
-  for (const featureType of [1, 5]) { // 1=участки, 5=ОКС
-    try {
-      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${featureType}/${encodeURIComponent(cn)}`);
-      if (!r.ok) continue;
-      const data = await r.json();
-      const geom = data?.feature?.geometry;
-      if (!geom) continue;
-
-      const style = { color: color, weight: 3, fillColor: color, fillOpacity: 0.15, dashArray: '' };
-      let layer;
-      if (geom.type === 'Polygon') {
-        layer = L.polygon(geom.coordinates.map(ring => ring.map(([lo,la]) => [la,lo])), style);
-      } else if (geom.type === 'MultiPolygon') {
-        const polys = geom.coordinates.map(poly => poly.map(ring => ring.map(([lo,la]) => [la,lo])));
-        layer = L.polygon(polys, style);
-      }
-      if (layer) {
-        const discount = lot.discount ? Math.round(lot.discount) : null;
-        layer.bindPopup(`
-          <div class="lot-popup">
-            <div class="lot-popup-title">${escHtml(lot.name||lot.category||'').substring(0,60)}</div>
-            <div class="lot-popup-price">${formatPrice(lot.price)}${discount?` · −${discount}%`:''}</div>
-            <div class="lot-popup-sub">${escHtml(cn)}</div>
-            <button onclick="window.openModal('${escHtml(lot.lot_id)}')" style="margin-top:8px;width:100%;padding:6px 12px;border-radius:6px;background:${color};color:#fff;border:none;cursor:pointer;font-size:12px;font-weight:500;font-family:Inter,sans-serif">Открыть карточку</button>
-          </div>`, { closeButton: false, maxWidth: 240 });
-        cadastralPolygons.addLayer(layer);
-      }
-      return; // нашли контур — выходим
-    } catch(e) {}
-  }
 }
 
 function updateMapMarkers() {
-  if (!mainMap) return;
-  clusterGroup.clearLayers();
+  if (!mainMap || !mainClusterer) return;
+  mainClusterer.removeAll();
 
-  const lotsToGeocode = [];
+  const presetMap = {
+    apartment: 'islands#violetDotIcon',
+    land:      'islands#greenDotIcon',
+    house:     'islands#yellowDotIcon',
+    commercial:'islands#redDotIcon',
+  };
+
+  const placemarks = [];
 
   filteredLots.forEach(lot => {
-    // Берём сохранённые координаты или из geoCache
-    let lat = lot.lat, lon = lot.lon;
-    const cacheKey = (lot.address_std||lot.address||'').toLowerCase().trim();
-    if ((!lat || !lon) && geoCache[cacheKey]) {
-      lat = geoCache[cacheKey].lat;
-      lon = geoCache[cacheKey].lon;
-    }
+    const lat = lot.lat, lon = lot.lon;
+    if (!lat || !lon) return;
 
-    if (lat && lon) {
-      addMapMarker(lot, lat, lon);
-    } else if (lot.address || lot.address_std) {
-      lotsToGeocode.push(lot);
-    }
+    const discount = lot.discount ? Math.round(lot.discount) : null;
+    const score = lot.invest_score ? Math.round(lot.invest_score) : null;
+
+    const bodyParts = [
+      `<div class="lot-popup">`,
+      `<div class="lot-popup-price">${formatPrice(lot.price)}${discount ? ' · −'+discount+'%' : ''}</div>`,
+      `<div class="lot-popup-sub">${escHtml(lot.address_std||lot.address||'').substring(0,80)}</div>`,
+      lot.cadastral_number ? `<div class="lot-popup-sub" style="opacity:.7;margin-top:2px">${escHtml(lot.cadastral_number)}</div>` : '',
+      score ? `<div class="lot-popup-sub" style="margin-top:4px">Скоринг: ${score}</div>` : '',
+      `<div class="lot-popup-btns">`,
+      `<button class="lot-popup-btn" style="flex:1" onclick="window.openModal('${escHtml(lot.lot_id)}')">Карточка</button>`,
+      lot.cadastral_number ? `<button class="lot-popup-btn-outline" onclick="window.zoomToLotCadastre('${escHtml(lot.lot_id)}')">Контур</button>` : '',
+      `</div></div>`,
+    ];
+
+    const pm = new ymaps.Placemark([lat, lon], {
+      balloonContentHeader: escHtml(lot.name||lot.category||'Объект').substring(0,60),
+      balloonContentBody: bodyParts.join(''),
+      hintContent: `${formatPrice(lot.price)}${discount ? ' (−'+discount+'%)' : ''}`,
+    }, {
+      preset: presetMap[lot.property_type] || 'islands#violetDotIcon',
+    });
+
+    placemarks.push(pm);
   });
 
-  // Запускаем геокодирование для лотов без координат
-  if (lotsToGeocode.length > 0) {
-    geoQueue = [...lotsToGeocode];
-    runGeocodeQueue();
-  } else {
-    document.getElementById('geocode-progress').style.display = 'none';
-  }
-}
-
-function addMapMarker(lot, lat, lon) {
-  const color = TYPE_COLORS[lot.property_type] || '#94a3b8';
-  const discount = lot.discount ? Math.round(lot.discount) : null;
-  const score = lot.invest_score ? Math.round(lot.invest_score) : null;
-
-  const icon = L.divIcon({
-    html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.8);box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
-    className: '', iconSize: [16,16], iconAnchor: [8,8]
-  });
-
-  const marker = L.marker([lat, lon], { icon });
-
-  const popupContent = `
-    <div class="lot-popup">
-      <div class="lot-popup-title">${escHtml(lot.name||lot.category||'Объект').substring(0,60)}</div>
-      <div class="lot-popup-price">${formatPrice(lot.price)}${discount?` · −${discount}%`:''}</div>
-      <div class="lot-popup-sub">${escHtml(lot.address_std||lot.address||'').substring(0,60)}</div>
-      ${lot.cadastral_number?`<div class="lot-popup-sub" style="opacity:.7">${escHtml(lot.cadastral_number)}</div>`:''}
-      ${score?`<div class="lot-popup-sub" style="margin-top:4px">Скоринг: ${score}</div>`:''}
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <button onclick="window.openModal('${escHtml(lot.lot_id)}')" style="flex:1;padding:6px 10px;border-radius:6px;background:#6366f1;color:#fff;border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:Inter,sans-serif">Карточка</button>
-        ${lot.cadastral_number?`<button onclick="window.zoomToLotCadastre('${escHtml(lot.lot_id)}')" style="flex:1;padding:6px 10px;border-radius:6px;background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);cursor:pointer;font-size:11px;font-weight:500;font-family:Inter,sans-serif">Контур</button>`:''}
-      </div>
-    </div>`;
-
-  marker.bindPopup(popupContent, { closeButton: false, maxWidth: 260 });
-
-  // При открытии popup на zoom>=15 — автоматически грузим контур
-  marker.on('popupopen', () => {
-    if (lot.cadastral_number && mainMap.getZoom() >= 13) {
-      if (!_loadedCadastralIds.has(lot.cadastral_number)) {
-        loadCadastralPolygonLeaflet(lot);
-      }
-    }
-  });
-
-  clusterGroup.addLayer(marker);
+  mainClusterer.add(placemarks);
+  document.getElementById('geocode-progress').style.display = 'none';
 }
 
 function fitMapToMarkers() {
-  if (!mainMap) return;
-  const layers = clusterGroup.getLayers();
-  if (!layers.length) return;
-  const group = L.featureGroup(layers);
-  mainMap.fitBounds(group.getBounds().pad(0.1));
+  if (!mainMap || !mainClusterer) return;
+  const bounds = mainClusterer.getBounds();
+  if (bounds) mainMap.setBounds(bounds, { checkZoomRange: true, margin: 40 });
 }
 
 function togglePkkLayer() {
   if (!mainMap) return;
   pkkEnabled = !pkkEnabled;
-  if (pkkEnabled) mainMap.addLayer(pkkLayer);
-  else mainMap.removeLayer(pkkLayer);
+  if (pkkEnabled) mainMap.layers.add(pkkLayer);
+  else mainMap.layers.remove(pkkLayer);
   document.getElementById('btn-pkk-layer').classList.toggle('active', pkkEnabled);
 }
 
-// ============================================================
-// Geocoding queue (Nominatim, 1 req/sec)
-// ============================================================
-async function runGeocodeQueue() {
-  if (geoRunning) return;
-  geoRunning = true;
-
-  const progress = document.getElementById('geocode-progress');
-  const total = geoQueue.length;
-
-  while (geoQueue.length > 0) {
-    const lot = geoQueue.shift();
-    const addr = (lot.address_std || lot.address || '').trim();
-    if (!addr) continue;
-
-    const cacheKey = addr.toLowerCase();
-    progress.style.display = 'block';
-    progress.textContent = `Геокодирование: ${total - geoQueue.length}/${total}`;
-
-    if (!geoCache[cacheKey]) {
-      const coords = await nominatimGeocode(addr);
-      if (coords) geoCache[cacheKey] = coords;
-    }
-
-    if (geoCache[cacheKey]) {
-      const { lat, lon } = geoCache[cacheKey];
-      addMapMarker(lot, lat, lon);
-    }
-
-    if (geoQueue.length > 0) await sleep(1100); // соблюдаем лимит Nominatim
-  }
-
-  progress.style.display = 'none';
-  geoRunning = false;
+// Загрузка контуров видимых лотов
+function loadVisibleCadastralPolygons() {
+  if (!mainMap) return;
+  const bounds = mainMap.getBounds();
+  filteredLots.forEach(lot => {
+    if (!lot.cadastral_number || _loadedCadastralIds.has(lot.cadastral_number)) return;
+    if (!lot.lat || !lot.lon) return;
+    if (!bounds.contains([lot.lat, lot.lon])) return;
+    _loadedCadastralIds.add(lot.cadastral_number);
+    loadCadastralPolygonYmapsMain(lot);
+  });
 }
 
-async function nominatimGeocode(address) {
-  try {
-    const q = address.includes('Пермь') || address.includes('Пермский') ? address : 'Пермский край, ' + address;
-    const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({ q, format:'json', limit:1, countrycodes:'ru' });
-    const r = await fetch(url);
-    const data = await r.json();
-    if (data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-  } catch(e) {}
-  return null;
+// Загрузка контура из PKK и отрисовка на основной карте
+async function loadCadastralPolygonYmapsMain(lot) {
+  const cn = lot.cadastral_number;
+  const colorMap = { apartment:'#6366f1', land:'#10b981', house:'#f59e0b', commercial:'#ef4444' };
+  const color = colorMap[lot.property_type] || '#6366f1';
+
+  for (const ft of [1, 5]) {
+    try {
+      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${ft}/${encodeURIComponent(cn)}`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const geom = data?.feature?.geometry;
+      if (!geom) continue;
+
+      const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
+      const style = { fillColor: color + '28', strokeColor: color, strokeWidth: 3 };
+
+      if (geom.type === 'Polygon') {
+        const poly = new ymaps.Polygon(geom.coordinates.map(convertRing), {
+          balloonContentHeader: escHtml(lot.name||lot.category||'').substring(0,60),
+          balloonContentBody: `<div class="lot-popup"><div class="lot-popup-price">${formatPrice(lot.price)}</div><div class="lot-popup-sub">${escHtml(cn)}</div><button class="lot-popup-btn" onclick="window.openModal('${escHtml(lot.lot_id)}')">Открыть карточку</button></div>`,
+        }, style);
+        mainMap.geoObjects.add(poly);
+      } else if (geom.type === 'MultiPolygon') {
+        geom.coordinates.forEach(polyCoords => {
+          const poly = new ymaps.Polygon(polyCoords.map(convertRing), {}, style);
+          mainMap.geoObjects.add(poly);
+        });
+      }
+      return;
+    } catch(e) {}
+  }
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -977,7 +863,6 @@ function destroyModalMap() {
     window._yandexMapInstance = null;
     window._ymapLayers = null;
   }
-  if (modalMapInstance) { modalMapInstance.remove(); modalMapInstance = null; }
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(true); });
@@ -1169,26 +1054,6 @@ function renderModalContent(lot) {
 }
 
 // ============================================================
-// Яндекс Карты — загрузка API
-// ============================================================
-let _ymapsLoadPromise = null;
-
-function loadYandexMaps() {
-  if (_ymapsLoadPromise) return _ymapsLoadPromise;
-  _ymapsLoadPromise = new Promise((resolve, reject) => {
-    if (window.ymaps && window._ymapsReady) { resolve(); return; }
-    if (window.ymaps) { window.ymaps.ready(() => { window._ymapsReady = true; resolve(); }); return; }
-    const script = document.createElement('script');
-    const keyParam = YANDEX_MAPS_KEY ? `apikey=${YANDEX_MAPS_KEY}&` : '';
-    script.src = `https://api-maps.yandex.ru/2.1/?${keyParam}lang=ru_RU`;
-    script.onload = () => window.ymaps.ready(() => { window._ymapsReady = true; resolve(); });
-    script.onerror = () => reject(new Error('Не удалось загрузить Яндекс Карты'));
-    document.head.appendChild(script);
-  });
-  return _ymapsLoadPromise;
-}
-
-// ============================================================
 // Modal map — Яндекс Карты 2.1
 // ============================================================
 async function initModalMap(lot) {
@@ -1196,29 +1061,7 @@ async function initModalMap(lot) {
   const mapEl = document.getElementById('modal-map');
   if (!mapEl) return;
 
-  // Геокодирование если нет координат
   let lat = lot.lat, lon = lot.lon;
-  if (!lat || !lon) {
-    const addr = (lot.address_std || lot.address || '').trim();
-    if (addr) {
-      const cacheKey = addr.toLowerCase();
-      if (geoCache[cacheKey]) { lat = geoCache[cacheKey].lat; lon = geoCache[cacheKey].lon; }
-      else {
-        if (statusEl) statusEl.innerHTML = `<div class="spinner"></div><span>Геокодирование...</span>`;
-        const coords = await nominatimGeocode(addr);
-        if (coords) { geoCache[cacheKey] = coords; lat = coords.lat; lon = coords.lon; }
-      }
-    }
-  }
-
-  // Загружаем Яндекс Карты API
-  if (statusEl) statusEl.innerHTML = `<div class="spinner"></div><span>Загрузка Яндекс Карт...</span>`;
-  try {
-    await loadYandexMaps();
-  } catch(e) {
-    if (statusEl) { statusEl.style.display='flex'; statusEl.innerHTML=`<span style="font-size:12px;color:var(--red)">Ошибка загрузки карты</span>`; }
-    return;
-  }
 
   if (!lat || !lon) {
     if (statusEl) { statusEl.style.display='flex'; statusEl.innerHTML=`<span style="font-size:12px">Координаты недоступны. <a href="https://pkk.rosreestr.ru" target="_blank" style="color:var(--accent3)">Открыть ПКК →</a></span>`; }
@@ -1392,49 +1235,21 @@ function scoreBlock(label, val, inverted=false) {
   </div>`;
 }
 
-// ============================================================
-// Управление слоями карты в модале
-// ============================================================
+// Управление слоями в модале Яндекс Карт
 function switchBasemap(type) {
-  if (!modalMapInstance || !window._modalBaseLayers) return;
-  const layers = window._modalBaseLayers;
-
-  // Убираем все базовые слои
-  [layers.schema, layers.sat, layers.hybridBase, layers.hybridLabels].forEach(l => {
-    if (modalMapInstance.hasLayer(l)) modalMapInstance.removeLayer(l);
-  });
-
-  if (type === 'schema') {
-    layers.schema.addTo(modalMapInstance);
-  } else if (type === 'sat') {
-    layers.sat.addTo(modalMapInstance);
-  } else if (type === 'hybrid') {
-    layers.hybridBase.addTo(modalMapInstance);
-    layers.hybridLabels.addTo(modalMapInstance);
-  }
-  window._modalCurrentBase = type;
-
-  // Обновляем кнопки
-  ['schema','sat','hybrid'].forEach(id => {
-    const btn = document.getElementById('bm-' + id);
-    if (btn) btn.classList.toggle('active', id === type);
-  });
-
-  // Возвращаем оверлеи поверх нового base слоя
-  if (window._modalOverlays) {
-    Object.entries(window._modalOverlays).forEach(([key, layer]) => {
-      const cb = document.getElementById('layer-' + key);
-      if (cb && cb.checked && !modalMapInstance.hasLayer(layer)) layer.addTo(modalMapInstance);
-    });
-  }
+  if (!window._yandexMapInstance) return;
+  const ymap = window._yandexMapInstance;
+  if (type === 'schema')  ymap.setType('yandex#map');
+  else if (type === 'sat') ymap.setType('yandex#satellite');
+  else if (type === 'hybrid') ymap.setType('yandex#hybrid');
 }
 
 function toggleMapLayer(layerKey, enabled) {
-  if (!modalMapInstance || !window._modalOverlays) return;
-  const layer = window._modalOverlays[layerKey];
+  if (!window._yandexMapInstance || !window._ymapLayers) return;
+  const layer = window._ymapLayers[layerKey];
   if (!layer) return;
-  if (enabled) layer.addTo(modalMapInstance);
-  else if (modalMapInstance.hasLayer(layer)) modalMapInstance.removeLayer(layer);
+  if (enabled) window._yandexMapInstance.layers.add(layer);
+  else window._yandexMapInstance.layers.remove(layer);
 }
 
 // ============================================================
@@ -1442,19 +1257,19 @@ function toggleMapLayer(layerKey, enabled) {
 // ============================================================
 window.openModal = openModal;
 window.switchBasemap = switchBasemap;
-window.switchMainBase = switchMainBase;
+window.toggleMapLayer = toggleMapLayer;
 
-// Зум к лоту и загрузка контура
+// Зум к лоту и загрузка контура на основной карте
 window.zoomToLotCadastre = function(lotId) {
   const lot = allLots.find(l => l.lot_id === lotId);
   if (!lot || !lot.lat || !lot.lon) return;
-  mainMap.closePopup();
-  mainMap.setView([lot.lat, lot.lon], 17);
+  mainMap.balloon.close();
+  mainMap.setCenter([lot.lat, lot.lon], 17);
   if (lot.cadastral_number && !_loadedCadastralIds.has(lot.cadastral_number)) {
-    loadCadastralPolygonLeaflet(lot);
+    _loadedCadastralIds.add(lot.cadastral_number);
+    loadCadastralPolygonYmapsMain(lot);
   }
 };
-window.toggleMapLayer = toggleMapLayer;
 loadData();
 </script>
 </body>
