@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Уведомление по ИП4 Краснодонская — Март 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+
+    .card {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%);
+      padding: 36px 40px 32px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(99,102,241,0.18);
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -30px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(99,102,241,0.10);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,158,11,0.18);
+      border: 1px solid rgba(245,158,11,0.4);
+      color: #fbbf24;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .badge::before { content: '●'; font-size: 8px; }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+    }
+    .header .sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Body */
+    .body { padding: 36px 40px; }
+
+    .intro {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #374151;
+      margin-bottom: 28px;
+    }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6366f1;
+      margin-bottom: 12px;
+    }
+    .section-title .icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: #eef2ff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .section p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: #374151;
+    }
+    .section p + p { margin-top: 10px; }
+
+    b { color: #111827; font-weight: 600; }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .stat {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .stat.full { grid-column: 1 / -1; }
+    .stat .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .stat .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1;
+    }
+    .stat .value.red { color: #ef4444; }
+    .stat .value.amber { color: #f59e0b; }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: #f3f4f6;
+      margin: 28px 0;
+    }
+
+    /* Resolution block */
+    .resolution {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 28px;
+    }
+    .resolution .res-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #16a34a;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .resolution p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #15803d;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid #f3f4f6;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .footer-brand {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6366f1;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 480px) {
+      .header { padding: 28px 24px 24px; }
+      .body { padding: 28px 24px; }
+      .footer { padding: 20px 24px; flex-direction: column; align-items: flex-start; }
+      .stats { grid-template-columns: 1fr; }
+      .stat.full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div class="badge">Уведомление для инвесторов</div>
+    <h1>ИП4 Краснодонская — ситуация с электросчётчиком</h1>
+    <div class="sub">Март 2026 · Разовый инцидент</div>
+  </div>
+
+  <div class="body">
+
+    <p class="intro">Уважаемые инвесторы!<br><br>
+    Сообщаем о нестандартной ситуации по объекту <b>ИП4 Краснодонская</b>, которая повлияла на выплату аренды в текущем месяце.</p>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">📋</span>
+        Что произошло
+      </div>
+      <p>При приёмке помещения предыдущий собственник использовал <b>внутренний счётчик</b> — показания снимались с прибора внутри помещения. Ни мы, ни конкурсный управляющий не обратили внимания на то, что этот счётчик <b>не зарегистрирован в базе Янтарь-Энерго</b>: у энергетиков числился другой прибор учёта.</p>
+      <p>Из-за расхождения начисления шли по среднему, а задолженность по «невидимому» счётчику тихо накапливалась.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🔍</span>
+        Как это вскрылось
+      </div>
+      <p>В феврале <b>жильцы дома</b> провели аудит всех приборов учёта в здании и обнаружили лишний счётчик — наш. Когда подняли его архивные показания, выяснилась накопленная задолженность.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Доначислено</div>
+        <div class="value">3 000 кВт·ч</div>
+      </div>
+      <div class="stat">
+        <div class="label">Сумма погашения</div>
+        <div class="value red">~80 000 ₽</div>
+      </div>
+      <div class="stat full">
+        <div class="label">Выплата аренды — март 2026</div>
+        <div class="value amber">Не производится</div>
+      </div>
+    </div>
+
+    <div class="resolution">
+      <div class="res-title">✓ Проблема устранена</div>
+      <p>Задолженность перед Янтарь-Энерго <b>полностью погашена</b>. Счётчик официально поставлен на учёт — теперь всё прозрачно. Повторение невозможно.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">📅</span>
+        Что дальше
+      </div>
+      <p>Это разовый инцидент, связанный с историей предыдущего собственника. Объект продолжает работать, арендатор на месте. <b>Доходы возобновятся в следующем расчётном периоде.</b></p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="footer-brand">Estate Invest</span>
+    <span class="footer-note">Если есть вопросы — мы на связи</span>
+  </div>
+
+</div>
+
+</body>
+</html>
