@@ -164,6 +164,9 @@ class PropertyCard:
     analogsMedianPrice: float | None = None
     analogsMinPrice: float | None = None
     analogsMaxPrice: float | None = None
+    analogsList: list | None = None       # до 10 аналогов: {price, area, pricePerUnit, distance_m, address, url, lat, lon}
+    analogsSource: str | None = None      # "ads-api" / "manual"
+    analogsRadiusM: float | None = None   # использованный радиус фильтрации (м)
     districtAvgPrice: float | None = None
     cadastralPriceRatio: float | None = None
 
@@ -278,6 +281,9 @@ class PropertyCard:
         # Инициализируем блоки по типу
         _init_blocks(card, lot)
 
+        # Парсим описание лота для заполнения специализированных блоков
+        _parse_description(card, lot)
+
         return card
 
 
@@ -289,13 +295,16 @@ def _detect_property_type(category: str, land_type: str, commercial_type: str) -
     """Определяет propertyType из полей torgi_monitor."""
     cat = category.lower()
 
+    # "нежилое" ПЕРЕД "жилое" (иначе "нежилое" матчится как "жил")
+    if "нежил" in cat:
+        return "commercial"
     if any(w in cat for w in ("квартир", "комнат", "жил")):
         return "apartment"
     if any(w in cat for w in ("дом",)):
         return "house"
     if any(w in cat for w in ("земл", "участ")):
         return "land"
-    if any(w in cat for w in ("нежил", "гараж", "здани", "помещен", "сооружен")):
+    if any(w in cat for w in ("гараж", "здани", "помещен", "сооружен")):
         return "commercial"
 
     # Фаллбек по вторичным признакам
@@ -337,6 +346,208 @@ def _init_blocks(card: PropertyCard, lot: dict) -> None:
         card.building = BuildingInfo()
         card.rental = RentalInfo()
         card.infra = InfraInfo()
+
+
+def _parse_description(card: PropertyCard, lot: dict) -> None:
+    """Парсит lotName + lotDescription и заполняет специализированные блоки."""
+    name = lot.get("lotName", "") or ""
+    desc = lot.get("lotDesc", "") or ""
+    text = (name + " " + desc).lower()
+
+    if card.propertyType == "apartment" and card.apartment:
+        _parse_apartment(card.apartment, text)
+    elif card.propertyType == "land" and card.land:
+        _parse_land(card.land, text)
+    elif card.propertyType == "house":
+        if card.house:
+            _parse_house(card.house, text)
+        if card.land:
+            _parse_land(card.land, text)
+    elif card.propertyType == "commercial" and card.commercial:
+        _parse_commercial(card.commercial, text)
+
+
+def _parse_int(pattern: str, text: str) -> int | None:
+    """Извлечь целое число по regex паттерну."""
+    m = re.search(pattern, text, re.IGNORECASE)
+    if m:
+        try:
+            return int(m.group(1))
+        except (ValueError, IndexError):
+            pass
+    return None
+
+
+def _parse_float(pattern: str, text: str) -> float | None:
+    """Извлечь дробное число по regex паттерну."""
+    m = re.search(pattern, text, re.IGNORECASE)
+    if m:
+        try:
+            return float(m.group(1).replace(",", "."))
+        except (ValueError, IndexError):
+            pass
+    return None
+
+
+def _parse_apartment(info: ApartmentInfo, text: str) -> None:
+    """Парсинг параметров квартиры из описания."""
+    # Комнаты: "2-комнатная", "3-х комнатная", "комнат: 2"
+    info.rooms = _parse_int(
+        r"(\d)\s*-?\s*(?:х\s*)?комнатн|комнат\w*\s*:?\s*(\d)", text
+    )
+    if info.rooms is None:
+        m = re.search(r"(\d)\s*-?\s*(?:х\s*)?комнатн", text)
+        if m:
+            info.rooms = int(m.group(1))
+        else:
+            m = re.search(r"комнат\w*\s*:?\s*(\d)", text)
+            if m:
+                info.rooms = int(m.group(1))
+
+    # Этаж: "этаж 3", "3 этаж", "на 5 этаже", "3/9"
+    m = re.search(r"(\d+)\s*/\s*(\d+)\s*(?:эт|этаж)", text)
+    if m:
+        info.floor = int(m.group(1))
+        info.floorsTotal = int(m.group(2))
+    else:
+        info.floor = _parse_int(r"(?:этаж|на)\s+(\d+)\s*(?:этаж)?", text)
+        info.floorsTotal = _parse_int(r"(\d+)\s*(?:-\s*)?этажн", text)
+
+    # Балкон
+    if "балкон" in text or "лоджи" in text:
+        info.balcony = True
+
+
+def _parse_land(info: LandInfo, text: str) -> None:
+    """Парсинг параметров земельного участка из описания."""
+    # ВРИ (вид разрешённого использования)
+    m = re.search(
+        r"(?:разрешённое|разрешенное)\s+использование\s*[–—:-]\s*(.+?)(?:\.|,\s*(?:общ|площ|кад)|\n|$)",
+        text,
+    )
+    if m:
+        info.permittedUse = m.group(1).strip()[:120]
+
+    # landCategory уже может быть заполнен из extract_land_type()
+    # Дополнительно проверяем ВРИ
+    if not info.landCategory:
+        if any(w in text for w in ("ижс", "индивидуальное жилищное", "жилая застройка")):
+            info.landCategory = "ИЖС"
+        elif any(w in text for w in ("снт", "днп", "садовод", "дачн")):
+            info.landCategory = "СНТ"
+        elif any(w in text for w in ("лпх", "личное подсобное")):
+            info.landCategory = "ЛПХ"
+        elif any(w in text for w in ("промышлен", "промназначени")):
+            info.landCategory = "Промка"
+        elif any(w in text for w in ("сельхоз", "сельскохоз")):
+            info.landCategory = "Сельхоз"
+
+    # Коммуникации
+    info.hasElectricity = _has_communication(text, ("электр", "электроснабж", "э/снабж"))
+    info.hasGas = _has_communication(text, ("газ", "газоснабж", "газифиц"))
+    info.hasWater = _has_communication(text, ("водоснабж", "водопровод", "водоподач", "скважин"))
+    info.hasSewage = _has_communication(text, ("канализац", "водоотвед", "септик"))
+
+    # Примечание о коммуникациях
+    comms = []
+    if info.hasElectricity:
+        comms.append("электричество")
+    if info.hasGas:
+        comms.append("газ")
+    if info.hasWater:
+        comms.append("вода")
+    if info.hasSewage:
+        comms.append("канализация")
+    if comms:
+        info.communicationsNote = ", ".join(comms)
+
+
+def _has_communication(text: str, keywords: tuple) -> bool | None:
+    """Проверяет наличие коммуникации в тексте. None если не упоминается."""
+    for kw in keywords:
+        if kw in text:
+            idx = text.index(kw)
+            # Контекст до и после ключевого слова
+            before = text[max(0, idx - 20):idx]
+            after = text[idx:idx + len(kw) + 30]
+            if any(neg in before or neg in after for neg in ("нет ", "без ", "отсутств")):
+                return False
+            return True
+    return None
+
+
+def _parse_house(info: HouseInfo, text: str) -> None:
+    """Парсинг параметров дома из описания."""
+    # Комнаты
+    m = re.search(r"(\d)\s*-?\s*(?:х\s*)?комнатн", text)
+    if m:
+        info.rooms = int(m.group(1))
+
+    # Этажность дома
+    info.floorsTotal = _parse_int(r"(\d+)\s*(?:-\s*)?этажн", text)
+
+    # Год постройки
+    info.buildYear = _parse_int(r"(?:год\w*\s+постройки|построен\w*\s+в)\s*:?\s*(\d{4})", text)
+    if not info.buildYear:
+        info.buildYear = _parse_int(r"(\d{4})\s*г\.?\s*(?:постройки|строительства)", text)
+
+    # Материал стен
+    if any(w in text for w in ("кирпич", "кирп.")):
+        info.wallMaterial = "кирпич"
+    elif any(w in text for w in ("бревн", "бруc", "деревян")):
+        info.wallMaterial = "дерево"
+    elif "блок" in text and "блокир" not in text:
+        info.wallMaterial = "блок"
+    elif "панел" in text:
+        info.wallMaterial = "панель"
+    elif "каркас" in text:
+        info.wallMaterial = "каркас"
+
+    # Площадь дома (м2)
+    m = re.search(r"(?:площад\w*\s+(?:дома|жилого|строения))\s*:?\s*([\d,.]+)\s*(?:кв\.?\s*м|м2)", text)
+    if m:
+        try:
+            info.houseArea = float(m.group(1).replace(",", "."))
+        except ValueError:
+            pass
+
+    # Площадь участка (сотки)
+    m = re.search(r"(?:площад\w*\s+(?:участка|земельного))\s*:?\s*([\d,.]+)\s*(?:сот|кв\.?\s*м|м2)", text)
+    if m:
+        try:
+            val = float(m.group(1).replace(",", "."))
+            # Если > 100, скорее всего м2
+            info.landArea = val / 100 if val > 100 else val
+        except ValueError:
+            pass
+
+    # Гараж / баня
+    info.garageOnSite = "гараж" in text or None
+    info.bathhouse = "баня" in text or "бани" in text or None
+
+
+def _parse_commercial(info: CommercialInfo, text: str) -> None:
+    """Парсинг параметров нежилого помещения из описания."""
+    # commercialType уже может быть заполнен из extract_commercial_type()
+    if not info.commercialType:
+        if any(w in text for w in ("офис",)):
+            info.commercialType = "Офис"
+        elif any(w in text for w in ("торгов", "магазин")):
+            info.commercialType = "Торговое"
+        elif "склад" in text:
+            info.commercialType = "Склад"
+        elif any(w in text for w in ("производств", "цех")):
+            info.commercialType = "Производство"
+
+    # Этаж
+    info.floor = _parse_int(r"(?:этаж|на)\s+(\d+)", text)
+
+    # Высота потолков
+    info.ceilingHeight = _parse_float(r"высот\w*\s+(?:потолк\w*|помещен\w*)\s*:?\s*([\d,.]+)\s*м", text)
+
+    # Отдельный вход
+    if "отдельн" in text and "вход" in text:
+        info.entrance = "отдельный"
 
 
 _CAMEL_RE = re.compile(r"(?<=[a-z0-9])([A-Z])")
