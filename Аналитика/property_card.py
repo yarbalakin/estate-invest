@@ -258,7 +258,7 @@ class PropertyCard:
             auctionDate=lot.get("auctionDate", ""),
             applicationEnd=lot.get("applicationEnd", ""),
             status=lot.get("status", ""),
-            area=lot.get("area", 0.0),
+            area=lot.get("areaNum", 0.0) or 0.0,
         )
 
         # Определяем areaUnit
