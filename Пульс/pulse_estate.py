@@ -102,7 +102,7 @@ def send_telegram(text: str):
 # ── [АНАЛИТИКА] Монитор торгов — Лоты ─────────────────────────
 
 def get_lots_data() -> dict:
-    """Лоты, записанные VPS-ботами вчера."""
+    """Лоты, записанные VPS-ботами за последние 2 дня (сегодня + вчера)."""
     try:
         gc = get_gc()
         sh = gc.open_by_key(SS_LOTS)
@@ -110,24 +110,42 @@ def get_lots_data() -> dict:
             ws = sh.worksheet("Лоты")
         except gspread.WorksheetNotFound:
             ws = sh.sheet1
-        # get_all_records() падает если есть пустые колонки в заголовке
         raw = ws.get_all_values()
         if not raw:
             return {"total": 0, "discounted": 0, "cats": "—"}
         header = raw[0]
-        # Индексы нужных колонок по имени
-        col = {h: i for i, h in enumerate(header) if h}
-        i_date = col.get("dateAdded", 1)
-        i_cat  = col.get("category", 2)
-        i_disc = col.get("discount", 18)
+        log.info("Lots sheet headers: %s", header)
 
-        yest = str(yesterday_kld())
-        yest_lots = [r for r in raw[1:] if len(r) > i_date and r[i_date].startswith(yest)]
+        # Ищем колонки без учёта регистра и пробелов
+        def find_col(names: list[str], default: int) -> int:
+            for name in names:
+                for i, h in enumerate(header):
+                    if h.strip().lower() == name.lower():
+                        return i
+            return default
+
+        i_date = find_col(["dateAdded", "date_added", "date", "Дата", "added"], 1)
+        i_cat  = find_col(["category", "Категория", "cat"], 2)
+        i_disc = find_col(["discount", "Скидка", "disc"], 18)
+
+        log.info("Lots columns: date=%d, cat=%d, disc=%d", i_date, i_cat, i_disc)
+
+        # Фильтруем за последние 2 дня (вчера + сегодня) — VPS мог писать в любой момент
+        cutoff = today_kld() - timedelta(days=1)
+        recent_lots = []
+        for r in raw[1:]:
+            if len(r) <= i_date:
+                continue
+            d = parse_date(r[i_date])
+            if d and d >= cutoff:
+                recent_lots.append(r)
+
+        log.info("Lots found in last 2 days: %d (date col sample: %s)",
+                 len(recent_lots), raw[1][i_date] if len(raw) > 1 else "—")
 
         discounted = 0
         cats: dict[str, int] = {}
-        for r in yest_lots:
-            # Скидка ≥30%
+        for r in recent_lots:
             try:
                 d = float(str(r[i_disc] if len(r) > i_disc else 0).replace(",", ".").replace("%", ""))
                 if d >= 30:
@@ -138,7 +156,7 @@ def get_lots_data() -> dict:
             cats[cat] = cats.get(cat, 0) + 1
 
         cats_str = ", ".join(f"{k} ({v})" for k, v in cats.items()) if cats else "—"
-        return {"total": len(yest_lots), "discounted": discounted, "cats": cats_str}
+        return {"total": len(recent_lots), "discounted": discounted, "cats": cats_str}
 
     except Exception as e:
         log.error("lots_data error: %s", e)
