@@ -28,7 +28,8 @@ log = logging.getLogger("pulse")
 # ── Config ─────────────────────────────────────────────────────
 SA_JSON        = "/opt/torgi-proxy/google-sa.json"
 TG_TOKEN       = "8797777745:AAE6Rs7oyf-QqrXRuAXZot4RbTaXTTKTZE8"
-TG_CHAT_ID     = "191260933"
+TG_CHAT_ID     = "191260933"   # Ярослав (личка)
+TG_GROUP_ID    = "-1003577129774"  # Канал "Пульс Estate Invest"
 ANTHROPIC_KEY  = os.environ.get("ANTHROPIC_API_KEY", "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")
 
 # Spreadsheet IDs
@@ -85,18 +86,17 @@ def get_gc():
         _gc = gspread.authorize(creds)
     return _gc
 
-def send_telegram(text: str):
+def send_telegram(text: str, chat_id: str = TG_CHAT_ID):
     url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage"
-    # Telegram ограничивает 4096 символов — режем если надо
     if len(text) > 4000:
         text = text[:3990] + "\n...[обрезано]"
     resp = requests.post(url, json={
-        "chat_id": TG_CHAT_ID,
+        "chat_id": chat_id,
         "text": text,
         "parse_mode": "HTML",
     }, timeout=15)
     if not resp.ok:
-        log.error("Telegram error: %s", resp.text)
+        log.error("Telegram error (chat %s): %s", chat_id, resp.text)
 
 
 # ── [АНАЛИТИКА] Монитор торгов — Лоты ─────────────────────────
@@ -413,57 +413,59 @@ def get_ai_summary(report_text: str) -> str:
 
 def build_report(lots, torgi, objects, investors, finance) -> str:
     d = datetime.now(KLD).strftime("%d.%m.%Y")
-    lines = [f"<b>ПУЛЬС ESTATE INVEST | {d}</b>\n"]
+    day = datetime.now(KLD).strftime("%A")
+    day_ru = {"Monday":"Понедельник","Tuesday":"Вторник","Wednesday":"Среда",
+              "Thursday":"Четверг","Friday":"Пятница","Saturday":"Суббота","Sunday":"Воскресенье"}.get(day, day)
+    lines = [f"🏢 <b>ПУЛЬС ESTATE INVEST</b>", f"📅 {day_ru}, {d}", ""]
 
     # [АНАЛИТИКА]
     lines += [
-        "<b>[АНАЛИТИКА]</b> Монитор торгов (вчера)",
-        f"Лотов найдено: {lots['total']}",
-        f"Со скидкой ≥30%: {lots['discounted']}",
-        f"Категории: {lots['cats']}",
+        "🔍 <b>Мониторинг торгов</b>",
+        f"├ Лотов найдено: <b>{lots['total']}</b>",
+        f"├ Со скидкой ≥30%: <b>{lots['discounted']}</b>",
+        f"└ Категории: {lots['cats']}",
         "",
     ]
 
     # [ТОРГИ]
     def fmt_list(lst): return ", ".join(lst) if lst else "—"
     lines += [
-        "<b>[ТОРГИ]</b>",
-        f"Сегодня: {len(torgi['today'])} — {fmt_list(torgi['today'])}",
-        f"Завтра:  {len(torgi['tomorrow'])} — {fmt_list(torgi['tomorrow'])}",
-        f"Заявки истекают: {fmt_list(torgi['app_deadline'])}",
+        "⚖️ <b>Торги</b>",
+        f"├ Сегодня: <b>{len(torgi['today'])}</b> — {fmt_list(torgi['today'])}",
+        f"├ Завтра: <b>{len(torgi['tomorrow'])}</b> — {fmt_list(torgi['tomorrow'])}",
+        f"└ Заявки истекают: {fmt_list(torgi['app_deadline'])}",
     ]
     if torgi["deposit_sum"] > 0:
-        lines.append(f"Нужно задатков: {fmt_money(torgi['deposit_sum'])}")
+        lines.append(f"💰 Нужно задатков: <b>{fmt_money(torgi['deposit_sum'])}</b>")
     lines.append("")
 
     # [ОБЪЕКТЫ]
     lines += [
-        "<b>[ОБЪЕКТЫ]</b>",
-        f"В реализации: {objects['realization']}",
-        f"Сбор средств: {objects['sale']}",
-        f"Завершено: {objects['done']}",
-        f"В аренде: {objects['rent_count']} объектов",
-        f"Арендный поток: {objects['rent_ap']} руб/мес",
-        f"Загрузка: {objects['rent_load']}",
+        "🏗️ <b>Объекты</b>",
+        f"├ В реализации: <b>{objects['realization']}</b>",
+        f"├ Сбор средств: <b>{objects['sale']}</b>",
+        f"├ Завершено: <b>{objects['done']}</b>",
+        f"├ В аренде: <b>{objects['rent_count']}</b> объектов",
+        f"├ Арендный поток: <b>{objects['rent_ap']}</b> руб/мес",
+        f"└ Загрузка: <b>{objects['rent_load']}</b>",
         "",
     ]
 
     # [ИНВЕСТОРЫ]
     lines += [
-        "<b>[ИНВЕСТОРЫ]</b>",
-        f"Новых анкет (вчера): {investors['new_yest']}",
-        f"В работе: {investors['in_work']}",
-        f"На подписании: {investors['signing']}",
-        f"WON за 7 дней: {investors['won_week']}",
-        f"Всего инвесторов: {investors['won_all']}",
+        "👥 <b>Инвесторы</b>",
+        f"├ Новых анкет (вчера): <b>{investors['new_yest']}</b>",
+        f"├ В работе: <b>{investors['in_work']}</b>",
+        f"├ На подписании: <b>{investors['signing']}</b>",
+        f"├ WON за 7 дней: <b>{investors['won_week']}</b>",
+        f"└ Всего инвесторов: <b>{investors['won_all']}</b>",
         "",
     ]
 
     # [ФИНАНСЫ]
     lines += [
-        "<b>[ФИНАНСЫ]</b>",
-        f"Касса Иван:    {finance['ivan']}",
-        f"Касса Ярослав: {finance['yaroslav']}",
+        "💼 <b>Касса</b>",
+        f"└ Остаток: <b>{finance['ivan']}</b>",
         "",
     ]
 
@@ -485,9 +487,11 @@ def main():
     log.info("Отчёт собран:\n%s", report)
 
     ai = get_ai_summary(report)
-    full = report + f"<b>[AI-СВОДКА]</b>\n{ai}"
+    full = report + f"🤖 <b>AI-сводка</b>\n{ai}"
 
     send_telegram(full)
+    if TG_GROUP_ID:
+        send_telegram(full, chat_id=TG_GROUP_ID)
     log.info("=== Пульс Estate Invest DONE ===")
 
 
