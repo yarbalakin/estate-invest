@@ -339,19 +339,40 @@ def _within_days(d: date | None, n: int) -> bool:
 
 # ── [ИНВЕСТОРЫ] Свободные средства на балансе ─────────────────
 
-def get_free_funds() -> str:
-    """ИТОГО остаток инвестора в рублях из листа 'Свод инвесторы' (строка 0, кол 20)."""
+def get_svod_investors() -> dict:
+    """Из 'Свод инвесторы': реальные инвесторы (взнос > 0) + свободные средства."""
     try:
         gc = get_gc()
         sh = gc.open_by_key(SS_MAIN)
         ws = sh.worksheet("Свод инвесторы")
-        row0 = ws.row_values(1)  # gspread: строки с 1
-        # col 20 (0-indexed) = "ИТОГО остаток инвестора в рублях"
-        val = row0[20].strip().replace("\xa0", " ") if len(row0) > 20 else "н/д"
-        return val or "н/д"
+        rows = ws.get_all_values()
+
+        # Строка 0 (row 1 в gspread) — итоги, кол 20 = "ИТОГО остаток инвестора в рублях"
+        row0 = rows[0] if rows else []
+        free_funds = row0[20].strip().replace("\xa0", " ") if len(row0) > 20 else "н/д"
+
+        # Строки с 3-й (0-indexed) — данные инвесторов, заголовки на строке 2
+        # Взносы в колонках 2 ($), 3 (€), 4 (USDT), 5 (руб)
+        def parse_num(s):
+            try:
+                return float(str(s).replace("\xa0", "").replace(" ", "").replace(",", "."))
+            except Exception:
+                return 0.0
+
+        invested = 0
+        for r in rows[3:]:
+            name = r[1].strip() if len(r) > 1 else ""
+            if not name:
+                continue
+            if any(parse_num(r[i]) > 0 for i in [2, 3, 4, 5] if len(r) > i):
+                invested += 1
+
+        log.info("Свод инвесторы: реальных %d, свободные средства: %s", invested, free_funds)
+        return {"count": invested, "free_funds": free_funds or "н/д"}
+
     except Exception as e:
-        log.error("free_funds error: %s", e)
-        return "н/д"
+        log.error("svod_investors error: %s", e)
+        return {"count": "н/д", "free_funds": "н/д"}
 
 
 # ── [ФИНАНСЫ] Касса ────────────────────────────────────────────
@@ -429,7 +450,9 @@ def get_ai_summary(report_text: str) -> str:
 
 # ── Сборка отчёта ──────────────────────────────────────────────
 
-def build_report(lots, torgi, objects, investors, finance, free_funds="н/д") -> str:
+def build_report(lots, torgi, objects, investors, finance, svod=None) -> str:
+    if svod is None:
+        svod = {"count": "н/д", "free_funds": "н/д"}
     d = datetime.now(KLD).strftime("%d.%m.%Y")
     day = datetime.now(KLD).strftime("%A")
     day_ru = {"Monday":"Понедельник","Tuesday":"Вторник","Wednesday":"Среда",
@@ -475,9 +498,9 @@ def build_report(lots, torgi, objects, investors, finance, free_funds="н/д") -
         f"├ Новых анкет (вчера): <b>{investors['new_yest']}</b>",
         f"├ В работе: <b>{investors['in_work']}</b>",
         f"├ На подписании: <b>{investors['signing']}</b>",
-        f"├ WON за 7 дней: <b>{investors['won_week']}</b>",
-        f"├ Всего инвесторов: <b>{investors['won_all']}</b>",
-        f"└ Свободные средства: <b>{free_funds} ₽</b>",
+        f"├ Новых за 7 дней: <b>{investors['won_week']}</b>",
+        f"├ Всего инвесторов: <b>{svod['count']}</b>",
+        f"└ Свободные средства: <b>{svod['free_funds']} ₽</b>",
         "",
     ]
 
@@ -496,14 +519,14 @@ def build_report(lots, torgi, objects, investors, finance, free_funds="н/д") -
 def main():
     log.info("=== Пульс Estate Invest START ===")
 
-    lots       = get_lots_data()
-    torgi      = get_torgi_data()
-    objects    = get_objects_data()
-    investors  = get_investors_data()
-    finance    = get_finance_data()
-    free_funds = get_free_funds()
+    lots    = get_lots_data()
+    torgi   = get_torgi_data()
+    objects = get_objects_data()
+    investors = get_investors_data()
+    finance = get_finance_data()
+    svod    = get_svod_investors()
 
-    report = build_report(lots, torgi, objects, investors, finance, free_funds)
+    report = build_report(lots, torgi, objects, investors, finance, svod)
     log.info("Отчёт собран:\n%s", report)
 
     ai = get_ai_summary(report)
