@@ -102,6 +102,9 @@
     .cards-grid { grid-template-columns: 1fr; }
     .stats-bar { gap: 16px; }
   }
+
+  .map-open-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; background: rgba(79,110,247,.18); color: var(--accent); border: 1px solid rgba(79,110,247,.35); padding: 6px 16px; border-radius: 7px; cursor: pointer; text-decoration: none; transition: background .15s; }
+  .map-open-btn:hover { background: rgba(79,110,247,.32); }
 </style>
 </head>
 <body>
@@ -109,6 +112,10 @@
 <div class="header">
   <h1>Estate Invest — Реализация объектов</h1>
   <div class="subtitle">Сводка по активным объектам · Обновлено 04.03.2026</div>
+  <a class="map-open-btn" onclick="openMap(); return false;" href="#">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Карта объектов
+  </a>
 </div>
 
 <div class="stats-bar">
@@ -135,6 +142,7 @@
     <div class="stat-value green">225.6 млн ₽</div>
   </div>
 </div>
+
 
 <div class="main">
 
@@ -2262,5 +2270,25 @@
   Сгенерировано автоматически из Google Sheets · Estate Invest · 54 активных объектов
 </div>
 
+<script>
+window.openMap = function() {
+  var props = [];
+  document.querySelectorAll('.property-card').forEach(function(card) {
+    var ipNum  = (card.querySelector('.ip-num')?.textContent  || '').trim();
+    var ipName = (card.querySelector('.ip-name')?.textContent || '').trim();
+    var city   = (card.querySelector('.city-tag')?.textContent || '').trim();
+    var type   = (card.querySelector('.type-tag')?.textContent || '').trim();
+    var addr     = (card.querySelector('.address-value')?.textContent || '').trim();
+    var kadastr  = (card.querySelector('.kadastr-value')?.textContent || '').trim().split('/')[0].split(' /')[0].trim();
+    var fins     = card.querySelectorAll('.fin-value');
+    var buy      = (fins[0]?.textContent || '').trim();
+    var sell     = (fins[1]?.textContent || '').trim();
+    var roi      = (card.querySelector('.roi')?.textContent || '').trim();
+    if (ipNum) props.push({ ipNum: ipNum, ipName: ipName, city: city, type: type, addr: addr, kadastr: kadastr, buy: buy, sell: sell, roi: roi });
+  });
+  try { localStorage.setItem('ei_map_props', JSON.stringify(props)); } catch(e) {}
+  window.open('карта-объектов.html', '_blank');
+};
+</script>
 </body>
 </html>

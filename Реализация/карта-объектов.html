@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Карта объектов</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    background: #1a1d29; border-bottom: 1px solid #2d3250;
+    padding: 0 20px; height: 50px; display: flex; align-items: center;
+    gap: 16px; flex-shrink: 0;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #8b92a8; text-decoration: none;
+    background: rgba(255,255,255,.05); border: 1px solid #2d3250;
+    padding: 5px 11px; border-radius: 6px; cursor: pointer;
+    transition: color .15s, background .15s; flex-shrink: 0;
+  }
+  .back-btn:hover { color: #e8eaf0; background: rgba(255,255,255,.09); }
+  .topbar-title { font-size: 14px; font-weight: 600; color: #e8eaf0; white-space: nowrap; }
+  .geo-status { font-size: 12px; color: #8b92a8; margin-left: auto; white-space: nowrap; }
+
+  .filterbar {
+    background: #1a1d29; border-bottom: 1px solid #2d3250;
+    padding: 8px 20px; display: flex; align-items: center; gap: 20px;
+    flex-shrink: 0; flex-wrap: wrap; min-height: 44px;
+  }
+  .filter-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .filter-label { font-size: 11px; font-weight: 600; color: #8b92a8; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  .chip {
+    font-size: 12px; padding: 3px 10px; border-radius: 20px; cursor: pointer;
+    border: 1px solid #2d3250; background: transparent; color: #8b92a8;
+    transition: all .15s; white-space: nowrap; user-select: none;
+  }
+  .chip:hover { border-color: #4f6ef7; color: #c0c4d6; }
+  .chip.active                { background: rgba(79,110,247,.2);  border-color: #4f6ef7; color: #e8eaf0; }
+  .chip.active.city-perm      { background: rgba(96,165,250,.18); border-color: #60a5fa; color: #93c5fd; }
+  .chip.active.city-kgd       { background: rgba(52,211,153,.18); border-color: #34d399; color: #6ee7b7; }
+  .chip.active.type-land      { background: rgba(251,191,36,.15); border-color: #fbbf24; color: #fcd34d; }
+  .chip.active.type-live      { background: rgba(167,139,250,.18);border-color: #a78bfa; color: #c4b5fd; }
+  .chip.active.type-comm      { background: rgba(249,115,22,.15); border-color: #f97316; color: #fdba74; }
+  .chip.active.type-other     { background: rgba(156,163,175,.12);border-color: #9ca3af; color: #d1d5db; }
+  .filter-divider { width: 1px; height: 20px; background: #2d3250; flex-shrink: 0; }
+  .count-badge { font-size: 12px; color: #4f6ef7; font-weight: 600; margin-left: auto; white-space: nowrap; }
+
+  #map { flex: 1; }
+  .no-data {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; color: #8b92a8;
+  }
+  .no-data a { color: #4f6ef7; }
+
+  .ymbal { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; min-width: 230px; max-width: 290px; }
+  .ymbal-name { color: #222; font-size: 12px; margin-bottom: 5px; line-height: 1.4; }
+  .ymbal-meta { color: #666; font-size: 11px; }
+  .ymbal-price { color: #16a34a; font-weight: 600; }
+  .ymbal-addr { color: #999; font-size: 10px; margin-top: 5px; line-height: 1.35; }
+  .ymbal-cn { color: #aaa; font-size: 10px; margin-top: 3px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back-btn" onclick="history.back(); return false;" href="#">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Назад
+  </a>
+  <div class="topbar-title">Карта объектов — Estate Invest</div>
+  <span class="geo-status" id="geo-status"></span>
+</div>
+
+<div class="filterbar" id="filterbar">
+  <div class="filter-group" id="city-group">
+    <span class="filter-label">Город</span>
+    <span class="chip active" data-filter="city" data-value="all" onclick="toggleFilter(this)">Все</span>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-group" id="type-group">
+    <span class="filter-label">Тип</span>
+    <span class="chip active" data-filter="type" data-value="all" onclick="toggleFilter(this)">Все</span>
+  </div>
+  <span class="count-badge" id="count-badge"></span>
+</div>
+
+<div id="map"></div>
+<div id="no-data" class="no-data" style="display:none">
+  <div>Нет данных об объектах.</div>
+  <div>Откройте карту через кнопку "Карта объектов" в <a href="реализация-сводка.html">сводке</a>.</div>
+</div>
+
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+<script>
+(function() {
+
+  // Fallback координаты если PKK API не ответит
+  var FALLBACK = {
+    'ИП 4':   [54.735, 20.472],
+    'ИП 19':  [57.912, 55.901],
+    'ИП 20':  [58.271, 56.381],
+    'ИП 22':  [57.682, 56.138],
+    'ИП 27':  [58.283, 56.397],
+    'ИП 30':  [57.842, 55.893],
+    'ИП 31':  [58.042, 56.330],
+    'ИП 35':  [58.073, 55.730],
+    'ИП 50':  [57.810, 55.692],
+    'ИП 60':  [58.040, 56.311],
+    'ИП 62':  [58.042, 56.313],
+    'ИП 63':  [58.038, 56.309],
+    'ИП 64':  [58.044, 56.307],
+    'ИП 73':  [54.899, 20.438],
+    'ИП 74':  [57.751, 55.819],
+    'ИП 75':  [57.553, 55.591],
+    'ИП 77':  [54.961, 20.471],
+    'ИП 78':  [54.963, 20.474],
+    'ИП 79':  [54.959, 20.477],
+    'ИП 80':  [57.762, 55.822],
+    'ИП 82':  [54.682, 20.441],
+    'ИП 83':  [54.641, 20.612],
+    'ИП 84':  [54.661, 19.909],
+    'ИП 85':  [54.658, 19.906],
+    'ИП 86':  [54.655, 19.903],
+    'ИП 87':  [54.664, 19.912],
+    'ИП 89':  [54.948, 20.162],
+    'ИП 91':  [58.471, 56.418],
+    'ИП 92':  [57.932, 55.337],
+    'ИП 93':  [57.742, 55.782],
+    'ИП 94':  [57.721, 55.851],
+    'ИП 95':  [58.432, 56.361],
+    'ИП 96':  [58.089, 55.748],
+    'ИП 99':  [58.002, 56.241],
+    'ИП 101': [58.051, 56.221],
+    'ИП 102': [58.139, 55.801],
+    'ИП 105': [58.071, 56.271],
+    'ИП 106': [58.073, 56.268],
+    'ИП 107': [58.069, 56.274],
+    'ИП 108': [57.921, 55.911],
+    'ИП 110': [57.841, 55.961],
+    'ИП 111': [54.912, 20.468],
+    'ИП 112': [58.013, 56.252],
+    'ИП 113': [58.011, 56.249],
+    'ИП 114': [58.015, 56.255],
+    'ИП 115': [58.038, 56.212],
+    'ИП 116': [57.771, 55.841],
+    'ИП 117': [57.773, 55.843],
+    'ИП 118': [57.775, 55.839],
+    'ИП 119': [58.062, 56.192],
+    'ИП 120': [57.764, 55.821],
+    'ИП 121': [57.744, 55.784],
+    'ИП 122': [58.029, 56.229],
+    'ИП 123': [57.747, 55.787]
+  };
+
+  // Кеш координат из PKK (сохраняется в localStorage)
+  var PKK_CACHE_KEY = 'ei_pkk_cache';
+  var pkkCache = {};
+  try { pkkCache = JSON.parse(localStorage.getItem(PKK_CACHE_KEY) || '{}'); } catch(e) {}
+
+  var props = [];
+  try { props = JSON.parse(localStorage.getItem('ei_map_props') || '[]'); } catch(e) {}
+
+  if (!props.length) {
+    document.getElementById('map').style.display = 'none';
+    document.getElementById('no-data').style.display = 'flex';
+    return;
+  }
+
+  // PKK Росреестр API — геокодинг по кадастровому номеру
+  // Перебираем типы: 1=ЗУ, 5=здание, 6=сооружение, 2=ОКС
+  function geocodeByCadastr(cn) {
+    if (!cn) return Promise.resolve(null);
+    if (pkkCache[cn]) return Promise.resolve(pkkCache[cn]);
+
+    var types = [1, 5, 6, 2];
+
+    function tryType(idx) {
+      if (idx >= types.length) return Promise.resolve(null);
+      var url = 'https://pkk.rosreestr.ru/api/features/' + types[idx] +
+                '?text=' + encodeURIComponent(cn) + '&limit=1&tolerance=4';
+      return fetch(url, { mode: 'cors' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.features && d.features.length > 0) {
+            var feat = d.features[0];
+            var center = feat.center;
+            if (!center) return tryType(idx + 1);
+            var x = center.x, y = center.y;
+            var coords;
+            // Определяем систему координат по масштабу значений
+            if (Math.abs(x) > 180 || Math.abs(y) > 90) {
+              // Web Mercator → WGS84
+              var lon = x / 20037508.34 * 180;
+              var lat = Math.atan(Math.exp(y / 20037508.34 * Math.PI)) * 360 / Math.PI - 90;
+              coords = [lat, lon];
+            } else {
+              // Уже географические: x=долгота, y=широта
+              coords = [y, x];
+            }
+            pkkCache[cn] = coords;
+            try { localStorage.setItem(PKK_CACHE_KEY, JSON.stringify(pkkCache)); } catch(e) {}
+            return coords;
+          }
+          return tryType(idx + 1);
+        })
+        .catch(function() { return tryType(idx + 1); });
+    }
+
+    return tryType(0);
+  }
+
+  function normalizeType(t) {
+    t = (t || '').toLowerCase();
+    if (t.indexOf('земел') !== -1) return 'land';
+    if (t.indexOf('жил') !== -1 || t.indexOf('квар') !== -1 || t.indexOf('дом') !== -1 || t.indexOf('комнат') !== -1) return 'live';
+    if (t.indexOf('коммерч') !== -1 || t.indexOf('офис') !== -1 || t.indexOf('торг') !== -1 || t.indexOf('склад') !== -1) return 'comm';
+    return 'other';
+  }
+
+  props.forEach(function(p) { p._typeNorm = normalizeType(p.type); });
+
+  var typeLabels = { land: 'Земельный участок', live: 'Жилая', comm: 'Коммерческая', other: 'Другое' };
+  var typeClass  = { land: 'type-land', live: 'type-live', comm: 'type-comm', other: 'type-other' };
+  var cityPreset = { 'Пермь': 'islands#blueCircleDotIcon', 'Калининград': 'islands#greenCircleDotIcon' };
+
+  // Фильтр-чипы
+  var cities = [], types = [];
+  props.forEach(function(p) {
+    if (p.city && cities.indexOf(p.city) === -1) cities.push(p.city);
+    if (types.indexOf(p._typeNorm) === -1) types.push(p._typeNorm);
+  });
+  var cityGroup = document.getElementById('city-group');
+  var typeGroup = document.getElementById('type-group');
+  cities.forEach(function(c) {
+    var cls = c === 'Пермь' ? 'city-perm' : (c === 'Калининград' ? 'city-kgd' : '');
+    var el = document.createElement('span');
+    el.className = 'chip ' + cls;
+    el.dataset.filter = 'city'; el.dataset.value = c;
+    el.textContent = c; el.onclick = function() { toggleFilter(this); };
+    cityGroup.appendChild(el);
+  });
+  types.forEach(function(t) {
+    var el = document.createElement('span');
+    el.className = 'chip ' + (typeClass[t] || '');
+    el.dataset.filter = 'type'; el.dataset.value = t;
+    el.textContent = typeLabels[t] || t; el.onclick = function() { toggleFilter(this); };
+    typeGroup.appendChild(el);
+  });
+
+  var activeCity = 'all', activeType = 'all';
+  var allMarkers = [];
+  var myMap, clusterer;
+
+  window.toggleFilter = function(chip) {
+    var group = chip.dataset.filter;
+    document.querySelectorAll('[data-filter="' + group + '"]').forEach(function(c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+    if (group === 'city') activeCity = chip.dataset.value;
+    if (group === 'type') activeType = chip.dataset.value;
+    applyFilter();
+  };
+
+  function applyFilter() {
+    if (!clusterer) return;
+    var matched = [];
+    allMarkers.forEach(function(m) {
+      var ok = (activeCity === 'all' || m.prop.city === activeCity) &&
+               (activeType === 'all' || m.prop._typeNorm === activeType);
+      if (ok) matched.push(m.pm);
+    });
+    clusterer.removeAll();
+    clusterer.add(matched);
+    document.getElementById('count-badge').textContent = 'Показано: ' + matched.length + ' из ' + allMarkers.length;
+    if (matched.length > 1) {
+      myMap.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 60 }).catch(function(){});
+    } else if (matched.length === 1) {
+      myMap.setCenter(matched[0].geometry.getCoordinates(), 12);
+    }
+  }
+
+  var geoStatus = document.getElementById('geo-status');
+
+  ymaps.ready(function() {
+    myMap = new ymaps.Map('map', {
+      center: [57.0, 52.0], zoom: 5,
+      controls: ['zoomControl', 'fullscreenControl', 'typeSelector']
+    });
+    clusterer = new ymaps.Clusterer({
+      preset: 'islands#darkBlueClusterIcons',
+      groupByCoordinates: false,
+      clusterDisableClickZoom: false
+    });
+    myMap.geoObjects.add(clusterer);
+
+    function addMarker(p, coords, source) {
+      var preset = cityPreset[p.city] || 'islands#violetCircleDotIcon';
+      // Если координаты из кеша или fallback — используем серый маркер
+      if (source === 'fallback') preset = preset.replace('CircleDot', 'CircleDot').replace('islands#blue', 'islands#darkBlue').replace('islands#green', 'islands#darkGreen');
+      var cnHint = p.kadastr ? '<div class="ymbal-cn">' + p.kadastr + (source === 'pkk' ? ' ✓' : '') + '</div>' : '';
+      var pm = new ymaps.Placemark(coords, {
+        balloonContentHeader: '<span style="font-weight:700;color:#4f6ef7">' + p.ipNum + '</span>',
+        balloonContentBody:
+          '<div class="ymbal">' +
+          '<div class="ymbal-name">' + p.ipName + '</div>' +
+          '<div class="ymbal-meta">' + p.city + (p.type ? ' · ' + p.type : '') + '</div>' +
+          '<div class="ymbal-meta" style="margin-top:5px">' + p.buy + ' → <span class="ymbal-price">' + p.sell + '</span></div>' +
+          (p.roi  ? '<div class="ymbal-meta">' + p.roi  + '</div>' : '') +
+          (p.addr ? '<div class="ymbal-addr">' + p.addr + '</div>' : '') +
+          cnHint +
+          '</div>',
+        hintContent: p.ipNum + ' — ' + p.city
+      }, { preset: preset });
+      allMarkers.push({ pm: pm, prop: p });
+      clusterer.add(pm);
+    }
+
+    // Обрабатываем объекты последовательно
+    // Объекты с кешем — сразу, остальные — через PKK API
+    var total = props.length;
+    var done = 0;
+    var fromPkk = 0, fromFallback = 0, skipped = 0;
+
+    function updateStatus() {
+      geoStatus.textContent = 'Геокодинг: ' + done + '/' + total +
+        (fromPkk ? '  ✓ Росреестр: ' + fromPkk : '') +
+        (fromFallback ? '  ~ Приблизительно: ' + fromFallback : '');
+      document.getElementById('count-badge').textContent = 'Показано: ' + allMarkers.length + ' из ' + total;
+    }
+
+    // Разбиваем на два списка: из кеша (быстро) и новые (запрос к PKK)
+    var cached = [], fresh = [];
+    props.forEach(function(p) {
+      if (p.kadastr && pkkCache[p.kadastr]) cached.push(p);
+      else fresh.push(p);
+    });
+
+    // Сначала добавляем из кеша
+    cached.forEach(function(p) {
+      addMarker(p, pkkCache[p.kadastr], 'pkk');
+      fromPkk++;
+      done++;
+    });
+    updateStatus();
+
+    // Подгоняем карту под кешированные объекты сразу
+    if (allMarkers.length > 1) {
+      myMap.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 60 }).catch(function(){});
+    }
+
+    // Затем последовательно запрашиваем PKK для новых
+    function processNext(idx) {
+      if (idx >= fresh.length) {
+        // Готово
+        geoStatus.textContent = 'Готово: ' + allMarkers.length + ' объектов' +
+          (fromPkk ? '  |  Росреестр: ' + fromPkk : '') +
+          (fromFallback ? '  |  Приблиз.: ' + fromFallback : '') +
+          (skipped ? '  |  Без координат: ' + skipped : '');
+        document.getElementById('count-badge').textContent = 'Показано: ' + allMarkers.length + ' из ' + total;
+        if (allMarkers.length > 1) {
+          myMap.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 60 }).catch(function(){});
+        }
+        return;
+      }
+      var p = fresh[idx];
+      done++;
+      geoStatus.textContent = 'Геокодинг ' + done + '/' + total + ': ' + p.ipNum + (p.kadastr ? ' (' + p.kadastr + ')' : '') + '…';
+
+      geocodeByCadastr(p.kadastr).then(function(coords) {
+        if (coords) {
+          addMarker(p, coords, 'pkk');
+          fromPkk++;
+        } else {
+          // Fallback на захардкоженные координаты
+          var fc = FALLBACK[p.ipNum];
+          if (fc) {
+            addMarker(p, fc, 'fallback');
+            fromFallback++;
+          } else {
+            skipped++;
+          }
+        }
+        updateStatus();
+        // Небольшая пауза чтобы не флудить PKK API
+        setTimeout(function() { processNext(idx + 1); }, p.kadastr ? 300 : 0);
+      });
+    }
+
+    processNext(0);
+  });
+})();
+</script>
+</body>
+</html>
