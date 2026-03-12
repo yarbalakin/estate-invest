@@ -375,6 +375,81 @@ def get_svod_investors() -> dict:
         return {"count": "н/д", "free_funds": "н/д"}
 
 
+# ── [ИНВЕСТОРЫ] Движение средств из "Общая база" ─────────────
+
+def _parse_money(s: str) -> float:
+    """Парсинг денежной суммы из строки."""
+    try:
+        clean = str(s).replace(" ", "").replace("\xa0", "").replace(",", ".")
+        clean = clean.replace("₽", "").replace("р.", "").replace("р", "").strip()
+        return float(clean) if clean else 0.0
+    except Exception:
+        return 0.0
+
+def get_investor_flows() -> dict:
+    """Из 'Общая база': внесено/выведено за вчера и за текущий месяц.
+
+    Структура листа (СТРУКТУРА_ДАННЫХ.md):
+      col 0: №, 1: Инвестор, 2: Проверка, 3: Вид взноса, 4: Дата,
+      5: Сумма, 6: Валюта взноса, 7: Сумма в рублях,
+      ...
+      17: Вид выплаты, 18: Дата выплаты, 19: Сумма выплаты,
+      20: Валюта выплаты, 21: Сумма выплаты в руб.
+    """
+    empty = {"y_in": 0, "y_out": 0, "m_in": 0, "m_out": 0}
+    try:
+        gc = get_gc()
+        sh = gc.open_by_key(SS_MAIN)
+        ws = sh.worksheet("Общая база")
+        data = ws.get_all_values()
+
+        if not data:
+            return empty
+
+        # Логируем первую строку для верификации колонок
+        log.info("Общая база headers: %s", [c[:20] for c in data[0][:22]])
+        log.info("Общая база rows: %d", len(data) - 1)
+
+        yest = yesterday_kld()
+        now = today_kld()
+        month_start = now.replace(day=1)
+
+        y_in = y_out = m_in = m_out = 0.0
+
+        for row in data[1:]:
+            if len(row) < 8:
+                continue
+
+            # --- Внесение: дата в col 4, сумма в рублях в col 7 ---
+            deposit_date = parse_date(row[4]) if row[4].strip() else None
+            deposit_rub = _parse_money(row[7]) if len(row) > 7 else 0.0
+
+            if deposit_date and deposit_rub > 0:
+                if deposit_date == yest:
+                    y_in += deposit_rub
+                if deposit_date >= month_start:
+                    m_in += deposit_rub
+
+            # --- Выплата: дата в col 18, сумма в руб. в col 21 ---
+            if len(row) > 21:
+                payout_date = parse_date(row[18]) if row[18].strip() else None
+                payout_rub = _parse_money(row[21])
+
+                if payout_date and payout_rub > 0:
+                    if payout_date == yest:
+                        y_out += payout_rub
+                    if payout_date >= month_start:
+                        m_out += payout_rub
+
+        log.info("Investor flows: y_in=%.0f y_out=%.0f m_in=%.0f m_out=%.0f",
+                 y_in, y_out, m_in, m_out)
+        return {"y_in": y_in, "y_out": y_out, "m_in": m_in, "m_out": m_out}
+
+    except Exception as e:
+        log.error("investor_flows error: %s", e)
+        return empty
+
+
 # ── [ФИНАНСЫ] Касса ────────────────────────────────────────────
 
 def get_finance_data() -> dict:
@@ -386,14 +461,11 @@ def get_finance_data() -> dict:
 
         # Иван: дата в col C (idx 2), остаток в col F (idx 5)
         ivan = _last_balance(data, date_col=2, balance_col=5)
-        # Ярослав: дата в col M (idx 12), остаток в col P (idx 15)
-        yaroslav = _last_balance(data, date_col=12, balance_col=15)
-
-        return {"ivan": ivan, "yaroslav": yaroslav}
+        return {"ivan": ivan}
 
     except Exception as e:
         log.error("finance_data error: %s", e)
-        return {"ivan": "н/д", "yaroslav": "н/д"}
+        return {"ivan": "н/д"}
 
 def _last_balance(data: list, date_col: int, balance_col: int) -> str:
     """Последняя строка с датой → значение balance_col."""
@@ -401,7 +473,7 @@ def _last_balance(data: list, date_col: int, balance_col: int) -> str:
     for row in data:
         if max(date_col, balance_col) >= len(row):
             continue
-        if parse_date(row[date_col]):   # есть дата → строка внесена
+        if parse_date(row[date_col]):
             val = row[balance_col].strip()
             if val:
                 last = val
@@ -450,13 +522,19 @@ def get_ai_summary(report_text: str) -> str:
 
 # ── Сборка отчёта ──────────────────────────────────────────────
 
-def build_report(lots, torgi, objects, investors, finance, svod=None) -> str:
+def build_report(lots, torgi, objects, investors, finance, svod=None, flows=None) -> str:
     if svod is None:
         svod = {"count": "н/д", "free_funds": "н/д"}
-    d = datetime.now(KLD).strftime("%d.%m.%Y")
-    day = datetime.now(KLD).strftime("%A")
+    if flows is None:
+        flows = {"y_in": 0, "y_out": 0, "m_in": 0, "m_out": 0}
+    now_dt = datetime.now(KLD)
+    d = now_dt.strftime("%d.%m.%Y")
+    day = now_dt.strftime("%A")
     day_ru = {"Monday":"Понедельник","Tuesday":"Вторник","Wednesday":"Среда",
               "Thursday":"Четверг","Friday":"Пятница","Saturday":"Суббота","Sunday":"Воскресенье"}.get(day, day)
+    months_ru = {1:"Январь",2:"Февраль",3:"Март",4:"Апрель",5:"Май",6:"Июнь",
+                 7:"Июль",8:"Август",9:"Сентябрь",10:"Октябрь",11:"Ноябрь",12:"Декабрь"}
+    now_month = months_ru.get(now_dt.month, str(now_dt.month))
     lines = [f"🏢 <b>ПУЛЬС ESTATE INVEST</b>", f"📅 {day_ru}, {d}", ""]
 
     # [АНАЛИТИКА]
@@ -500,9 +578,15 @@ def build_report(lots, torgi, objects, investors, finance, svod=None) -> str:
         f"├ На подписании: <b>{investors['signing']}</b>",
         f"├ Новых за 7 дней: <b>{investors['won_week']}</b>",
         f"├ Всего инвесторов: <b>{svod['count']}</b>",
-        f"└ Свободные средства: <b>{svod['free_funds']} ₽</b>",
-        "",
+        f"├ Свободные средства: <b>{svod['free_funds']} ₽</b>",
     ]
+    # Движение средств инвесторов
+    if flows["y_in"] > 0 or flows["y_out"] > 0:
+        lines.append(f"├ Вчера: внесено <b>{fmt_money(flows['y_in'])}</b>, выведено <b>{fmt_money(flows['y_out'])}</b>")
+    else:
+        lines.append("├ Вчера: движений не было")
+    lines.append(f"└ {now_month}: внесено <b>{fmt_money(flows['m_in'])}</b>, выведено <b>{fmt_money(flows['m_out'])}</b>")
+    lines.append("")
 
     # [ФИНАНСЫ]
     lines += [
@@ -525,8 +609,9 @@ def main():
     investors = get_investors_data()
     finance = get_finance_data()
     svod    = get_svod_investors()
+    flows   = get_investor_flows()
 
-    report = build_report(lots, torgi, objects, investors, finance, svod)
+    report = build_report(lots, torgi, objects, investors, finance, svod, flows)
     log.info("Отчёт собран:\n%s", report)
 
     ai = get_ai_summary(report)
