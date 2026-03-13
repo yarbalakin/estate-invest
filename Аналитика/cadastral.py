@@ -4,13 +4,14 @@ cadastral.py — Кадастровые данные из НСПД (Росрее
 Что делает:
   - Кадастровый номер → кадастровая стоимость, площадь, назначение
   - Кадастровый номер → вид разрешённого использования (ВРИ)
-  - Кадастровый номер → обременения
+  - Кадастровый номер → тип собственности, этаж, дата регистрации
 
 API: НСПД (nspd.gov.ru) — бесплатный, без ключа.
-Фаллбек: PKK (pkk.rosreestr.ru) — бесплатный, без ключа.
+Требует заголовки sec-fetch-* для обхода WAF.
 """
 
 import logging
+import time
 from typing import Any
 
 import requests
@@ -19,10 +20,7 @@ from property_card import PropertyCard
 
 log = logging.getLogger(__name__)
 
-# НСПД API (новый портал Росреестра)
 NSPD_SEARCH_URL = "https://nspd.gov.ru/api/geoportal/v2/search/geoportal"
-# PKK API (старый портал, фаллбек)
-PKK_URL = "https://pkk.rosreestr.ru/api/features/1"  # 1 = участки, 5 = ОКС
 
 _session: requests.Session | None = None
 
@@ -31,21 +29,39 @@ def _get_session() -> requests.Session:
     global _session
     if _session is None:
         _session = requests.Session()
-        _session.verify = False  # Российские SSL-сертификаты (НСПД, PKK)
+        _session.verify = False
         _session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://nspd.gov.ru",
+            "Referer": "https://nspd.gov.ru/map",
+            "sec-ch-ua": '"Chromium";"v="120"',
+            "sec-ch-ua-platform": '"Windows"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
         })
     return _session
 
 
 def fetch_nspd(cadastral_number: str) -> dict[str, Any] | None:
-    """Запрос кадастровых данных через НСПД API."""
+    """Запрос кадастровых данных через НСПД API.
+
+    Возвращает dict с полями options из первого найденного объекта,
+    или None если не найден / ошибка.
+    """
     if not cadastral_number:
         return None
 
     try:
-        resp = _get_session().get(
+        sess = _get_session()
+        # Обновляем Referer с конкретным кад. номером
+        sess.headers["Referer"] = (
+            f"https://nspd.gov.ru/map?search={cadastral_number}"
+        )
+        resp = sess.get(
             NSPD_SEARCH_URL,
             params={"query": cadastral_number, "limit": 1},
             timeout=15,
@@ -53,71 +69,43 @@ def fetch_nspd(cadastral_number: str) -> dict[str, Any] | None:
         resp.raise_for_status()
         data = resp.json()
 
-        features = data.get("features", [])
-        if features:
-            return features[0].get("properties", {})
-        return None
+        # Структура ответа: {data: {features: [{properties: {options: {...}}}]}}
+        features = data.get("data", {}).get("features", [])
+        if not features:
+            return None
+
+        props = features[0].get("properties", {})
+        result = props.get("options", {})
+        # Добавляем categoryName из верхнего уровня
+        result["_categoryName"] = props.get("categoryName", "")
+        return result
 
     except requests.RequestException as e:
         log.error("NSPD fetch %s FAIL: %s", cadastral_number, e)
         return None
 
 
-def fetch_pkk(cadastral_number: str) -> dict[str, Any] | None:
-    """Фаллбек: запрос через PKK API."""
-    if not cadastral_number:
-        return None
-
-    try:
-        resp = _get_session().get(
-            f"{PKK_URL}/{cadastral_number}",
-            timeout=15,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-
-        feature = data.get("feature")
-        if feature:
-            return feature.get("attrs", {})
-        return None
-
-    except requests.RequestException as e:
-        log.error("PKK fetch %s FAIL: %s", cadastral_number, e)
-        return None
-
-
 def enrich_card(card: PropertyCard) -> bool:
-    """Обогащает PropertyCard кадастровыми данными.
+    """Обогащает PropertyCard кадастровыми данными из НСПД.
 
     Заполняет:
-      - card.cadastralValue — кадастровая стоимость
-      - card.cadastralArea — площадь по кадастру
-      - card.cadastralCategory — категория земли
-      - card.cadastralPermittedUse — ВРИ
-      - card.cadastralPriceRatio — цена лота / кадастровая стоимость
+      - cadastralValue — кадастровая стоимость
+      - cadastralArea — площадь по кадастру
+      - cadastralCategory — категория/назначение
+      - cadastralPermittedUse — ВРИ / тип помещения
+      - cadastralPriceRatio — цена лота / кадастровая стоимость
+      - hasEncumbrances — наличие обременений (по ownership_type)
 
-    Пробует НСПД, при неудаче — PKK.
     Возвращает True если обогащение успешно.
     """
     if not card.cadastralNumber:
         return False
 
-    # Попытка 1: НСПД
     data = fetch_nspd(card.cadastralNumber)
-    source = "nspd"
-
-    # Попытка 2: PKK
-    if not data:
-        data = fetch_pkk(card.cadastralNumber)
-        source = "pkk"
-
     if not data:
         return False
 
-    if source == "nspd":
-        _parse_nspd(card, data)
-    else:
-        _parse_pkk(card, data)
+    _parse_nspd(card, data)
 
     # Рассчитываем отношение цены к кадастровой стоимости
     if card.cadastralValue and card.cadastralValue > 0 and card.price > 0:
@@ -126,63 +114,109 @@ def enrich_card(card: PropertyCard) -> bool:
     return True
 
 
-def _parse_nspd(card: PropertyCard, data: dict) -> None:
-    """Парсинг ответа НСПД."""
+def enrich_from_raw(raw: dict[str, Any]) -> dict[str, Any]:
+    """Обогащение из сырого ответа НСПД — возвращает dict полей для UPDATE.
+
+    Используется в скрипте массового обогащения (без PropertyCard).
+    """
+    result = {}
+
     # Кадастровая стоимость
-    cad_value = data.get("cadastral_cost") or data.get("cad_cost")
-    if cad_value:
+    cv = raw.get("cost_value")
+    if cv is not None:
         try:
-            card.cadastralValue = float(cad_value)
+            result["cadastral_value"] = float(cv)
         except (ValueError, TypeError):
             pass
 
     # Площадь
-    area = data.get("area_value") or data.get("area")
-    if area:
+    area = raw.get("area")
+    if area is not None:
         try:
-            card.cadastralArea = float(area)
+            result["cadastral_area"] = float(area)
         except (ValueError, TypeError):
             pass
 
-    # Категория
-    card.cadastralCategory = data.get("category_type") or data.get("category")
+    # Категория / назначение
+    purpose = raw.get("purpose")  # "Жилое", "Нежилое", "Земли населённых пунктов"
+    cat_name = raw.get("_categoryName", "")  # "Помещения", "Земельные участки"
+    params_type = raw.get("params_type")  # "Квартира", "Здание", "Участок"
 
-    # ВРИ
-    card.cadastralPermittedUse = data.get("permitted_use") or data.get("util_by_doc")
+    if purpose:
+        result["cadastral_category"] = purpose
+    elif cat_name:
+        result["cadastral_category"] = cat_name
 
-    # Обременения
-    encumbrances = data.get("encumbrances")
-    if encumbrances:
-        card.hasEncumbrances = True
-        if isinstance(encumbrances, list) and encumbrances:
-            card.encumbranceType = encumbrances[0].get("type", "")
-    else:
-        card.hasEncumbrances = False
+    # ВРИ / тип
+    if params_type:
+        result["cadastral_permitted_use"] = params_type
+
+    # Обременения — если собственность "Долевая" или есть encumbrances
+    # НСПД не отдаёт обременения напрямую, но мы можем отметить тип собственности
+    ownership = raw.get("ownership_type")
+    if ownership:
+        result["encumbrance_type"] = ownership
 
     # Дата кадастровой оценки
-    card.cadastralValueDate = data.get("cad_cost_date")
-
-
-def _parse_pkk(card: PropertyCard, data: dict) -> None:
-    """Парсинг ответа PKK."""
-    # Кадастровая стоимость
-    cad_value = data.get("cad_cost")
-    if cad_value:
+    cost_index = raw.get("cost_index")
+    if cost_index is not None:
         try:
-            card.cadastralValue = float(cad_value)
+            result["cadastral_value_date"] = str(round(float(cost_index), 2))
+        except (ValueError, TypeError):
+            pass
+
+    # Этаж (для квартир) — обогащаем apartment блок
+    floor_info = raw.get("floor")
+    if floor_info and isinstance(floor_info, list):
+        # Формат: ["4/Этаж"]
+        for f in floor_info:
+            if "/" in str(f):
+                parts = str(f).split("/")
+                try:
+                    result["_floor"] = int(parts[0])
+                except ValueError:
+                    pass
+
+    return result
+
+
+def _parse_nspd(card: PropertyCard, data: dict) -> None:
+    """Парсинг ответа НСПД в PropertyCard."""
+    # Кадастровая стоимость
+    cv = data.get("cost_value")
+    if cv is not None:
+        try:
+            card.cadastralValue = float(cv)
         except (ValueError, TypeError):
             pass
 
     # Площадь
-    area = data.get("area_value")
-    if area:
+    area = data.get("area")
+    if area is not None:
         try:
             card.cadastralArea = float(area)
         except (ValueError, TypeError):
             pass
 
-    # Категория
-    card.cadastralCategory = data.get("category_type")
+    # Категория / назначение
+    purpose = data.get("purpose")
+    if purpose:
+        card.cadastralCategory = purpose
+    elif data.get("_categoryName"):
+        card.cadastralCategory = data["_categoryName"]
 
-    # ВРИ
-    card.cadastralPermittedUse = data.get("util_by_doc") or data.get("fp")
+    # Тип
+    params_type = data.get("params_type")
+    if params_type:
+        card.cadastralPermittedUse = params_type
+
+    # Этаж (для квартир)
+    floor_info = data.get("floor")
+    if floor_info and isinstance(floor_info, list) and card.apartment:
+        for f in floor_info:
+            if "/" in str(f):
+                parts = str(f).split("/")
+                try:
+                    card.apartment.floor = int(parts[0])
+                except ValueError:
+                    pass
