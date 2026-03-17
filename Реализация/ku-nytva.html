@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КУ Нытва — Estate Invest</title>
+    <style>
+        :root {
+            --bg: #0f1117; --surface: #1a1d27; --surface2: #242835;
+            --border: #2e3348; --text: #e4e4e7; --text2: #9ca3af;
+            --accent: #6366f1; --accent2: #818cf8;
+            --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+            --orange: #f59e0b; --orange-bg: rgba(245,158,11,0.1);
+            --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+            --tg: #2AABEE;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 16px; max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 1.5rem; margin-bottom: 4px; }
+        h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--text2); font-weight: 400; }
+        h3 { font-size: 1rem; margin-bottom: 8px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+        .input-group label { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input, .input-group select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 1rem; outline: none; width: 100%; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 500; white-space: nowrap; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
+        .btn-telegram { background: var(--tg); color: white; }
+        .btn-telegram:hover { background: #229ED9; }
+        .btn-copy { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-copy:hover { border-color: var(--accent); }
+        .btn-send-all { background: var(--tg); color: white; padding: 10px 24px; }
+        .btn-send-all:hover { background: #229ED9; }
+        .btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid transparent; }
+
+        /* Upload */
+        .upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; margin-top: 12px; position: relative; }
+        .upload-area:hover { border-color: var(--accent); }
+        .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-preview { display: flex; align-items: center; gap: 12px; }
+        .upload-preview img { max-height: 60px; border-radius: 6px; border: 1px solid var(--border); }
+
+        /* Stats */
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+        .stat-value { font-size: 1.3rem; font-weight: 700; }
+        .stat-label { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; }
+        .stat-green .stat-value { color: var(--green); }
+        .stat-orange .stat-value { color: var(--orange); }
+        .stat-accent .stat-value { color: var(--accent2); }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { text-align: left; padding: 8px 10px; font-size: 0.7rem; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+        tr:last-child td { border-bottom: none; }
+        tr.rented { background: var(--green-bg); }
+        tr.vacant { opacity: 0.45; }
+        tr.company-row { background: var(--orange-bg); font-weight: 600; }
+        tr.total-row { background: var(--surface2); font-weight: 700; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
+        .badge-green { background: var(--green-bg); color: var(--green); }
+        .badge-gray { background: var(--surface2); color: var(--text2); }
+
+        /* Messages */
+        .tenant-msg { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+        .tenant-msg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .tenant-msg-name { font-weight: 600; font-size: 0.9rem; }
+        .tenant-msg-amount { font-weight: 700; color: var(--green); }
+        .msg-preview { font-size: 0.85rem; color: var(--text2); white-space: pre-wrap; margin-bottom: 10px; padding: 12px; background: var(--surface); border-radius: 6px; border-left: 3px solid var(--accent); font-family: inherit; line-height: 1.6; }
+        .tenant-msg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .receipt-tip { background: var(--orange-bg); color: var(--orange); font-size: 0.8rem; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+
+        /* History */
+        .hist-row { border-bottom: 1px solid var(--border); }
+        .hist-row:last-child { border-bottom: none; }
+        .hist-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; font-size: 0.85rem; }
+        .hist-header:hover { opacity: 0.8; }
+        .hist-arrow { color: var(--text2); font-size: 0.75rem; transition: transform 0.2s; display: inline-block; }
+        .hist-arrow.open { transform: rotate(90deg); }
+        .hist-detail { display: none; padding-bottom: 12px; }
+        .hist-detail.open { display: block; }
+        .hist-detail table { font-size: 0.8rem; }
+
+        .floor-toggle { display: flex; gap: 6px; }
+        .floor-toggle .btn { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+        .floor-toggle .btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 100; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .hidden { display: none !important; }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .stat-value { font-size: 1.1rem; }
+            th, td { padding: 6px 5px; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Коммунальные услуги — Нытва</h1>
+<h2>Расчёт долей арендаторов</h2>
+
+<div class="card">
+    <div class="input-row">
+        <div class="input-group">
+            <label>Услуга</label>
+            <select id="serviceType">
+                <option>Отопление</option>
+                <option>Водоснабжение</option>
+                <option>Водоотведение</option>
+                <option>Электричество (общее)</option>
+                <option>Вывоз мусора</option>
+                <option>Содержание</option>
+                <option>Другое</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Период</label>
+            <select id="period"></select>
+        </div>
+        <div class="input-group">
+            <label>Сумма счёта, руб.</label>
+            <input type="number" id="totalBill" placeholder="0" min="0" step="0.01">
+        </div>
+        <div class="input-group">
+            <label>Оплатить до</label>
+            <input type="date" id="deadline">
+        </div>
+        <button class="btn btn-primary" onclick="calculate()" style="align-self:end;min-height:42px">Рассчитать</button>
+    </div>
+    <div class="upload-area" id="uploadArea">
+        <input type="file" id="receiptFile" accept="image/*,.pdf" onchange="onReceiptChange(this)">
+        <div id="uploadLabel" style="color:var(--text2);font-size:0.9rem">Перетащите квитанцию или нажмите для загрузки</div>
+        <div id="uploadPreview" class="upload-preview hidden">
+            <img id="receiptThumb" src="">
+            <div>
+                <div id="receiptName" style="font-size:0.85rem"></div>
+                <button class="btn btn-sm btn-danger" onclick="removeReceipt(event)" style="margin-top:4px">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-bar hidden" id="statsBar">
+    <div class="stat stat-accent"><div class="stat-value" id="statPrice">—</div><div class="stat-label">Руб. за м²</div></div>
+    <div class="stat stat-green"><div class="stat-value" id="statTenants">—</div><div class="stat-label">Арендаторы</div></div>
+    <div class="stat stat-orange"><div class="stat-value" id="statCompany">—</div><div class="stat-label">Компания</div></div>
+    <div class="stat"><div class="stat-value" id="statArea">—</div><div class="stat-label">м² сдано</div></div>
+</div>
+
+<div class="card hidden" id="resultsCard">
+    <div class="card-header">
+        <h3>Разбивка по помещениям</h3>
+        <div class="floor-toggle">
+            <button class="btn btn-sm active" onclick="filterFloor('all',this)">Все</button>
+            <button class="btn btn-sm" onclick="filterFloor('2',this)">2 этаж</button>
+            <button class="btn btn-sm" onclick="filterFloor('3',this)">3 этаж</button>
+        </div>
+    </div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Этаж</th><th>Пом.</th><th>Площадь</th><th>Арендатор</th><th>Сумма</th><th></th></tr></thead><tbody id="resultsBody"></tbody></table></div>
+</div>
+
+<div class="card hidden" id="messagesCard">
+    <div class="card-header">
+        <h3>Сообщения арендаторам</h3>
+        <button class="btn btn-send-all" onclick="sendAllTG()">Отправить всем в Telegram</button>
+    </div>
+    <div id="receiptTip" class="receipt-tip hidden">Квитанция загружена. На телефоне — прикрепится автоматически. На компьютере — прикрепите вручную в чате.</div>
+    <div id="messagesBody"></div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>История расчётов</h3>
+        <button class="btn btn-sm btn-copy" onclick="clearHist()">Очистить</button>
+    </div>
+    <div id="historyBody"><div style="color:var(--text2);font-size:0.85rem">Пока нет расчётов</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var BUILDING = {
+    name: "Нытва", totalArea: 870.7,
+    floors: [
+        { name: "2 этаж", id: "2",
+          rooms: [
+            { num:1, area:16.8, tenant:"Кирилова Евгения", phone:"79504543354", rented:true },
+            { num:2, area:15.2, tenant:"Баталова Олеся", phone:"79638829700", rented:true },
+            { num:3, area:11.5, tenant:"Покудовская Елена", phone:"79024769275", rented:true },
+            { num:4, area:18.0, tenant:"Цидкилов Максим", phone:"79194686350", rented:true },
+            { num:5, area:17.0, tenant:"Смолина Инна", phone:"79504502834", rented:true },
+            { num:6, area:21.6, tenant:null, phone:null, rented:false },
+            { num:7, area:17.7, tenant:null, phone:null, rented:false },
+            { num:8, area:17.3, tenant:null, phone:null, rented:false },
+            { num:9, area:17.3, tenant:"Азанова Марина", phone:"79824520250", rented:true },
+            { num:10, area:13.4, tenant:null, phone:null, rented:false },
+            { num:11, area:16.4, tenant:null, phone:null, rented:false },
+            { num:12, area:13.4, tenant:"Генрих", phone:"79184876067", rented:true },
+            { num:13, area:9.9, tenant:"Поленова Виктория", phone:"79822367615", rented:true },
+            { num:14, area:19.3, tenant:"Хуснутдинова Райхона", phone:"79504560501", rented:true }
+          ]
+        },
+        { name: "3 этаж", id: "3",
+          rooms: [
+            { num:1, area:17.0, tenant:null, phone:null, rented:false },
+            { num:2, area:14.4, tenant:"Чертулова Анастасия", phone:"79129807374", rented:true },
+            { num:3, area:12.0, tenant:"Галанова Эльвира", phone:"79026317267", rented:true },
+            { num:4, area:16.0, tenant:null, phone:null, rented:false },
+            { num:5, area:18.6, tenant:"Мельников Денис", phone:"79091012220", rented:true },
+            { num:6, area:39.6, tenant:null, phone:null, rented:false },
+            { num:7, area:16.9, tenant:null, phone:null, rented:false },
+            { num:8, area:17.4, tenant:null, phone:null, rented:false },
+            { num:9, area:32.9, tenant:null, phone:null, rented:false }
+          ]
+        }
+    ]
+};
+
+// Flatten rooms
+var allRooms = [];
+var rentedRooms = [];
+var rentedArea = 0;
+BUILDING.floors.forEach(function(f) {
+    f.rooms.forEach(function(r) {
+        var room = { num: r.num, area: r.area, tenant: r.tenant, phone: r.phone, rented: r.rented, floor: f.id, floorName: f.name };
+        allRooms.push(room);
+        if (r.rented) {
+            rentedRooms.push(room);
+            rentedArea += r.area;
+        }
+    });
+});
+var companyArea = BUILDING.totalArea - rentedArea;
+
+var receiptDataUrl = null;
+var receiptFileName = null;
+var receiptFileObj = null; // original File object for Web Share API
+
+// ========== INIT ==========
+(function() {
+    var sel = document.getElementById('period');
+    var months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    var now = new Date();
+    for (var i = 0; i < 4; i++) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var opt = document.createElement('option');
+        opt.value = months[d.getMonth()] + ' ' + d.getFullYear();
+        opt.textContent = opt.value;
+        sel.appendChild(opt);
+    }
+    var dl = new Date();
+    dl.setDate(dl.getDate() + 7);
+    document.getElementById('deadline').value = dl.toISOString().slice(0, 10);
+    document.getElementById('totalBill').addEventListener('keydown', function(e) { if (e.key === 'Enter') calculate(); });
+
+    // Clear old-format history
+    try {
+        var h = JSON.parse(localStorage.getItem('ku_nytva_history') || '[]');
+        if (h.length && !h[0].tenantDetails) localStorage.removeItem('ku_nytva_history');
+    } catch(e) { localStorage.removeItem('ku_nytva_history'); }
+
+    renderHist();
+})();
+
+// ========== RECEIPT ==========
+function onReceiptChange(input) {
+    if (!input.files || !input.files.length) return;
+    var file = input.files[0];
+    receiptFileName = file.name;
+    receiptFileObj = file;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        receiptDataUrl = e.target.result;
+        if (file.type.indexOf('image') >= 0) {
+            document.getElementById('receiptThumb').src = receiptDataUrl;
+            document.getElementById('receiptThumb').style.display = '';
+        } else {
+            document.getElementById('receiptThumb').style.display = 'none';
+        }
+        document.getElementById('receiptName').textContent = file.name;
+        document.getElementById('uploadLabel').classList.add('hidden');
+        document.getElementById('uploadPreview').classList.remove('hidden');
+        document.getElementById('receiptTip').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeReceipt(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    receiptDataUrl = null;
+    receiptFileName = null;
+    receiptFileObj = null;
+    document.getElementById('receiptFile').value = '';
+    document.getElementById('uploadLabel').classList.remove('hidden');
+    document.getElementById('uploadPreview').classList.add('hidden');
+    document.getElementById('receiptTip').classList.add('hidden');
+}
+
+// ========== FORMAT ==========
+function fm(n) { return Math.round(n).toLocaleString('ru-RU'); }
+function fmExact(n) { return n.toFixed(2).replace('.', ','); }
+function fmDate(s) {
+    var d = new Date(s + 'T00:00:00');
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ========== MESSAGE ==========
+function makeMsg(room, service, period, pricePerM2, deadline) {
+    var amt = Math.round(room.area * pricePerM2);
+    var parts = room.tenant.split(' ');
+    var name = parts.length > 1 ? parts[1] : parts[0];
+    var hasReceipt = !!receiptDataUrl;
+
+    var lines = [
+        'Добрый день, ' + name + '!',
+        '',
+        'Направляем расчёт по коммунальным услугам.',
+        '',
+        service + ' за ' + period.toLowerCase(),
+        'Помещение №' + room.num + ', ' + room.floorName + ', ' + room.area + ' м\u00B2',
+        'Тариф: ' + fmExact(pricePerM2) + ' руб./м\u00B2',
+        '',
+        'К оплате: ' + fm(amt) + ' руб.',
+        'Срок оплаты: до ' + fmDate(deadline)
+    ];
+    if (hasReceipt) lines.push('', 'Квитанция прилагается.');
+    lines.push('', 'После оплаты просим направить подтверждение (чек или скриншот) в ответном сообщении.', '', 'С уважением,', 'Estate Invest');
+    return lines.join('\n');
+}
+
+// ========== CALCULATE ==========
+function calculate() {
+    var totalBill = parseFloat(document.getElementById('totalBill').value);
+    if (!totalBill || totalBill <= 0) { toast('Введите сумму счёта'); return; }
+
+    var service = document.getElementById('serviceType').value;
+    var period = document.getElementById('period').value;
+    var deadline = document.getElementById('deadline').value;
+    var ppm2 = totalBill / BUILDING.totalArea;
+
+    var tenantsSum = 0;
+    rentedRooms.forEach(function(r) { tenantsSum += r.area * ppm2; });
+    var companySum = totalBill - tenantsSum;
+
+    // Stats
+    document.getElementById('statPrice').textContent = fmExact(ppm2);
+    document.getElementById('statTenants').textContent = fm(tenantsSum) + ' р.';
+    document.getElementById('statCompany').textContent = fm(companySum) + ' р.';
+    document.getElementById('statArea').textContent = rentedArea.toFixed(1) + ' / ' + BUILDING.totalArea;
+    document.getElementById('statsBar').classList.remove('hidden');
+
+    // Table
+    var tbody = document.getElementById('resultsBody');
+    var html = '';
+    allRooms.forEach(function(r) {
+        var amt = r.area * ppm2;
+        var cls = r.rented ? 'rented' : 'vacant';
+        var badge = r.rented ? '<span class="badge badge-green">Сдано</span>' : '<span class="badge badge-gray">Свободно</span>';
+        var tgBtn = r.rented ? '<button class="btn btn-sm btn-telegram" onclick="sendTG(' + allRooms.indexOf(r) + ')">TG</button>' : '';
+        html += '<tr class="' + cls + '" data-floor="' + r.floor + '"><td>' + r.floorName + '</td><td>Пом. ' + r.num + '</td><td>' + r.area + ' м\u00B2</td><td>' + (r.tenant || '\u2014') + ' ' + badge + '</td><td><strong>' + fm(amt) + ' р.</strong></td><td>' + tgBtn + '</td></tr>';
+    });
+    html += '<tr class="company-row" data-floor="all"><td colspan="2">Компания (коридоры, подвал, свободные)</td><td>' + companyArea.toFixed(1) + ' м\u00B2</td><td>Estate Invest</td><td><strong>' + fm(companySum) + ' р.</strong></td><td></td></tr>';
+    html += '<tr class="total-row" data-floor="all"><td colspan="2">ИТОГО</td><td>' + BUILDING.totalArea + ' м\u00B2</td><td></td><td>' + fm(totalBill) + ' р.</td><td></td></tr>';
+    tbody.innerHTML = html;
+    document.getElementById('resultsCard').classList.remove('hidden');
+
+    // Messages
+    var msgHtml = '';
+    rentedRooms.forEach(function(r, i) {
+        var amt = Math.round(r.area * ppm2);
+        var msg = makeMsg(r, service, period, ppm2, deadline);
+        msgHtml += '<div class="tenant-msg">';
+        msgHtml += '<div class="tenant-msg-header"><span class="tenant-msg-name">' + r.tenant + ' <span style="color:var(--text2);font-weight:400">\u2014 пом. ' + r.num + ', ' + r.floorName + '</span></span><span class="tenant-msg-amount">' + fm(amt) + ' р.</span></div>';
+        msgHtml += '<div class="msg-preview">' + msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+        msgHtml += '<div class="tenant-msg-actions"><button class="btn btn-sm btn-telegram" onclick="sendTG(' + allRooms.indexOf(r) + ')">Telegram</button><button class="btn btn-sm btn-copy" onclick="copyForRoom(' + allRooms.indexOf(r) + ', this)">Копировать</button></div>';
+        msgHtml += '</div>';
+    });
+    document.getElementById('messagesBody').innerHTML = msgHtml;
+    document.getElementById('messagesCard').classList.remove('hidden');
+
+    // History
+    var details = [];
+    rentedRooms.forEach(function(r) {
+        details.push({ tenant: r.tenant, num: r.num, floor: r.floor, area: r.area, amount: Math.round(r.area * ppm2) });
+    });
+    saveHist({ service: service, period: period, deadline: deadline, totalBill: totalBill, ppm2: ppm2, tenantsSum: tenantsSum, companySum: companySum, tenantDetails: details, date: new Date().toISOString() });
+    renderHist();
+    toast('Расчёт готов');
+}
+
+// ========== TELEGRAM ==========
+
+// Web Share API: отправляет текст + файл через системное "Поделиться" (мобильный)
+function canShare() {
+    if (!navigator.canShare) return false;
+    if (!receiptFileObj) return navigator.canShare({ text: 'test' });
+    return navigator.canShare({ text: 'test', files: [receiptFileObj] });
+}
+
+function getMsgForRoom(roomIndex) {
+    var r = allRooms[roomIndex];
+    if (!r || !r.rented) return null;
+    var service = document.getElementById('serviceType').value;
+    var period = document.getElementById('period').value;
+    var deadline = document.getElementById('deadline').value;
+    var ppm2 = parseFloat(document.getElementById('totalBill').value) / BUILDING.totalArea;
+    return { room: r, msg: makeMsg(r, service, period, ppm2, deadline) };
+}
+
+function sendTG(roomIndex) {
+    var data = getMsgForRoom(roomIndex);
+    if (!data) return;
+
+    // Мобильный: Web Share API — текст + квитанция одной кнопкой
+    if (canShare()) {
+        var shareData = { text: data.msg };
+        if (receiptFileObj) shareData.files = [receiptFileObj];
+        navigator.share(shareData).catch(function() {});
+        return;
+    }
+
+    // Десктоп: копируем текст, открываем чат
+    navigator.clipboard.writeText(data.msg).then(function() {
+        if (receiptDataUrl) {
+            toast('Текст скопирован. Прикрепите квитанцию в чате!');
+        } else {
+            toast('Текст скопирован \u2014 вставьте в чат');
+        }
+        window.location.href = 'tg://resolve?phone=' + data.room.phone;
+    });
+}
+
+function copyForRoom(roomIndex, btn) {
+    var data = getMsgForRoom(roomIndex);
+    if (!data) return;
+    navigator.clipboard.writeText(data.msg).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = 'Скопировано';
+        setTimeout(function() { btn.textContent = orig; }, 1500);
+    });
+}
+
+function sendAllTG() {
+    var n = rentedRooms.length;
+    var mobile = canShare();
+    var hint = mobile
+        ? 'Для каждого арендатора откроется окно "Поделиться" с текстом' + (receiptFileObj ? ' и квитанцией' : '') + '.'
+        : 'Для каждого:\n1. Текст копируется в буфер\n2. Открывается чат в Telegram\n3. Вставьте текст и отправьте' + (receiptDataUrl ? '\n4. Прикрепите квитанцию' : '');
+    if (!confirm('Отправить ' + n + ' арендаторам?\n\n' + hint)) return;
+
+    var service = document.getElementById('serviceType').value;
+    var period = document.getElementById('period').value;
+    var deadline = document.getElementById('deadline').value;
+    var ppm2 = parseFloat(document.getElementById('totalBill').value) / BUILDING.totalArea;
+    var idx = 0;
+
+    function next() {
+        if (idx >= n) { toast('Все сообщения отправлены!'); return; }
+        var r = rentedRooms[idx];
+        var msg = makeMsg(r, service, period, ppm2, deadline);
+        toast((idx + 1) + '/' + n + ': ' + r.tenant);
+
+        if (mobile) {
+            var shareData = { text: msg };
+            if (receiptFileObj) shareData.files = [receiptFileObj];
+            navigator.share(shareData).then(function() {
+                idx++;
+                next(); // следующий сразу после отправки
+            }).catch(function() {
+                idx++;
+                next();
+            });
+        } else {
+            navigator.clipboard.writeText(msg).then(function() {
+                window.location.href = 'tg://resolve?phone=' + r.phone;
+                idx++;
+                setTimeout(next, 2500);
+            });
+        }
+    }
+    next();
+}
+
+// ========== TABLE FILTER ==========
+function filterFloor(floor, btn) {
+    var btns = document.querySelectorAll('.floor-toggle .btn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    btn.classList.add('active');
+    var rows = document.querySelectorAll('#resultsBody tr');
+    for (var i = 0; i < rows.length; i++) {
+        var rf = rows[i].getAttribute('data-floor');
+        rows[i].style.display = (floor === 'all' || rf === floor || rf === 'all') ? '' : 'none';
+    }
+}
+
+// ========== HISTORY ==========
+function getHist() {
+    try { return JSON.parse(localStorage.getItem('ku_nytva_history') || '[]'); } catch(e) { return []; }
+}
+function saveHist(calc) {
+    var h = getHist();
+    h.unshift(calc);
+    if (h.length > 30) h.pop();
+    localStorage.setItem('ku_nytva_history', JSON.stringify(h));
+}
+function renderHist() {
+    var box = document.getElementById('historyBody');
+    var h = getHist();
+    if (!h.length) { box.innerHTML = '<div style="color:var(--text2);font-size:0.85rem">Пока нет расчётов</div>'; return; }
+
+    var html = '';
+    for (var i = 0; i < h.length; i++) {
+        var c = h[i];
+        var d = new Date(c.date);
+        var ds = d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+
+        html += '<div class="hist-row">';
+        html += '<div class="hist-header" onclick="toggleHist(' + i + ')">';
+        html += '<div><strong>' + c.service + '</strong> \u2014 ' + c.period + '<br><span style="color:var(--text2);font-size:0.8rem">Счёт: ' + fm(c.totalBill) + ' р. | Арендаторы: ' + fm(c.tenantsSum) + ' р. | Компания: ' + fm(c.companySum) + ' р.</span></div>';
+        html += '<div style="display:flex;align-items:center;gap:8px"><span style="color:var(--text2);font-size:0.8rem">' + ds + '</span><span class="hist-arrow" id="arrow-' + i + '">\u25B6</span></div>';
+        html += '</div>';
+
+        if (c.tenantDetails && c.tenantDetails.length) {
+            html += '<div class="hist-detail" id="detail-' + i + '">';
+            html += '<table><thead><tr><th>Этаж</th><th>Пом.</th><th>Площадь</th><th>Арендатор</th><th>Сумма</th></tr></thead><tbody>';
+            for (var j = 0; j < c.tenantDetails.length; j++) {
+                var t = c.tenantDetails[j];
+                html += '<tr class="rented"><td>' + t.floor + ' эт.</td><td>Пом. ' + t.num + '</td><td>' + t.area + ' м\u00B2</td><td>' + t.tenant + '</td><td><strong>' + fm(t.amount) + ' р.</strong></td></tr>';
+            }
+            html += '<tr class="company-row"><td colspan="3">Компания</td><td></td><td><strong>' + fm(c.companySum) + ' р.</strong></td></tr>';
+            html += '<tr class="total-row"><td colspan="3">ИТОГО</td><td></td><td>' + fm(c.totalBill) + ' р.</td></tr>';
+            html += '</tbody></table></div>';
+        }
+        html += '</div>';
+    }
+    box.innerHTML = html;
+}
+
+function toggleHist(i) {
+    var el = document.getElementById('detail-' + i);
+    var arrow = document.getElementById('arrow-' + i);
+    if (!el) return;
+    if (el.classList.contains('open')) {
+        el.classList.remove('open');
+        if (arrow) arrow.classList.remove('open');
+    } else {
+        el.classList.add('open');
+        if (arrow) arrow.classList.add('open');
+    }
+}
+
+function clearHist() {
+    if (!confirm('Очистить историю?')) return;
+    localStorage.removeItem('ku_nytva_history');
+    renderHist();
+    toast('Очищено');
+}
+
+function toast(text) {
+    var t = document.getElementById('toast');
+    t.textContent = text;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
