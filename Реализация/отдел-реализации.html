@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отдел реализации — Estate Invest</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg: #0a0a0f;
+    --bg-sidebar: #0e0e16;
+    --bg-card: rgba(255,255,255,0.03);
+    --bg-card-hover: rgba(255,255,255,0.055);
+    --text: #e4e4e7;
+    --text-secondary: #71717a;
+    --text-muted: #52525b;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #6366f1;
+    --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+    --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
+    --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.1);
+    --purple: #a855f7; --purple-bg: rgba(168,85,247,0.1);
+    --orange: #f97316; --orange-bg: rgba(249,115,22,0.1);
+    --pink: #ec4899; --pink-bg: rgba(236,72,153,0.1);
+    --teal: #14b8a6; --teal-bg: rgba(20,184,166,0.1);
+    --blue: #3b82f6; --blue-bg: rgba(59,130,246,0.1);
+    --radius: 16px; --radius-sm: 10px;
+    --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    background-image:
+        radial-gradient(ellipse at 10% 40%, rgba(99,102,241,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 10%, rgba(168,85,247,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 95%, rgba(6,182,212,0.04) 0%, transparent 50%);
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed; left:0; top:0; bottom:0; width:250px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    display: flex; flex-direction: column;
+    z-index: 100; overflow-y: auto;
+}
+.sidebar-logo { font-size:14px; font-weight:800; padding:0 8px 18px; border-bottom:1px solid var(--border); margin-bottom:14px; letter-spacing:-0.02em; }
+.sidebar-logo span { color: var(--accent); }
+.logo-sub { font-size:10px; font-weight:500; color:var(--text-muted); margin-top:2px; }
+.nav-section { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); padding:14px 8px 5px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:var(--radius-sm); color:var(--text-secondary); font-size:13px; font-weight:500; cursor:pointer; transition:all var(--transition); text-decoration:none; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+.nav-item.active { color:#c4b5fd; }
+.phase-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* MAIN */
+.main { margin-left:250px; padding:32px 40px 100px; max-width:1280px; }
+.page-header { margin-bottom:36px; }
+.page-header h1 { font-size:30px; font-weight:800; letter-spacing:-.03em; background:linear-gradient(135deg,#e4e4e7 20%,#a5b4fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.page-header .sub { font-size:14px; color:var(--text-secondary); margin-top:6px; }
+
+/* SECTIONS */
+.section { margin-bottom:48px; animation:fadeInUp .4s ease forwards; opacity:0; }
+.section-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; padding-top:16px; }
+.section-badge {
+    display:flex; align-items:center; gap:8px;
+    padding:6px 14px; border-radius:9999px;
+    font-size:12px; font-weight:700;
+    border:1px solid;
+}
+.section-title { font-size:20px; font-weight:800; letter-spacing:-.02em; }
+.section-meta { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+/* STAT GRID */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+    transition: all var(--transition);
+}
+.stat-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
+.stat-value { font-size: 26px; font-weight: 800; color: #a5b4fc; letter-spacing: -.02em; }
+.stat-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+
+/* CONCEPT / KEY DECISION */
+.concept {
+    background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(168,85,247,0.04));
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: var(--radius);
+    padding: 22px 28px;
+    margin-bottom: 24px;
+}
+.concept p { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.6; }
+.concept strong { color: var(--text); }
+
+/* CARDS & FEATURES GRID */
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-bottom:20px; }
+.feat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; transition:all var(--transition); }
+.feat-card:hover { background:var(--bg-card-hover); border-color:var(--border-hover); transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.2); }
+.feat-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.feat-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.feat-title { font-size:14px; font-weight:700; letter-spacing:-.01em; }
+.feat-desc { font-size:12px; color:var(--text-secondary); line-height:1.55; }
+.feat-meta { font-size:11px; color:var(--text-muted); margin-top:10px; }
+.feat-meta strong { color:var(--text-secondary); }
+
+/* STATE ROW (before/after) */
+.state-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.state-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+.state-card-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+.state-card-label.now { color:var(--red); }
+.state-card-label.future { color:var(--green); }
+.state-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.state-list li { font-size:13px; color:var(--text-secondary); line-height:1.5; padding-left:16px; position:relative; }
+.state-card.now .state-list li::before { content:'\2014'; position:absolute; left:0; color:var(--red); font-weight:600; }
+.state-card.future .state-list li::before { content:'\2192'; position:absolute; left:0; color:var(--green); font-weight:600; }
+
+/* TABLES */
+.table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:20px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { text-align:left; padding:11px 14px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+tbody td { padding:11px 14px; color:var(--text-secondary); border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+td strong { color:var(--text); font-weight:600; }
+
+/* BADGES */
+.badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:9999px; white-space:nowrap; }
+.badge-red { background:var(--red-bg); color:var(--red); }
+.badge-orange { background:var(--orange-bg); color:var(--orange); }
+.badge-green { background:var(--green-bg); color:var(--green); }
+.badge-blue { background:var(--blue-bg); color:var(--blue); }
+.badge-purple { background:var(--purple-bg); color:var(--purple); }
+.badge-yellow { background:var(--yellow-bg); color:var(--yellow); }
+.badge-cyan { background:var(--cyan-bg); color:var(--cyan); }
+
+/* PAIN / SOLUTION / INFO callouts */
+.callout { border-radius:var(--radius-sm); padding:14px 18px; margin:14px 0; font-size:13px; color:var(--text-secondary); line-height:1.6; }
+.callout strong { color:var(--text); }
+.callout-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.callout-red { background:var(--red-bg); border-left:3px solid var(--red); }
+.callout-red .callout-title { color:var(--red); }
+.callout-green { background:var(--green-bg); border-left:3px solid var(--green); }
+.callout-green .callout-title { color:var(--green); }
+.callout-blue { background:var(--blue-bg); border-left:3px solid var(--blue); }
+.callout-blue .callout-title { color:var(--blue); }
+
+/* FLOW (monospace process diagrams) */
+.flow-mono {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    color: var(--text-secondary);
+    overflow-x: auto;
+}
+
+/* FLOW (horizontal pipeline) */
+.flow { display:flex; align-items:center; gap:0; margin-bottom:20px; overflow:hidden; border-radius:var(--radius); border:1px solid var(--border); }
+.flow-step { flex:1; padding:14px 10px; text-align:center; background:var(--bg-card); border-right:1px solid var(--border); position:relative; transition:all var(--transition); }
+.flow-step:last-child { border-right:none; }
+.flow-step:hover { background:var(--bg-card-hover); }
+.flow-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:3px; }
+.flow-value { font-size:12px; font-weight:500; color:var(--text-secondary); line-height:1.4; }
+
+/* CHECKLIST */
+.checklist { list-style:none; display:flex; flex-direction:column; gap:0; }
+.checklist li { padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:13px; color:var(--text-secondary); position:relative; padding-left:28px; }
+.checklist li:last-child { border-bottom:none; }
+.checklist li::before { content:'\2610'; position:absolute; left:8px; color:var(--text-muted); }
+
+/* WAVE HEADER (for roadmap) */
+.wave-header { display:flex; align-items:center; gap:14px; margin:28px 0 16px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.wave-num {
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; color:#fff; flex-shrink:0;
+}
+.wave-title { font-size:18px; font-weight:800; letter-spacing:-.02em; }
+.wave-sub { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+/* GRID layouts */
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+
+/* SMALL CARD (for roadmap items, wave items) */
+.item-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; transition:all var(--transition); }
+.item-card:hover { background:var(--bg-card-hover); border-color:var(--border-hover); }
+.item-card-title { font-size:14px; font-weight:700; letter-spacing:-.01em; margin-bottom:8px; }
+.item-card-desc { font-size:12px; color:var(--text-secondary); line-height:1.55; }
+.item-card-meta { font-size:11px; color:var(--text-muted); margin-top:10px; }
+
+/* SUB HEADINGS inside sections */
+.sub-heading { font-size:16px; font-weight:700; letter-spacing:-.01em; margin:28px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.sub-heading:first-child { margin-top:0; }
+
+/* PRIORITY ROW */
+.priority-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+.priority-row:last-child { border-bottom:none; }
+.priority-num { color:var(--text-muted); font-size:12px; width:28px; text-align:right; font-weight:600; flex-shrink:0; }
+.priority-name { flex:1; font-size:13px; color:var(--text-secondary); }
+.priority-effort { font-size:12px; color:var(--text-muted); flex-shrink:0; }
+
+/* ENDGAME */
+.endgame { background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(6,182,212,.04)); border:1px solid rgba(99,102,241,.15); border-radius:var(--radius); padding:28px 32px; margin-top:20px; }
+.endgame h3 { font-size:18px; font-weight:800; letter-spacing:-.02em; margin-bottom:16px; }
+
+/* ANIMATION */
+@keyframes fadeInUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.section:nth-child(1){animation-delay:60ms}
+.section:nth-child(2){animation-delay:120ms}
+.section:nth-child(3){animation-delay:180ms}
+.section:nth-child(4){animation-delay:240ms}
+.section:nth-child(5){animation-delay:300ms}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+/* RESPONSIVE */
+@media(max-width:860px){
+    .sidebar{display:none} .main{margin-left:0;padding:16px 14px 60px}
+    .state-row{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .grid3{grid-template-columns:1fr}
+    .features-grid{grid-template-columns:1fr}
+    .flow{flex-direction:column}
+    .flow-step{border-right:none;border-bottom:1px solid var(--border)}
+    .flow-step:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div><span>Estate</span> Invest</div>
+        <div class="logo-sub">Отдел реализации</div>
+    </div>
+
+    <div class="nav-section">Разделы</div>
+    <a href="#overview" class="nav-item active">
+        <div class="phase-dot" style="background:#6366f1"></div>
+        Обзор
+    </a>
+    <a href="#structure" class="nav-item">
+        <div class="phase-dot" style="background:#3b82f6"></div>
+        Структура отделов
+    </a>
+    <a href="#bp" class="nav-item">
+        <div class="phase-dot" style="background:#f97316"></div>
+        Бизнес-процессы
+    </a>
+    <a href="#roadmap" class="nav-item">
+        <div class="phase-dot" style="background:#a855f7"></div>
+        Дорожная карта
+    </a>
+    <a href="#priorities" class="nav-item">
+        <div class="phase-dot" style="background:#22c55e"></div>
+        Приоритеты
+    </a>
+</nav>
+
+<div class="main">
+
+    <div class="page-header">
+        <h1>Отдел реализации</h1>
+        <div class="sub">Estate Invest &bull; 17.03.2026 &bull; Бизнес-процессы, структура, дорожная карта</div>
+    </div>
+
+    <!-- ===================== ОБЗОР ===================== -->
+    <div id="overview" class="section">
+        <div class="section-header">
+            <div class="section-badge" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.25);color:#a5b4fc">Обзор</div>
+            <div>
+                <div class="section-title">Текущие цифры и ключевые решения</div>
+                <div class="section-meta">Snapshot отдела реализации</div>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card"><div class="stat-value">118</div><div class="stat-label">объектов (ИП)</div></div>
+            <div class="stat-card"><div class="stat-value">~52</div><div class="stat-label">в продаже</div></div>
+            <div class="stat-card"><div class="stat-value">196М</div><div class="stat-label">покупка</div></div>
+            <div class="stat-card"><div class="stat-value">388М</div><div class="stat-label">целевая продажа</div></div>
+            <div class="stat-card"><div class="stat-value">46</div><div class="stat-label">на Авито (39%)</div></div>
+            <div class="stat-card" style="border:1px solid var(--red);"><div class="stat-value" style="color:var(--red);">2</div><div class="stat-label">человека на всё</div></div>
+        </div>
+
+        <div class="sub-heading">Ключевое решение</div>
+        <div class="concept">
+            <p style="font-size:15px; margin-bottom:16px;">Разделить перегруженный отдел реализации на <strong>3 самостоятельные функции:</strong></p>
+        </div>
+        <div class="grid3">
+            <div class="feat-card" style="border-top:3px solid var(--blue);">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--blue-bg); color:var(--blue); font-size:11px; font-weight:700;">1</div>
+                    <div class="feat-title">Отдел реализации</div>
+                </div>
+                <div class="feat-desc"><strong>Иван Мудров</strong></div>
+                <div class="feat-desc" style="margin-top:6px;">Оформление + улучшение объектов. От выигрыша торгов до готовности к продаже.</div>
+                <div class="feat-meta"><span class="badge badge-blue">проектная работа</span></div>
+            </div>
+            <div class="feat-card" style="border-top:3px solid var(--green);">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--green-bg); color:var(--green); font-size:11px; font-weight:700;">2</div>
+                    <div class="feat-title">Отдел продаж</div>
+                </div>
+                <div class="feat-desc"><strong>Наталья Валетко</strong></div>
+                <div class="feat-desc" style="margin-top:6px;">Продажа объектов. От готовности до закрытия сделки.</div>
+                <div class="feat-meta"><span class="badge badge-green">коммерческая работа</span></div>
+            </div>
+            <div class="feat-card" style="border-top:3px solid var(--orange);">
+                <div class="feat-header">
+                    <div class="feat-icon" style="background:var(--orange-bg); color:var(--orange); font-size:11px; font-weight:700;">3</div>
+                    <div class="feat-title">Содержание имущества</div>
+                </div>
+                <div class="feat-desc"><strong>??? нужен найм</strong></div>
+                <div class="feat-desc" style="margin-top:6px;">КУ, обслуживание, сезонные работы. Пока на Иване.</div>
+                <div class="feat-meta"><span class="badge badge-red">нет человека</span></div>
+            </div>
+        </div>
+        <div class="callout callout-red" style="margin-bottom:24px;">
+            <div class="callout-title">Критично: Иван + Наталья вдвоём на всё</div>
+            <p>Антонина Скурко ушла. На 118 объектов остались <strong>2 человека</strong>. Наталья совмещает продажи + помощь Ивану. Содержание (КУ) — тоже на Иване. Нужен найм минимум 1-2 человек или максимальная автоматизация.</p>
+        </div>
+
+        <div class="sub-heading">Главные боли</div>
+        <div class="callout callout-red">
+            <div class="callout-title">Критические</div>
+            <ol style="margin:0; padding-left:18px;">
+                <li>Нет единого трекера объектов &mdash; статус в 4+ системах</li>
+                <li>117 индивидуальных касс &mdash; не масштабируется</li>
+                <li>Ручное обновление статусов (3-4 системы при каждой смене)</li>
+                <li>Нет контроля сроков ремонта</li>
+                <li><strong>Коммунальные платежи считаются на листочке</strong></li>
+            </ol>
+        </div>
+
+        <div class="sub-heading">Дорожная карта (5 волн)</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Волна</th><th>Срок</th><th>Суть</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="badge badge-red">0</span></td><td>Эта неделя</td><td>Реструктуризация: разделить на 3 функции</td></tr>
+                    <tr><td><span class="badge badge-orange">1</span></td><td>1-2 недели</td><td>Быстрые победы: чек-листы, шаблоны, напоминания</td></tr>
+                    <tr><td><span class="badge badge-blue">2</span></td><td>2-4 недели</td><td>Автоматизация: объявления, статусы, календарь</td></tr>
+                    <tr><td><span class="badge badge-purple">3</span></td><td>1-2 месяца</td><td>Единая система: канбан, CRM, трекер ремонта</td></tr>
+                    <tr><td><span class="badge badge-green">4</span></td><td>2-4 месяца</td><td>AI-слой: генерация объявлений, оценка, прогнозы</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===================== СТРУКТУРА ===================== -->
+    <div id="structure" class="section">
+        <div class="section-header">
+            <div class="section-badge" style="background:var(--blue-bg);border-color:rgba(59,130,246,.25);color:var(--blue)">Структура</div>
+            <div>
+                <div class="section-title">Структура отделов</div>
+                <div class="section-meta">Разделение на 3 самостоятельные функции</div>
+            </div>
+        </div>
+
+        <div class="sub-heading">Почему разделяем</div>
+        <p style="font-size:14px; color:var(--text-secondary); margin-bottom:14px;">Сейчас на одних людей навалены три принципиально разных работы:</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Характеристика</th><th>Реализация</th><th>Продажи</th><th>Содержание</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Тип работы</strong></td><td>Юридическая + стройка</td><td>Коммерческая</td><td>Операционная / рутина</td></tr>
+                    <tr><td><strong>Навыки</strong></td><td>Кадастр, стройка, снабжение</td><td>Переговоры, маркетинг</td><td>Учёт, логистика</td></tr>
+                    <tr><td><strong>Темп</strong></td><td>Длинные циклы (1-6 мес.)</td><td>Быстрые итерации</td><td>Постоянно, без конца</td></tr>
+                    <tr><td><strong>Мотивация</strong></td><td>Готовый объект</td><td>Закрытая сделка</td><td>Нет долгов по КУ</td></tr>
+                    <tr><td><strong>Метрики</strong></td><td>Сроки, бюджет</td><td>Конверсия, скорость</td><td>Затраты, своевременность</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sub-heading">Отдел реализации (Иван)</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Руководитель:</strong> Иван Мудров &bull; <strong>Состав:</strong> Иван + Наталья Валетко + Жанна Шпехт + подрядчики</div>
+            <div class="flow-mono">1. Выиграли торги
+   &#8595;
+2. Связь с конкурсным управляющим
+   &#8595;
+3. Оформление:
+   - Регистрация ДКП
+   - Снятие обременений (арест, залог)
+   - Регистрация права собственности
+   &#8595;
+4. Улучшение объекта:
+   - Межевание земельных участков
+   - Раздел помещений
+   - Ремонт / перевод ВРИ
+   - Получение техдокументов
+   &#8595;
+5. Передача в отдел продаж (чек-лист)</div>
+            <div class="table-wrap" style="margin-top:14px;">
+                <table>
+                    <thead><tr><th>KPI</th><th>Цель</th></tr></thead>
+                    <tbody>
+                        <tr><td>Срок оформления (до регистрации права)</td><td>&lt; 30 дней</td></tr>
+                        <tr><td>Срок подготовки квартиры</td><td>30 дней</td></tr>
+                        <tr><td>Срок подготовки дома/коммерческой</td><td>60 дней</td></tr>
+                        <tr><td>Бюджет ремонта факт/план</td><td>&lt; 10% отклонение</td></tr>
+                        <tr><td>Объектов в работе</td><td>3-8</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sub-heading">Отдел продаж (Наталья)</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственная:</strong> Наталья Валетко (одна!)</div>
+            <div class="flow-mono">1. Получение объекта (чек-лист приёмки)
+   &#8595;
+2. Подготовка: цена + объявление + фото
+   &#8595;
+3. Продажа: заявки &#8594; показы &#8594; переговоры
+   &#8595;
+4. Закрытие: ДКП &#8594; оплата &#8594; передача &#8594; Статистика</div>
+            <div class="table-wrap" style="margin-top:14px;">
+                <table>
+                    <thead><tr><th>KPI</th><th>Цель</th></tr></thead>
+                    <tbody>
+                        <tr><td>Срок продажи</td><td>&lt; 45 дней</td></tr>
+                        <tr><td>Конверсия показ &#8594; сделка</td><td>15-25%</td></tr>
+                        <tr><td>Показов в неделю</td><td>10+</td></tr>
+                        <tr><td>Охват Авито</td><td>&gt; 80%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sub-heading">Содержание имущества (??? нужен найм)</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственный:</strong> пока Иван (нет выделенного человека)</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Пока объект в собственности (3-12 месяцев), его нужно содержать:</div>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+                <li style="font-size:13px; color:var(--text-secondary); padding-left:14px; position:relative;"><span style="position:absolute;left:0;color:var(--orange);">&bull;</span> Оплата коммунальных услуг</li>
+                <li style="font-size:13px; color:var(--text-secondary); padding-left:14px; position:relative;"><span style="position:absolute;left:0;color:var(--orange);">&bull;</span> Контроль коммунальных платежей</li>
+                <li style="font-size:13px; color:var(--text-secondary); padding-left:14px; position:relative;"><span style="position:absolute;left:0;color:var(--orange);">&bull;</span> Косить борщевик (штрафы до 100К)</li>
+                <li style="font-size:13px; color:var(--text-secondary); padding-left:14px; position:relative;"><span style="position:absolute;left:0;color:var(--orange);">&bull;</span> Латать крыши, следить за состоянием</li>
+                <li style="font-size:13px; color:var(--text-secondary); padding-left:14px; position:relative;"><span style="position:absolute;left:0;color:var(--orange);">&bull;</span> Зимой: чистка снега, отопление</li>
+            </ul>
+            <div class="callout callout-red">
+                <div class="callout-title">Главная боль: коммуналка на листочке</div>
+                <p>Сейчас коммунальные платежи считаются на бумаге. Сотрудница не использует калькулятор в Excel. Нужна простая программа учёта КУ с автоматическим расчётом долей арендаторов и генерацией QR-кодов для оплаты.</p>
+            </div>
+        </div>
+
+        <div class="sub-heading">Улучшение объектов: кто делает?</div>
+        <div class="callout callout-blue" style="margin-bottom:14px;">
+            <p><strong>Рекомендация: гибридная модель (вариант C)</strong></p>
+            <p>Простые улучшения (ремонт &lt; 200К, без юр. действий) &rarr; риэлтор/помощник</p>
+            <p>Сложные (межевание, раздел, ВРИ, капремонт) &rarr; Иван + прораб (когда наймём)</p>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Тип</th><th>Примеры</th><th>Сложность</th><th>Кто может</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Простые</td><td>Уборка, мелкий ремонт, фото</td><td><span class="badge badge-green">низкая</span></td><td>Риэлтор, помощник</td></tr>
+                    <tr><td>Средние</td><td>Косметика, покраска, сантехника</td><td><span class="badge badge-orange">средняя</span></td><td>Прораб + бригада</td></tr>
+                    <tr><td>Сложные</td><td>Межевание, раздел, ВРИ</td><td><span class="badge badge-red">высокая</span></td><td>Иван + инженер</td></tr>
+                    <tr><td>Юридические</td><td>Обременения, регистрация</td><td><span class="badge badge-red">высокая</span></td><td>Иван + Галина</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sub-heading">Чек-лист передачи: Реализация &rarr; Продажи</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Объект передаётся ТОЛЬКО когда выполнены ВСЕ пункты:</div>
+            <ul class="checklist">
+                <li>Право собственности зарегистрировано (выписка ЕГРН)</li>
+                <li>Все обременения сняты</li>
+                <li>Ремонт/улучшение завершены</li>
+                <li>Межевание выполнено (для ЗУ)</li>
+                <li>Раздел выполнен (если планировался)</li>
+                <li>Фото объекта: минимум 10 шт</li>
+                <li>Описание объекта: тип, площадь, особенности</li>
+                <li>Цена продажи согласована (Иван + Ярослав)</li>
+                <li>Документы в папке Google Drive</li>
+                <li>Карточка в Notion обновлена</li>
+                <li>Строка в Мониторе актуальна</li>
+            </ul>
+        </div>
+
+        <div class="sub-heading">Итог: было &rarr; стало</div>
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Было</div>
+                <ul class="state-list">
+                    <li>Отдел реализации (Иван) = ВСЁ:</li>
+                    <li>оформление + улучшение + продажа + содержание</li>
+                    <li style="color:var(--red); font-weight:600;">100% нагрузки на одном человеке</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">Стало</div>
+                <ul class="state-list">
+                    <li><strong>Реализация</strong> (Иван) &mdash; оформление + улучшение</li>
+                    <li><strong>Продажи</strong> (Наталья) &mdash; продажа</li>
+                    <li><strong>Содержание</strong> (??? нужен найм) &mdash; КУ, обслуживание</li>
+                    <li style="color:var(--green); font-weight:600;">~60% нагрузки снято с Ивана</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== БИЗНЕС-ПРОЦЕССЫ ===================== -->
+    <div id="bp" class="section">
+        <div class="section-header">
+            <div class="section-badge" style="background:var(--orange-bg);border-color:rgba(249,115,22,.25);color:var(--orange)">Процессы</div>
+            <div>
+                <div class="section-title">Бизнес-процессы</div>
+                <div class="section-meta">5 ключевых процессов от приёмки до закрытия</div>
+            </div>
+        </div>
+
+        <div class="sub-heading">Сквозной процесс</div>
+        <div class="flow">
+            <div class="flow-step"><div class="flow-label">Вход</div><div class="flow-value">от Аналитики</div></div>
+            <div class="flow-step"><div class="flow-label">1. Приёмка</div><div class="flow-value">Иван, Жанна</div></div>
+            <div class="flow-step"><div class="flow-label">2. Улучшение</div><div class="flow-value">Иван, Наталья, подрядчики</div></div>
+            <div class="flow-step"><div class="flow-label">3. Продажа</div><div class="flow-value">Наталья, Наталья</div></div>
+            <div class="flow-step"><div class="flow-label">4. Закрытие</div><div class="flow-value">Иван, Александра</div></div>
+            <div class="flow-step"><div class="flow-label">Выход</div><div class="flow-value">в Статистику</div></div>
+        </div>
+
+        <div class="sub-heading">БП-1: Приёмка объекта</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственный:</strong> Иван Мудров &bull; <strong>Вход:</strong> адрес, документы, финмодель, план, бюджет</div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Шаг</th><th>Инструмент</th></tr></thead>
+                    <tbody>
+                        <tr><td>1.1</td><td>Осмотр объекта (фото/видео)</td><td>Телефон, облако</td></tr>
+                        <tr><td>1.2</td><td>Загрузка документов</td><td>Облако Mail.ru</td></tr>
+                        <tr><td>1.3</td><td>Создание карточки в Notion</td><td>Notion</td></tr>
+                        <tr><td>1.4</td><td>Строка в таблице учёта</td><td>Google Sheets</td></tr>
+                        <tr><td>1.5</td><td>Создание индивидуальной кассы</td><td>Google Sheets (новый файл)</td></tr>
+                        <tr><td>1.6</td><td>Добавление в Монитор</td><td>Google Sheets</td></tr>
+                        <tr><td>1.7</td><td>Получение техдокументов</td><td>Росреестр, БТИ</td></tr>
+                        <tr><td>1.8</td><td>Рассылка инвесторам</td><td>Salebot / Telegram</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout callout-red">
+                <div class="callout-title">Боли</div>
+                <p>6 разных систем для создания одного объекта. Нет чек-листа &mdash; всё в голове Ивана. Кассы &mdash; ручное создание копии шаблона.</p>
+            </div>
+        </div>
+
+        <div class="sub-heading">БП-2: Создание добавленной стоимости</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственный:</strong> Иван Мудров &bull; <strong>KPI:</strong> квартира 30 дней, дом 60 дней</div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Шаг</th><th>Инструмент</th></tr></thead>
+                    <tbody>
+                        <tr><td>2.1</td><td>Проект работ (план, смета)</td><td>Вручную / Excel</td></tr>
+                        <tr><td>2.2</td><td>Согласование бюджета</td><td>Переписка</td></tr>
+                        <tr><td>2.3</td><td>Поиск подрядчиков</td><td>Контакты Ивана</td></tr>
+                        <tr><td>2.4</td><td>Контроль работ (выезды, фото)</td><td>Телефон</td></tr>
+                        <tr><td>2.5</td><td>Раздел помещений</td><td>Кадастровый инженер + Росреестр</td></tr>
+                        <tr><td>2.6</td><td>Межевание (ЗУ)</td><td>Кадастровый инженер</td></tr>
+                        <tr><td>2.7</td><td>Обновление документов (ЕГРН)</td><td>Росреестр</td></tr>
+                        <tr><td>2.8</td><td>Финальная приёмка</td><td>Телефон</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout callout-red">
+                <div class="callout-title">Боли</div>
+                <p>Нет трекинга ремонта (этапы, бюджет). Сметы в голове. Нет реестра подрядчиков. Раздел 2-6 мес. без контроля.</p>
+            </div>
+        </div>
+
+        <div class="sub-heading">БП-3: Продажа объекта</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственная:</strong> Наталья Скурко &bull; <strong>KPI:</strong> &lt; 45 дней, 15-25% конверсия</div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Шаг</th><th>Инструмент</th></tr></thead>
+                    <tbody>
+                        <tr><td>3.1</td><td>Определение цены</td><td>Sheets + Авито вручную</td></tr>
+                        <tr><td>3.2</td><td>Подготовка объявления</td><td>Вручную</td></tr>
+                        <tr><td>3.3</td><td>Размещение на Авито</td><td>Авито (46/118)</td></tr>
+                        <tr><td>3.4</td><td>Обработка заявок</td><td>Авито / телефон</td></tr>
+                        <tr><td>3.5</td><td>Квалификация покупателя</td><td>Телефон</td></tr>
+                        <tr><td>3.6</td><td>Показы</td><td>Лично</td></tr>
+                        <tr><td>3.7</td><td>Переговоры</td><td>Встречи / телефон</td></tr>
+                        <tr><td>3.8</td><td>Закрытие сделки</td><td>Юрист + банк</td></tr>
+                        <tr><td>3.9</td><td>Обновление статусов</td><td>3 системы вручную</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout callout-red">
+                <div class="callout-title">Боли</div>
+                <p>Только 39% на Авито. Объявления вручную. Нет CRM покупателей. Нет аналитики эффективности.</p>
+            </div>
+        </div>
+
+        <div class="sub-heading">БП-4: Закрытие</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственные:</strong> Иван (документы), Александра (расчёты)</div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Шаг</th></tr></thead>
+                    <tbody>
+                        <tr><td>4.1</td><td>Получение оплаты</td></tr>
+                        <tr><td>4.2</td><td>Подписание ДКП, акт приёма-передачи</td></tr>
+                        <tr><td>4.3</td><td>Регистрация перехода права (Росреестр)</td></tr>
+                        <tr><td>4.4</td><td>Финальный подсчёт расходов</td></tr>
+                        <tr><td>4.5</td><td>Передача данных в Статистику</td></tr>
+                        <tr><td>4.6</td><td>Обновление статуса в 3 системах</td></tr>
+                        <tr><td>4.7</td><td>Новости для инвесторов</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sub-heading">БП-5: Подготовка к торгам (Жанна)</div>
+        <div class="feat-card" style="margin-bottom:20px;">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;"><strong>Ответственная:</strong> Жанна Шпехт (формально Аналитика, фактически отдел Ивана)</div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Шаг</th><th>Детали</th></tr></thead>
+                    <tbody>
+                        <tr><td>5.1</td><td>Заполнение календаря</td><td>Даты аукционов, подачи, задатков</td></tr>
+                        <tr><td>5.2</td><td>Нахождение реквизитов</td><td>ЭТП + ЕФРСБ</td></tr>
+                        <tr><td>5.3</td><td>Проверка реквизитов</td><td>Сверка ЭТП vs ЕФРСБ (антимошенничество)</td></tr>
+                        <tr><td>5.4</td><td>Отправка задатка</td><td>За 3-4 дня до дедлайна</td></tr>
+                        <tr><td>5.5</td><td>Выбор агента</td><td>Наталья Решетникова / Марат Тюменев</td></tr>
+                        <tr><td>5.6</td><td>Агентский договор</td><td>Шаблон</td></tr>
+                        <tr><td>5.7</td><td>Контроль агента на торгах</td><td>Телефон</td></tr>
+                        <tr><td>5.8</td><td>Получение протоколов</td><td>От агента</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout callout-red">
+                <div class="callout-title">Боли</div>
+                <p>Расчёт дат вручную. Нет автонапоминаний. Проверка реквизитов рутинная. Нет единого календаря.</p>
+            </div>
+        </div>
+
+        <div class="sub-heading">Инструменты отдела</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Инструмент</th><th>Для чего</th><th>Проблема</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Монитор объектов (Sheets)</strong></td><td>118 ИП, статусы, финансы</td><td>Ручной ввод</td></tr>
+                    <tr><td><strong>117 индив. касс (Sheets)</strong></td><td>Расходы по каждому объекту</td><td>Каждая = отдельный файл</td></tr>
+                    <tr><td><strong>Таблица торгов (Sheets)</strong></td><td>Лоты перед выкупом</td><td>Дублирование</td></tr>
+                    <tr><td><strong>Notion</strong></td><td>Карточки объектов</td><td>Ручное, нет связи</td></tr>
+                    <tr><td><strong>Битрикс24</strong></td><td>Воронка продаж</td><td>Слабо используется</td></tr>
+                    <tr><td><strong>Авито</strong></td><td>Объявления (46/118)</td><td>Ручное, нет аналитики</td></tr>
+                    <tr><td><strong>Облако Mail.ru</strong></td><td>Документы торгов</td><td>Нет структуры</td></tr>
+                    <tr><td><strong>Тбанкрот</strong></td><td>Мониторинг торгов</td><td>Ручной просмотр</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===================== ДОРОЖНАЯ КАРТА ===================== -->
+    <div id="roadmap" class="section">
+        <div class="section-header">
+            <div class="section-badge" style="background:var(--purple-bg);border-color:rgba(168,85,247,.25);color:var(--purple)">Карта</div>
+            <div>
+                <div class="section-title">Дорожная карта</div>
+                <div class="section-meta">5 волн улучшений &mdash; от реструктуризации до AI</div>
+            </div>
+        </div>
+
+        <!-- Волна 0 -->
+        <div class="wave-header">
+            <div class="wave-num" style="background:var(--red);">0</div>
+            <div><div class="wave-title">Реструктуризация</div><div class="wave-sub">Эта неделя</div></div>
+        </div>
+        <div class="grid2">
+            <div class="item-card">
+                <div class="item-card-title">0.1 Разделение на 3 функции</div>
+                <div class="item-card-desc">Реализация (Иван) + Продажи (Наталья) + Содержание (??? найм)</div>
+                <div class="item-card-meta">Усилия: 1-2 дня &bull; Ярослав + Иван</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">0.2 Решение по улучшениям</div>
+                <div class="item-card-desc">Гибридная модель: простые &rarr; помощник, сложные &rarr; Иван</div>
+                <div class="item-card-meta">Усилия: 1 день + пилот 2 нед.</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">0.3 Пересмотр математики</div>
+                <div class="item-card-desc">Заложить стоимость улучшений в финмодель. Когда окупается наём куратора?</div>
+                <div class="item-card-meta">Усилия: 2-3 часа</div>
+            </div>
+        </div>
+
+        <!-- Волна 1 -->
+        <div class="wave-header">
+            <div class="wave-num" style="background:var(--orange);">1</div>
+            <div><div class="wave-title">Быстрые победы</div><div class="wave-sub">1-2 недели</div></div>
+        </div>
+        <div class="grid2">
+            <div class="item-card">
+                <div class="item-card-title">1.1 Чек-лист приёмки</div>
+                <div class="item-card-desc">Шаблон со всеми 8 шагами БП-1. Можно делегировать.</div>
+                <div class="item-card-meta">1 час</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">1.2-1.3 Чек-листы передачи</div>
+                <div class="item-card-desc">Аналитика &rarr; Реализация и Реализация &rarr; Продажи</div>
+                <div class="item-card-meta">30 мин каждый</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">1.4 Автонапоминания о торгах</div>
+                <div class="item-card-desc">n8n: даты из таблицы &rarr; расчёт дедлайнов &rarr; Telegram</div>
+                <div class="item-card-meta">2-3 часа</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">1.5 Шаблоны объявлений Авито</div>
+                <div class="item-card-desc">3-4 шаблона по типам. Создание 10 мин вместо 40.</div>
+                <div class="item-card-meta">2 часа</div>
+            </div>
+        </div>
+
+        <!-- Волна 2 -->
+        <div class="wave-header">
+            <div class="wave-num" style="background:var(--blue);">2</div>
+            <div><div class="wave-title">Автоматизация рутины</div><div class="wave-sub">2-4 недели</div></div>
+        </div>
+        <div class="grid2">
+            <div class="item-card">
+                <div class="item-card-title">2.1 Синхронизация статусов</div>
+                <div class="item-card-desc">Изменение в Мониторе &rarr; авто-обновление Notion + Битрикс + ЛК</div>
+                <div class="item-card-meta">1-2 дня &bull; <span class="badge badge-red">критический</span></div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">2.2 Календарь торгов</div>
+                <div class="item-card-desc">Автоматический расчёт дат: аукцион, подача заявок, задаток</div>
+                <div class="item-card-meta">1 день</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">2.3 Генератор объявлений</div>
+                <div class="item-card-desc">Данные из Монитора &rarr; текст по шаблону &rarr; черновик для Авито</div>
+                <div class="item-card-meta">2-3 дня</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">2.4 Реестр подрядчиков</div>
+                <div class="item-card-desc">Google Sheet: имя, специализация, регион, рейтинг</div>
+                <div class="item-card-meta">2-3 часа (Иван)</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">2.5 Уведомления инвесторам</div>
+                <div class="item-card-desc">Смена статуса &rarr; автоуведомление через Salebot</div>
+                <div class="item-card-meta">1-2 дня</div>
+            </div>
+        </div>
+
+        <!-- Волна 3 -->
+        <div class="wave-header">
+            <div class="wave-num" style="background:var(--purple);">3</div>
+            <div><div class="wave-title">Единая система</div><div class="wave-sub">1-2 месяца</div></div>
+        </div>
+        <div class="grid2">
+            <div class="item-card">
+                <div class="item-card-title">3.1 Канбан объектов</div>
+                <div class="item-card-desc">Торги &rarr; Выкуп &rarr; Ремонт &rarr; Продажа &rarr; Закрыт. Drag-and-drop = автообновление.</div>
+                <div class="item-card-meta">1-2 нед. &bull; <span class="badge badge-red">критический</span></div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">3.2 CRM покупателей</div>
+                <div class="item-card-desc">Битрикс24 "Эстейт продажи": звонки, показы, переговоры.</div>
+                <div class="item-card-meta">1 неделя</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">3.3 Трекер ремонта</div>
+                <div class="item-card-desc">Этапы, бюджет план/факт, фотоотчёт, алерты.</div>
+                <div class="item-card-meta">1 неделя</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">3.4 Единое хранилище</div>
+                <div class="item-card-desc">Google Drive: структура Объекты/ИП №XXX/Торги|Право|Ремонт|Продажа</div>
+                <div class="item-card-meta">2-3 дня</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">3.5 Аналитика продаж</div>
+                <div class="item-card-desc">Воронка, время по стадиям, конверсия, зависшие объекты.</div>
+                <div class="item-card-meta">1-2 недели</div>
+            </div>
+        </div>
+
+        <!-- Волна 4 -->
+        <div class="wave-header">
+            <div class="wave-num" style="background:var(--green);">4</div>
+            <div><div class="wave-title">AI-слой</div><div class="wave-sub">2-4 месяца</div></div>
+        </div>
+        <div class="grid2">
+            <div class="item-card">
+                <div class="item-card-title">4.1 AI-генерация объявлений</div>
+                <div class="item-card-desc">Карточка объекта &rarr; AI &rarr; 3 варианта заголовка + описание + рекомендованная цена</div>
+                <div class="item-card-meta">1-2 недели</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">4.2 AI-оценщик</div>
+                <div class="item-card-desc">Тип + регион + площадь &rarr; диапазон цены + прогноз срока продажи</div>
+                <div class="item-card-meta">2-4 недели</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">4.3 Автоотчёты</div>
+                <div class="item-card-desc">Еженедельный дайджест в Telegram: ремонт, продажи, зависшие, торги.</div>
+                <div class="item-card-meta">1 неделя</div>
+            </div>
+            <div class="item-card">
+                <div class="item-card-title">4.4 AI-советник продаж</div>
+                <div class="item-card-desc">Анализ зависших &gt; 60 дней: снижение цены, смена площадки, обновление фото.</div>
+                <div class="item-card-meta">2 недели</div>
+            </div>
+        </div>
+
+        <div class="sub-heading">Ожидаемый эффект</div>
+        <div class="state-row">
+            <div class="state-card now">
+                <div class="state-card-label now">Сейчас</div>
+                <ul class="state-list">
+                    <li>Создание объекта: 6 систем, 1-2 часа</li>
+                    <li>Смена статуса: 4 системы, 15-20 мин</li>
+                    <li>Объявление: 40 мин, 39% охват</li>
+                    <li>Контроль ремонта: в голове</li>
+                    <li>Отчёт: собирать 1-2 часа</li>
+                    <li>Коммуналка: на листочке</li>
+                </ul>
+            </div>
+            <div class="state-card future">
+                <div class="state-card-label future">Через 3 месяца</div>
+                <ul class="state-list">
+                    <li>Создание объекта: полуавтомат, 15 мин</li>
+                    <li>Смена статуса: 1 клик, всё синхронно</li>
+                    <li>Объявление: AI + 5 мин проверка, 80%+</li>
+                    <li>Канбан: все статусы в реальном времени</li>
+                    <li>Отчёт: автоматически в Telegram</li>
+                    <li>Коммуналка: программа с автоподсчётом</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== ПРИОРИТЕТЫ ===================== -->
+    <div id="priorities" class="section">
+        <div class="section-header">
+            <div class="section-badge" style="background:var(--green-bg);border-color:rgba(34,197,94,.25);color:var(--green)">Приоритеты</div>
+            <div>
+                <div class="section-title">Матрица приоритетов</div>
+                <div class="section-meta">Все инициативы, ранжированные по эффекту и срокам</div>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Инициатива</th><th>Усилия</th><th>Эффект</th><th>Когда</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0.1</td><td><strong>Разделение на 3 функции</strong></td><td>1-2 дня</td><td><span class="badge badge-red">критический</span></td><td>Эта неделя</td></tr>
+                    <tr><td>1.1</td><td>Чек-лист приёмки</td><td>1 час</td><td><span class="badge badge-orange">средний</span></td><td>Эта неделя</td></tr>
+                    <tr><td>1.2</td><td>Чек-лист Аналитика &rarr; Реализация</td><td>30 мин</td><td><span class="badge badge-orange">средний</span></td><td>Эта неделя</td></tr>
+                    <tr><td>1.3</td><td>Чек-лист Реализация &rarr; Продажи</td><td>30 мин</td><td><span class="badge badge-orange">средний</span></td><td>Эта неделя</td></tr>
+                    <tr><td>1.4</td><td>Автонапоминания торгов</td><td>3 часа</td><td><span class="badge badge-red">высокий</span></td><td>Эта неделя</td></tr>
+                    <tr><td>1.5</td><td>Шаблоны объявлений</td><td>2 часа</td><td><span class="badge badge-red">высокий</span></td><td>Эта неделя</td></tr>
+                    <tr><td>2.1</td><td><strong>Синхронизация статусов</strong></td><td>2 дня</td><td><span class="badge badge-red">критический</span></td><td>След. неделя</td></tr>
+                    <tr><td>2.2</td><td>Календарь торгов</td><td>1 день</td><td><span class="badge badge-red">высокий</span></td><td>След. неделя</td></tr>
+                    <tr><td>2.3</td><td>Генератор объявлений</td><td>3 дня</td><td><span class="badge badge-red">высокий</span></td><td>2 недели</td></tr>
+                    <tr><td>2.4</td><td>Реестр подрядчиков</td><td>3 часа</td><td><span class="badge badge-orange">средний</span></td><td>2 недели</td></tr>
+                    <tr><td>2.5</td><td>Уведомления инвесторам</td><td>2 дня</td><td><span class="badge badge-red">высокий</span></td><td>2 недели</td></tr>
+                    <tr><td>3.1</td><td><strong>Канбан объектов</strong></td><td>2 недели</td><td><span class="badge badge-red">критический</span></td><td>1 месяц</td></tr>
+                    <tr><td>3.2</td><td>CRM покупателей</td><td>1 неделя</td><td><span class="badge badge-red">высокий</span></td><td>1 месяц</td></tr>
+                    <tr><td>3.3</td><td>Трекер ремонта</td><td>1 неделя</td><td><span class="badge badge-red">высокий</span></td><td>1 месяц</td></tr>
+                    <tr><td>3.4</td><td>Единое хранилище</td><td>3 дня</td><td><span class="badge badge-orange">средний</span></td><td>1 месяц</td></tr>
+                    <tr><td>3.5</td><td>Аналитика продаж</td><td>2 недели</td><td><span class="badge badge-red">высокий</span></td><td>1.5 мес.</td></tr>
+                    <tr><td>4.1</td><td>AI-генерация объявлений</td><td>2 недели</td><td><span class="badge badge-red">высокий</span></td><td>2 мес.</td></tr>
+                    <tr><td>4.2</td><td>AI-оценщик</td><td>4 недели</td><td><span class="badge badge-red">высокий</span></td><td>3 мес.</td></tr>
+                    <tr><td>4.3</td><td>Автоотчёты</td><td>1 неделя</td><td><span class="badge badge-orange">средний</span></td><td>2 мес.</td></tr>
+                    <tr><td>4.4</td><td>AI-советник продаж</td><td>2 недели</td><td><span class="badge badge-orange">средний</span></td><td>3 мес.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sub-heading">Следующие действия (для обсуждения с Иваном)</div>
+        <div class="endgame">
+            <h3>План действий</h3>
+            <div class="features-grid">
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--red-bg); color:var(--red); font-size:12px; font-weight:800;">1</div>
+                        <div class="feat-title">Прямо сейчас</div>
+                    </div>
+                    <div class="feat-desc">Согласен ли с разделением на 3 функции?</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--orange-bg); color:var(--orange); font-size:12px; font-weight:800;">2</div>
+                        <div class="feat-title">Эта неделя</div>
+                    </div>
+                    <div class="feat-desc">Согласовать чек-листы (1.1, 1.2, 1.3)</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--yellow-bg); color:var(--yellow); font-size:12px; font-weight:800;">3</div>
+                        <div class="feat-title">Эта неделя</div>
+                    </div>
+                    <div class="feat-desc">Создать шаблоны объявлений &mdash; Наталья даёт лучшие примеры</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--blue-bg); color:var(--blue); font-size:12px; font-weight:800;">4</div>
+                        <div class="feat-title">Решить</div>
+                    </div>
+                    <div class="feat-desc">Где ведём канбан &mdash; Битрикс24 или custom?</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--purple-bg); color:var(--purple); font-size:12px; font-weight:800;">5</div>
+                        <div class="feat-title">Решить</div>
+                    </div>
+                    <div class="feat-desc">Кто начнёт вести покупателей в Битрикс?</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--cyan-bg); color:var(--cyan); font-size:12px; font-weight:800;">6</div>
+                        <div class="feat-title">Иван</div>
+                    </div>
+                    <div class="feat-desc">Начать собирать реестр подрядчиков</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-header">
+                        <div class="feat-icon" style="background:var(--green-bg); color:var(--green); font-size:12px; font-weight:800;">7</div>
+                        <div class="feat-title">Решить</div>
+                    </div>
+                    <div class="feat-desc">Пересмотр математики &mdash; сколько часов в неделю уходит на содержание?</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Smooth scrolling for nav links
+document.querySelectorAll('.nav-item[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.getElementById(link.getAttribute('href').slice(1));
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        link.classList.add('active');
+    });
+});
+
+// Animate on scroll
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+}, {threshold: 0.08});
+document.querySelectorAll('.section').forEach(el => obs.observe(el));
+
+// Active nav on scroll
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav-item[href^="#"]');
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            navLinks.forEach(n => n.classList.remove('active'));
+            const a = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+            if (a) a.classList.add('active');
+        }
+    });
+}, {rootMargin: '-20% 0px -70% 0px'});
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
