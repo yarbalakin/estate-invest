@@ -74,12 +74,17 @@ td { padding: 10px 12px; vertical-align: top; }
 <div class="header">
   <div>
     <h1>Estate Invest — Таблица для риелторов</h1>
-    <div class="meta">Обновлено 19.03.2026 16:01 · только статус «реализация»</div>
+    <div class="meta">Обновлено 19.03.2026 18:19 · только статус «реализация»</div>
   </div>
-  <div class="stats">
-    <div class="stat"><div class="stat-v">46</div><div class="stat-l">объектов</div></div>
-    <div class="stat"><div class="stat-v">28</div><div class="stat-l">с Авито</div></div>
-    <div class="stat"><div class="stat-v">18</div><div class="stat-l">без Авито</div></div>
+  <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div class="stats">
+      <div class="stat"><div class="stat-v">48</div><div class="stat-l">объектов</div></div>
+      <div class="stat"><div class="stat-v">30</div><div class="stat-l">с Авито</div></div>
+      <div class="stat"><div class="stat-v">18</div><div class="stat-l">без Авито</div></div>
+    </div>
+    <button id="refreshBtn" onclick="doRefresh()" style="background:rgba(79,110,247,0.15);color:#4f6ef7;border:1px solid rgba(79,110,247,0.35);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">
+      Обновить данные
+    </button>
   </div>
 </div>
 
@@ -101,19 +106,10 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
   </thead>
   <tbody id="tableBody">
-    <tr data-ip="4">
-      <td class="ip-cell">ИП 4<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/kaliningrad/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_116_m_3007153946" target="_blank" class="avito-link">Култаево, ул.Царскосельская, з/у 21</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3250001:9050" target="_blank" class="kadastr-link">59:32:3250001:9050</a></td>
-      <td class="money-cell">5.0 млн ₽</td>
-      <td class="exit-cell"><span class="empty">—</span></td>
-      <td class="agent-cell"><span class="empty">—</span></td>
-      <td class="comment-cell"><span class="empty">—</span></td>
-    </tr>
     <tr data-ip="19">
       <td class="ip-cell">ИП 19<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/ust-kachka/zemelnye_uchastki/uchastok_15sot._izhs_3007226532" target="_blank" class="avito-link">Пермский край, Пермский район, сельское поселение Усть-Качкинское, поселок Красный Восход</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3290001:3232" target="_blank" class="kadastr-link">59:32:3290001:3232</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/ust-kachka/zemelnye_uchastki/uchastok_15sot._izhs_3007226532" target="_blank" class="avito-link">ИП №19 /ЗУ/Пермский край, с/пос. Усть-Качкинское, п. Красный Восход</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3290001:3232" target="_blank" class="kadastr-link">59:32:3290001:3232</a></td>
       <td class="money-cell">845 тыс ₽</td>
       <td class="exit-cell">150 000-180 000 по участкам, целиком - 3 100 000</td>
       <td class="agent-cell">30000 за участок, если целиком продажа 250тр</td>
@@ -121,8 +117,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="20">
       <td class="ip-cell">ИП 20<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_10sot._izhs_3007582896" target="_blank" class="avito-link">Пермский край, Добрянский район, Полазненское г/п, СПК &quot;Уральская Нива&quot;, ур. Бесово</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:18:3500203:1021" target="_blank" class="kadastr-link">59:18:3500203:1021 / 59:18:3500203:1024</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_10sot._izhs_3007582896" target="_blank" class="avito-link">ИП №20/ 2 ЗУ/Пермский край, Добрянский район, СПК &quot;Уральская Нива&quot;, ур. Бесово</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:18:3500203:1021" target="_blank" class="kadastr-link">59:18:3500203:1021 / 59:18:3500203:1024</a></td>
       <td class="money-cell">160 тыс ₽</td>
       <td class="exit-cell">250 000 - 280 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -130,8 +126,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="22">
       <td class="ip-cell">ИП 22<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/yugo-kamskiy/zemelnye_uchastki/uchastok_12sot._izhs_3167657910" target="_blank" class="avito-link">Российская Федерация, Пермский край, м. р-н Пермский, с.п. Юго-Камское, д. Пашия, ул. Речная. з/у 13</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:4310001:114" target="_blank" class="kadastr-link">уч. 13: 59:32:4310001:114/ уч. 15: 59:32:47310001:113</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/yugo-kamskiy/zemelnye_uchastki/uchastok_12sot._izhs_3167657910" target="_blank" class="avito-link">ИП № 22 /2 ЗУ/Пермский край, д. Пашня, ул. Речная, з/у 13 и 15</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:4310001:114" target="_blank" class="kadastr-link">уч. 13: 59:32:4310001:114/ уч. 15: 59:32:47310001:113</a></td>
       <td class="money-cell">336 тыс ₽</td>
       <td class="exit-cell">540000 - 700 000</td>
       <td class="agent-cell">30000 риелтору за ЗУ</td>
@@ -139,8 +135,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="27">
       <td class="ip-cell">ИП 27<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_5sot._izhs_3263046910" target="_blank" class="avito-link">край Пермский, г. Добрянка, пгт. Полазна, с/т 'Заря', участок № 39</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:18:0020806:39" target="_blank" class="kadastr-link">59:18:0020806:39</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_5sot._izhs_3263046910" target="_blank" class="avito-link">ИП №27/ЗУ/Пермский край, г. Добрянка, с/т Заря, участок № 39</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:18:0020806:39" target="_blank" class="kadastr-link">59:18:0020806:39</a></td>
       <td class="money-cell">129 тыс ₽</td>
       <td class="exit-cell">Продан в рассрочку</td>
       <td class="agent-cell"><span class="empty">—</span></td>
@@ -148,8 +144,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="30">
       <td class="ip-cell">ИП 30<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/doma_dachi_kottedzhi/dacha_40m_na_uchastke_4sot._3326736298" target="_blank" class="avito-link">Пермский край, р-н Пермский, с\о Хохловский снт &quot;Кабельщик № 276&quot;, участок 130</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3030011:129" target="_blank" class="kadastr-link">59:32:3030011:129 / 59:32:3030011:1521</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/doma_dachi_kottedzhi/dacha_40m_na_uchastke_4sot._3326736298" target="_blank" class="avito-link">ИП №30 / ЗУ/Пермский край, СНТ &quot;Кабельщик № 276&quot;, уч. 130</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3030011:129" target="_blank" class="kadastr-link">59:32:3030011:129 / 59:32:3030011:1521</a></td>
       <td class="money-cell">173 тыс ₽</td>
       <td class="exit-cell">450 000 - 500 000</td>
       <td class="agent-cell">45 000,00</td>
@@ -157,8 +153,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="35">
       <td class="ip-cell">ИП 35<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/krasnokamsk/gotoviy_biznes/gab_gotovyy_arendnyy_biznes_7454439666" target="_blank" class="avito-link">Пермский край, г. Краснокамск, Гражданский переулок, д. 37</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:07:0010102:46" target="_blank" class="kadastr-link">59:07:0010102:46</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/krasnokamsk/gotoviy_biznes/gab_gotovyy_arendnyy_biznes_7454439666" target="_blank" class="avito-link">ИП № 35/ЗУ+ЖД/Пермский край, г. Краснокамск, Гражданский переулок, д. 37</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:07:0010102:46" target="_blank" class="kadastr-link">59:07:0010102:46</a></td>
       <td class="money-cell">5.3 млн ₽</td>
       <td class="exit-cell">17 000 000,00</td>
       <td class="agent-cell">150000 обсуждать надо</td>
@@ -166,17 +162,26 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="50">
       <td class="ip-cell">ИП 50<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_8_sot._izhs_4095281310" target="_blank" class="avito-link">Пермский край, Пермский район, с/пос Усть-Качкинское, д. Гамы, п/х Гамы</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:1960001:96" target="_blank" class="kadastr-link">59:32:1960001:96 / 59:32:0000000:11102</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_8_sot._izhs_4095281310" target="_blank" class="avito-link">ИП №50/ЗУ/Пермский край, д. Гамы</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:1960001:96" target="_blank" class="kadastr-link">59:32:1960001:96 / 59:32:0000000:11102</a></td>
       <td class="money-cell">599 тыс ₽</td>
       <td class="exit-cell">250 000 - за участок,  1 800 000 - целиком</td>
       <td class="agent-cell">30000 риелтору за ЗУ</td>
       <td class="comment-cell">8 земельных участков, надо съездить посмотреть. Хорошая инфраструктура рядом. Есть детская площадка, школа</td>
     </tr>
+    <tr data-ip="58">
+      <td class="ip-cell">ИП 58<span class="type-badge">земельный участок</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №58/ЗУ/Пермский край, д. Савино</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="money-cell">2 тыс ₽</td>
+      <td class="exit-cell"><span class="empty">—</span></td>
+      <td class="agent-cell"><span class="empty">—</span></td>
+      <td class="comment-cell"><span class="empty">—</span></td>
+    </tr>
     <tr data-ip="60">
       <td class="ip-cell">ИП 60<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/kommercheskaya_nedvizhimost/ofis_12_m_7518576834" target="_blank" class="avito-link">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №5)</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:4410946:5230" target="_blank" class="kadastr-link">59:01:4410946:5230</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/kommercheskaya_nedvizhimost/ofis_12_m_7518576834" target="_blank" class="avito-link">ИП №60/КП/Пермь, ул. Солдатова, 32, л.5</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:4410946:5230" target="_blank" class="kadastr-link">59:01:4410946:5230</a></td>
       <td class="money-cell">455 тыс ₽</td>
       <td class="exit-cell">1 200 000,00</td>
       <td class="agent-cell">40 000,00</td>
@@ -184,8 +189,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="62">
       <td class="ip-cell">ИП 62<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №3)</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:4410946:5227" target="_blank" class="kadastr-link">59:01:4410946:5227</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №62/КП/Пермь, ул. Солдатова, 32, л.3</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:4410946:5227" target="_blank" class="kadastr-link">59:01:4410946:5227</a></td>
       <td class="money-cell">2.2 млн ₽</td>
       <td class="exit-cell">7 010 000,00</td>
       <td class="agent-cell">40000 за помещение</td>
@@ -193,8 +198,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="63">
       <td class="ip-cell">ИП 63<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №2)</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:4410946:5217" target="_blank" class="kadastr-link">59:01:4410946:5217</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №63/КП/Пермь, ул. Солдатова, 32, л.2</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:4410946:5217" target="_blank" class="kadastr-link">59:01:4410946:5217</a></td>
       <td class="money-cell">2.3 млн ₽</td>
       <td class="exit-cell">6 020 000,00</td>
       <td class="agent-cell">40000 за помещение</td>
@@ -202,16 +207,25 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="64">
       <td class="ip-cell">ИП 64<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_86.7_m_4382949702" target="_blank" class="avito-link">Пермский край, г. Пермь, ул. Солдатова, д. 32 (лот №1)</a></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:4410946:5224" target="_blank" class="kadastr-link">59:01:4410946:5224</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_86.7_m_4382949702" target="_blank" class="avito-link">ИП №64/КП/Пермь, ул. Солдатова, 32, л.1</a></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:4410946:5224" target="_blank" class="kadastr-link">59:01:4410946:5224</a></td>
       <td class="money-cell">2.6 млн ₽</td>
       <td class="exit-cell">7 000 000,00</td>
       <td class="agent-cell">75 000,00</td>
       <td class="comment-cell">86,2кв.м. Отдельное помещение, изолированный вход. Сейчас сдан в аренду (кафе). 15 лет окупаемости.</td>
     </tr>
+    <tr data-ip="65">
+      <td class="ip-cell">ИП 65<span class="type-badge">земельный участок</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №65/ЗУ/Пермский край, Сылвенское с/п</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="money-cell">84 тыс ₽</td>
+      <td class="exit-cell"><span class="empty">—</span></td>
+      <td class="agent-cell"><span class="empty">—</span></td>
+      <td class="comment-cell"><span class="empty">—</span></td>
+    </tr>
     <tr data-ip="70">
       <td class="ip-cell">ИП 70<span class="type-badge">авто</span></td>
-      <td class="addr-cell"><span class="no-link">ИП 70 Партнерское соглашение</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №70/Партнерское финансирование в Estate Invest</span></td>
       <td class="kadastr-cell"><span class="empty">—</span></td>
       <td class="money-cell">8.0 млн ₽</td>
       <td class="exit-cell"><span class="empty">—</span></td>
@@ -220,8 +234,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="74">
       <td class="ip-cell">ИП 74<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_18_ga_izhs_4287250787" target="_blank" class="avito-link">р-н, Христофоровка, Пермский муниципальный округ, Пермский край, Россия, 614505</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3020003:815" target="_blank" class="kadastr-link">59:32:3020003:815</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_18_ga_izhs_4287250787" target="_blank" class="avito-link">ИП №74/ЗУ/Пермский край, д. Христофоровка</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3020003:815" target="_blank" class="kadastr-link">59:32:3020003:815</a></td>
       <td class="money-cell">809 тыс ₽</td>
       <td class="exit-cell">1 500 000,00</td>
       <td class="agent-cell">100 000,00</td>
@@ -229,7 +243,7 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="75">
       <td class="ip-cell">ИП 75<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, с. Лобаново, ул. Путейская</span><span class="city-hint">Пермь</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №75/ЗУ/Пермский край, с. Лобаново, ул. Путейская</span><span class="city-hint">Пермь</span></td>
       <td class="kadastr-cell"><span class="empty">—</span></td>
       <td class="money-cell">2.9 млн ₽</td>
       <td class="exit-cell">Не в работе</td>
@@ -238,7 +252,7 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="77">
       <td class="ip-cell">ИП 77<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</a><span class="city-hint">Калининград</span></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">ИП №77/ЗУ/Калининградская обл., п. Сосновка, л.12</a><span class="city-hint">Калининград</span></td>
       <td class="kadastr-cell"><span class="empty">—</span></td>
       <td class="money-cell">677 тыс ₽</td>
       <td class="exit-cell">1 100 000 - 1 200 000</td>
@@ -247,8 +261,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="78">
       <td class="ip-cell">ИП 78<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:05:011009:618" target="_blank" class="kadastr-link">39:05:011009:618</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">ИП №78/ЗУ/Калининградская обл., п. Сосновка, л.9</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:05:011009:618" target="_blank" class="kadastr-link">39:05:011009:618</a></td>
       <td class="money-cell">713 тыс ₽</td>
       <td class="exit-cell">1 100 000 - 1 200 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -256,8 +270,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="79">
       <td class="ip-cell">ИП 79<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">Калининградская область, Зеленоградский район, г. Зеленоградск, п. Сосновка</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:05:011009:319" target="_blank" class="kadastr-link">39:05:011009:319</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">ИП №79/ЗУ/Калининградская обл., п. Сосновка, л.2</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:05:011009:319" target="_blank" class="kadastr-link">39:05:011009:319</a></td>
       <td class="money-cell">603 тыс ₽</td>
       <td class="exit-cell">1 100 000 - 1 200 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -265,8 +279,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="82">
       <td class="ip-cell">ИП 82<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/kaliningrad/doma_dachi_kottedzhi/dom_1041_m_na_uchastke_6_sot._4350659273" target="_blank" class="avito-link">Калининградская область, г. Калининград, ш. Люблинское, тер. СНТ «50 лет Октября», ул. Цветочная, 15</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:15:120603:135" target="_blank" class="kadastr-link">39:15:120603:135</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/kaliningrad/doma_dachi_kottedzhi/dom_1041_m_na_uchastke_6_sot._4350659273" target="_blank" class="avito-link">ИП №82/ЗУ+Дом/г. Калининград, СНТ «50 лет Октября»</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:15:120603:135" target="_blank" class="kadastr-link">39:15:120603:135</a></td>
       <td class="money-cell">3.6 млн ₽</td>
       <td class="exit-cell">6 500 000 - 7 200 000</td>
       <td class="agent-cell">150 000,00</td>
@@ -274,8 +288,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="83">
       <td class="ip-cell">ИП 83<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/kaliningrad/zemelnye_uchastki/uchastok_6_sot._izhs_4351203859" target="_blank" class="avito-link">, Калининградская обл., Гурьевский р-н, пос. Заозерье, участок № 4, Светлогорск, Калининградская область, Россия</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:03:060011:312" target="_blank" class="kadastr-link">39:03:060011:312</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/kaliningrad/zemelnye_uchastki/uchastok_6_sot._izhs_4351203859" target="_blank" class="avito-link">ИП №83/ЗУ/Калининградская обл., пос. Заозерье, уч. №4</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:03:060011:312" target="_blank" class="kadastr-link">39:03:060011:312</a></td>
       <td class="money-cell">2.1 млн ₽</td>
       <td class="exit-cell">3 000 000 - 3 500 000</td>
       <td class="agent-cell">30 000</td>
@@ -283,8 +297,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="84">
       <td class="ip-cell">ИП 84<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">р-н балтийский, Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:14:010234:11" target="_blank" class="kadastr-link">39:14:010234:11</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">ИП №84/ЗУ/Калининградская область, г. Балтийск, л.1</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:14:010234:11" target="_blank" class="kadastr-link">39:14:010234:11</a></td>
       <td class="money-cell">645 тыс ₽</td>
       <td class="exit-cell">1 300 000 - 1 500 000</td>
       <td class="agent-cell">30 000</td>
@@ -292,8 +306,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="85">
       <td class="ip-cell">ИП 85<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:14:010234:9" target="_blank" class="kadastr-link">39:14:010234:9</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">ИП №85/ЗУ/Калининградская область, г. Балтийск, л.2</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:14:010234:9" target="_blank" class="kadastr-link">39:14:010234:9</a></td>
       <td class="money-cell">658 тыс ₽</td>
       <td class="exit-cell">1 300 000 - 1 500 000</td>
       <td class="agent-cell">30 000</td>
@@ -301,8 +315,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="86">
       <td class="ip-cell">ИП 86<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:14:010234:8" target="_blank" class="kadastr-link">39:14:010234:8</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">ИП №86/ЗУ/Калининградская область, г. Балтийск, л.3</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:14:010234:8" target="_blank" class="kadastr-link">39:14:010234:8</a></td>
       <td class="money-cell">646 тыс ₽</td>
       <td class="exit-cell">1 300 000 - 1 500 000</td>
       <td class="agent-cell">30 000</td>
@@ -310,17 +324,26 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="87">
       <td class="ip-cell">ИП 87<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">Балтийск, Балтийский городской округ, Калининградская область, Россия, 238520</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:14:010234:10" target="_blank" class="kadastr-link">39:14:010234:10</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036" target="_blank" class="avito-link">ИП №87/ЗУ/Калининградская область, г. Балтийск, л.4</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:14:010234:10" target="_blank" class="kadastr-link">39:14:010234:10</a></td>
       <td class="money-cell">639 тыс ₽</td>
       <td class="exit-cell">1 300 000 - 1 500 000</td>
       <td class="agent-cell">30 000</td>
       <td class="comment-cell">Земельные участки в собственности, назначение: садоводство (можно перевести в ИЖД), в 10 минутах от Балтийска. Участки на въезде в СНТ. Участки расчищены.</td>
     </tr>
+    <tr data-ip="88">
+      <td class="ip-cell">ИП 88<span class="type-badge">земельный участок</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №88/ЗУ/Пермский край, с. Филипповка</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="money-cell">25 тыс ₽</td>
+      <td class="exit-cell">150 000,00</td>
+      <td class="agent-cell">30 000</td>
+      <td class="comment-cell"><span class="empty">—</span></td>
+    </tr>
     <tr data-ip="89">
       <td class="ip-cell">ИП 89<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/svetlogorsk/zemelnye_uchastki/uchastok_6_sot._izhs_4383052350" target="_blank" class="avito-link">Новая улица, Светлогорск, Светлогорский городской округ, Калининградская область, Россия, 23856</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:17:010048:10" target="_blank" class="kadastr-link">39:17:010048:10</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/svetlogorsk/zemelnye_uchastki/uchastok_6_sot._izhs_4383052350" target="_blank" class="avito-link">ИП №89/ЗУ/Калининградская обл., г. Светлогорск, ул. Новая</a><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:17:010048:10" target="_blank" class="kadastr-link">39:17:010048:10</a></td>
       <td class="money-cell">3.9 млн ₽</td>
       <td class="exit-cell">6 000 000 - 6 500 000</td>
       <td class="agent-cell">150 000,00</td>
@@ -328,8 +351,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="93">
       <td class="ip-cell">ИП 93<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_14_sot._izhs_4254667721" target="_blank" class="avito-link">Пермский край, д. Загришинское, ул. Солнечная, зу 45</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3020003:3939" target="_blank" class="kadastr-link">59:32:3020003:3939</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_14_sot._izhs_4254667721" target="_blank" class="avito-link">ИП №93/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 45</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3020003:3939" target="_blank" class="kadastr-link">59:32:3020003:3939</a></td>
       <td class="money-cell">360 тыс ₽</td>
       <td class="exit-cell">700 000 - 750 000</td>
       <td class="agent-cell">40 000,00</td>
@@ -337,8 +360,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="94">
       <td class="ip-cell">ИП 94<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, Пермский район, Двуреченское сельское поселение, д. Устиново, ул. Школьная, д. 3</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:0430001:763" target="_blank" class="kadastr-link">59:32:0430001:763</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №94/ЗУ+Дом/Пермский край, д. Устиново, ул. Школьная, д. 3</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:0430001:763" target="_blank" class="kadastr-link">59:32:0430001:763</a></td>
       <td class="money-cell">2.2 млн ₽</td>
       <td class="exit-cell">7 000 000 - 7 700 000</td>
       <td class="agent-cell"><span class="empty">—</span></td>
@@ -346,8 +369,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="95">
       <td class="ip-cell">ИП 95<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_10_sot._izhs_4447116084" target="_blank" class="avito-link">Пермский край, Добрянский р-н, Краснослудское с/пос., дер. Городище</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:18:3630101:3735" target="_blank" class="kadastr-link">59:18:3630101:3735</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_10_sot._izhs_4447116084" target="_blank" class="avito-link">ИП №95/ЗУ/Пермский край, дер. Городище</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:18:3630101:3735" target="_blank" class="kadastr-link">59:18:3630101:3735</a></td>
       <td class="money-cell">279 тыс ₽</td>
       <td class="exit-cell">500 000,00</td>
       <td class="agent-cell">30 000,00</td>
@@ -355,8 +378,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="96">
       <td class="ip-cell">ИП 96<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/krasnokamsk/zemelnye_uchastki/uchastok_10_sot._izhs_4479175763" target="_blank" class="avito-link">Пермский край, г. Краснокамск, ул. Тупиковая, зу 2а</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:07:0011102:511" target="_blank" class="kadastr-link">59:07:0011102:511</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/krasnokamsk/zemelnye_uchastki/uchastok_10_sot._izhs_4479175763" target="_blank" class="avito-link">ИП №96/ЗУ/Пермский край, г. Краснокамск, ул. Тупиковая/ул. Осинская</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:07:0011102:511" target="_blank" class="kadastr-link">59:07:0011102:511</a></td>
       <td class="money-cell">1.2 млн ₽</td>
       <td class="exit-cell">2 600 000,00</td>
       <td class="agent-cell">400 000 за участок</td>
@@ -364,8 +387,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="99">
       <td class="ip-cell">ИП 99<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_72_sot._izhs_7230206625" target="_blank" class="avito-link">ИП 99 ЗУ Пермский край, сп Култаевское</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:4070004:4329" target="_blank" class="kadastr-link">59:32:4070004:4329</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_72_sot._izhs_7230206625" target="_blank" class="avito-link">ИП №99/ЗУ/Пермский край, сп Култаевское</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:4070004:4329" target="_blank" class="kadastr-link">59:32:4070004:4329</a></td>
       <td class="money-cell">364 тыс ₽</td>
       <td class="exit-cell">600 000 - 650 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -373,8 +396,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="101">
       <td class="ip-cell">ИП 101<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_6_sot._izhs_7230559170" target="_blank" class="avito-link">край Пермский, г.о. Пермский, г Пермь, ул Затонская, з/у 16а</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:2512475:175" target="_blank" class="kadastr-link">59:01:2512475:175</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_6_sot._izhs_7230559170" target="_blank" class="avito-link">ИП №101/ЗУ/г. Пермь, ул. Затонская, з/у 16а</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:2512475:175" target="_blank" class="kadastr-link">59:01:2512475:175</a></td>
       <td class="money-cell">1.6 млн ₽</td>
       <td class="exit-cell">2 500 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -382,8 +405,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="102">
       <td class="ip-cell">ИП 102<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/overyata/zemelnye_uchastki/uchastok_12_sot._izhs_7230315750" target="_blank" class="avito-link">Молодёжная улица, Оверята, Краснокамский муниципальный округ, Пермский край, Россия, 617050</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:07:0020115:159" target="_blank" class="kadastr-link">59:07:0020115:159</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/overyata/zemelnye_uchastki/uchastok_12_sot._izhs_7230315750" target="_blank" class="avito-link">ИП №102/ЗУ/Пермский край, рп Оверята, ул Молодежная, зу 108</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:07:0020115:159" target="_blank" class="kadastr-link">59:07:0020115:159</a></td>
       <td class="money-cell">451 тыс ₽</td>
       <td class="exit-cell">1 000 000 - 1 200 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -391,7 +414,7 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="105">
       <td class="ip-cell">ИП 105<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><span class="no-link">Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088</span><span class="city-hint">Пермь</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №105/КП/г. Пермь, ул. Теплогорская, д. 22, лот 25</span><span class="city-hint">Пермь</span></td>
       <td class="kadastr-cell"><span class="empty">—</span></td>
       <td class="money-cell">735 тыс ₽</td>
       <td class="exit-cell">1 900 000 - 3 500 000</td>
@@ -400,7 +423,7 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="106">
       <td class="ip-cell">ИП 106<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><span class="no-link">Теплогорская улица, 22, Пермь, Пермский городской округ, Пермский край, Россия, 614088</span><span class="city-hint">Пермь</span></td>
+      <td class="addr-cell"><span class="no-link">ИП №106/КП/г. Пермь, ул. Теплогорская, д. 22, лот 3</span><span class="city-hint">Пермь</span></td>
       <td class="kadastr-cell"><span class="empty">—</span></td>
       <td class="money-cell">682 тыс ₽</td>
       <td class="exit-cell">1 800 000 - 2 100 000</td>
@@ -409,8 +432,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="108">
       <td class="ip-cell">ИП 108<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">ул. пермская, Красный Восход, Пермский муниципальный округ, Пермский край, Россия, 614523</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3290001:13244" target="_blank" class="kadastr-link">59:32:3290001:13244</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №108/ЗУ/Пермский край, п. Красный Восход, ул. Пермская, зу 37</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3290001:13244" target="_blank" class="kadastr-link">59:32:3290001:13244</a></td>
       <td class="money-cell">225 тыс ₽</td>
       <td class="exit-cell">500 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -418,8 +441,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="110">
       <td class="ip-cell">ИП 110<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><a href="https://www.avito.ru/sylva/zemelnye_uchastki/uchastok_8_sot._promnaznacheniya_7486454527" target="_blank" class="avito-link">Троица, Советская улица, 12</a><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:1910001:36" target="_blank" class="kadastr-link">59:32:1910001:36</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/sylva/zemelnye_uchastki/uchastok_8_sot._promnaznacheniya_7486454527" target="_blank" class="avito-link">ИП №110/ЗУ/Пермский край, с. Троица, ул. Советская, 12</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:1910001:36" target="_blank" class="kadastr-link">59:32:1910001:36</a></td>
       <td class="money-cell">718 тыс ₽</td>
       <td class="exit-cell">2 800 000 - 3 500 000</td>
       <td class="agent-cell">150 000</td>
@@ -427,8 +450,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="111">
       <td class="ip-cell">ИП 111<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Вольное, Зеленоградский муниципальный округ, Калининградская область, Россия</span><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=39:05:050405:76" target="_blank" class="kadastr-link">39:05:050405:76</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №111/ЗУ/Калининградская обл., СНТ «Сосновка», уч.14б</span><span class="city-hint">Калининград</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=39:05:050405:76" target="_blank" class="kadastr-link">39:05:050405:76</a></td>
       <td class="money-cell">589 тыс ₽</td>
       <td class="exit-cell">1 300 000,00</td>
       <td class="agent-cell">30 000,00</td>
@@ -436,8 +459,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="112">
       <td class="ip-cell">ИП 112<span class="type-badge">коммерческая</span></td>
-      <td class="addr-cell"><span class="no-link">улица Липатова, 5, Пермь, Пермский городской округ, Пермский край, Россия, 614113</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:1713044:1698" target="_blank" class="kadastr-link">59:01:1713044:1698</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_7806019001" target="_blank" class="avito-link">ИП №112/КП/г. Пермь, ул. Липатова, д. 5, каб. 1-2</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:1713044:1698" target="_blank" class="kadastr-link">59:01:1713044:1698</a></td>
       <td class="money-cell">1.4 млн ₽</td>
       <td class="exit-cell">4000000-4300000</td>
       <td class="agent-cell">150 000,00</td>
@@ -445,8 +468,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="115">
       <td class="ip-cell">ИП 115<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">г. Пермь, улица Новосельская, з/у 1в</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:1717072:127" target="_blank" class="kadastr-link">59:01:1717072:127</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/perm/zemelnye_uchastki/uchastok_5sot._izhs_7646343380" target="_blank" class="avito-link">ИП №115/ЗУ/г. Пермь, ул. Новосельская, з/у 1в</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:1717072:127" target="_blank" class="kadastr-link">59:01:1717072:127</a></td>
       <td class="money-cell">1.6 млн ₽</td>
       <td class="exit-cell">2 600 000 - 2 800 000</td>
       <td class="agent-cell">50 000,00</td>
@@ -454,8 +477,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="116">
       <td class="ip-cell">ИП 116<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">село Култаево, ул.Царскосельская, з/у22</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3250001:9044" target="_blank" class="kadastr-link">59:32:3250001:9044</a></td>
+      <td class="addr-cell"><a href="https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_10sot._izhs_7806001206" target="_blank" class="avito-link">ИП №116/ЗУ/Пермский край, с. Култаево, ул. Царскосельская, зу 22</a><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3250001:9044" target="_blank" class="kadastr-link">59:32:3250001:9044</a></td>
       <td class="money-cell">750 тыс ₽</td>
       <td class="exit-cell">1 400 000 - 1 500 000</td>
       <td class="agent-cell">50 000,00</td>
@@ -463,8 +486,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="117">
       <td class="ip-cell">ИП 117<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Култаево, ул.Царскосельская, з/у 21</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3250001:9050" target="_blank" class="kadastr-link">59:32:3250001:9050</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №117/ЗУ/Пермский край, с. Култаево, ул. Царскосельская, зу 21</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3250001:9050" target="_blank" class="kadastr-link">59:32:3250001:9050</a></td>
       <td class="money-cell">735 тыс ₽</td>
       <td class="exit-cell">1400000 - 1 500 000</td>
       <td class="agent-cell">50 000,00</td>
@@ -472,8 +495,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="118">
       <td class="ip-cell">ИП 118<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, Пермский район, Култаевское с/п, с. Култаево</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3250001:9039" target="_blank" class="kadastr-link">59:32:3250001:9039</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №118/ЗУ/Пермский край, село Култаево</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3250001:9039" target="_blank" class="kadastr-link">59:32:3250001:9039</a></td>
       <td class="money-cell">869 тыс ₽</td>
       <td class="exit-cell">1 700 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -481,8 +504,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="120">
       <td class="ip-cell">ИП 120<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, Пермский муниципальный округ, д. Шилово, улица Разгуляевская, з/у 12</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3250001:21548" target="_blank" class="kadastr-link">59:32:3250001:21548</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №120/ЗУ/Пермский край, д. Шилово, ул. Разгуляевская, зу 12</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3250001:21548" target="_blank" class="kadastr-link">59:32:3250001:21548</a></td>
       <td class="money-cell">713 тыс ₽</td>
       <td class="exit-cell">1 500 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -490,8 +513,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="121">
       <td class="ip-cell">ИП 121<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, Пермский муниципальный округ, д. Загришинское, ул. Солнечная, зу 49</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3020003:4332" target="_blank" class="kadastr-link">59:32:3020003:4332</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №121/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 49</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3020003:4332" target="_blank" class="kadastr-link">59:32:3020003:4332</a></td>
       <td class="money-cell">393 тыс ₽</td>
       <td class="exit-cell">800 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -499,8 +522,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="122">
       <td class="ip-cell">ИП 122<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, городской округ Пермский, город Пермь, улица Черногорская, зу 52д</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:01:1713430:161" target="_blank" class="kadastr-link">59:01:1713430:161</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №122/ЗУ/г. Пермь, ул. Черногорская, зу 52д</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:01:1713430:161" target="_blank" class="kadastr-link">59:01:1713430:161</a></td>
       <td class="money-cell">518 тыс ₽</td>
       <td class="exit-cell">1 500 000,00</td>
       <td class="agent-cell">50 000,00</td>
@@ -508,8 +531,8 @@ td { padding: 10px 12px; vertical-align: top; }
     </tr>
     <tr data-ip="123">
       <td class="ip-cell">ИП 123<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">Пермский край, Пермский муниципальный округ, деревня Загришинское, ул. Солнечная, з/у 59</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><a href="https://nspd.gov.ru/map?cn=59:32:3020003:4504" target="_blank" class="kadastr-link">59:32:3020003:4504</a></td>
+      <td class="addr-cell"><span class="no-link">ИП №123/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 59</span><span class="city-hint">Пермь</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?text=59:32:3020003:4504" target="_blank" class="kadastr-link">59:32:3020003:4504</a></td>
       <td class="money-cell">67 тыс ₽</td>
       <td class="exit-cell">380 000,00</td>
       <td class="agent-cell">30 000,00</td>
@@ -556,6 +579,43 @@ function sortTable(col) {
     return asc ? av.localeCompare(bv, 'ru') : bv.localeCompare(av, 'ru');
   });
   rows.forEach(function(r) { tbody.appendChild(r); });
+}
+
+async function doRefresh() {
+  var btn = document.getElementById('refreshBtn');
+  btn.textContent = 'Запускаю...';
+  btn.disabled = true;
+  try {
+    var resp = await fetch('/refresh', {method: 'POST'});
+    var data = await resp.json();
+    if (data.ok || data.running) {
+      btn.textContent = 'Обновляется (~2 мин)...';
+      pollStatus();
+    } else {
+      btn.textContent = 'Обновить данные';
+      btn.disabled = false;
+      alert('Ошибка: ' + (data.msg || 'unknown'));
+    }
+  } catch(e) {
+    btn.textContent = 'Обновить данные';
+    btn.disabled = false;
+    alert('Сервер недоступен: ' + e.message);
+  }
+}
+
+async function pollStatus() {
+  try {
+    var resp = await fetch('/refresh/status');
+    var data = await resp.json();
+    if (!data.running) {
+      document.getElementById('refreshBtn').textContent = 'Готово, перезагрузка...';
+      setTimeout(function() { location.reload(); }, 800);
+    } else {
+      setTimeout(pollStatus, 3000);
+    }
+  } catch(e) {
+    setTimeout(pollStatus, 5000);
+  }
 }
 </script>
 </body>

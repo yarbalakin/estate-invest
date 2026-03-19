@@ -18,7 +18,6 @@ import datetime
 import math
 import os
 import time
-import warnings
 import google.oauth2.service_account
 import googleapiclient.discovery
 
@@ -183,14 +182,34 @@ def read_sheet(service, spreadsheet_id, range_):
     return result.get("values", [])
 
 
+# ─── Кеш кадастровых номеров (переживает перегенерацию HTML) ────────
+CADASTRALS_FILE = os.path.join(os.path.dirname(__file__), "cadastrals.json")
+
+def _load_cadastrals():
+    try:
+        with open(CADASTRALS_FILE, encoding="utf-8") as f:
+            raw = json.load(f)
+            return {int(k): v for k, v in raw.items()}
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+def _save_cadastrals(data):
+    with open(CADASTRALS_FILE, "w", encoding="utf-8") as f:
+        json.dump({str(k): v for k, v in data.items()}, f, ensure_ascii=False, indent=2)
+
+
 # ─── Парсинг существующего HTML (кадастр + адрес) ───────────────────
 def parse_existing_html(filepath):
-    """Извлекает кадастр и адрес из существующего HTML по номеру ИП."""
+    """Извлекает кадастр и адрес из существующего HTML по номеру ИП.
+    Найденные кадастры сохраняет в cadastrals.json — так они выживают после перегенерации."""
+    saved = _load_cadastrals()
+
     try:
         with open(filepath, "r") as f:
             html_content = f.read()
     except FileNotFoundError:
-        return {}
+        # HTML нет — возвращаем то, что есть в кеше
+        return {k: {"cadastral": v.get("cadastral", ""), "address": v.get("address", "")} for k, v in saved.items()}
 
     static = {}
     cards = re.split(r'<div class="property-card"[^>]*>', html_content)[1:]
@@ -210,7 +229,20 @@ def parse_existing_html(filepath):
         address = htmllib.unescape(address_m.group(1)).strip() if address_m else ""
 
         static[ip_num] = {"cadastral": kadastr, "address": address}
-    return static
+
+    # Обновляем кеш: только непустые кадастры
+    merged = {**saved, **{k: v for k, v in static.items() if v.get("cadastral")}}
+    _save_cadastrals(merged)
+
+    # Возвращаем: JSON-кеш как база, HTML перезаписывает только если там есть данные
+    result = dict(saved)
+    for ip, data in static.items():
+        if data.get("cadastral"):
+            result[ip] = data
+        elif ip not in result:
+            result[ip] = data
+    return result
+
 
 
 # ─── Утилиты ────────────────────────────────────────────────────────
@@ -278,10 +310,10 @@ def parse_date_str(val):
 
 
 def nspdlink(cadastral):
-    """Кадастровый номер → ссылка на НСПД (ПКК)"""
+    """Кадастровый номер → ссылка на Яндекс Карты (показывает геометрию участка)"""
     cn = re.search(r"(\d{2}:\d{2,6}:\d+:\d+)", cadastral)
     if cn:
-        return f"https://nspd.gov.ru/map?cn={cn.group(1)}"
+        return f"https://yandex.ru/maps/?text={cn.group(1)}"
     return ""
 
 
@@ -414,7 +446,8 @@ def load_estate_objects(service):
             return row[i].strip() if len(row) > i and row[i].strip() else ""
 
         stage = col(9).strip()
-        if "реализация" not in stage.lower() and "сбор" not in stage.lower():
+        stage_lower = stage.lower()
+        if "реализация" not in stage_lower and "сбор" not in stage_lower and ip_num not in {58, 65, 88}:
             continue
 
         data[ip_num] = {
@@ -422,6 +455,7 @@ def load_estate_objects(service):
             "area": format_area(col(5)),
             "notion_link": col(17),
             "status": stage,
+            "address": col(1),  # чистый адрес из Estate учёта (без "ИП N")
         }
     return data
 
@@ -469,7 +503,7 @@ def merge_data(monitor, calls, estate, static_html):
             "avito_links": avito,
             "notion_link": est.get("notion_link", ""),
             "cadastral": st.get("cadastral", ""),
-            "address": st.get("address", ""),
+            "address": est.get("address", "") or st.get("address", ""),
             "news": cal.get("news", []),
             # Поля для риелторов
             "vykhod": mon.get("vykhod", ""),
@@ -1045,12 +1079,16 @@ def generate_rieltory_html(objects):
     """Минималистичная таблица для риелторов — только объекты со статусом 'реализация'."""
     now = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 
-    EXCLUDE_IPS = {7, 8, 9, 10, 11, 12, 13, 31, 73, 107, 113, 114, 119}
+    EXCLUDE_IPS = {4, 7, 8, 9, 10, 11, 12, 13, 31, 73, 107, 113, 114, 119}
+    # ИП с другим статусом, которые всё равно нужны в таблице
+    FORCE_INCLUDE = {58, 65, 88}
 
     rieltory = [
         o for o in objects
-        if "реализация" in o.get("status", "").lower()
-        and o["ip_num"] not in EXCLUDE_IPS
+        if (
+            ("реализация" in o.get("status", "").lower() or o["ip_num"] in FORCE_INCLUDE)
+            and o["ip_num"] not in EXCLUDE_IPS
+        )
     ]
     rieltory.sort(key=lambda x: x["ip_num"])
 
@@ -1186,10 +1224,15 @@ td {{ padding: 10px 12px; vertical-align: top; }}
     <h1>Estate Invest — Таблица для риелторов</h1>
     <div class="meta">Обновлено {now} · только статус «реализация»</div>
   </div>
-  <div class="stats">
-    <div class="stat"><div class="stat-v">{total}</div><div class="stat-l">объектов</div></div>
-    <div class="stat"><div class="stat-v">{with_avito}</div><div class="stat-l">с Авито</div></div>
-    <div class="stat"><div class="stat-v">{total - with_avito}</div><div class="stat-l">без Авито</div></div>
+  <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div class="stats">
+      <div class="stat"><div class="stat-v">{total}</div><div class="stat-l">объектов</div></div>
+      <div class="stat"><div class="stat-v">{with_avito}</div><div class="stat-l">с Авито</div></div>
+      <div class="stat"><div class="stat-v">{total - with_avito}</div><div class="stat-l">без Авито</div></div>
+    </div>
+    <button id="refreshBtn" onclick="doRefresh()" style="background:rgba(79,110,247,0.15);color:#4f6ef7;border:1px solid rgba(79,110,247,0.35);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">
+      Обновить данные
+    </button>
   </div>
 </div>
 
@@ -1253,6 +1296,43 @@ function sortTable(col) {{
     return asc ? av.localeCompare(bv, 'ru') : bv.localeCompare(av, 'ru');
   }});
   rows.forEach(function(r) {{ tbody.appendChild(r); }});
+}}
+
+async function doRefresh() {{
+  var btn = document.getElementById('refreshBtn');
+  btn.textContent = 'Запускаю...';
+  btn.disabled = true;
+  try {{
+    var resp = await fetch('/refresh', {{method: 'POST'}});
+    var data = await resp.json();
+    if (data.ok || data.running) {{
+      btn.textContent = 'Обновляется (~2 мин)...';
+      pollStatus();
+    }} else {{
+      btn.textContent = 'Обновить данные';
+      btn.disabled = false;
+      alert('Ошибка: ' + (data.msg || 'unknown'));
+    }}
+  }} catch(e) {{
+    btn.textContent = 'Обновить данные';
+    btn.disabled = false;
+    alert('Сервер недоступен: ' + e.message);
+  }}
+}}
+
+async function pollStatus() {{
+  try {{
+    var resp = await fetch('/refresh/status');
+    var data = await resp.json();
+    if (!data.running) {{
+      document.getElementById('refreshBtn').textContent = 'Готово, перезагрузка...';
+      setTimeout(function() {{ location.reload(); }}, 800);
+    }} else {{
+      setTimeout(pollStatus, 3000);
+    }}
+  }} catch(e) {{
+    setTimeout(pollStatus, 5000);
+  }}
 }}
 </script>
 </body>
