@@ -15,8 +15,20 @@ import re
 import html as htmllib
 import json
 import datetime
+import math
+import os
+import time
+import warnings
 import google.oauth2.service_account
 import googleapiclient.discovery
+
+try:
+    import requests
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    _requests_ok = True
+except ImportError:
+    _requests_ok = False
 
 # ─── Конфигурация ───────────────────────────────────────────────────
 SERVICE_ACCOUNT_KEY = "/Users/yaroslavbalakin/Downloads/powerful-hall-488221-t2-b83babe8f926.json"
@@ -37,6 +49,119 @@ OUTPUT_HTML = "реализация-сводка.html"
 
 # Сколько последних новостей показывать
 MAX_NEWS = 8
+
+# Файл кеша геокодинга (чтобы не запрашивать НСПД повторно)
+GEOCACHE_FILE = os.path.join(os.path.dirname(__file__), "geocache.json")
+NSPD_URL = "https://nspd.gov.ru/api/geoportal/v2/search/geoportal"
+
+
+# ─── Геокодинг через НСПД ───────────────────────────────────────────
+def _load_geocache():
+    try:
+        with open(GEOCACHE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _save_geocache(cache):
+    with open(GEOCACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(cache, f, ensure_ascii=False, indent=2)
+
+
+def _epsg3857_to_wgs84(x, y):
+    lon = x * 180.0 / 20037508.34
+    lat = math.atan(math.exp(y * math.pi / 20037508.34)) * 360.0 / math.pi - 90.0
+    return round(lat, 6), round(lon, 6)
+
+
+def _extract_centroid(geom):
+    """GeoJSON geometry (EPSG:3857) → (lat, lon) WGS-84 или None."""
+    if not geom:
+        return None
+    gtype = geom.get("type", "")
+    coords = geom.get("coordinates", [])
+    if not coords:
+        return None
+
+    if gtype == "Point":
+        ring = [coords] if isinstance(coords[0], (int, float)) else None
+    elif gtype == "Polygon":
+        ring = coords[0] if coords else None
+    elif gtype == "MultiPolygon":
+        try:
+            ring = coords[0][0]
+        except (IndexError, TypeError):
+            return None
+    else:
+        return None
+
+    if not ring:
+        return None
+
+    # Плоский массив [x, y, x, y, ...]
+    if isinstance(ring[0], (int, float)):
+        ring = [[ring[i], ring[i + 1]] for i in range(0, len(ring) - 1, 2)]
+    # Вложенный ещё один уровень
+    if ring and isinstance(ring[0], list) and ring[0] and isinstance(ring[0][0], list):
+        ring = ring[0]
+
+    if not ring:
+        return None
+
+    xs = [p[0] for p in ring if isinstance(p, (list, tuple)) and len(p) >= 2]
+    ys = [p[1] for p in ring if isinstance(p, (list, tuple)) and len(p) >= 2]
+    if not xs:
+        return None
+    lat, lon = _epsg3857_to_wgs84(sum(xs) / len(xs), sum(ys) / len(ys))
+    return lat, lon
+
+
+def geocode_nspd(cadastral_number, cache):
+    """Кадастровый номер → (lat, lon) через НСПД. Использует кеш."""
+    if not cadastral_number or not _requests_ok:
+        return None, None
+
+    # Берём первый номер из составного (через | , ;)
+    cn = re.split(r"[\s|,;]+", cadastral_number.strip())[0].strip()
+    if not re.match(r"^\d{2}:\d{2,6}:\d+:\d+$", cn):
+        return None, None
+
+    if cn in cache:
+        cached = cache[cn]
+        return (cached[0], cached[1]) if cached else (None, None)
+
+    try:
+        resp = requests.get(
+            NSPD_URL,
+            params={"query": cn, "limit": 1},
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Origin": "https://nspd.gov.ru",
+                "Referer": f"https://nspd.gov.ru/map?search={cn}",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+            },
+            timeout=15,
+            verify=False,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        features = data.get("data", {}).get("features", [])
+        if not features:
+            cache[cn] = None
+            return None, None
+
+        geom = features[0].get("geometry")
+        result = _extract_centroid(geom)
+        cache[cn] = list(result) if result else None
+        return result if result else (None, None)
+
+    except Exception as e:
+        print(f"    НСПД {cn}: {e}")
+        return None, None
 
 
 # ─── Google Sheets API ──────────────────────────────────────────────
@@ -68,7 +193,7 @@ def parse_existing_html(filepath):
         return {}
 
     static = {}
-    cards = re.split(r'<div class="property-card">', html_content)[1:]
+    cards = re.split(r'<div class="property-card"[^>]*>', html_content)[1:]
     for card in cards:
         ip_m = re.search(r'<span class="ip-num">(.*?)</span>', card)
         if not ip_m:
@@ -163,7 +288,7 @@ def nspdlink(cadastral):
 # ─── Загрузка данных ────────────────────────────────────────────────
 def load_monitor(service):
     """Монитор объектов → dict by IP number"""
-    rows = read_sheet(service, MONITOR_ID, "A1:AE200")
+    rows = read_sheet(service, MONITOR_ID, "A1:AG200")
     if not rows:
         return {}
 
@@ -177,10 +302,6 @@ def load_monitor(service):
 
         def col(i):
             return row[i].strip() if len(row) > i and row[i].strip() else ""
-
-        status = col(2).lower()
-        if "реализация" not in status and "сбор" not in status:
-            continue
 
         avito_links = []
         avito_raw = col(16)
@@ -205,6 +326,10 @@ def load_monitor(service):
             "date_start": col(14),
             "date_end": col(15),
             "avito_links": avito_links,
+            "status_raw": col(2),
+            "vykhod": col(30),
+            "agent_fee": col(31),
+            "nyuansy": col(32),
         }
     return data
 
@@ -288,14 +413,15 @@ def load_estate_objects(service):
         def col(i):
             return row[i].strip() if len(row) > i and row[i].strip() else ""
 
-        stage = col(9).lower()
-        if "реализация" not in stage and "сбор" not in stage:
+        stage = col(9).strip()
+        if "реализация" not in stage.lower() and "сбор" not in stage.lower():
             continue
 
         data[ip_num] = {
             "type": col(4),
             "area": format_area(col(5)),
             "notion_link": col(17),
+            "status": stage,
         }
     return data
 
@@ -312,12 +438,12 @@ def merge_data(monitor, calls, estate, static_html):
         est = estate.get(ip, {})
         st = static_html.get(ip, {})
 
-        # Включаем только объекты из Монитора (там фильтр по статусу)
-        if not mon:
+        # Включаем только объекты из Estate учёта (там фильтр по статусу — col 9)
+        if not est:
             continue
 
         name = mon.get("name") or cal.get("name", f"ИП {ip}")
-        status = mon.get("status", "реализация")
+        status = est.get("status", mon.get("status_raw", "реализация"))
 
         # Собираем avito ссылки из всех источников
         avito = list(mon.get("avito_links", []))
@@ -345,12 +471,13 @@ def merge_data(monitor, calls, estate, static_html):
             "cadastral": st.get("cadastral", ""),
             "address": st.get("address", ""),
             "news": cal.get("news", []),
-            # Новые поля (пока пустые — будут заполняться)
-            "exit_min": 0,
-            "exit_max": 0,
-            "agent_fee": "",
-            "comments": "",
+            # Поля для риелторов
+            "vykhod": mon.get("vykhod", ""),
+            "agent_fee": mon.get("agent_fee", ""),
+            "nyuansy": mon.get("nyuansy", ""),
             "cian_link": "",
+            "lat": None,
+            "lon": None,
         }
         objects.append(obj)
 
@@ -522,20 +649,11 @@ def render_card(obj):
     profit_str = format_money(obj["profit_investors"])
 
     # Выход мин/макс
-    exit_html = ""
-    if obj["exit_min"] or obj["exit_max"]:
-        exit_min = format_money(obj["exit_min"]) if obj["exit_min"] else "—"
-        exit_max = format_money(obj["exit_max"]) if obj["exit_max"] else "—"
-        exit_html = f'''
+    vykhod = obj.get("vykhod", "")
+    exit_html = f'''
       <div class="fin-item">
         <div class="fin-label">Выход мин–макс</div>
-        <div class="fin-value fin-exit">{exit_min} – {exit_max}</div>
-      </div>'''
-    else:
-        exit_html = f'''
-      <div class="fin-item">
-        <div class="fin-label">Выход мин–макс</div>
-        <div class="fin-value fin-empty">—</div>
+        <div class="fin-value fin-exit">{esc(vykhod) if vykhod else "—"}</div>
       </div>'''
 
     # ROI
@@ -548,15 +666,15 @@ def render_card(obj):
 
     # Агент
     agent_html = ""
-    if obj["agent_fee"]:
+    if obj.get("agent_fee"):
         agent_html = f'<div class="agent-row"><span class="agent-label">Агент:</span> <span class="agent-value">{esc(obj["agent_fee"])}</span></div>'
     else:
         agent_html = '<div class="agent-row"><span class="agent-label">Агент:</span> <span class="agent-empty">—</span></div>'
 
     # Комментарии
     comments_html = ""
-    if obj["comments"]:
-        comments_html = f'<div class="comments-row"><span class="comments-label">Нюансы:</span> <span class="comments-value">{esc(obj["comments"])}</span></div>'
+    if obj.get("nyuansy"):
+        comments_html = f'<div class="comments-row"><span class="comments-label">Нюансы:</span> <span class="comments-value">{esc(obj["nyuansy"])}</span></div>'
     else:
         comments_html = '<div class="comments-row"><span class="comments-label">Нюансы:</span> <span class="comments-empty">—</span></div>'
 
@@ -909,12 +1027,236 @@ window.openMap = function() {
     var buy  = (fins[0] || {}).textContent || '';
     var sell = (fins[1] || {}).textContent || '';
     var roi  = (card.querySelector('.roi') || {}).textContent || '';
-    if (ipNum) props.push({ ipNum: ipNum.trim(), ipName: ipName.trim(), city: city.trim(), type: type.trim(), addr: addr.trim(), kadastr: kadastr, buy: buy.trim(), sell: sell.trim(), roi: roi.trim() });
+    // Берём координаты из данных объекта (pre-computed через НСПД)
+    var ipN = parseInt((ipNum.match(/\\d+/) || [])[0]);
+    var obj = OBJECTS.find(function(o) { return o.ip_num === ipN; });
+    var lat = obj && obj.lat ? obj.lat : null;
+    var lon = obj && obj.lon ? obj.lon : null;
+    if (ipNum) props.push({ ipNum: ipNum.trim(), ipName: ipName.trim(), city: city.trim(), type: type.trim(), addr: addr.trim(), kadastr: kadastr, buy: buy.trim(), sell: sell.trim(), roi: roi.trim(), lat: lat, lon: lon });
   });
   try { localStorage.setItem('ei_map_props', JSON.stringify(props)); } catch(e) {}
   window.open('карта-объектов.html', '_blank');
 };
 """
+
+
+# ─── Таблица для риелторов ───────────────────────────────────────────
+def generate_rieltory_html(objects):
+    """Минималистичная таблица для риелторов — только объекты со статусом 'реализация'."""
+    now = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+
+    EXCLUDE_IPS = {7, 8, 9, 10, 11, 12, 13, 31, 73, 107, 113, 114, 119}
+
+    rieltory = [
+        o for o in objects
+        if "реализация" in o.get("status", "").lower()
+        and o["ip_num"] not in EXCLUDE_IPS
+    ]
+    rieltory.sort(key=lambda x: x["ip_num"])
+
+    total = len(rieltory)
+    with_avito = sum(1 for o in rieltory if o.get("avito_links"))
+
+    rows_html = []
+    for obj in rieltory:
+        ip_num = obj["ip_num"]
+        address = obj.get("address", "") or ""
+        name = obj.get("name", f"ИП {ip_num}")
+        cadastral = obj.get("cadastral", "")
+        buy = obj.get("buy", 0)
+        vykhod = obj.get("vykhod", "")
+        agent_fee = obj.get("agent_fee", "")
+        nyuansy = obj.get("nyuansy", "")
+        avito_links = obj.get("avito_links", [])
+        city = obj.get("city", "")
+        obj_type = obj.get("type", "")
+
+        # Адрес — ссылка на Авито если есть
+        avito_url = avito_links[0] if avito_links else ""
+        display_addr = address if address else name
+        if avito_url:
+            addr_cell = f'<a href="{esc(avito_url)}" target="_blank" class="avito-link">{esc(display_addr)}</a>'
+            if city:
+                addr_cell += f'<span class="city-hint">{esc(city)}</span>'
+        else:
+            addr_cell = f'<span class="no-link">{esc(display_addr)}</span>'
+            if city:
+                addr_cell += f'<span class="city-hint">{esc(city)}</span>'
+
+        # Кадастровый номер — ссылка на НСПД
+        if cadastral:
+            nspd_url = nspdlink(cadastral)
+            kadastr_cell = (
+                f'<a href="{esc(nspd_url)}" target="_blank" class="kadastr-link">{esc(cadastral)}</a>'
+                if nspd_url else esc(cadastral)
+            )
+        else:
+            kadastr_cell = '<span class="empty">—</span>'
+
+        buy_str = format_money(buy) if buy else "—"
+        type_str = f'<span class="type-badge">{esc(obj_type)}</span>' if obj_type else ""
+
+        rows_html.append(f"""    <tr data-ip="{ip_num}">
+      <td class="ip-cell">ИП {ip_num}{type_str}</td>
+      <td class="addr-cell">{addr_cell}</td>
+      <td class="kadastr-cell">{kadastr_cell}</td>
+      <td class="money-cell">{esc(buy_str)}</td>
+      <td class="exit-cell">{esc(vykhod) if vykhod else '<span class="empty">—</span>'}</td>
+      <td class="agent-cell">{esc(agent_fee) if agent_fee else '<span class="empty">—</span>'}</td>
+      <td class="comment-cell">{esc(nyuansy) if nyuansy else '<span class="empty">—</span>'}</td>
+    </tr>""")
+
+    rows = "\n".join(rows_html)
+
+    return f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — Таблица для риелторов</title>
+<style>
+:root {{
+  --bg: #0f1117;
+  --surface: #1a1d29;
+  --surface2: #232736;
+  --border: #2d3250;
+  --text: #e8eaf0;
+  --muted: #8b92a8;
+  --accent: #4f6ef7;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #ef4444;
+}}
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; }}
+
+.header {{ background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }}
+.header h1 {{ font-size: 20px; font-weight: 700; }}
+.header .meta {{ color: var(--muted); font-size: 12px; }}
+.stats {{ display: flex; gap: 20px; }}
+.stat {{ display: flex; flex-direction: column; }}
+.stat-v {{ font-size: 18px; font-weight: 700; color: var(--green); }}
+.stat-l {{ font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }}
+
+.search-bar {{ padding: 12px 28px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; gap: 10px; }}
+.search-bar input {{ background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 7px; font-size: 13px; font-family: inherit; outline: none; width: 300px; transition: border-color .2s; }}
+.search-bar input:focus {{ border-color: var(--accent); }}
+.search-bar input::placeholder {{ color: var(--muted); }}
+
+.wrap {{ padding: 20px 28px; overflow-x: auto; }}
+table {{ width: 100%; border-collapse: collapse; }}
+thead tr {{ background: var(--surface2); }}
+th {{ padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 2px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }}
+th:hover {{ color: var(--text); }}
+th.sort-asc::after {{ content: ' ▲'; color: var(--accent); }}
+th.sort-desc::after {{ content: ' ▼'; color: var(--accent); }}
+tbody tr {{ border-bottom: 1px solid var(--border); transition: background .1s; }}
+tbody tr:hover {{ background: var(--surface2); }}
+tbody tr.hidden {{ display: none; }}
+td {{ padding: 10px 12px; vertical-align: top; }}
+
+.ip-cell {{ white-space: nowrap; font-weight: 600; color: var(--muted); font-size: 12px; min-width: 70px; }}
+.type-badge {{ display: block; font-size: 10px; font-weight: 500; color: var(--accent); margin-top: 3px; }}
+.addr-cell {{ min-width: 220px; max-width: 300px; }}
+.avito-link {{ color: var(--green); text-decoration: none; font-weight: 500; }}
+.avito-link:hover {{ text-decoration: underline; }}
+.no-link {{ color: var(--text); }}
+.city-hint {{ display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }}
+.kadastr-cell {{ min-width: 160px; white-space: nowrap; }}
+.kadastr-link {{ color: var(--accent); text-decoration: none; font-size: 12px; }}
+.kadastr-link:hover {{ text-decoration: underline; }}
+.money-cell {{ white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 100px; }}
+.exit-cell {{ min-width: 160px; color: var(--amber); }}
+.agent-cell {{ min-width: 140px; color: var(--green); white-space: nowrap; }}
+.comment-cell {{ min-width: 200px; max-width: 320px; color: var(--muted); font-size: 12px; line-height: 1.5; }}
+.empty {{ color: var(--border); }}
+
+.legend {{ display: flex; gap: 20px; padding: 10px 28px; background: var(--surface); border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }}
+.legend span {{ display: flex; align-items: center; gap: 5px; }}
+.dot {{ width: 8px; height: 8px; border-radius: 50%; }}
+.dot-green {{ background: var(--green); }}
+.dot-amber {{ background: var(--amber); }}
+.dot-accent {{ background: var(--accent); }}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Estate Invest — Таблица для риелторов</h1>
+    <div class="meta">Обновлено {now} · только статус «реализация»</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-v">{total}</div><div class="stat-l">объектов</div></div>
+    <div class="stat"><div class="stat-v">{with_avito}</div><div class="stat-l">с Авито</div></div>
+    <div class="stat"><div class="stat-v">{total - with_avito}</div><div class="stat-l">без Авито</div></div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Поиск по адресу, кадастру, комментарию..." oninput="filterTable()">
+</div>
+
+<div class="wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">ИП</th>
+      <th>Адрес / Авито</th>
+      <th onclick="sortTable(2)">Кадастровый №</th>
+      <th onclick="sortTable(3)">Вход</th>
+      <th>Выход (мин–макс)</th>
+      <th onclick="sortTable(5)">Вознаграждение агента</th>
+      <th>Нюансы / Комментарии</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+{rows}
+  </tbody>
+</table>
+</div>
+
+<div class="legend">
+  <span><span class="dot dot-green"></span> Адрес — ссылка на Авито</span>
+  <span><span class="dot dot-accent"></span> Кадастр — открыть на карте НСПД</span>
+  <span><span class="dot dot-amber"></span> Выход мин–макс</span>
+</div>
+
+<script>
+function filterTable() {{
+  var q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(function(tr) {{
+    tr.classList.toggle('hidden', q && tr.textContent.toLowerCase().indexOf(q) === -1);
+  }});
+}}
+
+var sortDir = {{}};
+function sortTable(col) {{
+  var tbody = document.getElementById('tableBody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var asc = !sortDir[col];
+  sortDir = {{}};
+  sortDir[col] = asc;
+
+  document.querySelectorAll('thead th').forEach(function(th, i) {{
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (i === col) th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+  }});
+
+  rows.sort(function(a, b) {{
+    var av = a.cells[col] ? a.cells[col].textContent.trim() : '';
+    var bv = b.cells[col] ? b.cells[col].textContent.trim() : '';
+    // Числа
+    var an = parseFloat(av.replace(/[^0-9.]/g, ''));
+    var bn = parseFloat(bv.replace(/[^0-9.]/g, ''));
+    if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+    return asc ? av.localeCompare(bv, 'ru') : bv.localeCompare(av, 'ru');
+  }});
+  rows.forEach(function(r) {{ tbody.appendChild(r); }});
+}}
+</script>
+</body>
+</html>"""
 
 
 # ─── Main ────────────────────────────────────────────────────────────
@@ -942,12 +1284,33 @@ def main():
     objects = merge_data(monitor, calls, estate, static_html)
     print(f"  → {len(objects)} активных объектов")
 
+    print("Геокодинг через НСПД...")
+    geocache = _load_geocache()
+    geocoded = 0
+    for obj in objects:
+        if obj["cadastral"] and obj["lat"] is None:
+            lat, lon = geocode_nspd(obj["cadastral"], geocache)
+            obj["lat"] = lat
+            obj["lon"] = lon
+            if lat:
+                geocoded += 1
+                print(f"  ИП {obj['ip_num']}: ({lat}, {lon})")
+            time.sleep(0.3)
+    _save_geocache(geocache)
+    print(f"  → {geocoded} новых координат, всего в кеше: {len(geocache)}")
+
     print(f"Генерирую {OUTPUT_HTML}...")
     html = generate_html(objects)
     with open(OUTPUT_HTML, "w") as f:
         f.write(html)
-
     print(f"Готово! {OUTPUT_HTML} ({len(html)} байт, {len(objects)} объектов)")
+
+    print("Генерирую риелторы.html...")
+    rieltory_html = generate_rieltory_html(objects)
+    with open("риелторы.html", "w") as f:
+        f.write(rieltory_html)
+    rieltory_count = sum(1 for o in objects if "реализация" in o.get("status", "").lower())
+    print(f"Готово! риелторы.html ({len(rieltory_html)} байт, {rieltory_count} объектов)")
 
 
 if __name__ == "__main__":
