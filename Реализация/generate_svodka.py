@@ -1080,7 +1080,7 @@ def generate_rieltory_html(objects):
     """Минималистичная таблица для риелторов — только объекты со статусом 'реализация'."""
     now = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 
-    EXCLUDE_IPS = {4, 7, 8, 9, 10, 11, 12, 13, 31, 73, 107, 113, 114, 119}
+    EXCLUDE_IPS = {4, 7, 8, 9, 10, 11, 12, 13, 31, 70, 73, 75, 107, 113, 114, 119}
     # ИП с другим статусом, которые всё равно нужны в таблице
     FORCE_INCLUDE = {58, 65, 88}
 
@@ -1095,6 +1095,24 @@ def generate_rieltory_html(objects):
 
     total = len(rieltory)
     with_avito = sum(1 for o in rieltory if o.get("avito_links"))
+
+    # Точки для карты — только объекты с координатами
+    map_points = []
+    for obj in rieltory:
+        lat = obj.get("lat")
+        lon = obj.get("lon")
+        if lat and lon:
+            avito_links = obj.get("avito_links", [])
+            map_points.append({
+                "ip": obj["ip_num"],
+                "address": obj.get("address") or obj.get("name", f"ИП {obj['ip_num']}"),
+                "cadastral": obj.get("cadastral", ""),
+                "lat": lat,
+                "lon": lon,
+                "avito": avito_links[0] if avito_links else "",
+            })
+    map_points_json = json.dumps(map_points, ensure_ascii=False)
+    with_map = len(map_points)
 
     rows_html = []
     for obj in rieltory:
@@ -1224,7 +1242,14 @@ td {{ padding: 10px 12px; vertical-align: top; }}
 .dot-green {{ background: var(--green); }}
 .dot-amber {{ background: var(--amber); }}
 .dot-accent {{ background: var(--accent); }}
+
+.map-section {{ border-bottom: 1px solid var(--border); }}
+#ymap {{ width: 100%; height: 480px; display: none; }}
+#ymap.visible {{ display: block; }}
+#mapBtn {{ background: rgba(79,110,247,0.12); color: var(--accent); border: 1px solid rgba(79,110,247,0.3); padding: 7px 16px; border-radius: 7px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }}
+#mapBtn:hover {{ background: rgba(79,110,247,0.22); }}
 </style>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 </head>
 <body>
 
@@ -1247,6 +1272,11 @@ td {{ padding: 10px 12px; vertical-align: top; }}
 
 <div class="search-bar">
   <input type="text" id="searchInput" placeholder="Поиск по адресу, кадастру, комментарию..." oninput="filterTable()">
+  <button id="mapBtn" onclick="toggleMap()">Карта объектов ({with_map})</button>
+</div>
+
+<div class="map-section">
+  <div id="ymap"></div>
 </div>
 
 <div class="wrap">
@@ -1342,6 +1372,46 @@ async function pollStatus() {{
   }} catch(e) {{
     setTimeout(pollStatus, 5000);
   }}
+}}
+
+var MAP_POINTS = {map_points_json};
+var ymapInited = false;
+
+function toggleMap() {{
+  var el = document.getElementById('ymap');
+  var btn = document.getElementById('mapBtn');
+  var visible = el.classList.toggle('visible');
+  btn.textContent = visible ? 'Скрыть карту' : 'Карта объектов ({with_map})';
+  if (visible && !ymapInited) {{ initYMap(); }}
+}}
+
+function initYMap() {{
+  ymapInited = true;
+  ymaps.ready(function() {{
+    var map = new ymaps.Map('ymap', {{
+      center: [57.5, 56.0],
+      zoom: 5,
+      controls: ['zoomControl', 'fullscreenControl']
+    }});
+
+    MAP_POINTS.forEach(function(p) {{
+      var avito = p.avito ? '<br><a href="' + p.avito + '" target="_blank" style="color:#34d399;">Авито</a>' : '';
+      var cadastral = p.cadastral ? '<br><span style="color:#8b92a8;font-size:11px;">' + p.cadastral + '</span>' : '';
+      var balloon = '<b>ИП ' + p.ip + '</b><br>' + p.address + cadastral + avito;
+      var placemark = new ymaps.Placemark(
+        [p.lat, p.lon],
+        {{ balloonContent: balloon, hintContent: 'ИП ' + p.ip + ' — ' + p.address }},
+        {{ preset: 'islands#darkBlueCircleDotIcon' }}
+      );
+      map.geoObjects.add(placemark);
+    }});
+
+    if (MAP_POINTS.length > 1) {{
+      map.setBounds(map.geoObjects.getBounds(), {{ checkZoomRange: true, zoomMargin: 40 }});
+    }} else if (MAP_POINTS.length === 1) {{
+      map.setCenter([MAP_POINTS[0].lat, MAP_POINTS[0].lon], 12);
+    }}
+  }});
 }}
 </script>
 </body>
