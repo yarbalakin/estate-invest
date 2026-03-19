@@ -154,10 +154,7 @@
     'ИП 123': [57.747, 55.787]
   };
 
-  // Кеш координат из PKK (сохраняется в localStorage)
-  var PKK_CACHE_KEY = 'ei_pkk_cache';
-  var pkkCache = {};
-  try { pkkCache = JSON.parse(localStorage.getItem(PKK_CACHE_KEY) || '{}'); } catch(e) {}
+  // (PKK Росреестра недоступен — координаты берём из данных сводки или FALLBACK)
 
   var props = [];
   try { props = JSON.parse(localStorage.getItem('ei_map_props') || '[]'); } catch(e) {}
@@ -168,47 +165,12 @@
     return;
   }
 
-  // PKK Росреестр API — геокодинг по кадастровому номеру
-  // Перебираем типы: 1=ЗУ, 5=здание, 6=сооружение, 2=ОКС
-  function geocodeByCadastr(cn) {
-    if (!cn) return Promise.resolve(null);
-    if (pkkCache[cn]) return Promise.resolve(pkkCache[cn]);
-
-    var types = [1, 5, 6, 2];
-
-    function tryType(idx) {
-      if (idx >= types.length) return Promise.resolve(null);
-      var url = 'https://pkk.rosreestr.ru/api/features/' + types[idx] +
-                '?text=' + encodeURIComponent(cn) + '&limit=1&tolerance=4';
-      return fetch(url, { mode: 'cors' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          if (d.features && d.features.length > 0) {
-            var feat = d.features[0];
-            var center = feat.center;
-            if (!center) return tryType(idx + 1);
-            var x = center.x, y = center.y;
-            var coords;
-            // Определяем систему координат по масштабу значений
-            if (Math.abs(x) > 180 || Math.abs(y) > 90) {
-              // Web Mercator → WGS84
-              var lon = x / 20037508.34 * 180;
-              var lat = Math.atan(Math.exp(y / 20037508.34 * Math.PI)) * 360 / Math.PI - 90;
-              coords = [lat, lon];
-            } else {
-              // Уже географические: x=долгота, y=широта
-              coords = [y, x];
-            }
-            pkkCache[cn] = coords;
-            try { localStorage.setItem(PKK_CACHE_KEY, JSON.stringify(pkkCache)); } catch(e) {}
-            return coords;
-          }
-          return tryType(idx + 1);
-        })
-        .catch(function() { return tryType(idx + 1); });
-    }
-
-    return tryType(0);
+  // Геокодинг: координаты уже вычислены в generate_svodka.py через НСПД
+  function geocodeByCadastr(p) {
+    if (p.lat && p.lon) return Promise.resolve([p.lat, p.lon]);
+    var fc = FALLBACK[p.ipNum];
+    if (fc) return Promise.resolve(fc);
+    return Promise.resolve(null);
   }
 
   function normalizeType(t) {
@@ -296,9 +258,8 @@
 
     function addMarker(p, coords, source) {
       var preset = cityPreset[p.city] || 'islands#violetCircleDotIcon';
-      // Если координаты из кеша или fallback — используем серый маркер
-      if (source === 'fallback') preset = preset.replace('CircleDot', 'CircleDot').replace('islands#blue', 'islands#darkBlue').replace('islands#green', 'islands#darkGreen');
-      var cnHint = p.kadastr ? '<div class="ymbal-cn">' + p.kadastr + (source === 'pkk' ? ' ✓' : '') + '</div>' : '';
+      if (source === 'fallback') preset = preset.replace('islands#blue', 'islands#darkBlue').replace('islands#green', 'islands#darkGreen');
+      var cnHint = p.kadastr ? '<div class="ymbal-cn">' + p.kadastr + (source === 'nspd' ? ' ✓' : '') + '</div>' : '';
       var pm = new ymaps.Placemark(coords, {
         balloonContentHeader: '<span style="font-weight:700;color:#4f6ef7">' + p.ipNum + '</span>',
         balloonContentBody:
@@ -323,38 +284,17 @@
     var fromPkk = 0, fromFallback = 0, skipped = 0;
 
     function updateStatus() {
-      geoStatus.textContent = 'Геокодинг: ' + done + '/' + total +
-        (fromPkk ? '  ✓ Росреестр: ' + fromPkk : '') +
-        (fromFallback ? '  ~ Приблизительно: ' + fromFallback : '');
+      geoStatus.textContent = 'Объектов: ' + allMarkers.length + ' из ' + total +
+        (fromFallback ? '  ~ Приблизительно: ' + fromFallback : '') +
+        (skipped ? '  ✗ Без координат: ' + skipped : '');
       document.getElementById('count-badge').textContent = 'Показано: ' + allMarkers.length + ' из ' + total;
     }
 
-    // Разбиваем на два списка: из кеша (быстро) и новые (запрос к PKK)
-    var cached = [], fresh = [];
-    props.forEach(function(p) {
-      if (p.kadastr && pkkCache[p.kadastr]) cached.push(p);
-      else fresh.push(p);
-    });
-
-    // Сначала добавляем из кеша
-    cached.forEach(function(p) {
-      addMarker(p, pkkCache[p.kadastr], 'pkk');
-      fromPkk++;
-      done++;
-    });
-    updateStatus();
-
-    // Подгоняем карту под кешированные объекты сразу
-    if (allMarkers.length > 1) {
-      myMap.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 60 }).catch(function(){});
-    }
-
-    // Затем последовательно запрашиваем PKK для новых
+    // Добавляем все объекты мгновенно (координаты уже вычислены)
     function processNext(idx) {
-      if (idx >= fresh.length) {
-        // Готово
+      if (idx >= props.length) {
         geoStatus.textContent = 'Готово: ' + allMarkers.length + ' объектов' +
-          (fromPkk ? '  |  Росреестр: ' + fromPkk : '') +
+          (fromPkk ? '  |  НСПД: ' + fromPkk : '') +
           (fromFallback ? '  |  Приблиз.: ' + fromFallback : '') +
           (skipped ? '  |  Без координат: ' + skipped : '');
         document.getElementById('count-badge').textContent = 'Показано: ' + allMarkers.length + ' из ' + total;
@@ -363,27 +303,18 @@
         }
         return;
       }
-      var p = fresh[idx];
+      var p = props[idx];
       done++;
-      geoStatus.textContent = 'Геокодинг ' + done + '/' + total + ': ' + p.ipNum + (p.kadastr ? ' (' + p.kadastr + ')' : '') + '…';
-
-      geocodeByCadastr(p.kadastr).then(function(coords) {
+      geocodeByCadastr(p).then(function(coords) {
         if (coords) {
-          addMarker(p, coords, 'pkk');
-          fromPkk++;
+          var source = (p.lat && p.lon) ? 'nspd' : 'fallback';
+          addMarker(p, coords, source);
+          if (source === 'nspd') fromPkk++; else fromFallback++;
         } else {
-          // Fallback на захардкоженные координаты
-          var fc = FALLBACK[p.ipNum];
-          if (fc) {
-            addMarker(p, fc, 'fallback');
-            fromFallback++;
-          } else {
-            skipped++;
-          }
+          skipped++;
         }
         updateStatus();
-        // Небольшая пауза чтобы не флудить PKK API
-        setTimeout(function() { processNext(idx + 1); }, p.kadastr ? 300 : 0);
+        processNext(idx + 1);
       });
     }
 

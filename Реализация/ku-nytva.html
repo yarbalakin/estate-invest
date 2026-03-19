@@ -95,6 +95,16 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .hidden { display: none !important; }
 
+        .sync-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 0.8rem; }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .sync-ok .sync-dot { background: var(--green); }
+        .sync-loading .sync-dot { background: var(--orange); animation: blink 1s infinite; }
+        .sync-error .sync-dot { background: var(--red); }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .sync-text { color: var(--text2); }
+        .sync-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; color: var(--text2); font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+        .sync-btn:hover { border-color: var(--accent); color: var(--text); }
+
         @media (max-width: 600px) {
             body { padding: 10px; }
             .stat-value { font-size: 1.1rem; }
@@ -106,6 +116,11 @@
 
 <h1>Коммунальные услуги — Нытва</h1>
 <h2>Расчёт долей арендаторов</h2>
+<div class="sync-bar sync-loading" id="syncBar">
+    <div class="sync-dot"></div>
+    <span class="sync-text" id="syncStatus">Загрузка данных...</span>
+    <button class="sync-btn" onclick="loadFromSheets()">Обновить</button>
+</div>
 
 <div class="card">
     <div class="input-row">
@@ -228,17 +243,130 @@ var BUILDING = {
 var allRooms = [];
 var rentedRooms = [];
 var rentedArea = 0;
-BUILDING.floors.forEach(function(f) {
-    f.rooms.forEach(function(r) {
-        var room = { num: r.num, area: r.area, tenant: r.tenant, phone: r.phone, rented: r.rented, floor: f.id, floorName: f.name };
-        allRooms.push(room);
-        if (r.rented) {
-            rentedRooms.push(room);
-            rentedArea += r.area;
-        }
+var companyArea = 0;
+
+function rebuildRooms() {
+    allRooms.length = 0;
+    rentedRooms.length = 0;
+    rentedArea = 0;
+    BUILDING.floors.forEach(function(f) {
+        f.rooms.forEach(function(r) {
+            var room = { num: r.num, area: r.area, tenant: r.tenant, phone: r.phone, rented: r.rented, floor: f.id, floorName: f.name };
+            allRooms.push(room);
+            if (r.rented) { rentedRooms.push(room); rentedArea += r.area; }
+        });
     });
-});
-var companyArea = BUILDING.totalArea - rentedArea;
+    companyArea = BUILDING.totalArea - rentedArea;
+}
+rebuildRooms();
+
+// ========== GOOGLE SHEETS SYNC ==========
+var SHEET_ID = '1tRyxLafi1lPF-RRH_NP0Cfoj_gZlJja2_ppDmSHYE5E';
+var FLOOR_SHEETS = [
+    { gid: 1170647604, floorId: '2', floorName: '2 этаж' },
+    { gid: 1388229797, floorId: '3', floorName: '3 этаж' }
+];
+
+function parseCSV(text) {
+    var rows = [], row = [], field = '', inQ = false;
+    for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        if (inQ) {
+            if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+            else if (c === '"') inQ = false;
+            else field += c;
+        } else {
+            if (c === '"') inQ = true;
+            else if (c === ',') { row.push(field); field = ''; }
+            else if (c === '\n') { row.push(field); field = ''; if (row.length > 1) rows.push(row); row = []; }
+            else if (c === '\r') { /* skip */ }
+            else field += c;
+        }
+    }
+    if (field || row.length) { row.push(field); if (row.length > 1) rows.push(row); }
+    return rows;
+}
+
+function findColumns(headerRow) {
+    var cols = { room: -1, contacts: -1, area: -1, status: -1 };
+    headerRow.forEach(function(cell, i) {
+        var s = cell.toLowerCase();
+        if (s.indexOf('пом') >= 0 && cols.room < 0) cols.room = i;
+        else if (s.indexOf('контакт') >= 0) cols.contacts = i;
+        else if (s === 'площадь') cols.area = i;
+        else if (s === 'статус') cols.status = i;
+    });
+    return cols;
+}
+
+function parseContact(str) {
+    if (!str || !str.trim()) return { tenant: null, phone: null };
+    var pm = str.match(/[+]?([78])(\d{10})/);
+    var phone = pm ? '7' + pm[2] : null;
+    var nameStr = str
+        .replace(/[+]?[78]\d{10}/g, '')
+        .replace(/[\n\r]+/g, ' ')
+        .replace(/\([^)]*\)/g, '')
+        .trim().replace(/\s{2,}/g, ' ');
+    var words = nameStr.match(/[А-ЯЁ][а-яё]+/g);
+    if (!words) return { tenant: null, phone: phone };
+    var skip = ['ингосстрах','хиджама','ооо','ип'];
+    words = words.filter(function(w) { return skip.indexOf(w.toLowerCase()) < 0; });
+    return { tenant: words.slice(0, 2).join(' ') || null, phone: phone };
+}
+
+function parseFloorCSV(csv, cfg) {
+    var rows = parseCSV(csv);
+    if (rows.length < 2) return { name: cfg.floorName, id: cfg.floorId, rooms: [] };
+    var cols = findColumns(rows[0]);
+    if (cols.room < 0) return { name: cfg.floorName, id: cfg.floorId, rooms: [] };
+    var rooms = [];
+    for (var i = 1; i < rows.length; i++) {
+        var r = rows[i];
+        var roomStr = r[cols.room] || '';
+        var numMatch = roomStr.match(/пом\.?\s*(\d+)/i);
+        if (!numMatch) continue;
+        var areaStr = cols.area >= 0 ? (r[cols.area] || '') : '';
+        var area = parseFloat(areaStr.replace(',', '.').replace(/[^\d.]/g, ''));
+        if (!area || area > 100) continue;
+        var statusStr = cols.status >= 0 ? (r[cols.status] || '') : '';
+        var rented = statusStr.toLowerCase().indexOf('сдано') >= 0;
+        var contact = rented && cols.contacts >= 0 ? parseContact(r[cols.contacts]) : { tenant: null, phone: null };
+        rooms.push({ num: parseInt(numMatch[1]), area: area, tenant: contact.tenant, phone: contact.phone, rented: rented });
+    }
+    return { name: cfg.floorName, id: cfg.floorId, rooms: rooms };
+}
+
+function loadFromSheets() {
+    var bar = document.getElementById('syncBar');
+    var status = document.getElementById('syncStatus');
+    bar.className = 'sync-bar sync-loading';
+    status.textContent = 'Загрузка из таблицы...';
+
+    Promise.all(FLOOR_SHEETS.map(function(cfg) {
+        var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + cfg.gid;
+        return fetch(url).then(function(r) {
+            if (!r.ok) throw new Error(r.status);
+            return r.text();
+        }).then(function(csv) {
+            return parseFloorCSV(csv, cfg);
+        });
+    }))
+    .then(function(floors) {
+        var totalRooms = 0;
+        floors.forEach(function(f) { totalRooms += f.rooms.length; });
+        if (totalRooms === 0) throw new Error('No rooms parsed');
+        BUILDING.floors = floors;
+        rebuildRooms();
+        bar.className = 'sync-bar sync-ok';
+        status.textContent = 'Google Sheets · ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}) + ' · ' + rentedRooms.length + ' арендаторов';
+    })
+    .catch(function(err) {
+        console.warn('Sheets sync error:', err);
+        bar.className = 'sync-bar sync-error';
+        status.textContent = 'Офлайн — используются сохранённые данные (' + rentedRooms.length + ' арендаторов)';
+    });
+}
 
 var receiptDataUrl = null;
 var receiptFileName = null;
@@ -268,6 +396,7 @@ var receiptFileObj = null; // original File object for Web Share API
     } catch(e) { localStorage.removeItem('ku_nytva_history'); }
 
     renderHist();
+    loadFromSheets();
 })();
 
 // ========== RECEIPT ==========

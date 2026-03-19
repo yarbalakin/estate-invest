@@ -67,20 +67,27 @@ td { padding: 10px 12px; vertical-align: top; }
 .dot-green { background: var(--green); }
 .dot-amber { background: var(--amber); }
 .dot-accent { background: var(--accent); }
+
+.map-section { border-bottom: 1px solid var(--border); }
+#ymap { width: 100%; height: 480px; display: none; }
+#ymap.visible { display: block; }
+#mapBtn { background: rgba(79,110,247,0.12); color: var(--accent); border: 1px solid rgba(79,110,247,0.3); padding: 7px 16px; border-radius: 7px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+#mapBtn:hover { background: rgba(79,110,247,0.22); }
 </style>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 </head>
 <body>
 
 <div class="header">
   <div>
     <h1>Estate Invest — Таблица для риелторов</h1>
-    <div class="meta">Обновлено 19.03.2026 18:49 · только статус «реализация»</div>
+    <div class="meta">Обновлено 19.03.2026 21:09 · только статус «реализация»</div>
   </div>
   <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
     <div class="stats">
-      <div class="stat"><div class="stat-v">48</div><div class="stat-l">объектов</div></div>
+      <div class="stat"><div class="stat-v">46</div><div class="stat-l">объектов</div></div>
       <div class="stat"><div class="stat-v">30</div><div class="stat-l">с Авито</div></div>
-      <div class="stat"><div class="stat-v">18</div><div class="stat-l">без Авито</div></div>
+      <div class="stat"><div class="stat-v">16</div><div class="stat-l">без Авито</div></div>
     </div>
     <button id="refreshBtn" onclick="doRefresh()" style="background:rgba(79,110,247,0.15);color:#4f6ef7;border:1px solid rgba(79,110,247,0.35);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">
       Обновить данные
@@ -90,6 +97,11 @@ td { padding: 10px 12px; vertical-align: top; }
 
 <div class="search-bar">
   <input type="text" id="searchInput" placeholder="Поиск по адресу, кадастру, комментарию..." oninput="filterTable()">
+  <button id="mapBtn" onclick="toggleMap()">Карта объектов (46)</button>
+</div>
+
+<div class="map-section">
+  <div id="ymap"></div>
 </div>
 
 <div class="wrap">
@@ -172,7 +184,7 @@ td { padding: 10px 12px; vertical-align: top; }
     <tr data-ip="58">
       <td class="ip-cell">ИП 58<span class="type-badge">земельный участок</span></td>
       <td class="addr-cell"><span class="no-link">ИП №58/ЗУ/Пермский край, д. Савино</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=54.9813,58.18119&amp;z=17&amp;pt=54.9813,58.18119,pm2rdm" target="_blank" class="kadastr-link">59:21:0090001:3947</a></td>
       <td class="money-cell">2 тыс ₽</td>
       <td class="exit-cell">75 000,00</td>
       <td class="agent-cell">30 000,00</td>
@@ -217,20 +229,11 @@ td { padding: 10px 12px; vertical-align: top; }
     <tr data-ip="65">
       <td class="ip-cell">ИП 65<span class="type-badge">земельный участок</span></td>
       <td class="addr-cell"><span class="no-link">ИП №65/ЗУ/Пермский край, Сылвенское с/п</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=56.74082,58.01262&amp;z=17&amp;pt=56.74082,58.01262,pm2rdm" target="_blank" class="kadastr-link">59:32:3620001:227</a></td>
       <td class="money-cell">84 тыс ₽</td>
       <td class="exit-cell">Надо думать</td>
       <td class="agent-cell"><span class="empty">—</span></td>
       <td class="comment-cell">пользуемся 3 года без нарушений. Далее покупаем по кадасровой стоимости. Раз в год выезд проверки. ВРИ растеневодство</td>
-    </tr>
-    <tr data-ip="70">
-      <td class="ip-cell">ИП 70<span class="type-badge">авто</span></td>
-      <td class="addr-cell"><span class="no-link">ИП №70/Партнерское финансирование в Estate Invest</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
-      <td class="money-cell">8.0 млн ₽</td>
-      <td class="exit-cell"><span class="empty">—</span></td>
-      <td class="agent-cell"><span class="empty">—</span></td>
-      <td class="comment-cell"><span class="empty">—</span></td>
     </tr>
     <tr data-ip="74">
       <td class="ip-cell">ИП 74<span class="type-badge">земельный участок</span></td>
@@ -241,19 +244,10 @@ td { padding: 10px 12px; vertical-align: top; }
       <td class="agent-cell">100 000,00</td>
       <td class="comment-cell">Участок вдоль трассы, назначение: пром, ИЖС. Интересная локация</td>
     </tr>
-    <tr data-ip="75">
-      <td class="ip-cell">ИП 75<span class="type-badge">земельный участок</span></td>
-      <td class="addr-cell"><span class="no-link">ИП №75/ЗУ/Пермский край, с. Лобаново, ул. Путейская</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
-      <td class="money-cell">2.9 млн ₽</td>
-      <td class="exit-cell">Не в работе</td>
-      <td class="agent-cell"><span class="empty">—</span></td>
-      <td class="comment-cell"><span class="empty">—</span></td>
-    </tr>
     <tr data-ip="77">
       <td class="ip-cell">ИП 77<span class="type-badge">земельный участок</span></td>
       <td class="addr-cell"><a href="https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028" target="_blank" class="avito-link">ИП №77/ЗУ/Калининградская обл., п. Сосновка, л.12</a><span class="city-hint">Калининград</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=20.50466,54.92209&amp;z=17&amp;pt=20.50466,54.92209,pm2rdm" target="_blank" class="kadastr-link">39:05:011009:625</a></td>
       <td class="money-cell">677 тыс ₽</td>
       <td class="exit-cell">1 100 000 - 1 200 000</td>
       <td class="agent-cell">30 000,00</td>
@@ -334,7 +328,7 @@ td { padding: 10px 12px; vertical-align: top; }
     <tr data-ip="88">
       <td class="ip-cell">ИП 88<span class="type-badge">земельный участок</span></td>
       <td class="addr-cell"><span class="no-link">ИП №88/ЗУ/Пермский край, с. Филипповка</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=57.02038,57.43677&amp;z=17&amp;pt=57.02038,57.43677,pm2rdm" target="_blank" class="kadastr-link">59:24:2640101:4166</a></td>
       <td class="money-cell">25 тыс ₽</td>
       <td class="exit-cell">150 000,00</td>
       <td class="agent-cell">30 000</td>
@@ -415,7 +409,7 @@ td { padding: 10px 12px; vertical-align: top; }
     <tr data-ip="105">
       <td class="ip-cell">ИП 105<span class="type-badge">коммерческая</span></td>
       <td class="addr-cell"><span class="no-link">ИП №105/КП/г. Пермь, ул. Теплогорская, д. 22, лот 25</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=56.18861,57.97338&amp;z=17&amp;pt=56.18861,57.97338,pm2rdm" target="_blank" class="kadastr-link">59:01:4410763:584</a></td>
       <td class="money-cell">735 тыс ₽</td>
       <td class="exit-cell">1 900 000 - 3 500 000</td>
       <td class="agent-cell">100 000,00</td>
@@ -424,7 +418,7 @@ td { padding: 10px 12px; vertical-align: top; }
     <tr data-ip="106">
       <td class="ip-cell">ИП 106<span class="type-badge">коммерческая</span></td>
       <td class="addr-cell"><span class="no-link">ИП №106/КП/г. Пермь, ул. Теплогорская, д. 22, лот 3</span><span class="city-hint">Пермь</span></td>
-      <td class="kadastr-cell"><span class="empty">—</span></td>
+      <td class="kadastr-cell"><a href="https://yandex.ru/maps/?ll=56.18861,57.97338&amp;z=17&amp;pt=56.18861,57.97338,pm2rdm" target="_blank" class="kadastr-link">59:01:4410763:591</a></td>
       <td class="money-cell">682 тыс ₽</td>
       <td class="exit-cell">1 800 000 - 2 100 000</td>
       <td class="agent-cell">100 000</td>
@@ -616,6 +610,46 @@ async function pollStatus() {
   } catch(e) {
     setTimeout(pollStatus, 5000);
   }
+}
+
+var MAP_POINTS = [{"ip": 19, "address": "ИП №19 /ЗУ/Пермский край, с/пос. Усть-Качкинское, п. Красный Восход", "cadastral": "59:32:3290001:3232", "lat": 57.993793, "lon": 55.740427, "avito": "https://www.avito.ru/ust-kachka/zemelnye_uchastki/uchastok_15sot._izhs_3007226532"}, {"ip": 20, "address": "ИП №20/ 2 ЗУ/Пермский край, Добрянский район, СПК \"Уральская Нива\", ур. Бесово", "cadastral": "59:18:3500203:1021 / 59:18:3500203:1024", "lat": 58.327223, "lon": 56.433523, "avito": "https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_10sot._izhs_3007582896"}, {"ip": 22, "address": "ИП № 22 /2 ЗУ/Пермский край, д. Пашня, ул. Речная, з/у 13 и 15", "cadastral": "уч. 13: 59:32:4310001:114/ уч. 15: 59:32:47310001:113", "lat": 57.6787299, "lon": 55.5286021, "avito": "https://www.avito.ru/yugo-kamskiy/zemelnye_uchastki/uchastok_12sot._izhs_3167657910"}, {"ip": 27, "address": "ИП №27/ЗУ/Пермский край, г. Добрянка, с/т Заря, участок № 39", "cadastral": "59:18:0020806:39", "lat": 58.275348, "lon": 56.405253, "avito": "https://www.avito.ru/polazna/zemelnye_uchastki/uchastok_5sot._izhs_3263046910"}, {"ip": 30, "address": "ИП №30 / ЗУ/Пермский край, СНТ \"Кабельщик № 276\", уч. 130", "cadastral": "59:32:3030011:129 / 59:32:3030011:1521", "lat": 58.157738, "lon": 56.288117, "avito": "https://www.avito.ru/perm/doma_dachi_kottedzhi/dacha_40m_na_uchastke_4sot._3326736298"}, {"ip": 35, "address": "ИП № 35/ЗУ+ЖД/Пермский край, г. Краснокамск, Гражданский переулок, д. 37", "cadastral": "59:07:0010102:46", "lat": 58.075966, "lon": 55.661136, "avito": "https://www.avito.ru/krasnokamsk/gotoviy_biznes/gab_gotovyy_arendnyy_biznes_7454439666"}, {"ip": 50, "address": "ИП №50/ЗУ/Пермский край, д. Гамы", "cadastral": "59:32:1960001:96 / 59:32:0000000:11102", "lat": 58.02264, "lon": 55.79953, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_8_sot._izhs_4095281310"}, {"ip": 58, "address": "ИП №58/ЗУ/Пермский край, д. Савино", "cadastral": "59:21:0090001:3947", "lat": 58.18119, "lon": 54.9813, "avito": ""}, {"ip": 60, "address": "ИП №60/КП/Пермь, ул. Солдатова, 32, л.5", "cadastral": "59:01:4410946:5230", "lat": 57.973764, "lon": 56.23468, "avito": "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/ofis_12_m_7518576834"}, {"ip": 62, "address": "ИП №62/КП/Пермь, ул. Солдатова, 32, л.3", "cadastral": "59:01:4410946:5227", "lat": 57.9737274, "lon": 56.2345726, "avito": ""}, {"ip": 63, "address": "ИП №63/КП/Пермь, ул. Солдатова, 32, л.2", "cadastral": "59:01:4410946:5217", "lat": 57.9737274, "lon": 56.2345726, "avito": ""}, {"ip": 64, "address": "ИП №64/КП/Пермь, ул. Солдатова, 32, л.1", "cadastral": "59:01:4410946:5224", "lat": 57.973764, "lon": 56.23468, "avito": "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_86.7_m_4382949702"}, {"ip": 65, "address": "ИП №65/ЗУ/Пермский край, Сылвенское с/п", "cadastral": "59:32:3620001:227", "lat": 58.01262, "lon": 56.74082, "avito": ""}, {"ip": 74, "address": "ИП №74/ЗУ/Пермский край, д. Христофоровка", "cadastral": "59:32:3020003:815", "lat": 58.203647, "lon": 56.288362, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_18_ga_izhs_4287250787"}, {"ip": 77, "address": "ИП №77/ЗУ/Калининградская обл., п. Сосновка, л.12", "cadastral": "39:05:011009:625", "lat": 54.92209, "lon": 20.50466, "avito": "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028"}, {"ip": 78, "address": "ИП №78/ЗУ/Калининградская обл., п. Сосновка, л.9", "cadastral": "39:05:011009:618", "lat": 54.922111, "lon": 20.504138, "avito": "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028"}, {"ip": 79, "address": "ИП №79/ЗУ/Калининградская обл., п. Сосновка, л.2", "cadastral": "39:05:011009:319", "lat": 54.925787, "lon": 20.503594, "avito": "https://www.avito.ru/zelenogradsk/zemelnye_uchastki/uchastok_8_sot._izhs_4319502028"}, {"ip": 82, "address": "ИП №82/ЗУ+Дом/г. Калининград, СНТ «50 лет Октября»", "cadastral": "39:15:120603:135", "lat": 54.759164, "lon": 20.430456, "avito": "https://www.avito.ru/kaliningrad/doma_dachi_kottedzhi/dom_1041_m_na_uchastke_6_sot._4350659273"}, {"ip": 83, "address": "ИП №83/ЗУ/Калининградская обл., пос. Заозерье, уч. №4", "cadastral": "39:03:060011:312", "lat": 54.7142557, "lon": 20.6304963, "avito": "https://www.avito.ru/kaliningrad/zemelnye_uchastki/uchastok_6_sot._izhs_4351203859"}, {"ip": 84, "address": "ИП №84/ЗУ/Калининградская область, г. Балтийск, л.1", "cadastral": "39:14:010234:11", "lat": 54.673876, "lon": 19.927363, "avito": "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036"}, {"ip": 85, "address": "ИП №85/ЗУ/Калининградская область, г. Балтийск, л.2", "cadastral": "39:14:010234:9", "lat": 54.674081, "lon": 19.927577, "avito": "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036"}, {"ip": 86, "address": "ИП №86/ЗУ/Калининградская область, г. Балтийск, л.3", "cadastral": "39:14:010234:8", "lat": 54.67439, "lon": 19.927814, "avito": "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036"}, {"ip": 87, "address": "ИП №87/ЗУ/Калининградская область, г. Балтийск, л.4", "cadastral": "39:14:010234:10", "lat": 54.674251, "lon": 19.927752, "avito": "https://www.avito.ru/baltiysk/zemelnye_uchastki/uchastok_6_sot._snt_dnp_4383055036"}, {"ip": 88, "address": "ИП №88/ЗУ/Пермский край, с. Филипповка", "cadastral": "59:24:2640101:4166", "lat": 57.43677, "lon": 57.02038, "avito": ""}, {"ip": 89, "address": "ИП №89/ЗУ/Калининградская обл., г. Светлогорск, ул. Новая", "cadastral": "39:17:010048:10", "lat": 54.927011, "lon": 20.147082, "avito": "https://www.avito.ru/svetlogorsk/zemelnye_uchastki/uchastok_6_sot._izhs_4383052350"}, {"ip": 93, "address": "ИП №93/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 45", "cadastral": "59:32:3020003:3939", "lat": 58.236728, "lon": 56.304719, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_14_sot._izhs_4254667721"}, {"ip": 94, "address": "ИП №94/ЗУ+Дом/Пермский край, д. Устиново, ул. Школьная, д. 3", "cadastral": "59:32:0430001:763", "lat": 57.910074, "lon": 56.199627, "avito": ""}, {"ip": 95, "address": "ИП №95/ЗУ/Пермский край, дер. Городище", "cadastral": "59:18:3630101:3735", "lat": 58.173094, "lon": 56.361232, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_10_sot._izhs_4447116084"}, {"ip": 96, "address": "ИП №96/ЗУ/Пермский край, г. Краснокамск, ул. Тупиковая/ул. Осинская", "cadastral": "59:07:0011102:511", "lat": 58.093065, "lon": 55.797177, "avito": "https://www.avito.ru/krasnokamsk/zemelnye_uchastki/uchastok_10_sot._izhs_4479175763"}, {"ip": 99, "address": "ИП №99/ЗУ/Пермский край, сп Култаевское", "cadastral": "59:32:4070004:4329", "lat": 57.864472, "lon": 55.85937, "avito": "https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_72_sot._izhs_7230206625"}, {"ip": 101, "address": "ИП №101/ЗУ/г. Пермь, ул. Затонская, з/у 16а", "cadastral": "59:01:2512475:175", "lat": 58.147746, "lon": 56.311243, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_6_sot._izhs_7230559170"}, {"ip": 102, "address": "ИП №102/ЗУ/Пермский край, рп Оверята, ул Молодежная, зу 108", "cadastral": "59:07:0020115:159", "lat": 58.090448, "lon": 55.859194, "avito": "https://www.avito.ru/overyata/zemelnye_uchastki/uchastok_12_sot._izhs_7230315750"}, {"ip": 105, "address": "ИП №105/КП/г. Пермь, ул. Теплогорская, д. 22, лот 25", "cadastral": "59:01:4410763:584", "lat": 57.97338, "lon": 56.18861, "avito": ""}, {"ip": 106, "address": "ИП №106/КП/г. Пермь, ул. Теплогорская, д. 22, лот 3", "cadastral": "59:01:4410763:591", "lat": 57.97338, "lon": 56.18861, "avito": ""}, {"ip": 108, "address": "ИП №108/ЗУ/Пермский край, п. Красный Восход, ул. Пермская, зу 37", "cadastral": "59:32:3290001:13244", "lat": 57.980257, "lon": 55.721386, "avito": ""}, {"ip": 110, "address": "ИП №110/ЗУ/Пермский край, с. Троица, ул. Советская, 12", "cadastral": "59:32:1910001:36", "lat": 57.987351, "lon": 56.793061, "avito": "https://www.avito.ru/sylva/zemelnye_uchastki/uchastok_8_sot._promnaznacheniya_7486454527"}, {"ip": 111, "address": "ИП №111/ЗУ/Калининградская обл., СНТ «Сосновка», уч.14б", "cadastral": "39:05:050405:76", "lat": 54.930517, "lon": 20.52769, "avito": ""}, {"ip": 112, "address": "ИП №112/КП/г. Пермь, ул. Липатова, д. 5, каб. 1-2", "cadastral": "59:01:1713044:1698", "lat": 58.00668, "lon": 55.964865, "avito": "https://www.avito.ru/perm/kommercheskaya_nedvizhimost/svobodnogo_naznacheniya_7806019001"}, {"ip": 115, "address": "ИП №115/ЗУ/г. Пермь, ул. Новосельская, з/у 1в", "cadastral": "59:01:1717072:127", "lat": 58.042699, "lon": 56.04906, "avito": "https://www.avito.ru/perm/zemelnye_uchastki/uchastok_5sot._izhs_7646343380"}, {"ip": 116, "address": "ИП №116/ЗУ/Пермский край, с. Култаево, ул. Царскосельская, зу 22", "cadastral": "59:32:3250001:9044", "lat": 57.902451, "lon": 55.894886, "avito": "https://www.avito.ru/kultaevo/zemelnye_uchastki/uchastok_10sot._izhs_7806001206"}, {"ip": 117, "address": "ИП №117/ЗУ/Пермский край, с. Култаево, ул. Царскосельская, зу 21", "cadastral": "59:32:3250001:9050", "lat": 57.90238, "lon": 55.894324, "avito": ""}, {"ip": 118, "address": "ИП №118/ЗУ/Пермский край, село Култаево", "cadastral": "59:32:3250001:9039", "lat": 57.902179, "lon": 55.89504, "avito": ""}, {"ip": 120, "address": "ИП №120/ЗУ/Пермский край, д. Шилово, ул. Разгуляевская, зу 12", "cadastral": "59:32:3250001:21548", "lat": 57.920019, "lon": 55.880668, "avito": ""}, {"ip": 121, "address": "ИП №121/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 49", "cadastral": "59:32:3020003:4332", "lat": 58.235984, "lon": 56.30581, "avito": ""}, {"ip": 122, "address": "ИП №122/ЗУ/г. Пермь, ул. Черногорская, зу 52д", "cadastral": "59:01:1713430:161", "lat": 58.053302, "lon": 56.044438, "avito": ""}, {"ip": 123, "address": "ИП №123/ЗУ/Пермский край, д. Загришинское, ул. Солнечная, зу 59", "cadastral": "59:32:3020003:4504", "lat": 58.236009, "lon": 56.307535, "avito": ""}];
+var ymapInited = false;
+
+function toggleMap() {
+  var el = document.getElementById('ymap');
+  var btn = document.getElementById('mapBtn');
+  var visible = el.classList.toggle('visible');
+  btn.textContent = visible ? 'Скрыть карту' : 'Карта объектов (46)';
+  if (visible && !ymapInited) { initYMap(); }
+}
+
+function initYMap() {
+  ymapInited = true;
+  ymaps.ready(function() {
+    var map = new ymaps.Map('ymap', {
+      center: [57.5, 56.0],
+      zoom: 5,
+      controls: ['zoomControl', 'fullscreenControl']
+    });
+
+    MAP_POINTS.forEach(function(p) {
+      var avito = p.avito ? '<br><a href="' + p.avito + '" target="_blank" style="color:#34d399;">Авито</a>' : '';
+      var cadastral = p.cadastral ? '<br><span style="color:#8b92a8;font-size:11px;">' + p.cadastral + '</span>' : '';
+      var balloon = '<b>ИП ' + p.ip + '</b><br>' + p.address + cadastral + avito;
+      var placemark = new ymaps.Placemark(
+        [p.lat, p.lon],
+        { balloonContent: balloon, hintContent: 'ИП ' + p.ip + ' — ' + p.address },
+        { preset: 'islands#darkBlueCircleDotIcon' }
+      );
+      map.geoObjects.add(placemark);
+    });
+
+    if (MAP_POINTS.length > 1) {
+      map.setBounds(map.geoObjects.getBounds(), { checkZoomRange: true, zoomMargin: 40 });
+    } else if (MAP_POINTS.length === 1) {
+      map.setCenter([MAP_POINTS[0].lat, MAP_POINTS[0].lon], 12);
+    }
+  });
 }
 </script>
 </body>

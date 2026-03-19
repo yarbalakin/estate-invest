@@ -210,6 +210,9 @@ class PropertyCard:
     rental: RentalInfo | None = None
     infra: InfraInfo | None = None
 
+    # === Геометрия ===
+    boundaryGeojson: dict | None = None   # GeoJSON Polygon/MultiPolygon WGS-84 (из НСПД)
+
     # ----------------------------------------------------------
     # Методы
     # ----------------------------------------------------------
@@ -223,7 +226,7 @@ class PropertyCard:
         d = asdict(self)
         # Убираем None-блоки чтобы не писать null в JSONB
         for block_name in ("apartment", "building", "land", "house",
-                           "commercial", "rental", "infra"):
+                           "commercial", "rental", "infra", "boundaryGeojson"):
             if d.get(block_name) is None:
                 del d[block_name]
         return d

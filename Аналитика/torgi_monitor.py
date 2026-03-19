@@ -692,6 +692,25 @@ def _proximity_radius_m(category: str, address: str) -> int:
     return 3000
 
 
+def _geocode(address: str, cadastral_number: str | None = None) -> tuple[float | None, float | None]:
+    """Геокодирование: НСПД по кадастру (приоритет) → DaData по адресу (fallback)."""
+    # 1. НСПД по кадастровому номеру (бесплатно, без лимитов)
+    if cadastral_number:
+        try:
+            from cadastral import geocode_by_cadastral
+            lat, lon = geocode_by_cadastral(cadastral_number)
+            if lat and lon:
+                log.info(f"  NSPD geocode: ({lat:.6f}, {lon:.6f})")
+                return lat, lon
+        except Exception as e:
+            log.debug(f"  NSPD geocode error: {e}")
+    # 2. DaData по адресу (fallback)
+    lat, lon = _dadata_geocode(address)
+    if lat:
+        log.info(f"  DaData geocode: ({lat:.4f}, {lon:.4f})")
+    return lat, lon
+
+
 def _dadata_geocode(address: str) -> tuple[float | None, float | None]:
     """Быстрое геокодирование адреса через DaData. Возвращает (lat, lon) или (None, None)."""
     if not DADATA_TOKEN or not address:
@@ -973,10 +992,8 @@ def main():
         market = None
         analogs_raw = fetch_analogs(parsed)
         if analogs_raw:
-            # Геокодирование нашего объекта (нужно для радиусной фильтрации)
-            lot_lat, lot_lon = _dadata_geocode(parsed["address"])
-            if lot_lat:
-                log.info(f"  DaData: ({lot_lat:.4f}, {lot_lon:.4f})")
+            # Геокодирование: сначала НСПД по кадастру, потом DaData по адресу
+            lot_lat, lot_lon = _geocode(parsed["address"], parsed.get("cadastralNumber"))
             # Фильтруем аналоги по близости → топ-10
             analogs = filter_analogs_by_proximity(
                 analogs_raw, lot_lat, lot_lon,

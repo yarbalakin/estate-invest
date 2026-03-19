@@ -48,6 +48,15 @@
 ## Прочие таблицы (закрытый доступ)
 - **Таблица (неизвестное назначение)**: https://docs.google.com/spreadsheets/d/1DCxgwIKwJHSa5RwrCrqLUmb8ZCAFOnaHijtEfqXEiQA/edit (закрытый доступ, требует авторизации)
 
+## GitHub Pages (публичные страницы)
+- **Главная**: https://yarbalakin.github.io/estate-invest-academy/
+- **ИП31 Соликамская — Итоги проекта**: https://yarbalakin.github.io/estate-invest-academy/ip31-solikamskaya.html
+- **AI-аналитика**: https://yarbalakin.github.io/estate-invest-academy/ai-analytics.html
+- **Реализация — сводка**: https://yarbalakin.github.io/estate-invest-academy/реализация-сводка.html
+- **Карта объектов**: https://yarbalakin.github.io/estate-invest-academy/objects-map.html
+- **AI-трансформация — дорожная карта**: https://yarbalakin.github.io/estate-invest-academy/ai-transformation.html
+- Репо: `yarbalakin/estate-invest-academy` (публичный)
+
 ## Контент-план (отдел Контент — Глеб)
 - **Контент-план**: https://docs.google.com/spreadsheets/d/1lV3gZiWGX8IxsMbKHyMYCAfJB5BeGa33raIFqMLtthk/edit
   - 10 листов-календарей по каналам:

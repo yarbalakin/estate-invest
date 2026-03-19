@@ -403,6 +403,23 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       <select id="filter-district" onchange="applyFilters()"><option value="">Все районы</option></select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Скоринг от</span>
+      <select id="filter-score" onchange="applyFilters()">
+        <option value="">Любой</option>
+        <option value="70">70+ (высокий)</option>
+        <option value="40">40+ (средний)</option>
+        <option value="1">Есть оценка</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Источник</span>
+      <select id="filter-source" onchange="applyFilters()">
+        <option value="">Все</option>
+        <option value="torgi">torgi.gov</option>
+        <option value="efrsb">ЕФРСБ</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Сортировка</span>
       <select id="sort-by" onchange="applyFilters()">
         <option value="date_desc">Новые</option>
@@ -474,10 +491,33 @@ const _loadedCadastralIds = new Set();
 // ============================================================
 // Data loading
 // ============================================================
+// boundary_geojson — кэш полигонов (предзагружаются одним батч-запросом в фоне)
+const BOUNDARY_CACHE = {};
+
+function fetchBoundary(lot_id) {
+  // Возвращает уже закэшированное значение (синхронно после preloadBoundaries)
+  const val = BOUNDARY_CACHE[lot_id];
+  return Promise.resolve(val !== undefined ? val : null);
+}
+
+async function preloadBoundaries() {
+  // Один запрос — все полигоны (~150KB, только лоты с boundary_geojson)
+  try {
+    const { data } = await db.from('properties')
+      .select('lot_id,boundary_geojson')
+      .not('boundary_geojson', 'is', null);
+    (data || []).forEach(row => { BOUNDARY_CACHE[row.lot_id] = row.boundary_geojson; });
+  } catch(e) {}
+}
+
 async function loadData() {
   showLoading();
   try {
-    const { data, error } = await db.from('properties').select('*').order('date_added', { ascending: false }).limit(500);
+    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,created_at,updated_at';
+    const [{ data, error }] = await Promise.all([
+      db.from('properties').select(COLS).order('date_added', { ascending: false }).limit(500),
+      preloadBoundaries(), // грузим параллельно с основными данными
+    ]);
     if (error) throw error;
     allLots = data || [];
     updateHeaderStats();
@@ -521,12 +561,16 @@ function applyFilters() {
   const type     = document.getElementById('filter-type').value;
   const discount = parseFloat(document.getElementById('filter-discount').value) || 0;
   const district = document.getElementById('filter-district').value;
+  const minScore = parseFloat(document.getElementById('filter-score').value) || 0;
+  const source   = document.getElementById('filter-source').value;
   const sort     = document.getElementById('sort-by').value;
 
   filteredLots = allLots.filter(lot => {
     if (type && lot.property_type !== type) return false;
     if (discount && (lot.discount || 0) < discount) return false;
     if (district && lot.district !== district) return false;
+    if (minScore && (lot.invest_score || 0) < minScore) return false;
+    if (source && (lot.source || 'torgi') !== source) return false;
     if (search) {
       const hay = [lot.name, lot.address, lot.address_std, lot.lot_id].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
@@ -699,12 +743,7 @@ function initMainMap() {
       controls: ['typeSelector', 'zoomControl', 'rulerControl'],
     }, { suppressMapOpenBlock: true });
 
-    // PKK кадастровый слой
-    pkkLayer = new ymaps.Layer(
-      'https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/%z/%y/%x',
-      { tileTransparent: true, opacity: 0.7 }
-    );
-    if (pkkEnabled) mainMap.layers.add(pkkLayer);
+    // PKK tile layer убран — pkk.rosreestr.ru мёртв, тайм-ауты вешали карту
 
     // Кластеризатор
     mainClusterer = new ymaps.Clusterer({
@@ -715,9 +754,12 @@ function initMainMap() {
     });
     mainMap.geoObjects.add(mainClusterer);
 
-    // При зуме >= 15 загружаем контуры
+    // При зуме >= 15 загружаем контуры (дебаунс 600ms — не дёргаем во время анимации)
+    let _boundsTimer = null;
     mainMap.events.add('boundschange', () => {
-      if (mainMap.getZoom() >= 15) loadVisibleCadastralPolygons();
+      if (mainMap.getZoom() < 15) return;
+      clearTimeout(_boundsTimer);
+      _boundsTimer = setTimeout(loadVisibleCadastralPolygons, 600);
     });
 
     // Обновляем маркеры
@@ -779,11 +821,7 @@ function fitMapToMarkers() {
 }
 
 function togglePkkLayer() {
-  if (!mainMap) return;
-  pkkEnabled = !pkkEnabled;
-  if (pkkEnabled) mainMap.layers.add(pkkLayer);
-  else mainMap.layers.remove(pkkLayer);
-  document.getElementById('btn-pkk-layer').classList.toggle('active', pkkEnabled);
+  // PKK tile layer отключён — pkk.rosreestr.ru мёртв
 }
 
 // Загрузка контуров видимых лотов
@@ -799,37 +837,27 @@ function loadVisibleCadastralPolygons() {
   });
 }
 
-// Загрузка контура из PKK и отрисовка на основной карте
+// Загрузка контура и отрисовка на основной карте
 async function loadCadastralPolygonYmapsMain(lot) {
   const cn = lot.cadastral_number;
   const colorMap = { apartment:'#6366f1', land:'#10b981', house:'#f59e0b', commercial:'#ef4444' };
   const color = colorMap[lot.property_type] || '#6366f1';
+  const style = { fillColor: color + '28', strokeColor: color, strokeWidth: 3 };
+  const balloon = {
+    balloonContentHeader: escHtml(lot.name||lot.category||'').substring(0,60),
+    balloonContentBody: `<div class="lot-popup"><div class="lot-popup-price">${formatPrice(lot.price)}</div><div class="lot-popup-sub">${escHtml(cn)}</div><button class="lot-popup-btn" onclick="window.openModal('${escHtml(lot.lot_id)}')">Открыть карточку</button></div>`,
+  };
 
-  for (const ft of [1, 5]) {
-    try {
-      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${ft}/${encodeURIComponent(cn)}`);
-      if (!r.ok) continue;
-      const data = await r.json();
-      const geom = data?.feature?.geometry;
-      if (!geom) continue;
+  const boundary = await fetchBoundary(lot.lot_id);
+  if (!boundary) return; // нет полигона — ничего не рисуем
 
-      const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
-      const style = { fillColor: color + '28', strokeColor: color, strokeWidth: 3 };
-
-      if (geom.type === 'Polygon') {
-        const poly = new ymaps.Polygon(geom.coordinates.map(convertRing), {
-          balloonContentHeader: escHtml(lot.name||lot.category||'').substring(0,60),
-          balloonContentBody: `<div class="lot-popup"><div class="lot-popup-price">${formatPrice(lot.price)}</div><div class="lot-popup-sub">${escHtml(cn)}</div><button class="lot-popup-btn" onclick="window.openModal('${escHtml(lot.lot_id)}')">Открыть карточку</button></div>`,
-        }, style);
-        mainMap.geoObjects.add(poly);
-      } else if (geom.type === 'MultiPolygon') {
-        geom.coordinates.forEach(polyCoords => {
-          const poly = new ymaps.Polygon(polyCoords.map(convertRing), {}, style);
-          mainMap.geoObjects.add(poly);
-        });
-      }
-      return;
-    } catch(e) {}
+  const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
+  if (boundary.type === 'Polygon') {
+    mainMap.geoObjects.add(new ymaps.Polygon(boundary.coordinates.map(convertRing), balloon, style));
+  } else if (boundary.type === 'MultiPolygon') {
+    boundary.coordinates.forEach((polyCoords, i) => {
+      mainMap.geoObjects.add(new ymaps.Polygon(polyCoords.map(convertRing), i === 0 ? balloon : {}, style));
+    });
   }
 }
 
@@ -1080,15 +1108,8 @@ async function initModalMap(lot) {
 
   window._yandexMapInstance = ymap;
 
-  // === PKK/ЕГРН слои Росреестра ===
-  // URL формат для Яндекс Maps 2.1: %z/%y/%x
-  window._ymapLayers = {
-    cadastre:  new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/Cadastre/MapServer/tile/%z/%y/%x',          { tileTransparent: true, opacity: 0.7 }),
-    buildings: new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/CadastreSelected/MapServer/tile/%z/%y/%x',  { tileTransparent: true, opacity: 0.7 }),
-    zones:     new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/ZONES/MapServer/tile/%z/%y/%x',             { tileTransparent: true, opacity: 0.6 }),
-    quart:     new ymaps.Layer('https://pkk.rosreestr.ru/arcgis/rest/services/PKK6/KQ/MapServer/tile/%z/%y/%x',                { tileTransparent: true, opacity: 0.5 }),
-  };
-  ymap.layers.add(window._ymapLayers.cadastre); // включён по умолчанию
+  // PKK tile слои убраны — pkk.rosreestr.ru мёртв
+  window._ymapLayers = {};
 
   // === Маркер объекта ===
   const presetMap = { apartment:'islands#violetDotIcon', land:'islands#greenDotIcon', house:'islands#yellowDotIcon', commercial:'islands#redDotIcon' };
@@ -1132,50 +1153,42 @@ async function initModalMap(lot) {
       ymap.setBounds(ymaps.util.bounds.fromPoints(allPts), { checkZoomRange: true, margin: 40 });
     } catch(e) {}
   } else if (lot.cadastral_number) {
-    loadCadastralGeometryYmaps(lot.cadastral_number, ymap);
+    loadCadastralGeometryYmaps(lot, ymap);
   }
 }
 
-// Загружаем геометрию участка из ПКК API и рисуем полигон
-async function loadCadastralGeometryYmaps(cadastralNumber, ymap) {
-  for (const t of [1, 5]) { // 1=участки, 5=ОКС
-    try {
-      const r = await fetch(`https://pkk.rosreestr.ru/api/features/${t}/${encodeURIComponent(cadastralNumber)}`);
-      if (!r.ok) continue;
-      const data = await r.json();
-      const geom = data?.feature?.geometry;
-      if (!geom) continue;
+// Рисуем полигон границ участка на модальной карте.
+// Сначала пробуем boundary_geojson из БД, иначе запрашиваем PKK.
+async function loadCadastralGeometryYmaps(lot, ymap) {
+  const style = { fillColor: '#e879f928', strokeColor: '#c026d3', strokeWidth: 3 };
+  const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
 
-      // GeoJSON [lon, lat] → Яндекс [lat, lon]
-      const convertRing = ring => ring.map(([lo, la]) => [la, lo]);
-      let coords;
-      if (geom.type === 'Polygon') {
-        coords = geom.coordinates.map(convertRing);
-      } else if (geom.type === 'MultiPolygon') {
-        // Рисуем все контуры
-        geom.coordinates.forEach(poly => {
-          ymap.geoObjects.add(new ymaps.Polygon(poly.map(convertRing), {}, {
-            fillColor: '#e879f928', strokeColor: '#c026d3', strokeWidth: 3,
-          }));
-        });
-        // Центрируем на первом
-        coords = geom.coordinates[0].map(convertRing);
-      }
-
-      if (coords) {
-        const polygon = new ymaps.Polygon(coords, {}, {
-          fillColor: '#e879f928',  // розово-фиолетовый как в bankrot.ru/ПКК
-          strokeColor: '#c026d3',
-          strokeWidth: 3,
-        });
-        ymap.geoObjects.add(polygon);
-        // Центрируем на участке
-        const bounds = polygon.geometry.getBounds();
-        if (bounds) ymap.setBounds(bounds, { checkZoomRange: true, margin: 40 });
-      }
-      return;
-    } catch(e) {}
+  function drawGeom(geom) {
+    let firstPoly = null;
+    if (geom.type === 'Polygon') {
+      firstPoly = new ymaps.Polygon(geom.coordinates.map(convertRing), {}, style);
+      ymap.geoObjects.add(firstPoly);
+    } else if (geom.type === 'MultiPolygon') {
+      geom.coordinates.forEach((poly, i) => {
+        const p = new ymaps.Polygon(poly.map(convertRing), {}, style);
+        ymap.geoObjects.add(p);
+        if (i === 0) firstPoly = p;
+      });
+    }
+    if (firstPoly) {
+      const bounds = firstPoly.geometry.getBounds();
+      if (bounds) ymap.setBounds(bounds, { checkZoomRange: true, margin: 40 });
+    }
   }
+
+  // Берём полигон из кэша/Supabase
+  const boundary = lot.boundary_geojson || await fetchBoundary(lot.lot_id);
+  if (boundary) {
+    drawGeom(boundary);
+    return;
+  }
+
+  // Нет полигона в БД — ничего не рисуем (pkk.rosreestr.ru мёртв)
 }
 
 // ============================================================

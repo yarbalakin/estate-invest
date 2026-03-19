@@ -5,12 +5,15 @@ cadastral.py — Кадастровые данные из НСПД (Росрее
   - Кадастровый номер → кадастровая стоимость, площадь, назначение
   - Кадастровый номер → вид разрешённого использования (ВРИ)
   - Кадастровый номер → тип собственности, этаж, дата регистрации
+  - Кадастровый номер → координаты (центроид полигона из geometry)
 
 API: НСПД (nspd.gov.ru) — бесплатный, без ключа.
 Требует заголовки sec-fetch-* для обхода WAF.
+Geometry возвращается в EPSG:3857, конвертируем в WGS-84.
 """
 
 import logging
+import math
 import time
 from typing import Any
 
@@ -51,6 +54,7 @@ def fetch_nspd(cadastral_number: str) -> dict[str, Any] | None:
 
     Возвращает dict с полями options из первого найденного объекта,
     или None если не найден / ошибка.
+    Дополнительно включает _geometry (GeoJSON Polygon в EPSG:3857).
     """
     if not cadastral_number:
         return None
@@ -69,20 +73,152 @@ def fetch_nspd(cadastral_number: str) -> dict[str, Any] | None:
         resp.raise_for_status()
         data = resp.json()
 
-        # Структура ответа: {data: {features: [{properties: {options: {...}}}]}}
+        # Структура ответа: {data: {features: [{geometry: {...}, properties: {options: {...}}}]}}
         features = data.get("data", {}).get("features", [])
         if not features:
             return None
 
-        props = features[0].get("properties", {})
+        feature = features[0]
+        props = feature.get("properties", {})
         result = props.get("options", {})
         # Добавляем categoryName из верхнего уровня
         result["_categoryName"] = props.get("categoryName", "")
+        # Добавляем geometry для извлечения координат
+        result["_geometry"] = feature.get("geometry")
         return result
 
     except requests.RequestException as e:
         log.error("NSPD fetch %s FAIL: %s", cadastral_number, e)
         return None
+
+
+def _epsg3857_to_wgs84(x: float, y: float) -> tuple[float, float]:
+    """Конвертация EPSG:3857 (Web Mercator) → WGS-84 (lat, lon)."""
+    lon = x * 180.0 / 20037508.34
+    lat = math.atan(math.exp(y * math.pi / 20037508.34)) * 360.0 / math.pi - 90.0
+    return lat, lon
+
+
+def _extract_ring(geom: dict) -> list | None:
+    """Извлечь внешнее кольцо координат из GeoJSON geometry (Polygon/MultiPolygon/Point)."""
+    gtype = geom.get("type", "")
+    coords = geom.get("coordinates", [])
+    if not coords:
+        return None
+
+    if gtype == "Point":
+        # Одна точка [x, y] → обернуть в кольцо
+        if len(coords) >= 2 and isinstance(coords[0], (int, float)):
+            return [coords]
+        return None
+
+    if gtype == "MultiPolygon":
+        # [[[ring]]] → первый полигон, внешнее кольцо
+        try:
+            ring = coords[0][0]
+        except (IndexError, TypeError):
+            return None
+    else:
+        # Polygon: [[ring]]
+        try:
+            ring = coords[0]
+        except (IndexError, TypeError):
+            return None
+
+    # Проверяем что ring — список точек [x, y], а не вложенный ещё глубже
+    if not ring:
+        return None
+    first = ring[0]
+    if isinstance(first, (int, float)):
+        # ring = [x, y, x, y, ...] — плоский, нужно парсить парами
+        pairs = []
+        for j in range(0, len(ring) - 1, 2):
+            pairs.append([ring[j], ring[j + 1]])
+        return pairs if pairs else None
+    if isinstance(first, list) and len(first) >= 2 and isinstance(first[0], (int, float)):
+        return ring  # нормальный формат [[x, y], ...]
+    # Ещё один уровень вложенности
+    if isinstance(first, list) and isinstance(first[0], list):
+        return first
+    return None
+
+
+def _extract_polygon_wgs84(geom: dict) -> dict | None:
+    """Конвертировать geometry НСПД (EPSG:3857) → GeoJSON Polygon WGS-84.
+
+    Возвращает {"type": "Polygon", "coordinates": [[[lon, lat], ...]]}
+    или None если геометрия некорректна / является точкой.
+    """
+    if not geom:
+        return None
+    # Точка — не граница участка, пропускаем
+    if geom.get("type") == "Point":
+        return None
+    ring = _extract_ring(geom)
+    if not ring or len(ring) < 3:
+        return None
+    coords = [[round(lon, 6), round(lat, 6)]
+              for p in ring
+              for lat, lon in [_epsg3857_to_wgs84(p[0], p[1])]]
+    if not coords:
+        return None
+    # Замкнуть кольцо если не замкнуто
+    if coords[0] != coords[-1]:
+        coords.append(coords[0])
+    return {"type": "Polygon", "coordinates": [coords]}
+
+
+def _split_cadastral(cadastral_number: str) -> list[str]:
+    """Разделить составной кадастровый номер на отдельные."""
+    import re
+    parts = re.split(r'\s*[|,;]\s*', cadastral_number.strip())
+    result = []
+    for p in parts:
+        p = p.strip()
+        if not p:
+            continue
+        if re.match(r'^\d{2}:\d{2}:\d{5,7}:\d+$', p):
+            result.append(p)
+        elif re.match(r'^\d{17,}$', p):
+            # ЕФРСБ формат без двоеточий — пробуем разные разбивки
+            # Формат: RR KK QQQQQQQ NNNN... (2:2:7:rest или 2:3:7:rest)
+            for split in [(2, 4, 11), (2, 5, 12)]:
+                try:
+                    cn = f"{p[:split[0]]}:{p[split[0]:split[1]]}:{p[split[1]:split[2]]}:{p[split[2]:]}"
+                    if re.match(r'^\d{2}:\d{2,3}:\d{5,7}:\d+$', cn):
+                        result.append(cn)
+                        break
+                except Exception:
+                    pass
+        else:
+            result.append(p)
+    return result if result else [cadastral_number.strip()]
+
+
+def geocode_by_cadastral(cadastral_number: str) -> tuple[float | None, float | None]:
+    """Получить координаты (lat, lon) по кадастровому номеру через НСПД.
+
+    Поддерживает составные номера (через | или ,) — пробует каждый.
+    Возвращает (lat, lon) или (None, None).
+    """
+    candidates = _split_cadastral(cadastral_number)
+
+    for cn in candidates:
+        data = fetch_nspd(cn)
+        if not data:
+            continue
+        geom = data.get("_geometry")
+        if not geom:
+            continue
+        ring = _extract_ring(geom)
+        if not ring:
+            continue
+        xs = [p[0] for p in ring]
+        ys = [p[1] for p in ring]
+        lat, lon = _epsg3857_to_wgs84(sum(xs) / len(xs), sum(ys) / len(ys))
+        return round(lat, 6), round(lon, 6)
+
+    return None, None
 
 
 def enrich_card(card: PropertyCard) -> bool:
@@ -95,6 +231,7 @@ def enrich_card(card: PropertyCard) -> bool:
       - cadastralPermittedUse — ВРИ / тип помещения
       - cadastralPriceRatio — цена лота / кадастровая стоимость
       - hasEncumbrances — наличие обременений (по ownership_type)
+      - lat, lon — координаты из geometry (если ещё не заполнены)
 
     Возвращает True если обогащение успешно.
     """
@@ -106,6 +243,25 @@ def enrich_card(card: PropertyCard) -> bool:
         return False
 
     _parse_nspd(card, data)
+
+    # Извлекаем координаты и границы из geometry
+    geom = data.get("_geometry")
+    if geom:
+        ring = _extract_ring(geom)
+        if ring:
+            xs = [p[0] for p in ring]
+            ys = [p[1] for p in ring]
+            # Координаты центроида (если ещё не заполнены)
+            if not card.lat or not card.lon:
+                lat, lon = _epsg3857_to_wgs84(sum(xs) / len(xs), sum(ys) / len(ys))
+                card.lat = round(lat, 6)
+                card.lon = round(lon, 6)
+                log.info("NSPD geocode %s → (%.6f, %.6f)", card.cadastralNumber, lat, lon)
+        # Полный полигон границ (всегда обновляем)
+        boundary = _extract_polygon_wgs84(geom)
+        if boundary:
+            card.boundaryGeojson = boundary
+            log.info("NSPD boundary %s → %d points", card.cadastralNumber, len(boundary["coordinates"][0]))
 
     # Рассчитываем отношение цены к кадастровой стоимости
     if card.cadastralValue and card.cadastralValue > 0 and card.price > 0:
@@ -176,6 +332,20 @@ def enrich_from_raw(raw: dict[str, Any]) -> dict[str, Any]:
                     result["_floor"] = int(parts[0])
                 except ValueError:
                     pass
+
+    # Координаты и полигон из geometry (EPSG:3857 → WGS-84)
+    geom = raw.get("_geometry")
+    if geom:
+        ring = _extract_ring(geom)
+        if ring:
+            xs = [p[0] for p in ring]
+            ys = [p[1] for p in ring]
+            lat, lon = _epsg3857_to_wgs84(sum(xs) / len(xs), sum(ys) / len(ys))
+            result["lat"] = round(lat, 6)
+            result["lon"] = round(lon, 6)
+        boundary = _extract_polygon_wgs84(geom)
+        if boundary:
+            result["boundary_geojson"] = boundary
 
     return result
 
