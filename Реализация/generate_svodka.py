@@ -121,10 +121,11 @@ def geocode_nspd(cadastral_number, cache):
     if not cadastral_number or not _requests_ok:
         return None, None
 
-    # Берём первый номер из составного (через | , ;)
-    cn = re.split(r"[\s|,;]+", cadastral_number.strip())[0].strip()
-    if not re.match(r"^\d{2}:\d{2,6}:\d+:\d+$", cn):
+    # Берём первый валидный кадастровый номер из строки
+    m = re.search(r"\d{2}:\d{2,6}:\d+:\d+", cadastral_number)
+    if not m:
         return None, None
+    cn = m.group(0)
 
     if cn in cache:
         cached = cache[cn]
@@ -1121,12 +1122,20 @@ def generate_rieltory_html(objects):
             if city:
                 addr_cell += f'<span class="city-hint">{esc(city)}</span>'
 
-        # Кадастровый номер — ссылка на НСПД
+        # Кадастровый номер — ссылка на карту
+        # Приоритет: Яндекс с пином по координатам → НСПД по кадастру → просто текст
+        lat = obj.get("lat")
+        lon = obj.get("lon")
         if cadastral:
-            nspd_url = nspdlink(cadastral)
+            if lat and lon:
+                # Яндекс Карты: точный пин на координатах объекта
+                map_url = f"https://yandex.ru/maps/?ll={lon},{lat}&z=17&pt={lon},{lat},pm2rdm"
+            else:
+                # Fallback: НСПД по кадастровому номеру
+                map_url = nspdlink(cadastral)
             kadastr_cell = (
-                f'<a href="{esc(nspd_url)}" target="_blank" class="kadastr-link">{esc(cadastral)}</a>'
-                if nspd_url else esc(cadastral)
+                f'<a href="{esc(map_url)}" target="_blank" class="kadastr-link">{esc(cadastral)}</a>'
+                if map_url else esc(cadastral)
             )
         else:
             kadastr_cell = '<span class="empty">—</span>'
