@@ -1354,17 +1354,26 @@ const CADASTRAL_LAYER_DEFS = [
 ];
 
 function createCadastralTileLayer(layerId) {
-  // Standard XYZ -> EPSG:3857 bbox (verified correct: Perm tile gives 6261721m ✓)
+  // Yandex Maps uses ellipsoidal Mercator (EPSG:3395) for tile grid,
+  // but WMS expects EPSG:3857 (spherical). Use fromGlobalPixels to bridge.
+  const R = 20037508.342789244;
+  function toEPSG3857(lat, lon) {
+    var x = lon * R / 180;
+    var latRad = lat * Math.PI / 180;
+    var y = Math.log(Math.tan(Math.PI / 4 + latRad / 2)) * R / Math.PI;
+    return [x, y];
+  }
   const tileLayer = new ymaps.Layer(function(tileNumber, tileZoom) {
     if (tileZoom < 13) return '';
-    const orig = 20037508.342789244;
-    const ts = 2 * orig / Math.pow(2, tileZoom);
-    const xmin = -orig + tileNumber[0] * ts;
-    const ymin = orig - (tileNumber[1] + 1) * ts;
-    const xmax = xmin + ts;
-    const ymax = ymin + ts;
-    return TILE_PROXY + '/tiles/wms/' + layerId + '?bbox=' + xmin + ',' + ymin + ',' + xmax + ',' + ymax;
-  }, { tileTransparent: true, opacity: 0.6 });
+    var proj = ymaps.projection.wgs84Mercator;
+    // fromGlobalPixels returns [lat, lon] in Yandex format
+    var tl = proj.fromGlobalPixels([tileNumber[0] * 256, tileNumber[1] * 256], tileZoom);
+    var br = proj.fromGlobalPixels([(tileNumber[0] + 1) * 256, (tileNumber[1] + 1) * 256], tileZoom);
+    var m1 = toEPSG3857(tl[0], tl[1]); // top-left  [x, y_top]
+    var m2 = toEPSG3857(br[0], br[1]); // bot-right [x, y_bot]
+    var bbox = m1[0] + ',' + m2[1] + ',' + m2[0] + ',' + m1[1];
+    return TILE_PROXY + '/tiles/wms/' + layerId + '?bbox=' + bbox;
+  }, { tileTransparent: true, opacity: 0.3 });
 
   tileLayer.getZoomRange = function() {
     return ymaps.vow.resolve([13, 19]);
