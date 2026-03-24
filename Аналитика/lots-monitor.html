@@ -184,6 +184,47 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 }
 .map-control-btn:hover { border-color:var(--accent); color:var(--text); }
 .map-control-btn.active { background:rgba(99,102,241,0.3); border-color:var(--accent); color:var(--accent3); }
+/* Layers control (combined basemap + cadastral, native Yandex look) */
+.layers-control {
+  position:relative; font-family:'Arial','Helvetica Neue',sans-serif;
+}
+.layers-control-btn {
+  display:flex; align-items:center; gap:6px;
+  background:#fff; border:none; border-radius:8px;
+  padding:7px 14px 7px 10px; font-size:13px; color:#333;
+  cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.15);
+  font-weight:500; white-space:nowrap;
+}
+.layers-control-btn:hover { background:#f5f5f5; }
+.layers-control-btn svg { width:20px; height:20px; flex-shrink:0; }
+.layers-control-btn .arrow { font-size:10px; color:#999; margin-left:2px; }
+.layers-dropdown {
+  display:none; position:absolute; top:calc(100% + 6px); right:0;
+  background:#fff; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.18);
+  padding:14px 16px; min-width:250px; z-index:10000;
+}
+.layers-dropdown.open { display:block; }
+.layers-basemap-tabs {
+  display:flex; gap:0; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; margin-bottom:12px;
+}
+.layers-basemap-tab {
+  flex:1; padding:7px 0; text-align:center; font-size:13px; color:#666;
+  background:#fafafa; border:none; cursor:pointer; font-weight:500;
+  border-right:1px solid #e0e0e0; transition:all .15s;
+}
+.layers-basemap-tab:last-child { border-right:none; }
+.layers-basemap-tab:hover { background:#f0f0f0; }
+.layers-basemap-tab.active { background:#fff; color:#333; font-weight:600; }
+.layers-dropdown label {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 0; cursor:pointer; font-size:14px; color:#333;
+  border-bottom:1px solid #f0f0f0; user-select:none;
+}
+.layers-dropdown label:last-child { border-bottom:none; }
+.layers-dropdown label:hover { color:#000; }
+.layers-dropdown input[type="checkbox"] {
+  width:18px; height:18px; accent-color:#6366f1; cursor:pointer; flex-shrink:0;
+}
 .map-base-btn {
   background:transparent; border:none; color:var(--text3); border-radius:6px;
   padding:5px 10px; font-size:11px; font-weight:500; cursor:pointer;
@@ -412,6 +453,14 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       </select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Регион</span>
+      <select id="filter-region" onchange="applyFilters()">
+        <option value="">Все регионы</option>
+        <option value="perm">Пермский край</option>
+        <option value="kaliningrad">Калининградская обл.</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Источник</span>
       <select id="filter-source" onchange="applyFilters()">
         <option value="">Все</option>
@@ -427,6 +476,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
         <option value="price_asc">Цена ↑</option>
         <option value="price_desc">Цена ↓</option>
         <option value="score_desc">Скоринг ↓</option>
+        <option value="cad_ratio_asc">Цена/Кадастр ↑</option>
       </select>
     </div>
   </div>
@@ -563,6 +613,7 @@ function applyFilters() {
   const district = document.getElementById('filter-district').value;
   const minScore = parseFloat(document.getElementById('filter-score').value) || 0;
   const source   = document.getElementById('filter-source').value;
+  const region   = document.getElementById('filter-region').value;
   const sort     = document.getElementById('sort-by').value;
 
   filteredLots = allLots.filter(lot => {
@@ -571,6 +622,12 @@ function applyFilters() {
     if (district && lot.district !== district) return false;
     if (minScore && (lot.invest_score || 0) < minScore) return false;
     if (source && (lot.source || 'torgi') !== source) return false;
+    if (region) {
+      const addr = (lot.address || '') + (lot.address_std || '');
+      const isKaliningrad = /калининград/i.test(addr);
+      if (region === 'kaliningrad' && !isKaliningrad) return false;
+      if (region === 'perm' && isKaliningrad) return false;
+    }
     if (search) {
       const hay = [lot.name, lot.address, lot.address_std, lot.lot_id].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
@@ -584,6 +641,11 @@ function applyFilters() {
       case 'price_asc':     return (a.price||0)-(b.price||0);
       case 'price_desc':    return (b.price||0)-(a.price||0);
       case 'score_desc':    return (b.invest_score||0)-(a.invest_score||0);
+      case 'cad_ratio_asc': {
+        const ra = a.cadastral_price_ratio != null ? a.cadastral_price_ratio : Infinity;
+        const rb = b.cadastral_price_ratio != null ? b.cadastral_price_ratio : Infinity;
+        return ra - rb;
+      }
       default: return new Date(b.date_added||0)-new Date(a.date_added||0);
     }
   });
@@ -629,6 +691,9 @@ function renderGrid() {
     const dCls = discount>=30?'discount-high':discount>=15?'discount-mid':'discount-low';
     const score = lot.invest_score ? Math.round(lot.invest_score) : null;
     const sColor = scoreColor(score);
+    const cRatio = lot.cadastral_price_ratio;
+    const cRatioColor = cRatio == null ? 'var(--text3)' : cRatio < 0.5 ? 'var(--green)' : cRatio < 0.8 ? '#f59e0b' : 'var(--text3)';
+    const cRatioLabel = cRatio != null ? cRatio.toFixed(2)+'×' : '—';
     return `
     <div class="lot-card" onclick="openModal('${escHtml(lot.lot_id)}')">
       <div class="card-head">
@@ -651,6 +716,11 @@ function renderGrid() {
             <div class="score-track"><div class="score-fill" style="width:${score}%;background:${sColor}"></div></div>
             <span style="font-size:10px;color:var(--text3)">${score>=70?'Высокий':score>=40?'Средний':'Низкий'}</span>
           </div>` : `<span style="font-size:11px;color:var(--text3)">Скоринг не рассчитан</span>`}
+        <div class="score-divider"></div>
+        <div class="score-item" title="Цена лота / Кадастровая стоимость. Чем меньше — тем лучше">
+          <span class="score-val" style="color:${cRatioColor}">${cRatioLabel}</span>
+          <span class="score-label">цена/кад.</span>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -666,9 +736,10 @@ const TABLE_COLS = [
   { key:'area',          label:'Площадь', sortable:true,  w:'90px'  },
   { key:'price',         label:'Цена',    sortable:true,  w:'110px' },
   { key:'market_price',  label:'Рыночная',sortable:true,  w:'110px' },
-  { key:'discount',      label:'Дисконт', sortable:true,  w:'90px'  },
-  { key:'auction_date',  label:'Торги',   sortable:true,  w:'100px' },
-  { key:'invest_score',  label:'Скоринг', sortable:true,  w:'90px'  },
+  { key:'discount',              label:'Дисконт',    sortable:true,  w:'90px'  },
+  { key:'cadastral_price_ratio', label:'Цена/Кад.',  sortable:true,  w:'90px'  },
+  { key:'auction_date',          label:'Торги',      sortable:true,  w:'100px' },
+  { key:'invest_score',          label:'Скоринг',    sortable:true,  w:'90px'  },
 ];
 
 function renderTable() {
@@ -698,6 +769,8 @@ function renderTable() {
     const dCls = discount>=30?'tbl-discount-high':discount>=15?'tbl-discount-mid':'tbl-discount-low';
     const score = lot.invest_score ? Math.round(lot.invest_score) : null;
     const sColor = scoreColor(score);
+    const cRatio = lot.cadastral_price_ratio;
+    const cRatioColor = cRatio == null ? '' : cRatio < 0.5 ? 'color:var(--green);font-weight:600' : cRatio < 0.8 ? 'color:#f59e0b;font-weight:600' : '';
     return `
     <tr onclick="openModal('${escHtml(lot.lot_id)}')">
       <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
@@ -707,6 +780,7 @@ function renderTable() {
       <td style="color:var(--accent3);font-weight:500">${formatPrice(lot.price)}</td>
       <td style="color:var(--green)">${lot.market_price ? formatPrice(lot.market_price) : '—'}</td>
       <td class="${dCls}">${discount ? '−'+discount+'%' : '—'}</td>
+      <td style="${cRatioColor}">${cRatio != null ? cRatio.toFixed(2)+'×' : '—'}</td>
       <td>${lot.auction_date ? formatDate(lot.auction_date) : '—'}</td>
       <td>${score ? `<span class="tbl-score"><span class="tbl-score-dot" style="background:${sColor}"></span>${score}</span>` : '—'}</td>
     </tr>`;
@@ -740,10 +814,11 @@ function initMainMap() {
       center: [58.0, 56.2],
       zoom: 8,
       type: 'yandex#hybrid',
-      controls: ['typeSelector', 'zoomControl', 'rulerControl'],
+      controls: ['zoomControl', 'rulerControl'],
     }, { suppressMapOpenBlock: true });
 
-    // PKK tile layer убран — pkk.rosreestr.ru мёртв, тайм-ауты вешали карту
+    // Единый контрол "Слои" (базовая карта + кадастровые слои)
+    addLayersControl(mainMap);
 
     // Кластеризатор
     mainClusterer = new ymaps.Clusterer({
@@ -1266,11 +1341,105 @@ function toggleMapLayer(layerKey, enabled) {
 }
 
 // ============================================================
+// Cadastral tile layers (via VPS proxy -> mapbaza.ru -> NSPD)
+// ============================================================
+const TILE_PROXY = 'http://5.42.102.36:8080';
+const _cadastralLayers = {};
+
+const CADASTRAL_LAYER_DEFS = [
+  { id: 36048, name: 'Земельные участки ЕГРН' },
+  { id: 36049, name: 'Здания' },
+  { id: 36328, name: 'Сооружения' },
+  { id: 36071, name: 'Кадастровые кварталы' },
+];
+
+function createCadastralTileLayer(layerId) {
+  // Standard XYZ -> EPSG:3857 bbox (verified correct: Perm tile gives 6261721m ✓)
+  const tileLayer = new ymaps.Layer(function(tileNumber, tileZoom) {
+    if (tileZoom < 13) return '';
+    const orig = 20037508.342789244;
+    const ts = 2 * orig / Math.pow(2, tileZoom);
+    const xmin = -orig + tileNumber[0] * ts;
+    const ymin = orig - (tileNumber[1] + 1) * ts;
+    const xmax = xmin + ts;
+    const ymax = ymin + ts;
+    return TILE_PROXY + '/tiles/wms/' + layerId + '?bbox=' + xmin + ',' + ymin + ',' + xmax + ',' + ymax;
+  }, { tileTransparent: true, opacity: 0.6 });
+
+  tileLayer.getZoomRange = function() {
+    return ymaps.vow.resolve([13, 19]);
+  };
+  return tileLayer;
+}
+
+function toggleCadastralLayer(layerId, enabled) {
+  if (enabled) {
+    if (!_cadastralLayers[layerId]) {
+      _cadastralLayers[layerId] = createCadastralTileLayer(layerId);
+    }
+    mainMap.layers.add(_cadastralLayers[layerId]);
+  } else {
+    if (_cadastralLayers[layerId]) {
+      mainMap.layers.remove(_cadastralLayers[layerId]);
+    }
+  }
+}
+
+function addLayersControl(map) {
+  const layerIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+
+  const basemapTabs = `<div class="layers-basemap-tabs">
+    <button class="layers-basemap-tab" onclick="setBasemap('map',this)">Схема</button>
+    <button class="layers-basemap-tab" onclick="setBasemap('satellite',this)">Спутник</button>
+    <button class="layers-basemap-tab active" onclick="setBasemap('hybrid',this)">Гибрид</button>
+  </div>`;
+
+  const checkboxes = CADASTRAL_LAYER_DEFS.map(l =>
+    `<label><input type="checkbox" onchange="toggleCadastralLayer(${l.id}, this.checked)">${l.name}</label>`
+  ).join('');
+
+  const Layout = ymaps.templateLayoutFactory.createClass(
+    `<div class="layers-control">
+      <button class="layers-control-btn" onclick="this.nextElementSibling.classList.toggle('open')">
+        ${layerIcon} Слои <span class="arrow">&#9662;</span>
+      </button>
+      <div class="layers-dropdown">${basemapTabs}${checkboxes}</div>
+    </div>`
+  );
+
+  const ctrl = new ymaps.control.Button({ options: {
+    layout: Layout,
+    float: 'right',
+    floatIndex: 300,
+    selectOnClick: false,
+    maxWidth: 320,
+  }});
+  map.controls.add(ctrl);
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.layers-control')) {
+      document.querySelectorAll('.layers-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
+}
+
+function setBasemap(type, btn) {
+  if (!mainMap) return;
+  mainMap.setType('yandex#' + type);
+  const tabs = btn.parentElement.querySelectorAll('.layers-basemap-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ============================================================
 // Start
 // ============================================================
 window.openModal = openModal;
 window.switchBasemap = switchBasemap;
 window.toggleMapLayer = toggleMapLayer;
+window.toggleCadastralLayer = toggleCadastralLayer;
+window.addLayersControl = addLayersControl;
+window.setBasemap = setBasemap;
 
 // Зум к лоту и загрузка контура на основной карте
 window.zoomToLotCadastre = function(lotId) {
