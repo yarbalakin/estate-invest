@@ -453,6 +453,15 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       </select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Lookalike от</span>
+      <select id="filter-lookalike" onchange="applyFilters()">
+        <option value="">Любой</option>
+        <option value="70">70+ (сильное совпадение)</option>
+        <option value="50">50+ (среднее совпадение)</option>
+        <option value="1">Есть оценка</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Регион</span>
       <select id="filter-region" onchange="applyFilters()">
         <option value="">Все регионы</option>
@@ -476,6 +485,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
         <option value="price_asc">Цена ↑</option>
         <option value="price_desc">Цена ↓</option>
         <option value="score_desc">Скоринг ↓</option>
+        <option value="lookalike_desc">Lookalike ↓</option>
         <option value="cad_ratio_asc">Цена/Кадастр ↑</option>
       </select>
     </div>
@@ -563,7 +573,7 @@ async function preloadBoundaries() {
 async function loadData() {
   showLoading();
   try {
-    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,created_at,updated_at';
+    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,created_at,updated_at';
     const [{ data, error }] = await Promise.all([
       db.from('properties').select(COLS).order('date_added', { ascending: false }).limit(500),
       preloadBoundaries(), // грузим параллельно с основными данными
@@ -611,7 +621,8 @@ function applyFilters() {
   const type     = document.getElementById('filter-type').value;
   const discount = parseFloat(document.getElementById('filter-discount').value) || 0;
   const district = document.getElementById('filter-district').value;
-  const minScore = parseFloat(document.getElementById('filter-score').value) || 0;
+  const minScore     = parseFloat(document.getElementById('filter-score').value) || 0;
+  const minLookalike = parseFloat(document.getElementById('filter-lookalike').value) || 0;
   const source   = document.getElementById('filter-source').value;
   const region   = document.getElementById('filter-region').value;
   const sort     = document.getElementById('sort-by').value;
@@ -621,6 +632,7 @@ function applyFilters() {
     if (discount && (lot.discount || 0) < discount) return false;
     if (district && lot.district !== district) return false;
     if (minScore && (lot.invest_score || 0) < minScore) return false;
+    if (minLookalike && (lot.lookalike_score || 0) < minLookalike) return false;
     if (source && (lot.source || 'torgi') !== source) return false;
     if (region) {
       const addr = (lot.address || '') + (lot.address_std || '');
@@ -641,6 +653,7 @@ function applyFilters() {
       case 'price_asc':     return (a.price||0)-(b.price||0);
       case 'price_desc':    return (b.price||0)-(a.price||0);
       case 'score_desc':    return (b.invest_score||0)-(a.invest_score||0);
+      case 'lookalike_desc': return (b.lookalike_score||0)-(a.lookalike_score||0);
       case 'cad_ratio_asc': {
         const ra = a.cadastral_price_ratio != null ? a.cadastral_price_ratio : Infinity;
         const rb = b.cadastral_price_ratio != null ? b.cadastral_price_ratio : Infinity;
@@ -1091,18 +1104,20 @@ function renderModalContent(lot) {
   }
 
   // Скоринг
-  if (lot.invest_score||lot.risk_score||lot.liquidity_score) {
+  if (lot.invest_score||lot.risk_score||lot.liquidity_score||lot.lookalike_score) {
     html += `<div class="modal-section"><div class="section-title">Скоринг</div>
       <div class="score-grid">
         ${scoreBlock('Invest', lot.invest_score)}
         ${scoreBlock('Риск', lot.risk_score, true)}
         ${scoreBlock('Ликвидность', lot.liquidity_score)}
+        ${lot.lookalike_score != null ? scoreBlock('Lookalike', lot.lookalike_score) : ''}
       </div>
       ${lot.estimated_profit||lot.estimated_roi?`<div class="detail-grid" style="margin-top:12px">
         ${lot.estimated_profit    ? detailRow('Ожид. прибыль', formatPrice(lot.estimated_profit),false,'good'):''}
         ${lot.estimated_roi       ? detailRow('Ожид. ROI', lot.estimated_roi.toFixed(1)+'%',false,'good'):''}
         ${lot.estimated_sell_time ? detailRow('Срок продажи', lot.estimated_sell_time+' мес.'):''}
       </div>`:''}
+      ${lot.lookalike_match_reason ? `<div class="detail-grid" style="margin-top:8px">${detailRow('Lookalike: почему', escHtml(lot.lookalike_match_reason))}</div>` : ''}
     </div>`;
   }
 

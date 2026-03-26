@@ -241,6 +241,8 @@ CREATE TABLE IF NOT EXISTS properties (
   estimated_profit FLOAT,
   estimated_roi FLOAT,
   estimated_sell_time INT,
+  lookalike_score FLOAT,
+  lookalike_match_reason TEXT,
 
   -- Специализированные блоки (JSONB)
   apartment JSONB,
