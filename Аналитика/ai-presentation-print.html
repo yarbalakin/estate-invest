@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: 1280px 720px;
+    margin: 0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: #fff;
+    color: #111;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 80px;
+  }
+  .slide:last-child { page-break-after: avoid; }
+
+  /* Фон */
+  .s1 { background: #0a0a0f; color: #fff; }
+  .s2 { background: #0d0d14; color: #fff; }
+  .s3 { background: #0a0f0d; color: #fff; }
+  .s4 { background: #0a0a14; color: #fff; }
+  .s5 { background: #14080a; color: #fff; }
+  .s6 { background: #080f0d; color: #fff; }
+  .s7 { background: #0a0a14; color: #fff; }
+
+  /* Декоративный угол */
+  .slide::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .s1::after { background: #6366f1; transform: translate(40%, 40%); }
+  .s2::after { background: #10b981; transform: translate(40%, 40%); }
+  .s3::after { background: #f59e0b; transform: translate(40%, 40%); }
+  .s4::after { background: #6366f1; transform: translate(40%, 40%); }
+  .s5::after { background: #ef4444; transform: translate(40%, 40%); }
+  .s6::after { background: #10b981; transform: translate(40%, 40%); }
+  .s7::after { background: #6366f1; transform: translate(40%, 40%); }
+
+  /* Лейбл-номер слайда */
+  .slide-num {
+    position: absolute;
+    bottom: 28px; right: 40px;
+    font-size: 12px;
+    opacity: 0.25;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* Типография */
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .s1 .label, .s4 .label, .s7 .label { color: #818cf8; }
+  .s2 .label { color: #34d399; }
+  .s3 .label { color: #fbbf24; }
+  .s5 .label { color: #f87171; }
+  .s6 .label { color: #34d399; }
+
+  h1 {
+    font-size: 62px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin-bottom: 22px;
+  }
+  .accent { color: #818cf8; }
+  .green-t { color: #34d399; }
+  .amber-t { color: #fbbf24; }
+
+  .subtitle {
+    font-size: 20px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.55;
+    max-width: 680px;
+  }
+
+  .byline {
+    margin-top: 44px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    gap: 16px;
+  }
+  .byline-sep { opacity: 0.3; }
+
+  /* Карточки */
+  .cards {
+    display: grid;
+    gap: 14px;
+    margin-top: 4px;
+    flex: 1;
+  }
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .card-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .card ul { font-size: 13px; color: rgba(255,255,255,0.5); padding-left: 14px; line-height: 1.7; }
+  .card p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* Таблица */
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 15px; }
+  thead th {
+    padding: 10px 18px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  tbody td { padding: 13px 18px; color: rgba(255,255,255,0.75); }
+  tbody td:first-child { color: #fff; font-weight: 500; }
+  .td-human { color: rgba(255,255,255,0.35) !important; }
+  .td-ai { color: #34d399 !important; font-weight: 700; }
+
+  /* Схема */
+  .schema { display: flex; align-items: center; gap: 6px; margin-top: 24px; flex-wrap: wrap; }
+  .schema-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .schema-box .ico { font-size: 22px; display: block; margin-bottom: 5px; }
+  .schema-box span { font-size: 12px; color: rgba(255,255,255,0.55); }
+  .schema-arrow { color: rgba(255,255,255,0.2); font-size: 20px; padding: 0 6px; }
+  .schema-row2 { display: flex; gap: 10px; margin-top: 10px; flex: 1; }
+  .schema-row2 .schema-box { flex: 1; }
+
+  /* Факты */
+  .fact-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .fact {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 22px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    border-left: 3px solid #6366f1;
+  }
+  .fact.g { border-color: #10b981; }
+  .fact.a { border-color: #f59e0b; }
+  .fact-num { font-size: 28px; font-weight: 800; color: #818cf8; min-width: 80px; line-height: 1; }
+  .fact.g .fact-num { color: #34d399; }
+  .fact.a .fact-num { color: #fbbf24; }
+  .fact-text { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.5; }
+  .fact-text strong { color: #fff; }
+
+  /* Big quote */
+  .big-quote {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.35;
+    max-width: 860px;
+    margin-bottom: 20px;
+  }
+  .cta-box {
+    margin-top: 24px;
+    padding: 24px 32px;
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 16px;
+    max-width: 680px;
+  }
+  .cta-box p { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+  .cta-box strong { color: #fff; }
+
+  .tags { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(99,102,241,0.12);
+    color: #a5b4fc;
+    border: 1px solid rgba(99,102,241,0.2);
+  }
+  .tag.g { background: rgba(16,185,129,0.1); color: #6ee7b7; border-color: rgba(16,185,129,0.18); }
+  .tag.a { background: rgba(245,158,11,0.1); color: #fcd34d; border-color: rgba(245,158,11,0.18); }
+</style>
+</head>
+<body>
+
+<!-- Слайд 1 -->
+<div class="slide s1">
+  <div class="label">Наставничество 2026</div>
+  <h1>Как AI <span class="accent">умножает</span><br>предпринимателя</h1>
+  <p class="subtitle">Реальные кейсы из практики. Не теория — работающие инструменты, которые экономят деньги и время каждый день.</p>
+  <div class="byline">
+    <span>Ярослав Балакин</span>
+    <span class="byline-sep">·</span>
+    <span>Estate Invest</span>
+    <span class="byline-sep">·</span>
+    <span>Калининград</span>
+  </div>
+  <span class="slide-num">01 / 07</span>
+</div>
+
+<!-- Слайд 2 -->
+<div class="slide s2">
+  <div class="label">Основа</div>
+  <h2>Не ChatGPT в браузере.<br>Система, которая работает.</h2>
+  <div class="cards cards-2">
+    <div class="card">
+      <span class="card-icon">💬</span>
+      <h3>Telegram-бот 24/7</h3>
+      <p>Общаешься голосом или текстом. Бот помнит всё — проекты, деньги, людей, задачи. Не нужно объяснять контекст заново.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🧠</span>
+      <h3>Модульная память</h3>
+      <p>Здоровье, финансы, Estate Invest, идеи, люди — в отдельных файлах. Открывает нужный контекст сам.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">⚡</span>
+      <h3>Выполняет задачи</h3>
+      <p>Пишет и запускает код, анализирует данные, строит таблицы, отправляет уведомления. Не советует — делает.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔗</span>
+      <h3>Связан с данными</h3>
+      <p>Supabase, Google Sheets, Telegram API, внешние сервисы. Работает с реальными цифрами бизнеса.</p>
+    </div>
+  </div>
+  <span class="slide-num">02 / 07</span>
+</div>
+
+<!-- Слайд 3 -->
+<div class="slide s3">
+  <div class="label">Что мы построили</div>
+  <h2>4 типа инструментов</h2>
+  <div class="cards cards-2">
+    <div class="card">
+      <span class="card-icon">🤖</span>
+      <h3>Личный ассистент</h3>
+      <ul>
+        <li>Голос → структурированная задача</li>
+        <li>Напоминания с пересчётом часовых поясов</li>
+        <li>Утренние брифинги с контекстом</li>
+        <li>Дневник, память, журнал решений</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="card-icon">📊</span>
+      <h3>Аналитический монитор</h3>
+      <ul>
+        <li>1000+ лотов с торгов по банкротству</li>
+        <li>Автоскоринг по 8 факторам</li>
+        <li>Lookalike: похож ли лот на наши продажи</li>
+        <li>Расчёт рыночной цены по реальным сделкам</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="card-icon">⚙️</span>
+      <h3>Автоматизация</h3>
+      <ul>
+        <li>Ежедневное обогащение базы без участия человека</li>
+        <li>Крон-задачи: запускаются сами в 6:00</li>
+        <li>Уведомления в Telegram при интересных лотах</li>
+        <li>Синхронизация данных между системами</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="card-icon">💰</span>
+      <h3>Финансовый анализ</h3>
+      <ul>
+        <li>105 конкурентов краудлендинга — за 1 сессию</li>
+        <li>Модель доходности по каждому объекту</li>
+        <li>Отслеживание портфеля инвесторов</li>
+        <li>Рыночные аналоги и дисконт к рынку</li>
+      </ul>
+    </div>
+  </div>
+  <span class="slide-num">03 / 07</span>
+</div>
+
+<!-- Слайд 4 -->
+<div class="slide s4">
+  <div class="label">Архитектура</div>
+  <h2>Как устроен Telegram-бот</h2>
+  <div class="schema">
+    <div class="schema-box"><span class="ico">🗣️</span><span>Ярослав<br>голос / текст</span></div>
+    <span class="schema-arrow">→</span>
+    <div class="schema-box"><span class="ico">💬</span><span>Telegram</span></div>
+    <span class="schema-arrow">→</span>
+    <div class="schema-box"><span class="ico">🖥️</span><span>VPS-сервер<br>Node.js</span></div>
+    <span class="schema-arrow">→</span>
+    <div class="schema-box" style="border-color:rgba(99,102,241,0.35)"><span class="ico">🧠</span><span>Claude AI<br>Anthropic</span></div>
+  </div>
+  <div class="schema-row2">
+    <div class="schema-box"><span class="ico">🗄️</span><span>Supabase<br>1000+ лотов</span></div>
+    <div class="schema-box"><span class="ico">📋</span><span>Google Sheets<br>финансы Estate</span></div>
+    <div class="schema-box"><span class="ico">📁</span><span>Файлы памяти<br>весь контекст</span></div>
+    <div class="schema-box"><span class="ico">⏰</span><span>Cron-задачи<br>авторасчёт</span></div>
+  </div>
+  <p class="subtitle" style="margin-top:18px">Одно сообщение — AI видит всю историю, все проекты, все цифры</p>
+  <span class="slide-num">04 / 07</span>
+</div>
+
+<!-- Слайд 5 -->
+<div class="slide s5">
+  <div class="label">Экономика</div>
+  <h2>Человек vs AI</h2>
+  <table>
+    <thead>
+      <tr><th>Задача</th><th>Штатный сотрудник</th><th>AI</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Мониторинг 1000 лотов/день</td><td class="td-human">Аналитик 60–80 К/мес</td><td class="td-ai">~3 К/мес (API)</td></tr>
+      <tr><td>Анализ рынка 105 конкурентов</td><td class="td-human">2–3 дня консультанта</td><td class="td-ai">2 часа</td></tr>
+      <tr><td>Разработка скорингового модуля</td><td class="td-human">Разработчик 150 К/мес</td><td class="td-ai">1 рабочая сессия</td></tr>
+      <tr><td>Личный ассистент 24/7</td><td class="td-human">Недостижимо</td><td class="td-ai">~2 К/мес</td></tr>
+      <tr><td>Рыночная оценка объекта</td><td class="td-human">Оценщик 1000 руб/объект</td><td class="td-ai">Автоматически</td></tr>
+    </tbody>
+  </table>
+  <span class="slide-num">05 / 07</span>
+</div>
+
+<!-- Слайд 6 -->
+<div class="slide s6">
+  <div class="label">Цифры</div>
+  <h2>Что сделано за несколько месяцев</h2>
+  <div class="fact-list">
+    <div class="fact">
+      <div class="fact-num">1000+</div>
+      <div class="fact-text"><strong>лотов с торгов по банкротству</strong> — в базе, с автоматическим скорингом, рыночной оценкой и lookalike-ценой</div>
+    </div>
+    <div class="fact g">
+      <div class="fact-num">8</div>
+      <div class="fact-text"><strong>факторов скоринга</strong> — инвест.потенциал, риски, ликвидность, дисконт, доходность, кадастр, история должника, lookalike</div>
+    </div>
+    <div class="fact a">
+      <div class="fact-num">53</div>
+      <div class="fact-text"><strong>реальные сделки Estate Invest</strong> — основа lookalike-оценки. Каждый новый лот сравнивается с нашей историей продаж</div>
+    </div>
+    <div class="fact">
+      <div class="fact-num">~2 ч</div>
+      <div class="fact-text"><strong>в день</strong> — столько времени тратит предприниматель. AI умножает эти часы в 10 раз по объёму выполненных задач</div>
+    </div>
+  </div>
+  <span class="slide-num">06 / 07</span>
+</div>
+
+<!-- Слайд 7 -->
+<div class="slide s7">
+  <div class="label">Главное</div>
+  <p class="big-quote">AI не заменяет мышление.<br>Он <span class="accent">умножает</span> твои 2 часа в день.</p>
+  <p class="subtitle">Ты думаешь — AI делает. Ты решаешь — AI реализует.<br>Ты спишь — крон-задачи работают.</p>
+  <div class="cta-box">
+    <p><strong>Как начать?</strong> Один инструмент, одна задача. Не строй экосистему сразу. Возьми самую повторяющуюся задачу в своём бизнесе и автоматизируй её первой.</p>
+  </div>
+  <div class="tags">
+    <span class="tag">Telegram-бот</span>
+    <span class="tag">Supabase</span>
+    <span class="tag g">Claude AI</span>
+    <span class="tag g">Python автоматизация</span>
+    <span class="tag a">Lookalike-скоринг</span>
+    <span class="tag a">Cron-задачи</span>
+  </div>
+  <span class="slide-num">07 / 07</span>
+</div>
+
+</body>
+</html>
