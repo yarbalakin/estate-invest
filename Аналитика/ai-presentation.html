@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI в работе предпринимателя</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .slides { width: 100%; height: 100vh; position: relative; }
+
+  .slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    padding: 60px 80px;
+    flex-direction: column;
+    justify-content: center;
+    animation: fadeIn 0.35s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Фон-акцент для каждого слайда */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .slide-1::before  { background: radial-gradient(ellipse 60% 60% at 80% 50%, rgba(99,102,241,0.18) 0%, transparent 70%); }
+  .slide-2::before  { background: radial-gradient(ellipse 50% 60% at 20% 50%, rgba(16,185,129,0.15) 0%, transparent 70%); }
+  .slide-3::before  { background: radial-gradient(ellipse 60% 50% at 75% 40%, rgba(245,158,11,0.13) 0%, transparent 70%); }
+  .slide-4::before  { background: radial-gradient(ellipse 55% 60% at 30% 60%, rgba(99,102,241,0.15) 0%, transparent 70%); }
+  .slide-5::before  { background: radial-gradient(ellipse 60% 55% at 70% 50%, rgba(239,68,68,0.12) 0%, transparent 70%); }
+  .slide-6::before  { background: radial-gradient(ellipse 50% 60% at 25% 50%, rgba(16,185,129,0.15) 0%, transparent 70%); }
+  .slide-7::before  { background: radial-gradient(ellipse 65% 55% at 75% 50%, rgba(99,102,241,0.18) 0%, transparent 70%); }
+
+  /* Типография */
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 20px;
+  }
+  .label.green { color: #10b981; }
+  .label.amber { color: #f59e0b; }
+  .label.red   { color: #ef4444; }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+  }
+  .subtitle {
+    font-size: clamp(16px, 2vw, 22px);
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    max-width: 640px;
+  }
+
+  /* Карточки */
+  .cards {
+    display: grid;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .card p, .card ul {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+  .card ul { padding-left: 16px; }
+  .card ul li { margin-bottom: 4px; }
+
+  /* Таблица */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  thead th {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
+  tbody td { padding: 14px 20px; color: rgba(255,255,255,0.8); }
+  tbody td:first-child { color: #fff; font-weight: 500; }
+  .td-human { color: rgba(255,255,255,0.45) !important; }
+  .td-ai { color: #10b981 !important; font-weight: 600; }
+
+  /* Схема */
+  .schema {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .schema-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 22px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .schema-box .ico { font-size: 24px; display: block; margin-bottom: 6px; }
+  .schema-box span { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .schema-arrow {
+    color: rgba(255,255,255,0.2);
+    font-size: 22px;
+    padding: 0 12px;
+  }
+
+  /* Большой акцент */
+  .big-quote {
+    font-size: clamp(22px, 3vw, 38px);
+    font-weight: 700;
+    line-height: 1.35;
+    max-width: 820px;
+    margin-bottom: 24px;
+  }
+  .big-quote em {
+    font-style: normal;
+    color: #6366f1;
+  }
+
+  /* Список фактов */
+  .fact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .fact {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 24px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    border-left: 3px solid #6366f1;
+  }
+  .fact.green { border-color: #10b981; }
+  .fact.amber { border-color: #f59e0b; }
+  .fact-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: #6366f1;
+    min-width: 60px;
+    line-height: 1;
+  }
+  .fact.green .fact-num { color: #10b981; }
+  .fact.amber .fact-num { color: #f59e0b; }
+  .fact-text { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+  .fact-text strong { color: #fff; }
+
+  /* Навигация */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+  .nav button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.15s;
+  }
+  .nav button:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  .nav button:disabled { opacity: 0.2; cursor: default; }
+  .slide-counter {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    min-width: 48px;
+    text-align: center;
+  }
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot.active {
+    background: #6366f1;
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  /* Теги */
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(99,102,241,0.15);
+    color: #a5b4fc;
+    border: 1px solid rgba(99,102,241,0.25);
+    margin: 3px;
+  }
+  .tag.green { background: rgba(16,185,129,0.12); color: #6ee7b7; border-color: rgba(16,185,129,0.2); }
+  .tag.amber { background: rgba(245,158,11,0.12); color: #fcd34d; border-color: rgba(245,158,11,0.2); }
+
+  /* Slide 1 — титул */
+  .title-accent {
+    display: inline-block;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .byline {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.35);
+  }
+  .byline-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+
+  /* Итоговый слайд */
+  .cta-box {
+    margin-top: 32px;
+    padding: 28px 36px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 20px;
+    max-width: 600px;
+  }
+  .cta-box p { font-size: 16px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+  .cta-box strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="slides">
+
+  <!-- 1. Титул -->
+  <div class="slide slide-1 active">
+    <div class="label">Наставничество 2026</div>
+    <h1>Как AI <span class="title-accent">умножает</span><br>предпринимателя</h1>
+    <p class="subtitle">Реальные кейсы из практики. Не теория — работающие инструменты, которые экономят деньги и время каждый день.</p>
+    <div class="byline">
+      <span>Ярослав Балакин</span>
+      <div class="byline-dot"></div>
+      <span>Estate Invest</span>
+      <div class="byline-dot"></div>
+      <span>Калининград</span>
+    </div>
+  </div>
+
+  <!-- 2. Что такое AI-помощник -->
+  <div class="slide slide-2">
+    <div class="label green">Основа</div>
+    <h2>Не ChatGPT в браузере.<br>Система, которая работает.</h2>
+    <div class="cards cards-2" style="margin-top:28px">
+      <div class="card">
+        <span class="card-icon">💬</span>
+        <h3>Telegram-бот 24/7</h3>
+        <p>Общаешься голосом или текстом. Бот помнит всё — проекты, деньги, людей, задачи. Не нужно объяснять контекст заново.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🧠</span>
+        <h3>Модульная память</h3>
+        <p>Здоровье, финансы, Estate Invest, идеи, люди — всё в отдельных файлах. Открывает нужный контекст сам.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">⚡</span>
+        <h3>Выполняет задачи</h3>
+        <p>Пишет и запускает код, анализирует данные, строит таблицы, отправляет уведомления. Не советует — делает.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔗</span>
+        <h3>Связан с данными</h3>
+        <p>Supabase, Google Sheets, Telegram API, внешние сервисы. Работает с реальными цифрами твоего бизнеса.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Типы проектов -->
+  <div class="slide slide-3">
+    <div class="label amber">Что мы построили</div>
+    <h2>4 типа инструментов</h2>
+    <div class="cards cards-2" style="margin-top:20px">
+      <div class="card">
+        <span class="card-icon">🤖</span>
+        <h3>Личный ассистент</h3>
+        <ul>
+          <li>Голос → структурированная задача</li>
+          <li>Напоминания с пересчётом часовых поясов</li>
+          <li>Утренние брифинги с контекстом</li>
+          <li>Дневник, память, журнал решений</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-icon">📊</span>
+        <h3>Аналитический монитор</h3>
+        <ul>
+          <li>1000+ лотов с торгов по банкротству</li>
+          <li>Автоскоринг по 8 факторам</li>
+          <li>Lookalike: "насколько лот похож на наши продажи"</li>
+          <li>Расчёт рыночной цены по реальным сделкам</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-icon">⚙️</span>
+        <h3>Автоматизация</h3>
+        <ul>
+          <li>Ежедневное обогащение базы без участия человека</li>
+          <li>Крон-задачи: запускаются сами в 6:00</li>
+          <li>Telegram-уведомления при интересных лотах</li>
+          <li>Синхронизация данных между системами</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="card-icon">💰</span>
+        <h3>Финансовый анализ</h3>
+        <ul>
+          <li>105 конкурентов краудлендинга — за 1 сессию</li>
+          <li>Модель доходности по каждому объекту</li>
+          <li>Отслеживание портфеля инвесторов</li>
+          <li>Рыночные аналоги и дисконт к рынку</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Как работает бот -->
+  <div class="slide slide-4">
+    <div class="label">Архитектура</div>
+    <h2>Как устроен Telegram-бот</h2>
+    <div class="schema" style="margin-top:32px; gap: 8px;">
+      <div class="schema-box">
+        <span class="ico">🗣️</span>
+        <span>Ярослав<br>голос / текст</span>
+      </div>
+      <div class="schema-arrow">→</div>
+      <div class="schema-box">
+        <span class="ico">💬</span>
+        <span>Telegram</span>
+      </div>
+      <div class="schema-arrow">→</div>
+      <div class="schema-box">
+        <span class="ico">🖥️</span>
+        <span>VPS-сервер<br>Node.js</span>
+      </div>
+      <div class="schema-arrow">→</div>
+      <div class="schema-box" style="border-color: rgba(99,102,241,0.4);">
+        <span class="ico">🧠</span>
+        <span>Claude AI<br>Anthropic</span>
+      </div>
+    </div>
+    <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+      <div class="schema-box" style="flex: 1; min-width: 160px;">
+        <span class="ico">🗄️</span>
+        <span>Supabase<br>1000+ лотов</span>
+      </div>
+      <div class="schema-box" style="flex: 1; min-width: 160px;">
+        <span class="ico">📋</span>
+        <span>Google Sheets<br>финансы Estate</span>
+      </div>
+      <div class="schema-box" style="flex: 1; min-width: 160px;">
+        <span class="ico">📁</span>
+        <span>Файлы памяти<br>весь контекст</span>
+      </div>
+      <div class="schema-box" style="flex: 1; min-width: 160px;">
+        <span class="ico">⏰</span>
+        <span>Cron-задачи<br>авторасчёт</span>
+      </div>
+    </div>
+    <p class="subtitle" style="margin-top: 20px;">Одно сообщение — AI видит всю историю, все проекты, все цифры</p>
+  </div>
+
+  <!-- 5. Стоимость -->
+  <div class="slide slide-5">
+    <div class="label red">Экономика</div>
+    <h2>Человек vs AI</h2>
+    <table style="margin-top: 24px;">
+      <thead>
+        <tr>
+          <th>Задача</th>
+          <th>Штатный сотрудник</th>
+          <th>AI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Мониторинг 1000 лотов/день</td>
+          <td class="td-human">Аналитик 60–80 К/мес</td>
+          <td class="td-ai">~3 К/мес (API)</td>
+        </tr>
+        <tr>
+          <td>Анализ рынка 105 конкурентов</td>
+          <td class="td-human">2–3 дня консультанта</td>
+          <td class="td-ai">2 часа</td>
+        </tr>
+        <tr>
+          <td>Разработка скорингового модуля</td>
+          <td class="td-human">Разработчик 150 К/мес</td>
+          <td class="td-ai">1 рабочая сессия</td>
+        </tr>
+        <tr>
+          <td>Личный ассистент 24/7</td>
+          <td class="td-human">Недостижимо</td>
+          <td class="td-ai">~2 К/мес</td>
+        </tr>
+        <tr>
+          <td>Рыночная оценка объекта</td>
+          <td class="td-human">Оценщик 1000 руб/объект</td>
+          <td class="td-ai">Автоматически</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6. Цифры -->
+  <div class="slide slide-6">
+    <div class="label green">Цифры</div>
+    <h2>Что сделано за несколько месяцев</h2>
+    <div class="fact-list" style="margin-top: 24px;">
+      <div class="fact">
+        <div class="fact-num">1000+</div>
+        <div class="fact-text"><strong>лотов с торгов по банкротству</strong> — в базе, с автоматическим скорингом, рыночной оценкой и lookalike-ценой</div>
+      </div>
+      <div class="fact green">
+        <div class="fact-num">8</div>
+        <div class="fact-text"><strong>факторов скоринга</strong> — инвест.потенциал, риски, ликвидность, дисконт, доходность, кадастр, история должника, lookalike</div>
+      </div>
+      <div class="fact amber">
+        <div class="fact-num">53</div>
+        <div class="fact-text"><strong>реальные сделки Estate Invest</strong> — основа для lookalike-оценки. Каждый новый лот сравнивается с нашей историей продаж</div>
+      </div>
+      <div class="fact">
+        <div class="fact-num">~2 ч</div>
+        <div class="fact-text"><strong>в день</strong> — столько времени тратит предприниматель. AI умножает эти часы в 10 раз по объёму выполненных задач</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Итог -->
+  <div class="slide slide-7">
+    <div class="label">Главное</div>
+    <p class="big-quote">AI не заменяет мышление.<br>Он <em>умножает</em> твои 2 часа в день.</p>
+    <p class="subtitle">Ты думаешь — AI делает. Ты решаешь — AI реализует. Ты спишь — крон-задачи работают.</p>
+    <div class="cta-box" style="margin-top: 32px;">
+      <p><strong>Как начать?</strong> Один инструмент, одна задача. Не строй экосистему сразу. Возьми самую повторяющуюся задачу в своём бизнесе и автоматизируй её первой.</p>
+    </div>
+    <div style="margin-top: 24px; display: flex; flex-wrap: wrap;">
+      <span class="tag">Telegram-бот</span>
+      <span class="tag">Суpabase</span>
+      <span class="tag green">Claude AI</span>
+      <span class="tag green">Python автоматизация</span>
+      <span class="tag amber">Lookalike-скоринг</span>
+      <span class="tag amber">Cron-задачи</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Навигация -->
+<nav class="nav">
+  <button id="prev" onclick="navigate(-1)">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-counter" id="counter">1 / 7</span>
+  <button id="next" onclick="navigate(1)">&#8594;</button>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const dotsContainer = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    document.querySelectorAll('.dot')[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    document.querySelectorAll('.dot')[current].classList.add('active');
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === total - 1;
+  }
+
+  function navigate(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') navigate(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
+  });
+
+  // Свайп
+  let touchX = 0;
+  document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>
