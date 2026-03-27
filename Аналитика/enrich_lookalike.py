@@ -1,25 +1,31 @@
 #!/usr/bin/env python3
 """
-enrich_lookalike.py — Lookalike-скоринг лотов по профилю проданных объектов.
+enrich_lookalike.py v2 — Lookalike-скоринг с оценкой рыночной цены.
 
-Логика: берём объекты со статусом "завершен" из Google Sheets,
-строим «ДНК успешной сделки» и сравниваем новые лоты из Supabase.
+Логика:
+  1. Загружаем объекты Estate Invest из реализация-сводка.html (локальный файл)
+     (тип, площадь, город, цена покупки, цена продажи)
+  2. Для каждого нового лота из Supabase:
+     - Берём ТОЛЬКО объекты ТОГО ЖЕ ТИПА
+     - Считаем схожесть с каждым (0-100) по: площадь, город, ценовой диапазон
+     - Применяем поправки по типу (этаж, коммуникации, вход и т.д.)
+     - Берём топ-3 самых похожих
+     - lookalike_price = взвешенное среднее их цен продажи
+     - lookalike_score = средняя схожесть топ-3
+  3. Сохраняем в Supabase: lookalike_score, lookalike_price,
+     lookalike_matches, lookalike_match_reason
 
 Запуск:
-  cd /opt/torgi-proxy && source venv/bin/activate
-  python enrich_lookalike.py
-
-Добавляет в Supabase колонки:
-  lookalike_score        — 0-100, схожесть с проданными объектами
-  lookalike_match_reason — текстовое пояснение совпадений
+  cd /root/projects/estate-invest/Аналитика
+  python3 enrich_lookalike.py
 """
 
+import html as htmllib
+import json
 import logging
 import os
 import re
 
-import requests
-import pandas as pd
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -36,327 +42,315 @@ SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Google Sheets — лист "Объекты" (gid=1464507984)
-SPREADSHEET_ID = "1dWTjYF8sEc20SKeyl-e6PomBFq3VlfX-m8K2ZRopZJ0"
-OBJECTS_GID = 1464507984
+# Путь к реализация-сводка.html относительно этого скрипта
+SVODKA_HTML = os.path.join(
+    os.path.dirname(__file__), "..", "Реализация", "реализация-сводка.html"
+)
+
+TOP_N = 3  # сколько аналогов брать для расчёта цены
 
 
 # ---------------------------------------------------------------------------
-# Fallback-профиль на основе известных данных Estate Invest
-# Используется если Google Sheets недоступен с сервера
-# ---------------------------------------------------------------------------
-FALLBACK_PROFILE = {
-    "type_freq": {"apartment": 35, "commercial": 12, "house": 5, "land": 2},
-    "top_type": "apartment",
-    "area_min": 18.0,
-    "area_max": 350.0,
-    "area_median": 52.0,
-    "price_min": 120_000.0,
-    "price_max": 8_000_000.0,
-    "price_median": 1_400_000.0,
-    "roi_min": 12.0,
-    "roi_max": 85.0,
-    "roi_median": 28.0,
-    "cities": {
-        "калининград": 18, "пермь": 12, "чебоксары": 4,
-        "ижевск": 3, "тюмень": 3, "уфа": 2, "казань": 2
-    },
-}
-
-
-# ---------------------------------------------------------------------------
-# 1. Загрузка проданных объектов из Google Sheets
+# 1. Загрузка объектов Estate Invest из реализация-сводка.html (локальный файл)
 # ---------------------------------------------------------------------------
 
-def parse_number(value):
-    """Парсинг русского числового формата: '5 242 922,06' -> 5242922.06"""
-    if pd.isna(value):
+def _html_clean(text: str) -> str:
+    return htmllib.unescape(re.sub(r"<[^>]+>", "", text)).strip()
+
+
+def _parse_price(raw: str | None) -> float | None:
+    """Парсит цены вида '2.1 млн ₽', '845 тыс ₽', '1 200 000'."""
+    if not raw:
         return None
-    s = str(value).strip()
-    for suffix in ("р.", "₽", "€", "$", "%"):
-        if s.endswith(suffix):
-            s = s[: -len(suffix)].strip()
-            break
-    s = s.replace("\xa0", "").replace(" ", "").replace(",", ".")
+    s = _html_clean(raw).lower()
+    m = re.search(r"([\d][\d\s]*[,.]?\d*)\s*(млн|тыс)?", s)
+    if not m:
+        return None
+    num_str = m.group(1).replace(" ", "").replace("\xa0", "").replace(",", ".")
+    suffix = m.group(2) or ""
     try:
-        return float(s)
+        val = float(num_str)
+        if "млн" in suffix:
+            val *= 1_000_000
+        elif "тыс" in suffix:
+            val *= 1_000
+        return val if val > 1000 else None
     except ValueError:
         return None
 
 
 def load_sold_objects() -> list[dict]:
-    """Загружает завершённые объекты из Google Sheets."""
-    url = (
-        f"https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}"
-        f"/export?format=csv&gid={OBJECTS_GID}"
-    )
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    }
-    try:
-        resp = requests.get(url, headers=headers, timeout=30, allow_redirects=True)
-        resp.raise_for_status()
-    except Exception as e:
-        log.error("Не удалось загрузить Google Sheets: %s", e)
+    """Парсит реализация-сводка.html и возвращает список объектов Estate Invest."""
+    path = os.path.abspath(SVODKA_HTML)
+    if not os.path.exists(path):
+        log.warning("реализация-сводка.html не найден: %s", path)
         return []
 
-    from io import StringIO
-    # Пропускаем первые 3 строки (шапка по документации header_row=3)
-    df = pd.read_csv(StringIO(resp.text), skiprows=3, dtype=str)
-    df.columns = [str(c).strip() for c in df.columns]
+    with open(path, encoding="utf-8") as f:
+        html = f.read()
 
-    # Ищем нужные колонки по частичному совпадению
-    col_map = {}
-    for col in df.columns:
-        cl = col.lower()
-        if "стадия" in cl:
-            col_map["стадия"] = col
-        elif "тип" in cl and "тип" not in col_map:
-            col_map["тип"] = col
-        elif "площадь" in cl and "площадь" not in col_map:
-            col_map["площадь"] = col
-        elif "покупки в рублях" in cl or ("покупки" in cl and "руб" in cl):
-            col_map["цена_покупки"] = col
-        elif "продажи в рублях" in cl or ("продажи" in cl and "руб" in cl):
-            col_map["цена_продажи"] = col
-        elif "roi" in cl:
-            col_map["roi"] = col
-        elif "название объекта" in cl or "название" in cl:
-            col_map["название"] = col
-        elif "срок" in cl and "реализ" in cl and "макс" in cl:
-            col_map["срок_макс"] = col
+    parts = re.split(r'(?=<div class="property-card")', html)
+    cards = [p for p in parts if 'property-card' in p[:50]]
 
-    log.info("Найдены колонки: %s", col_map)
+    objects = []
+    for card in cards:
+        city_m = re.search(r'data-city="([^"]+)"', card)
+        type_m = re.search(r'data-type="([^"]+)"', card)
+        city = city_m.group(1).strip().lower() if city_m else ""
+        raw_type = type_m.group(1).lower() if type_m else ""
 
-    sold = []
-    stage_col = col_map.get("стадия")
-    if not stage_col:
-        log.warning("Колонка 'Стадия объекта' не найдена")
-        return []
-
-    for _, row in df.iterrows():
-        stage = str(row.get(stage_col, "")).strip().lower()
-        if "завершен" not in stage:
-            continue
-
-        obj = {"название": str(row.get(col_map.get("название", ""), "")).strip()}
-
-        # Тип объекта
-        raw_type = str(row.get(col_map.get("тип", ""), "")).lower()
-        if "коммерч" in raw_type or "нежилое" in raw_type:
-            obj["property_type"] = "commercial"
-        elif "земл" in raw_type:
-            obj["property_type"] = "land"
-        elif "дом" in raw_type or "ижс" in raw_type or "коттедж" in raw_type:
-            obj["property_type"] = "house"
+        if any(w in raw_type for w in ("коммерч", "нежил", "здани", "помещен", "офис", "торгов", "склад", "хостел", "производств")):
+            ptype = "commercial"
+        elif any(w in raw_type for w in ("земел", "участок")):
+            ptype = "land"
+        elif any(w in raw_type for w in ("дом", "коттедж", "ижс")):
+            ptype = "house"
         else:
-            obj["property_type"] = "apartment"  # по умолчанию
+            ptype = "apartment"
 
-        obj["area"] = parse_number(row.get(col_map.get("площадь", ""), None))
-        obj["buy_price"] = parse_number(row.get(col_map.get("цена_покупки", ""), None))
-        obj["sell_price"] = parse_number(row.get(col_map.get("цена_продажи", ""), None))
-        obj["roi"] = parse_number(row.get(col_map.get("roi", ""), None))
-        obj["срок_макс"] = parse_number(row.get(col_map.get("срок_макс", ""), None))
+        area_m = re.search(r'<span class="area-tag">([^<]+)</span>', card)
+        area_str = area_m.group(1) if area_m else ""
+        area_n = re.search(r"([\d]+[,.]?\d*)", area_str)
+        area = float(area_n.group(1).replace(",", ".")) if area_n else None
 
-        # Извлекаем город из названия объекта
-        name = obj["название"]
-        city_match = re.match(r"^([^,]+),", name)
-        obj["city"] = city_match.group(1).strip() if city_match else ""
+        buy_m = re.search(r'data-field="buy">([^<]+)<', card)
+        sell_m = re.search(r'data-field="sell">([^<]+)<', card)
+        exit_m = re.search(r'fin-exit"[^>]*>([^<]+)<', card)
 
-        # ROI: если не распарсили — считаем по ценам
-        if obj["roi"] is None and obj["buy_price"] and obj["sell_price"] and obj["buy_price"] > 0:
-            obj["roi"] = round((obj["sell_price"] - obj["buy_price"]) / obj["buy_price"] * 100, 1)
+        buy = _parse_price(buy_m.group(1) if buy_m else None)
+        sell = _parse_price(sell_m.group(1) if sell_m else None)
+        exit_p = _parse_price(exit_m.group(1) if exit_m else None)
 
-        sold.append(obj)
+        # Приоритет: фактическая цена выхода > целевая цена продажи
+        effective_sell = exit_p if (exit_p and buy and exit_p > buy) else sell
 
-    log.info("Загружено %d завершённых объектов", len(sold))
-    return sold
+        if buy and effective_sell and buy > 10_000 and effective_sell > buy:
+            roi = round((effective_sell - buy) / buy * 100, 1)
+            objects.append({
+                "property_type": ptype,
+                "area": area,
+                "city": city,
+                "buy_price": buy,
+                "sell_price": effective_sell,
+                "roi": roi,
+                "название": f"{city.title()}, {raw_type}",
+            })
+
+    log.info("Загружено %d объектов из реализация-сводка.html", len(objects))
+    return objects
 
 
 # ---------------------------------------------------------------------------
-# 2. Построение «ДНК» успешных сделок
+# 2. Расчёт схожести лота с проданным объектом
 # ---------------------------------------------------------------------------
 
-def build_profile(sold: list[dict]) -> dict:
-    """Строит статистический профиль проданных объектов."""
-    if not sold:
-        return {}
-
-    profile = {}
-
-    # Распределение по типам
-    types = [o["property_type"] for o in sold if o.get("property_type")]
-    type_counts = {}
-    for t in types:
-        type_counts[t] = type_counts.get(t, 0) + 1
-    profile["type_freq"] = type_counts
-    profile["top_type"] = max(type_counts, key=type_counts.get) if type_counts else "apartment"
-
-    # Диапазоны площади
-    areas = [o["area"] for o in sold if o.get("area") and o["area"] > 0]
-    if areas:
-        profile["area_min"] = min(areas)
-        profile["area_max"] = max(areas)
-        profile["area_median"] = sorted(areas)[len(areas) // 2]
+def area_similarity(lot_area: float, sold_area: float) -> tuple[int, str]:
+    """Схожесть по площади (0-50 очков)."""
+    if not lot_area or not sold_area or sold_area <= 0:
+        return 0, ""
+    ratio = lot_area / sold_area
+    if 0.9 <= ratio <= 1.1:
+        return 50, f"площадь {lot_area:.0f}≈{sold_area:.0f} м² (±10%)"
+    elif 0.8 <= ratio <= 1.25:
+        return 42, f"площадь {lot_area:.0f}≈{sold_area:.0f} м² (±25%)"
+    elif 0.6 <= ratio <= 1.5:
+        return 30, f"площадь {lot_area:.0f} vs {sold_area:.0f} м² (±50%)"
+    elif 0.4 <= ratio <= 2.0:
+        return 15, f"площадь {lot_area:.0f} vs {sold_area:.0f} м² (×2)"
     else:
-        profile["area_min"] = 0
-        profile["area_max"] = 10000
-        profile["area_median"] = 50
+        return 0, ""
 
-    # Диапазоны цены покупки
-    buy_prices = [o["buy_price"] for o in sold if o.get("buy_price") and o["buy_price"] > 0]
-    if buy_prices:
-        profile["price_min"] = min(buy_prices)
-        profile["price_max"] = max(buy_prices)
-        profile["price_median"] = sorted(buy_prices)[len(buy_prices) // 2]
+
+def city_similarity(lot_district: str, sold_city: str) -> tuple[int, str]:
+    """Схожесть по городу (0-30 очков)."""
+    if not lot_district or not sold_city:
+        return 0, ""
+    ld = lot_district.lower()
+    sc = sold_city.lower()
+    if sc in ld or ld in sc or any(w in ld for w in sc.split()):
+        return 30, f"город совпадает ({sold_city})"
+    return 0, ""
+
+
+def price_fit(lot_price: float, sold_buy_price: float) -> tuple[int, str]:
+    """Попадает ли цена лота в ценовой диапазон наших покупок (0-20 очков)."""
+    if not lot_price or not sold_buy_price or sold_buy_price <= 0:
+        return 0, ""
+    ratio = lot_price / sold_buy_price
+    if 0.7 <= ratio <= 1.5:
+        return 20, f"цена {lot_price/1e6:.1f}М ≈ нашей покупке {sold_buy_price/1e6:.1f}М"
+    elif 0.4 <= ratio <= 2.5:
+        return 10, f"цена {lot_price/1e6:.1f}М близко к нашей {sold_buy_price/1e6:.1f}М"
     else:
-        profile["price_min"] = 0
-        profile["price_max"] = 50_000_000
-        profile["price_median"] = 2_000_000
-
-    # ROI успешных сделок
-    rois = [o["roi"] for o in sold if o.get("roi") is not None]
-    if rois:
-        profile["roi_min"] = min(rois)
-        profile["roi_max"] = max(rois)
-        profile["roi_median"] = sorted(rois)[len(rois) // 2]
-    else:
-        profile["roi_min"] = 0
-        profile["roi_max"] = 100
-        profile["roi_median"] = 20
-
-    # Города
-    cities = [o["city"].lower() for o in sold if o.get("city")]
-    city_counts = {}
-    for c in cities:
-        city_counts[c] = city_counts.get(c, 0) + 1
-    profile["cities"] = city_counts
-
-    log.info("Профиль: %d типов, площадь %.0f-%.0f м², цена %.0f-%.0f руб, ROI %.0f-%.0f%%",
-             len(type_counts),
-             profile.get("area_min", 0), profile.get("area_max", 0),
-             profile.get("price_min", 0), profile.get("price_max", 0),
-             profile.get("roi_min", 0), profile.get("roi_max", 0))
-
-    return profile
+        return 0, ""
 
 
-# ---------------------------------------------------------------------------
-# 3. Расчёт lookalike-скора для лота
-# ---------------------------------------------------------------------------
+def type_specific_adjustment(lot: dict) -> float:
+    """Поправочный коэффициент к цене по параметрам лота (0.70–1.10)."""
+    ptype = lot.get("property_type", "")
+    adjustment = 1.0
 
-def calc_lookalike(lot: dict, profile: dict) -> tuple[int, str]:
+    if ptype == "apartment":
+        apt = lot.get("apartment") or {}
+        floor = apt.get("floor") if isinstance(apt, dict) else None
+        floors_total = apt.get("floors_total") if isinstance(apt, dict) else None
+        balcony = apt.get("balcony") if isinstance(apt, dict) else None
+        condition = apt.get("condition") if isinstance(apt, dict) else None
+
+        # Первый или последний этаж — дешевле
+        if floor and floors_total:
+            if floor == 1:
+                adjustment -= 0.05
+            elif floor == floors_total:
+                adjustment -= 0.03
+
+        if balcony is False:
+            adjustment -= 0.02
+
+        if condition:
+            cond = condition.lower()
+            if any(w in cond for w in ("плохое", "аварийн", "без ремонт")):
+                adjustment -= 0.10
+            elif any(w in cond for w in ("хорошее", "отличн", "ремонт")):
+                adjustment += 0.05
+
+    elif ptype == "commercial":
+        comm = lot.get("commercial") or {}
+        entrance = comm.get("entrance") if isinstance(comm, dict) else None
+        comm_type = comm.get("commercial_type") if isinstance(comm, dict) else None
+
+        if entrance and "отдельн" in str(entrance).lower():
+            adjustment += 0.05
+        elif entrance and "общ" in str(entrance).lower():
+            adjustment -= 0.08
+
+        # Склад/производство дешевле торгового
+        if comm_type:
+            ct = comm_type.lower()
+            if any(w in ct for w in ("склад", "производств")):
+                adjustment -= 0.10
+            elif any(w in ct for w in ("торгов", "магазин")):
+                adjustment += 0.05
+
+    elif ptype == "land":
+        land = lot.get("land") or {}
+        if isinstance(land, dict):
+            has_electricity = land.get("has_electricity")
+            has_gas = land.get("has_gas")
+            has_water = land.get("has_water")
+            category = land.get("land_category") or ""
+
+            comms = sum([
+                1 for v in [has_electricity, has_gas, has_water] if v is True
+            ])
+            adjustment += comms * 0.03  # +3% за каждую коммуникацию
+
+            if "промышленн" in category.lower():
+                adjustment += 0.05  # промышленная земля дороже
+
+    elif ptype == "house":
+        house = lot.get("house") or {}
+        if isinstance(house, dict):
+            garage = house.get("garage_on_site")
+            bathhouse = house.get("bathhouse")
+            if garage:
+                adjustment += 0.03
+            if bathhouse:
+                adjustment += 0.02
+
+    return max(0.50, min(1.30, adjustment))
+
+
+def similarity_score(lot: dict, sold: dict) -> tuple[int, list[str]]:
     """
-    Возвращает (score 0-100, reason str).
-    Логика: сравниваем лот с профилем успешных сделок по 5 факторам.
+    Считает схожесть лота с проданным объектом.
+    Возвращает (score 0-100, список причин).
     """
-    if not profile:
-        return 0, "Нет данных о проданных объектах"
-
     score = 0
     reasons = []
 
-    # --- Фактор 1: Тип объекта (25 очков) ---
+    # Площадь (50 очков)
+    pts, reason = area_similarity(lot.get("area") or 0, sold.get("area") or 0)
+    score += pts
+    if reason:
+        reasons.append(reason)
+
+    # Город (30 очков)
+    pts, reason = city_similarity(lot.get("district") or "", sold.get("city") or "")
+    score += pts
+    if reason:
+        reasons.append(reason)
+
+    # Цена (20 очков)
+    pts, reason = price_fit(lot.get("price") or 0, sold.get("buy_price") or 0)
+    score += pts
+    if reason:
+        reasons.append(reason)
+
+    return min(100, score), reasons
+
+
+# ---------------------------------------------------------------------------
+# 3. Расчёт lookalike для одного лота
+# ---------------------------------------------------------------------------
+
+def calc_lookalike(lot: dict, sold_by_type: dict) -> tuple[int, float | None, list[dict], str]:
+    """
+    Возвращает (score, lookalike_price, matches, reason).
+    """
     ptype = lot.get("property_type", "")
-    type_freq = profile.get("type_freq", {})
-    total_sold = sum(type_freq.values()) or 1
-    type_share = type_freq.get(ptype, 0) / total_sold
+    same_type = sold_by_type.get(ptype, [])
 
-    if type_share >= 0.5:
-        score += 25
-        reasons.append(f"тип '{ptype}' — в {int(type_share*100)}% наших сделок")
-    elif type_share >= 0.2:
-        score += 15
-        reasons.append(f"тип '{ptype}' — продавали")
-    elif type_share > 0:
-        score += 7
-        reasons.append(f"тип '{ptype}' — редко продавали")
-    else:
-        reasons.append(f"тип '{ptype}' — не продавали раньше")
+    if not same_type:
+        return 0, None, [], f"нет проданных объектов типа '{ptype}'"
 
-    # --- Фактор 2: Площадь (20 очков) ---
-    area = lot.get("area") or 0
-    a_min = profile.get("area_min", 0)
-    a_max = profile.get("area_max", 10000)
-    a_med = profile.get("area_median", 50)
+    # Считаем схожесть с каждым проданным объектом
+    scored = []
+    for sold in same_type:
+        sc, reasons = similarity_score(lot, sold)
+        if sc > 0:
+            scored.append((sc, sold, reasons))
 
-    if area > 0:
-        if a_min <= area <= a_max:
-            # В нашем диапазоне — ближе к медиане = лучше
-            deviation = abs(area - a_med) / (a_max - a_min + 1)
-            pts = round(20 * (1 - deviation))
-            score += max(5, pts)
-            reasons.append(f"площадь {area:.0f} м² — в нашем диапазоне ({a_min:.0f}-{a_max:.0f})")
-        elif area < a_min * 0.5 or area > a_max * 2:
-            reasons.append(f"площадь {area:.0f} м² — сильно вне нашего диапазона")
-        else:
-            score += 5
-            reasons.append(f"площадь {area:.0f} м² — близко к нашему диапазону")
+    if not scored:
+        return 0, None, [], f"нет похожих объектов типа '{ptype}'"
 
-    # --- Фактор 3: Ценовой диапазон (25 очков) ---
-    price = lot.get("price") or 0
-    p_min = profile.get("price_min", 0)
-    p_max = profile.get("price_max", 50_000_000)
-    p_med = profile.get("price_median", 2_000_000)
+    # Сортируем по убыванию схожести, берём топ-N
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top = scored[:TOP_N]
 
-    if price > 0:
-        if p_min <= price <= p_max:
-            deviation = abs(price - p_med) / (p_max - p_min + 1)
-            pts = round(25 * (1 - deviation))
-            score += max(5, pts)
-            reasons.append(f"цена {price/1e6:.1f}М — в нашем ценовом диапазоне")
-        elif price > p_max * 3:
-            reasons.append(f"цена {price/1e6:.1f}М — слишком дорого для нашей модели")
-        else:
-            score += 5
-            reasons.append(f"цена {price/1e6:.1f}М — около нашего диапазона")
+    # Взвешенная средняя цена продажи
+    total_weight = sum(sc for sc, _, _ in top)
+    if total_weight == 0:
+        return 0, None, [], "нулевые веса"
 
-    # --- Фактор 4: Потенциальный ROI (20 очков) ---
-    estimated_roi = lot.get("estimated_roi")
-    r_min = profile.get("roi_min", 10)
-    r_max = profile.get("roi_max", 100)
-    r_med = profile.get("roi_median", 20)
+    adjustment = type_specific_adjustment(lot)
+    raw_price = sum(sc * s["sell_price"] for sc, s, _ in top) / total_weight
+    lookalike_price = round(raw_price * adjustment)
 
-    if estimated_roi is not None:
-        if estimated_roi >= r_min:
-            if r_min <= estimated_roi <= r_max:
-                score += 20
-                reasons.append(f"ROI {estimated_roi:.0f}% — в нашем диапазоне доходности")
-            elif estimated_roi > r_max:
-                score += 20  # выше нашего среднего — хорошо
-                reasons.append(f"ROI {estimated_roi:.0f}% — выше нашего среднего ({r_med:.0f}%)")
-        else:
-            score += 5
-            reasons.append(f"ROI {estimated_roi:.0f}% — ниже нашего среднего ({r_med:.0f}%)")
-    else:
-        reasons.append("ROI не рассчитан — нет рыночной оценки")
+    # Итоговый score = среднее по топ-N (но не выше 95 если меньше 2 аналогов)
+    avg_score = int(sum(sc for sc, _, _ in top) / len(top))
+    if len(top) < 2:
+        avg_score = min(avg_score, 70)
 
-    # --- Фактор 5: Город (10 очков) ---
-    lot_district = (lot.get("district") or "").lower()
-    # Ищем совпадение с городами из наших сделок
-    cities = profile.get("cities", {})
-    matched_city = None
-    for city in cities:
-        if city and (city in lot_district or lot_district in city):
-            matched_city = city
-            break
+    # Формируем список matches для сохранения
+    matches = []
+    for sc, sold, _ in top:
+        matches.append({
+            "name": sold.get("название", ""),
+            "similarity": sc,
+            "area": sold.get("area"),
+            "city": sold.get("city"),
+            "sell_price": sold.get("sell_price"),
+            "roi": sold.get("roi"),
+        })
 
-    if matched_city:
-        city_share = cities[matched_city] / total_sold
-        if city_share >= 0.1:
-            score += 10
-            reasons.append(f"город совпадает с нашей историей продаж")
-        else:
-            score += 5
-            reasons.append(f"город — продавали 1-2 раза")
-    else:
-        reasons.append("новый город — нет истории продаж")
+    # Описание
+    top_reasons = top[0][2] if top else []
+    adj_pct = round((adjustment - 1) * 100)
+    adj_str = f" (поправка {adj_pct:+d}%)" if adj_pct != 0 else ""
+    reason = "; ".join(top_reasons[:3]) + adj_str if top_reasons else f"{len(top)} аналогов найдено"
 
-    score = min(100, max(0, score))
-    reason = "; ".join(reasons) if reasons else "нет данных"
-
-    return score, reason
+    return avg_score, lookalike_price, matches, reason
 
 
 # ---------------------------------------------------------------------------
@@ -364,51 +358,55 @@ def calc_lookalike(lot: dict, profile: dict) -> tuple[int, str]:
 # ---------------------------------------------------------------------------
 
 def main():
-    log.info("=== Lookalike-скоринг ===")
+    log.info("=== Lookalike v2 — скоринг по реальным сделкам Estate Invest ===")
 
-    # Шаг 1: загрузка проданных объектов (с fallback)
+    # Загружаем объекты Estate Invest из локального HTML
     sold = load_sold_objects()
     if not sold:
-        log.warning("Google Sheets недоступен — используем встроенный профиль Estate Invest")
-        profile = FALLBACK_PROFILE
-    else:
-        # Шаг 2: строим профиль из реальных данных
-        profile = build_profile(sold)
-        if not profile:
-            log.warning("Не удалось построить профиль — используем fallback")
-            profile = FALLBACK_PROFILE
+        log.error("Нет данных об объектах — прерываем")
+        return
 
-    # Шаг 3: загрузка лотов из Supabase
+    # Группируем по типу
+    sold_by_type: dict[str, list] = {}
+    for obj in sold:
+        t = obj.get("property_type", "")
+        sold_by_type.setdefault(t, []).append(obj)
+
+    log.info("Проданные объекты по типам: %s",
+             {t: len(v) for t, v in sold_by_type.items()})
+
+    # Загружаем лоты из Supabase
     log.info("Загрузка лотов из Supabase...")
     resp = sb.table("properties").select(
         "lot_id, property_type, price, area, district, "
-        "estimated_roi, invest_score, risk_score"
+        "apartment, building, land, house, commercial, rental, infra"
     ).execute()
     lots = resp.data
     log.info("Найдено %d лотов", len(lots))
 
-    # Шаг 4: скоринг
     ok = 0
     for i, lot in enumerate(lots, 1):
         lot_id = lot["lot_id"]
-        score, reason = calc_lookalike(lot, profile)
+        score, price, matches, reason = calc_lookalike(lot, sold_by_type)
+
+        update = {
+            "lookalike_score": score,
+            "lookalike_match_reason": reason,
+            "lookalike_price": price,
+            "lookalike_matches": matches if matches else None,
+        }
 
         try:
-            sb.table("properties").update({
-                "lookalike_score": score,
-                "lookalike_match_reason": reason,
-            }).eq("lot_id", lot_id).execute()
-            log.info("[%d] %s — lookalike=%d | %s", i, lot_id, score, reason[:60])
+            sb.table("properties").update(update).eq("lot_id", lot_id).execute()
+            price_str = f"{price/1e6:.1f}М" if price else "—"
+            log.info("[%d] %s — score=%d price=%s | %s",
+                     i, lot_id[:30], score, price_str, reason[:60])
             ok += 1
         except Exception as e:
             log.error("Ошибка %s: %s", lot_id, e)
 
     log.info("=" * 50)
     log.info("Готово! Обновлено: %d/%d лотов", ok, len(lots))
-    log.info("Топ-тип: %s, медиана площади: %.0f м², медиана цены: %.0fК руб",
-             profile.get("top_type"),
-             profile.get("area_median", 0),
-             (profile.get("price_median", 0) / 1000))
 
 
 if __name__ == "__main__":
