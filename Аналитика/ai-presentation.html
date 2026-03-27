@@ -47,7 +47,8 @@
   .slide-4::before  { background: radial-gradient(ellipse 55% 60% at 30% 60%, rgba(99,102,241,0.15) 0%, transparent 70%); }
   .slide-5::before  { background: radial-gradient(ellipse 60% 55% at 70% 50%, rgba(239,68,68,0.12) 0%, transparent 70%); }
   .slide-6::before  { background: radial-gradient(ellipse 50% 60% at 25% 50%, rgba(16,185,129,0.15) 0%, transparent 70%); }
-  .slide-7::before  { background: radial-gradient(ellipse 65% 55% at 75% 50%, rgba(99,102,241,0.18) 0%, transparent 70%); }
+  .slide-7::before  { background: radial-gradient(ellipse 60% 55% at 70% 40%, rgba(6,182,212,0.14) 0%, transparent 70%); }
+  .slide-8::before  { background: radial-gradient(ellipse 65% 55% at 75% 50%, rgba(99,102,241,0.18) 0%, transparent 70%); }
 
   /* Типография */
   .label {
@@ -515,8 +516,46 @@
     </div>
   </div>
 
-  <!-- 7. Итог -->
+  <!-- 7. Как использовать в своём деле -->
   <div class="slide slide-7">
+    <div class="label" style="color:#06b6d4">Для вас</div>
+    <h2>Как использовать это<br>в своём деле</h2>
+    <div class="cards cards-3" style="margin-top:20px">
+      <div class="card">
+        <span class="card-icon">🔁</span>
+        <h3>Найдите повторяющуюся задачу</h3>
+        <p>Что вы делаете каждую неделю вручную? Таблица, отчёт, мониторинг, переписка — это первый кандидат на автоматизацию.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗣️</span>
+        <h3>Говорите голосом</h3>
+        <p>AI отлично расшифровывает голос. Поездка в машине → список задач, идей, решений. Не нужно садиться за компьютер.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📊</span>
+        <h3>Дайте AI свои данные</h3>
+        <p>Excel, таблицы, история клиентов — AI проанализирует за минуты то, на что вы тратили часы. Просто вставьте данные.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🤝</span>
+        <h3>AI как сотрудник</h3>
+        <p>Поручите AI роль: "ты — мой финансовый аналитик", "ты — маркетолог". Он войдёт в роль и будет думать как специалист.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">⚡</span>
+        <h3>Стройте итерационно</h3>
+        <p>Не нужен большой проект с нуля. Один скрипт, один бот, одна автоматизация — и уже экономите время каждый день.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">💡</span>
+        <h3>Думайте "что если"</h3>
+        <p>AI снимает стоимость эксперимента до нуля. Идея за 5 минут → прототип за час → решение принято на реальных данных.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Итог -->
+  <div class="slide slide-8">
     <div class="label">Главное</div>
     <p class="big-quote">AI не заменяет мышление.<br>Он <em>умножает</em> твои 2 часа в день.</p>
     <p class="subtitle">Ты думаешь — AI делает. Ты решаешь — AI реализует. Ты спишь — крон-задачи работают.</p>
@@ -545,7 +584,7 @@
 
 <script>
   const slides = document.querySelectorAll('.slide');
-  const total = slides.length;
+  const total = slides.length; // автоматически = 8
   let current = 0;
 
   const dotsContainer = document.getElementById('dots');
