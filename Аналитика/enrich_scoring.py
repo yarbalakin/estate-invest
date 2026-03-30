@@ -271,12 +271,21 @@ def make_recommendation(invest: int, risk: int, liquidity: int, lot: dict) -> st
 
 def main():
     log.info("Загрузка всех лотов из Supabase...")
-    resp = sb.table("properties").select(
+    COLS = (
         "lot_id, property_type, price, market_price, discount, confidence, "
         "analogs_count, cadastral_number, cadastral_price_ratio, cadastral_value, "
         "has_encumbrances, encumbrance_type, bidd_type, area, district, lat, lon, name"
-    ).execute()
-    lots = resp.data
+    )
+    PAGE = 1000
+    lots = []
+    offset = 0
+    while True:
+        resp = sb.table("properties").select(COLS).range(offset, offset + PAGE - 1).execute()
+        batch = resp.data or []
+        lots.extend(batch)
+        if len(batch) < PAGE:
+            break
+        offset += PAGE
     log.info("Найдено %d лотов", len(lots))
 
     ok = 0

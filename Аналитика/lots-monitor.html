@@ -121,6 +121,12 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .discount-high { background:rgba(16,185,129,0.2); color:#34d399; }
 .discount-mid  { background:rgba(245,158,11,0.2); color:#fbbf24; }
 .discount-low  { background:rgba(100,116,139,0.18); color:var(--text2); }
+.discount-neg  { background:rgba(239,68,68,0.2); color:#fca5a5; }
+.confidence-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.source-badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:12px; font-size:9px; font-weight:500; letter-spacing:.3px; margin-left:4px; }
+.source-ads     { background:rgba(16,185,129,0.15); color:#6ee7b7; }
+.source-cad     { background:rgba(245,158,11,0.15); color:#fbbf24; }
+.source-rental  { background:rgba(99,102,241,0.15); color:var(--accent3); }
 .card-title { font-size:13px; font-weight:500; color:var(--text); line-height:1.4; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .card-address { font-size:12px; color:var(--text3); margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
 .card-metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
@@ -159,6 +165,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .tbl-discount-high { color:#34d399; font-weight:600; }
 .tbl-discount-mid  { color:#fbbf24; font-weight:600; }
 .tbl-discount-low  { color:var(--text3); }
+.tbl-discount-neg  { color:#ef4444; font-weight:600; }
 .tbl-score { display:inline-flex; align-items:center; gap:6px; }
 .tbl-score-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 .lot-table .td-name { max-width:240px; }
@@ -304,6 +311,12 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 /* === MODAL MAP === */
 .modal-map-container { position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--border); margin-bottom:14px; }
 #modal-map { height:340px; background:var(--bg3); }
+.map-median-badge {
+  position:absolute; top:10px; right:10px; z-index:100;
+  background:rgba(22,24,41,0.85); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.1); border-radius:10px;
+  padding:8px 12px; color:#fff; font-size:12px; pointer-events:none;
+}
 
 /* Переключатель схема/спутник/гибрид */
 .map-basemap-ctrl {
@@ -390,6 +403,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
   </div>
   <div class="header-stats">
     <div class="hstat"><div class="hstat-val" id="hstat-total">—</div><div class="hstat-label">лотов</div></div>
+    <div class="hstat"><div class="hstat-val" id="hstat-market">—</div><div class="hstat-label">с оценкой</div></div>
     <div class="hstat"><div class="hstat-val" id="hstat-avg-discount">—</div><div class="hstat-label">ср. дисконт</div></div>
     <div class="hstat"><div class="hstat-val" id="hstat-avg-price">—</div><div class="hstat-label">ср. цена</div></div>
     <button class="btn btn-primary btn-small" onclick="loadData()">Обновить</button>
@@ -444,6 +458,14 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       <select id="filter-district" onchange="applyFilters()"><option value="">Все районы</option></select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Регион</span>
+      <select id="filter-region" onchange="applyFilters()">
+        <option value="">Все регионы</option>
+        <option value="perm">Пермский край</option>
+        <option value="kaliningrad">Калининградская обл.</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Скоринг от</span>
       <select id="filter-score" onchange="applyFilters()">
         <option value="">Любой</option>
@@ -478,12 +500,22 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       </select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Точность</span>
+      <select id="filter-confidence" onchange="applyFilters()">
+        <option value="">Любая</option>
+        <option value="высокая">Высокая</option>
+        <option value="средняя">Средняя+</option>
+        <option value="есть">Есть оценка</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Сортировка</span>
       <select id="sort-by" onchange="applyFilters()">
         <option value="date_desc">Новые</option>
         <option value="discount_desc">Дисконт ↓</option>
         <option value="price_asc">Цена ↑</option>
         <option value="price_desc">Цена ↓</option>
+        <option value="market_asc">Рыночная ↑</option>
         <option value="score_desc">Скоринг ↓</option>
         <option value="lookalike_desc">Lookalike ↓</option>
         <option value="cad_ratio_asc">Цена/Кадастр ↑</option>
@@ -574,12 +606,15 @@ async function loadData() {
   showLoading();
   try {
     const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,created_at,updated_at';
-    const [{ data, error }] = await Promise.all([
-      db.from('properties').select(COLS).order('date_added', { ascending: false }).limit(500),
-      preloadBoundaries(), // грузим параллельно с основными данными
+    const PAGE = 1000;
+    const query = () => db.from('properties').select(COLS).order('date_added', { ascending: false });
+    const [r1, r2] = await Promise.all([
+      query().range(0, PAGE - 1),
+      query().range(PAGE, PAGE * 2 - 1),
+      preloadBoundaries(),
     ]);
-    if (error) throw error;
-    allLots = data || [];
+    if (r1.error) throw r1.error;
+    allLots = [...(r1.data || []), ...(r2.data || [])];
     updateHeaderStats();
     populateDistrictFilter();
     applyFilters();
@@ -625,6 +660,7 @@ function applyFilters() {
   const minLookalike = parseFloat(document.getElementById('filter-lookalike').value) || 0;
   const source   = document.getElementById('filter-source').value;
   const region   = document.getElementById('filter-region').value;
+  const confidence = document.getElementById('filter-confidence').value;
   const sort     = document.getElementById('sort-by').value;
 
   filteredLots = allLots.filter(lot => {
@@ -640,6 +676,11 @@ function applyFilters() {
       if (region === 'kaliningrad' && !isKaliningrad) return false;
       if (region === 'perm' && isKaliningrad) return false;
     }
+    if (confidence) {
+      if (confidence === 'высокая' && lot.confidence !== 'высокая') return false;
+      if (confidence === 'средняя' && !['высокая','средняя'].includes(lot.confidence)) return false;
+      if (confidence === 'есть' && !lot.market_price) return false;
+    }
     if (search) {
       const hay = [lot.name, lot.address, lot.address_std, lot.lot_id].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
@@ -652,6 +693,7 @@ function applyFilters() {
       case 'discount_desc': return (b.discount||0)-(a.discount||0);
       case 'price_asc':     return (a.price||0)-(b.price||0);
       case 'price_desc':    return (b.price||0)-(a.price||0);
+      case 'market_asc':    return (a.market_price||Infinity)-(b.market_price||Infinity);
       case 'score_desc':    return (b.invest_score||0)-(a.invest_score||0);
       case 'lookalike_desc': return (b.lookalike_score||0)-(a.lookalike_score||0);
       case 'cad_ratio_asc': {
@@ -680,11 +722,17 @@ function populateDistrictFilter() {
 }
 
 function renderResultsTags(search, type, discount, district) {
+  const region = document.getElementById('filter-region').value;
+  const confidence = document.getElementById('filter-confidence').value;
+  const regionLabels = { perm: 'Пермский край', kaliningrad: 'Калининградская обл.' };
+  const confLabels = { 'высокая': 'Точность: высокая', 'средняя': 'Точность: средняя+', 'есть': 'Есть оценка' };
   const tags = [];
-  if (type)     tags.push({ label: typeLabel(type), clear: () => { document.getElementById('filter-type').value=''; applyFilters(); }});
-  if (discount) tags.push({ label: `дисконт ${discount}%+`, clear: () => { document.getElementById('filter-discount').value=''; applyFilters(); }});
-  if (district) tags.push({ label: district, clear: () => { document.getElementById('filter-district').value=''; applyFilters(); }});
-  if (search)   tags.push({ label: `"${search}"`, clear: () => { document.getElementById('search-input').value=''; applyFilters(); }});
+  if (type)       tags.push({ label: typeLabel(type), clear: () => { document.getElementById('filter-type').value=''; applyFilters(); }});
+  if (discount)   tags.push({ label: `дисконт ${discount}%+`, clear: () => { document.getElementById('filter-discount').value=''; applyFilters(); }});
+  if (district)   tags.push({ label: district, clear: () => { document.getElementById('filter-district').value=''; applyFilters(); }});
+  if (region)     tags.push({ label: regionLabels[region]||region, clear: () => { document.getElementById('filter-region').value=''; applyFilters(); }});
+  if (confidence) tags.push({ label: confLabels[confidence]||confidence, clear: () => { document.getElementById('filter-confidence').value=''; applyFilters(); }});
+  if (search)     tags.push({ label: `"${search}"`, clear: () => { document.getElementById('search-input').value=''; applyFilters(); }});
   window._tagClears = tags.map(t => t.clear);
   document.getElementById('active-filters').innerHTML = tags.map((t,i) =>
     `<span class="filter-tag">${escHtml(t.label)}<button onclick="window._tagClears[${i}]()">×</button></span>`).join('');
@@ -701,23 +749,36 @@ function renderGrid() {
   }
   grid.innerHTML = filteredLots.map(lot => {
     const discount = lot.discount ? Math.round(lot.discount) : null;
-    const dCls = discount>=30?'discount-high':discount>=15?'discount-mid':'discount-low';
+    const dCls = discount == null ? '' : discount < 0 ? 'discount-neg' : discount>=30?'discount-high':discount>=15?'discount-mid':'discount-low';
+    const dLabel = discount == null ? '' : discount < 0 ? `+${Math.abs(discount)}%` : `−${discount}%`;
     const score = lot.invest_score ? Math.round(lot.invest_score) : null;
     const sColor = scoreColor(score);
     const cRatio = lot.cadastral_price_ratio;
     const cRatioColor = cRatio == null ? 'var(--text3)' : cRatio < 0.5 ? 'var(--green)' : cRatio < 0.8 ? '#f59e0b' : 'var(--text3)';
     const cRatioLabel = cRatio != null ? cRatio.toFixed(2)+'×' : '—';
+    // Confidence & source
+    const conf = lot.confidence;
+    const confColor = conf==='высокая'?'var(--green)':conf==='средняя'?'#f59e0b':'#ef4444';
+    const src = lot.analogs_source;
+    const srcLabel = src==='ads-api'?'аналоги':src==='rental'?'аренда':src==='cadastral-fallback'?'кадастр':'';
+    const srcCls = src==='ads-api'?'source-ads':src==='rental'?'source-rental':src==='cadastral-fallback'?'source-cad':'';
     return `
     <div class="lot-card" onclick="openModal('${escHtml(lot.lot_id)}')">
       <div class="card-head">
         <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
-        ${discount ? `<span class="discount-badge ${dCls}">−${discount}%</span>` : ''}
+        <div style="display:flex;gap:6px;align-items:center">
+          ${srcLabel ? `<span class="source-badge ${srcCls}">${srcLabel}</span>` : ''}
+          ${dLabel ? `<span class="discount-badge ${dCls}">${dLabel}</span>` : ''}
+        </div>
       </div>
       <div class="card-title">${escHtml(lot.name||lot.category||'Без названия')}</div>
-      <div class="card-address">📍 ${escHtml(lot.address_std||lot.address||'Адрес не указан')}</div>
+      <div class="card-address">${escHtml(lot.address_std||lot.address||'Адрес не указан')}</div>
       <div class="card-metrics">
         <div class="metric"><div class="metric-label">Цена торгов</div><div class="metric-val accent">${formatPrice(lot.price)}</div></div>
-        <div class="metric"><div class="metric-label">Рыночная</div><div class="metric-val ${lot.market_price?'green':''}">${lot.market_price?formatPrice(lot.market_price):'—'}</div></div>
+        <div class="metric">
+          <div class="metric-label">Рыночная${conf ? ` <span class="confidence-dot" style="background:${confColor}" title="Точность: ${conf}"></span>` : ''}</div>
+          <div class="metric-val ${lot.market_price?'green':''}">${lot.market_price?formatPrice(lot.market_price):'—'}</div>
+        </div>
         <div class="metric"><div class="metric-label">Площадь</div><div class="metric-val">${lot.area?(lot.area+' '+areaUnit(lot.area_unit)):'—'}</div></div>
         <div class="metric"><div class="metric-label">Аукцион</div><div class="metric-val">${lot.auction_date?formatDate(lot.auction_date):'—'}</div></div>
       </div>
@@ -743,16 +804,17 @@ function renderGrid() {
 // Table rendering
 // ============================================================
 const TABLE_COLS = [
-  { key:'property_type', label:'Тип',     sortable:true,  w:'100px' },
-  { key:'name',          label:'Название',sortable:true,  w:'240px' },
-  { key:'address',       label:'Адрес',   sortable:false, w:'200px' },
-  { key:'area',          label:'Площадь', sortable:true,  w:'90px'  },
-  { key:'price',         label:'Цена',    sortable:true,  w:'110px' },
-  { key:'market_price',  label:'Рыночная',sortable:true,  w:'110px' },
-  { key:'discount',              label:'Дисконт',    sortable:true,  w:'90px'  },
-  { key:'cadastral_price_ratio', label:'Цена/Кад.',  sortable:true,  w:'90px'  },
-  { key:'auction_date',          label:'Торги',      sortable:true,  w:'100px' },
-  { key:'invest_score',          label:'Скоринг',    sortable:true,  w:'90px'  },
+  { key:'property_type', label:'Тип',     sortable:true,  w:'90px' },
+  { key:'name',          label:'Название',sortable:true,  w:'220px' },
+  { key:'address',       label:'Адрес',   sortable:false, w:'180px' },
+  { key:'area',          label:'Площадь', sortable:true,  w:'80px'  },
+  { key:'price',         label:'Цена',    sortable:true,  w:'100px' },
+  { key:'market_price',  label:'Рыночная',sortable:true,  w:'100px' },
+  { key:'discount',              label:'Дисконт',    sortable:true,  w:'80px'  },
+  { key:'confidence',            label:'Точность',   sortable:true,  w:'80px'  },
+  { key:'cadastral_price_ratio', label:'Цена/Кад.',  sortable:true,  w:'80px'  },
+  { key:'auction_date',          label:'Торги',      sortable:true,  w:'90px'  },
+  { key:'invest_score',          label:'Скоринг',    sortable:true,  w:'80px'  },
 ];
 
 function renderTable() {
@@ -779,11 +841,15 @@ function renderTable() {
 
   const rows = sorted.map(lot => {
     const discount = lot.discount ? Math.round(lot.discount) : null;
-    const dCls = discount>=30?'tbl-discount-high':discount>=15?'tbl-discount-mid':'tbl-discount-low';
+    const dCls = discount == null ? '' : discount < 0 ? 'tbl-discount-neg' : discount>=30?'tbl-discount-high':discount>=15?'tbl-discount-mid':'tbl-discount-low';
+    const dLabel = discount == null ? '—' : discount < 0 ? `+${Math.abs(discount)}%` : `−${discount}%`;
     const score = lot.invest_score ? Math.round(lot.invest_score) : null;
     const sColor = scoreColor(score);
     const cRatio = lot.cadastral_price_ratio;
     const cRatioColor = cRatio == null ? '' : cRatio < 0.5 ? 'color:var(--green);font-weight:600' : cRatio < 0.8 ? 'color:#f59e0b;font-weight:600' : '';
+    const conf = lot.confidence;
+    const confColor = conf==='высокая'?'var(--green)':conf==='средняя'?'#f59e0b':conf?'#ef4444':'';
+    const confLabel = conf || '—';
     return `
     <tr onclick="openModal('${escHtml(lot.lot_id)}')">
       <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
@@ -792,7 +858,8 @@ function renderTable() {
       <td>${lot.area ? lot.area+' '+areaUnit(lot.area_unit) : '—'}</td>
       <td style="color:var(--accent3);font-weight:500">${formatPrice(lot.price)}</td>
       <td style="color:var(--green)">${lot.market_price ? formatPrice(lot.market_price) : '—'}</td>
-      <td class="${dCls}">${discount ? '−'+discount+'%' : '—'}</td>
+      <td class="${dCls}">${dLabel}</td>
+      <td style="${confColor?'color:'+confColor+';font-weight:500':''}">${confLabel}</td>
       <td style="${cRatioColor}">${cRatio != null ? cRatio.toFixed(2)+'×' : '—'}</td>
       <td>${lot.auction_date ? formatDate(lot.auction_date) : '—'}</td>
       <td>${score ? `<span class="tbl-score"><span class="tbl-score-dot" style="background:${sColor}"></span>${score}</span>` : '—'}</td>
@@ -875,12 +942,17 @@ function updateMapMarkers() {
     const discount = lot.discount ? Math.round(lot.discount) : null;
     const score = lot.invest_score ? Math.round(lot.invest_score) : null;
 
+    const discLabel = discount == null ? '' : discount < 0 ? ` · +${Math.abs(discount)}%` : ` · −${discount}%`;
+    const confPop = lot.confidence;
+    const confPopColor = confPop==='высокая'?'#34d399':confPop==='средняя'?'#fbbf24':'#ef4444';
     const bodyParts = [
       `<div class="lot-popup">`,
-      `<div class="lot-popup-price">${formatPrice(lot.price)}${discount ? ' · −'+discount+'%' : ''}</div>`,
+      `<div class="lot-popup-price">${formatPrice(lot.price)}${discLabel}</div>`,
+      lot.market_price ? `<div class="lot-popup-sub" style="margin-top:2px">Рыночная: ${formatPrice(lot.market_price)}${confPop ? ` <span style="color:${confPopColor}">●</span>` : ''}</div>` : '',
       `<div class="lot-popup-sub">${escHtml(lot.address_std||lot.address||'').substring(0,80)}</div>`,
       lot.cadastral_number ? `<div class="lot-popup-sub" style="opacity:.7;margin-top:2px">${escHtml(lot.cadastral_number)}</div>` : '',
       score ? `<div class="lot-popup-sub" style="margin-top:4px">Скоринг: ${score}</div>` : '',
+      lot.analogs_count ? `<div style="font-size:11px;color:#94a3b8">${lot.analogs_count} аналогов · ${lot.analogs_source||''}</div>` : '',
       `<div class="lot-popup-btns">`,
       `<button class="lot-popup-btn" style="flex:1" onclick="window.openModal('${escHtml(lot.lot_id)}')">Карточка</button>`,
       lot.cadastral_number ? `<button class="lot-popup-btn-outline" onclick="window.zoomToLotCadastre('${escHtml(lot.lot_id)}')">Контур</button>` : '',
@@ -1076,7 +1148,7 @@ function renderModalContent(lot) {
       ${lot.analogs_median_price  ? detailRow('Медиана', formatPrice(lot.analogs_median_price)+' '+aUnit):''}
       ${lot.analogs_min_price && lot.analogs_max_price ? detailRow('Разброс', formatPrice(lot.analogs_min_price)+' — '+formatPrice(lot.analogs_max_price)+' '+aUnit):''}
       ${lot.analogs_radius_m      ? detailRow('Радиус поиска', (lot.analogs_radius_m>=1000?(lot.analogs_radius_m/1000).toFixed(1)+' км':lot.analogs_radius_m+' м')):''}
-      ${lot.confidence            ? detailRow('Точность', escHtml(lot.confidence)):''}
+      ${lot.confidence ? detailRow('Точность', `<span style="color:${lot.confidence==='высокая'?'var(--green)':lot.confidence==='средняя'?'#f59e0b':'#ef4444'};font-weight:600">${escHtml(lot.confidence)}</span>`, true) : ''}
     </div>`;
 
     // Список аналогов
@@ -1215,6 +1287,12 @@ async function initModalMap(lot) {
   const analogsList = Array.isArray(lot.analogs_list) ? lot.analogs_list : [];
   const analogPoints = [];
 
+  function shortPrice(p) {
+    if (p >= 1000000) return (p/1000000).toFixed(1) + 'М';
+    if (p >= 1000) return Math.round(p/1000) + 'К';
+    return String(p);
+  }
+
   if (analogsList.length > 0) {
     // Пунктирная окружность радиуса поиска
     if (lot.analogs_radius_m) {
@@ -1224,16 +1302,37 @@ async function initModalMap(lot) {
     }
 
     const aUnit = lot.area_unit === 'sotka' ? '₽/сот' : '₽/м²';
+    const medianPU = lot.analogs_median_price || 0;
     analogsList.forEach((a, i) => {
       if (!a.lat || !a.lon) return;
       analogPoints.push([a.lat, a.lon]);
       const dist = a.distance_m != null ? (a.distance_m >= 1000 ? (a.distance_m/1000).toFixed(1)+' км' : a.distance_m+' м') : '';
+      // Цветовая шкала по цене/м² относительно медианы
+      const apu = a.pricePerUnit || 0;
+      let analogPreset;
+      if (medianPU && apu) {
+        if (apu < medianPU * 0.9) analogPreset = 'islands#greenStretchyIcon';
+        else if (apu > medianPU * 1.1) analogPreset = 'islands#redStretchyIcon';
+        else analogPreset = 'islands#yellowStretchyIcon';
+      } else {
+        analogPreset = 'islands#blueStretchyIcon';
+      }
       ymap.geoObjects.add(new ymaps.Placemark([a.lat, a.lon], {
-        iconContent: String(i + 1),
+        iconContent: a.price ? shortPrice(a.price) : String(i + 1),
         balloonContentHeader: `Аналог ${i+1}`,
-        balloonContentBody: `Цена: <b>${formatPrice(a.price)}</b><br>${aUnit}: <b>${a.pricePerUnit ? a.pricePerUnit.toLocaleString('ru-RU') : '—'}</b>${dist ? `<br>Расстояние: <b>${dist}</b>` : ''}${a.url ? `<br><a href="${escHtml(a.url)}" target="_blank">Открыть ↗</a>` : ''}`,
-      }, { preset: 'islands#blueStretchyIcon' }));
+        balloonContentBody: `Цена: <b>${formatPrice(a.price)}</b><br>${aUnit}: <b>${a.pricePerUnit ? a.pricePerUnit.toLocaleString('ru-RU') : '—'}</b>${dist ? `<br>Расстояние: <b>${dist}</b>` : ''}${a.url ? `<br><a href="${escHtml(a.url)}" target="_blank" style="display:inline-block;margin-top:4px;padding:4px 10px;background:#6366f1;color:#fff;border-radius:5px;text-decoration:none;font-size:12px">Открыть ↗</a>` : ''}`,
+      }, { preset: analogPreset }));
     });
+  }
+
+  // === Медианный бейдж ===
+  if (lot.analogs_median_price && lot.analogs_count) {
+    const aUnit = lot.area_unit === 'sotka' ? '₽/сот' : '₽/м²';
+    const radius = lot.analogs_radius_m ? (lot.analogs_radius_m >= 1000 ? (lot.analogs_radius_m/1000).toFixed(1)+' км' : lot.analogs_radius_m+' м') : '';
+    const badge = document.createElement('div');
+    badge.className = 'map-median-badge';
+    badge.innerHTML = `<div style="font-weight:600">Медиана: ${lot.analogs_median_price.toLocaleString('ru-RU')} ${aUnit}</div><div style="font-size:11px;opacity:0.7">${lot.analogs_count} аналогов${radius ? ' \u2022 ' + radius : ''}</div>`;
+    document.getElementById('modal-map').appendChild(badge);
   }
 
   // === Автомасштаб и граница участка ===
@@ -1286,7 +1385,9 @@ async function loadCadastralGeometryYmaps(lot, ymap) {
 // ============================================================
 function updateHeaderStats() {
   document.getElementById('hstat-total').textContent = allLots.length;
-  const wd = allLots.filter(l=>l.discount);
+  const wm = allLots.filter(l=>l.market_price);
+  document.getElementById('hstat-market').textContent = wm.length;
+  const wd = allLots.filter(l=>l.discount && l.discount > 0);
   if (wd.length) document.getElementById('hstat-avg-discount').textContent = Math.round(wd.reduce((s,l)=>s+l.discount,0)/wd.length)+'%';
   const wp = allLots.filter(l=>l.price>0);
   if (wp.length) document.getElementById('hstat-avg-price').textContent = formatPrice(wp.reduce((s,l)=>s+l.price,0)/wp.length);

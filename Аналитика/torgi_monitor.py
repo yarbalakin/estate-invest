@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-Монитор торгов torgi.gov.ru — недвижимость Пермский край
+Монитор торгов torgi.gov.ru — недвижимость (мультирегион)
 Cron: каждые 4 часа. Новые лоты → оценка рынка → Telegram + Google Sheets.
+Запуск: python3 torgi_monitor.py --region perm|kaliningrad
 """
+import argparse
 import requests
 import json
 import time
@@ -12,25 +14,75 @@ import logging
 import statistics
 from datetime import datetime, timedelta
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 import gspread
 from google.oauth2.service_account import Credentials
+
+# === Конфиг регионов ===
+REGIONS = {
+    "perm": {
+        "name": "Пермский край",
+        "dynSubjRF": "28",
+        "efrsb_region": "59",
+        "default_city": "Пермь",
+        "skip_bidd_types": ["Реализация имущества должников"],
+        "address_cleanup": [
+            (r"^край Пермский,?\s*", "Пермский край, "),
+        ],
+        "cities": [
+            "Пермь", "Краснокамск", "Березники", "Соликамск", "Чайковский",
+            "Лысьва", "Кунгур", "Чусовой", "Добрянка", "Чернушка",
+            "Оса", "Верещагино", "Нытва", "Губаха", "Кизел",
+            "Александровск", "Горнозаводск", "Очёр", "Суксун",
+        ],
+    },
+    "kaliningrad": {
+        "name": "Калининградская область",
+        "dynSubjRF": "43",
+        "efrsb_region": "39",
+        "default_city": "Калининград",
+        "skip_bidd_types": [],  # показываем все типы торгов
+        "address_cleanup": [
+            (r"^обл\.?\s*Калининградская,?\s*", "Калининградская обл., "),
+        ],
+        "cities": [
+            "Калининград", "Советск", "Черняховск", "Балтийск", "Гусев",
+            "Светлый", "Гурьевск", "Зеленоградск", "Светлогорск", "Пионерский",
+            "Неман", "Мамоново", "Багратионовск", "Полесск", "Правдинск",
+            "Гвардейск", "Озёрск", "Славск", "Краснознаменск", "Нестеров",
+        ],
+    },
+}
+
+# === CLI ===
+_parser = argparse.ArgumentParser()
+_parser.add_argument("--region", default="perm", choices=REGIONS.keys())
+_args, _ = _parser.parse_known_args()
+REGION = REGIONS[_args.region]
+REGION_KEY = _args.region
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("/opt/torgi-proxy/torgi_monitor.log"),
+        logging.FileHandler(f"/opt/torgi-proxy/torgi_monitor_{REGION_KEY}.log"),
     ],
 )
 log = logging.getLogger("torgi")
+log.info(f"Region: {REGION['name']} (dynSubjRF={REGION['dynSubjRF']})")
 
 # === Config ===
 PROXY_URL = "http://127.0.0.1:8080/api/torgi"
 PROXY_API_KEY = "ei-torgi-2026-mvp"
 CAT_CODES = "2,3,4,5,7,8,10,11,47"
-DYN_SUBJ_RF = "28"  # Пермский край
-SEEN_FILE = "/opt/torgi-proxy/torgi_seen.json"
+DYN_SUBJ_RF = REGION["dynSubjRF"]
+SEEN_FILE = f"/opt/torgi-proxy/torgi_seen_{REGION_KEY}.json"
 
 # ads-api.ru (оценка рынка)
 ADS_API_USER = os.environ.get("ADS_API_USER", "yabalakin@yandex.ru")
@@ -70,8 +122,88 @@ ADS_AREA_PARAMS = {
     6: None,     # Гаражи — нет серверного фильтра
 }
 
-# Фильтр biddType
-SKIP_BIDD_TYPES = ["Реализация имущества должников"]
+# Фильтр biddType (зависит от региона)
+SKIP_BIDD_TYPES = REGION.get("skip_bidd_types", [])
+
+# === Supabase ===
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+
+_sb_client = None
+
+CATEGORY_TO_TYPE = {
+    "Квартира": "apartment",
+    "Земля": "land",
+    "Дом": "house",
+    "Нежилое": "commercial",
+    "Гараж": "commercial",
+    "Прочее": "commercial",
+}
+
+
+def _get_supabase():
+    global _sb_client
+    if _sb_client is None:
+        try:
+            from supabase import create_client
+            _sb_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        except Exception as e:
+            log.error(f"Supabase init error: {e}")
+    return _sb_client
+
+
+def write_to_supabase(parsed, market=None):
+    """Записать лот torgi.gov.ru в Supabase properties."""
+    try:
+        sb = _get_supabase()
+        if not sb:
+            return False
+
+        row = {
+            "lot_id": parsed["lotId"],
+            "source": "torgi",
+            "date_added": parsed["dateAdded"],
+            "name": parsed["name"],
+            "category": parsed["category"],
+            "property_type": CATEGORY_TO_TYPE.get(parsed["category"], "commercial"),
+            "address": parsed["address"],
+            "cadastral_number": parsed["cadastralNumber"] or None,
+            "price": float(parsed["price"]) if parsed["price"] else None,
+            "deposit": float(parsed["deposit"]) if parsed["deposit"] else None,
+            "area": parsed["areaNum"] if parsed["areaNum"] > 0 else None,
+            "area_unit": "sotka" if parsed["isLand"] else "m2",
+            "price_per_unit": parsed["pricePerUnit"] or None,
+            "bidd_type": parsed["biddType"],
+            "auction_date": parsed["auctionDate"],
+            "application_end": parsed["applicationEnd"],
+            "status": parsed["status"],
+            "url": parsed["url"],
+            "etp_url": parsed["etpUrl"] or None,
+            "district": REGION["name"],
+        }
+
+        # Рыночная оценка
+        if market:
+            row.update({
+                "market_price": float(market["marketPrice"]),
+                "discount": float(market["discount"]),
+                "confidence": market["confidence"],
+                "analogs_count": market["analogsCount"],
+                "analogs_median_price": float(market["analogsMedianPrice"]),
+                "analogs_min_price": float(market["analogsMinPrice"]),
+                "analogs_max_price": float(market["analogsMaxPrice"]),
+                "analogs_list": market.get("analogsList"),
+            })
+
+        # Убираем пустые значения
+        row = {k: v for k, v in row.items() if v is not None and v != ""}
+
+        sb.table("properties").upsert(row, on_conflict="lot_id").execute()
+        log.info(f"  Supabase OK: {parsed['lotId']}")
+        return True
+    except Exception as e:
+        log.error(f"  Supabase error: {e}")
+        return False
 
 
 # === Дедупликация ===
@@ -186,7 +318,8 @@ def parse_lot(lot):
     # Очистка адреса
     if address:
         address = re.sub(r"^Российская Федерация,?\s*", "", address, flags=re.IGNORECASE)
-        address = re.sub(r"^край Пермский,?\s*", "Пермский край, ", address, flags=re.IGNORECASE)
+        for pattern, replacement in REGION["address_cleanup"]:
+            address = re.sub(pattern, replacement, address, flags=re.IGNORECASE)
         address = re.sub(r"^,\s*", "", address)
         if len(address) > 150:
             address = address[:150] + "..."
@@ -315,29 +448,22 @@ def parse_lot(lot):
 # === Извлечение города из адреса ===
 def extract_city(address):
     if not address:
-        return "Пермь"
+        return REGION["default_city"]
     addr_lower = address.lower()
     # "г. Город" или "г.Город" или "город Город"
     m = re.search(r"(?:г\.\s*|город\s+)([А-ЯЁа-яё\-]+)", address)
     if m:
         return m.group(1)
-    # Известные города Пермского края
-    cities = [
-        "Пермь", "Краснокамск", "Березники", "Соликамск", "Чайковский",
-        "Лысьва", "Кунгур", "Чусовой", "Добрянка", "Чернушка",
-        "Оса", "Верещагино", "Нытва", "Губаха", "Кизел",
-        "Александровск", "Горнозаводск", "Очёр", "Суксун",
-    ]
-    for city in cities:
+    # Известные города региона
+    for city in REGION["cities"]:
         if city.lower() in addr_lower:
             return city
     # Район → ищем на уровне района
     m = re.search(r"(\w+)\s+(?:район|р-н|муниципальн)", address, re.IGNORECASE)
     if m:
         district = m.group(1)
-        # Для сельских районов ищем по названию района
         return district
-    return "Пермь"
+    return REGION["default_city"]
 
 
 # === Определение типа земли из описания лота ===
@@ -983,7 +1109,10 @@ def main():
         price_fmt = f"{int(parsed['price']):,}".replace(",", " ") if parsed["price"] else "0"
         log.info(f"[{new_count}] {parsed['category']} | {parsed['name'][:60]} | {price_fmt} руб")
 
-        # Лимит на первый запуск (не спамить)
+        # Supabase — пишем ВСЕГДА (даже первый запуск)
+        write_to_supabase(parsed)
+
+        # Лимит на первый запуск (не спамить Telegram/Sheets)
         if first_run and new_count > 10:
             seen[lot_id] = datetime.now().isoformat()
             continue
@@ -1040,6 +1169,10 @@ def main():
 
         append_google_sheets(row)
 
+        # Supabase — обновить рыночную оценку (если есть)
+        if market:
+            write_to_supabase(parsed, market)
+
         seen[lot_id] = datetime.now().isoformat()
 
     save_seen(seen)
@@ -1048,7 +1181,7 @@ def main():
 
     # Heartbeat если ничего нового
     if new_count == 0:
-        send_telegram("Монитор торгов: проверка завершена, новых лотов нет.", TG_CHAT_PERSONAL)
+        send_telegram(f"Монитор торгов ({REGION['name']}): проверка завершена, новых лотов нет.", TG_CHAT_PERSONAL)
 
 
 if __name__ == "__main__":
