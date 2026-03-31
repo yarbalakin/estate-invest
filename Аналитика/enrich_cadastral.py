@@ -43,15 +43,9 @@ NSPD_URL = "https://nspd.gov.ru/api/geoportal/v2/search/geoportal"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/120.0.0.0 Safari/537.36",
+                  "Chrome/131.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
-    "Origin": "https://nspd.gov.ru",
-    "Referer": "https://nspd.gov.ru/map",
-    "sec-ch-ua": '"Chromium";"v="120"',
-    "sec-ch-ua-platform": '"Windows"',
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-origin",
+    "Referer": "https://nspd.gov.ru/map?thematic=PKK",
 }
 sess = requests.Session()
 sess.verify = False
@@ -82,7 +76,6 @@ def fetch_nspd(cad_num: str) -> dict | None:
         return None
 
     try:
-        sess.headers["Referer"] = f"https://nspd.gov.ru/map?search={cad_num}"
         resp = sess.get(NSPD_URL, params={"query": cad_num, "limit": 1}, timeout=15)
 
         if resp.status_code == 403:

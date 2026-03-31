@@ -25,13 +25,9 @@ OUTPUT_FILE = "sold-map.html"
 # НСПД для геокодинга по кадастру
 NSPD_URL = "https://nspd.gov.ru/api/geoportal/v2/search/geoportal"
 NSPD_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     "Accept": "application/json",
-    "Origin": "https://nspd.gov.ru",
-    "Referer": "https://nspd.gov.ru/map",
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-origin",
+    "Referer": "https://nspd.gov.ru/map?thematic=PKK",
 }
 
 # DaData для геокодинга по адресу

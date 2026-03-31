@@ -48,6 +48,9 @@ ADS_API_TOKEN = os.environ.get("ADS_API_TOKEN", "de5f6b208f2348f909fa7c3eb8793d9
 ADS_API_URL = "https://ads-api.ru/main/api"
 ADS_API_DELAY = 5  # секунд между запросами
 
+DADATA_TOKEN = os.environ.get("DADATA_TOKEN", "")
+DADATA_CLEAN_URL = "https://cleaner.dadata.ru/api/v1/clean/address"
+
 # Маппинг property_type → ads-api category_id
 PROPERTY_TYPE_TO_ADS = {
     "apartment": 2,
@@ -573,6 +576,48 @@ def _extract_coords(a: dict) -> tuple:
     return None, None
 
 
+# Кеш геокодинга адресов (в пределах одного запуска)
+_geocode_cache: dict[str, tuple[float, float] | None] = {}
+
+
+def _geocode_address(address: str, city: str) -> tuple[float, float] | None:
+    """Геокодинг адреса через DaData Clean API. Возвращает (lat, lon) или None."""
+    if not DADATA_TOKEN or not address:
+        return None
+
+    full_addr = f"{city}, {address}" if city else address
+    if full_addr in _geocode_cache:
+        return _geocode_cache[full_addr]
+
+    try:
+        resp = requests.post(
+            DADATA_CLEAN_URL,
+            json=[full_addr],
+            headers={
+                "Authorization": f"Token {DADATA_TOKEN}",
+                "Content-Type": "application/json",
+                "X-Secret": os.environ.get("DADATA_SECRET", ""),
+            },
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            _geocode_cache[full_addr] = None
+            return None
+        data = resp.json()
+        if data and isinstance(data, list) and data[0]:
+            lat = data[0].get("geo_lat")
+            lon = data[0].get("geo_lon")
+            if lat and lon:
+                result = (float(lat), float(lon))
+                _geocode_cache[full_addr] = result
+                return result
+    except Exception:
+        pass
+
+    _geocode_cache[full_addr] = None
+    return None
+
+
 def _extract_area_from_analog(a: dict) -> float:
     """Извлечь площадь аналога из params."""
     a_params = a.get("params", {})
@@ -590,7 +635,7 @@ def _extract_area_from_analog(a: dict) -> float:
 # Расчёт рыночной цены
 # ============================================================
 
-def calculate_market_price(analogs: list, lot: dict, prop_type: str) -> dict | None:
+def calculate_market_price(analogs: list, lot: dict, prop_type: str, city: str = "") -> dict | None:
     """Расчёт рыночной цены через аналоги продажи."""
     if not analogs:
         return None
@@ -711,6 +756,17 @@ def calculate_market_price(analogs: list, lot: dict, prop_type: str) -> dict | N
         a_address = a.get("address") or a.get("location") or ""
         a_lat, a_lon = _extract_coords(a)
         dist = a.get("_distance_m")
+
+        # Если нет координат — геокодим по адресу через DaData
+        lot_lat, lot_lon = lot.get("lat"), lot.get("lon")
+        if not a_lat and a_address and DADATA_TOKEN:
+            geocoded = _geocode_address(a_address, city)
+            if geocoded:
+                a_lat, a_lon = geocoded
+                # Пересчитываем расстояние
+                if lot_lat and lot_lon:
+                    dist = int(haversine_m(lot_lat, lot_lon, a_lat, a_lon))
+
         analogs_list.append({
             "price": int(a.get("price", 0)),
             "area": round(a_area, 1),
@@ -918,6 +974,7 @@ def enrich_lot(lot: dict) -> bool:
         return False
 
     ads_category = resolve_ads_category(prop_type, lot)
+    city = extract_city(address)
     log.info(f"  тип: {prop_type} (DB: {lot.get('property_type')}), ads_cat={ads_category}")
 
     # 1. Запрос аналогов продажи
@@ -944,7 +1001,7 @@ def enrich_lot(lot: dict) -> bool:
             )
 
         # Расчёт
-        market_result = calculate_market_price(filtered, lot, prop_type)
+        market_result = calculate_market_price(filtered, lot, prop_type, city=city)
 
     # 2. Для коммерции — дополнительно метод через аренду
     rental_data = None

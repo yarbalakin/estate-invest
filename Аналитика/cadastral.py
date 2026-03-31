@@ -36,15 +36,9 @@ def _get_session() -> requests.Session:
         _session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                           "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/120.0.0.0 Safari/537.36",
+                          "Chrome/131.0.0.0 Safari/537.36",
             "Accept": "application/json, text/plain, */*",
-            "Origin": "https://nspd.gov.ru",
-            "Referer": "https://nspd.gov.ru/map",
-            "sec-ch-ua": '"Chromium";"v="120"',
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
+            "Referer": "https://nspd.gov.ru/map?thematic=PKK",
         })
     return _session
 
@@ -61,10 +55,6 @@ def fetch_nspd(cadastral_number: str) -> dict[str, Any] | None:
 
     try:
         sess = _get_session()
-        # Обновляем Referer с конкретным кад. номером
-        sess.headers["Referer"] = (
-            f"https://nspd.gov.ru/map?search={cadastral_number}"
-        )
         resp = sess.get(
             NSPD_SEARCH_URL,
             params={"query": cadastral_number, "limit": 1},
