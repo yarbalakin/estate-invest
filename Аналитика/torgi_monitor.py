@@ -29,6 +29,7 @@ REGIONS = {
         "name": "Пермский край",
         "dynSubjRF": "28",
         "efrsb_region": "59",
+        "tg_channel": "-1003759471621",
         "default_city": "Пермь",
         "skip_bidd_types": ["Реализация имущества должников"],
         "address_cleanup": [
@@ -45,8 +46,9 @@ REGIONS = {
         "name": "Калининградская область",
         "dynSubjRF": "43",
         "efrsb_region": "39",
+        "tg_channel": "-1003759471621",
         "default_city": "Калининград",
-        "skip_bidd_types": [],  # показываем все типы торгов
+        "skip_bidd_types": [],
         "address_cleanup": [
             (r"^обл\.?\s*Калининградская,?\s*", "Калининградская обл., "),
         ],
@@ -55,6 +57,22 @@ REGIONS = {
             "Светлый", "Гурьевск", "Зеленоградск", "Светлогорск", "Пионерский",
             "Неман", "Мамоново", "Багратионовск", "Полесск", "Правдинск",
             "Гвардейск", "Озёрск", "Славск", "Краснознаменск", "Нестеров",
+        ],
+    },
+    "bryansk": {
+        "name": "Брянская область",
+        "dynSubjRF": "36",
+        "efrsb_region": "32",
+        "tg_channel": "-5200571061",
+        "default_city": "Брянск",
+        "skip_bidd_types": [],
+        "address_cleanup": [
+            (r"^обл\.?\s*Брянская,?\s*", "Брянская обл., "),
+        ],
+        "cities": [
+            "Брянск", "Клинцы", "Новозыбков", "Дятьково", "Унеча",
+            "Стародуб", "Карачев", "Жуковка", "Сельцо", "Фокино",
+            "Почеп", "Трубчевск", "Навля", "Сураж", "Мглин",
         ],
     },
 }
@@ -100,7 +118,7 @@ _ADS_API_KEYS_LOGGED = False  # однократный вывод структу
 # Telegram
 TG_BOT_TOKEN = "8650381430:AAFKGNZbjQmhAd3ogse9gOWs7_2xoypuo-A"
 TG_CHAT_PERSONAL = "191260933"
-TG_CHAT_CHANNEL = "-1003759471621"  # @topparsing
+TG_CHAT_CHANNEL = REGION.get("tg_channel", "-1003759471621")
 
 # Маппинг категорий torgi → ads-api.ru category_id
 # ads-api.ru category_id (числовые)
@@ -289,6 +307,11 @@ def parse_lot(lot):
     lot_name = lot.get("lotName", "") or ""
     lot_desc = lot.get("lotDescription", "") or ""
     combined = lot_name + " " + lot_desc
+
+    # Пропуск прав требования
+    cl = combined.lower()
+    if "прав" in cl and "требован" in cl or "дебиторск" in cl:
+        return None
 
     # Парсинг адреса из описания
     if not address or address == "Российская Федерация" or len(address) < 10:
@@ -1099,6 +1122,9 @@ def main():
 
         # Парсинг
         parsed = parse_lot(lot)
+        if parsed is None:
+            seen[lot_id] = datetime.now().isoformat()
+            continue
 
         # Фильтр: пропускаем арестованное имущество
         if any(skip in parsed["biddType"] for skip in SKIP_BIDD_TYPES):

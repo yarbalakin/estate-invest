@@ -24,8 +24,9 @@ except ImportError:
 
 # === Конфиг регионов ===
 REGIONS = {
-    "perm": {"name": "Пермский край", "efrsb_region": "59"},
-    "kaliningrad": {"name": "Калининградская область", "efrsb_region": "39"},
+    "perm": {"name": "Пермский край", "efrsb_region": "59", "tg_channel": "-1003759471621"},
+    "kaliningrad": {"name": "Калининградская область", "efrsb_region": "39", "tg_channel": "-1003759471621"},
+    "bryansk": {"name": "Брянская область", "efrsb_region": "32", "tg_channel": "-5200571061"},
 }
 
 _parser = argparse.ArgumentParser()
@@ -47,7 +48,7 @@ log.info(f"Region: {REGION['name']} (regionCode={REGION['efrsb_region']})")
 
 SEEN_FILE   = f"/opt/torgi-proxy/efrsb_seen_{REGION_KEY}.json"
 TG_BOT_TOKEN = "8650381430:AAFKGNZbjQmhAd3ogse9gOWs7_2xoypuo-A"
-TG_CHAT_ID  = "-1003759471621"
+TG_CHAT_ID  = REGION.get("tg_channel", "-1003759471621")
 SA_JSON     = "/opt/torgi-proxy/google-sa.json"
 SS_LOTS     = "1Wji_7UYqIRmxbsd1Ob52NutSrKThd3m37fkXDFuBfPk"
 SHEET_NAME  = "ЕФРСБ"

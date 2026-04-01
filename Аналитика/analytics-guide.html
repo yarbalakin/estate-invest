@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Аналитика Estate Invest — Документация</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090b;
+  --surface: #111116;
+  --surface2: #18181f;
+  --border: #27272a;
+  --text: #e4e4ed;
+  --text-muted: #9b9ba8;
+  --accent: #7c6cf0;
+  --accent-dim: #5b4cc4;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --orange: #f97316;
+  --blue: #3b82f6;
+  --sidebar-w: 260px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 24px 16px;
+  z-index: 100;
+}
+
+.sidebar h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.sidebar a {
+  display: block;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.sidebar a.active {
+  border-left: 3px solid var(--accent);
+  padding-left: 9px;
+}
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 40px 48px;
+  max-width: 960px;
+}
+
+.main h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.main .subtitle {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 40px;
+}
+
+section {
+  margin-bottom: 48px;
+}
+
+section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: var(--text);
+}
+
+p, li {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+li { margin-left: 20px; }
+ul { margin-bottom: 16px; }
+
+strong { color: var(--text); font-weight: 600; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 20px;
+  font-size: 13px;
+}
+
+th {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+tr:hover td { background: rgba(124,108,240,0.04); }
+
+/* Score badges */
+.score-green { color: var(--green); font-weight: 600; }
+.score-yellow { color: var(--yellow); font-weight: 600; }
+.score-red { color: var(--red); font-weight: 600; }
+.score-orange { color: var(--orange); font-weight: 600; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-accent { background: rgba(124,108,240,0.15); color: var(--accent); }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+/* Architecture diagram */
+.arch-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0 24px;
+}
+
+.arch-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  min-width: 140px;
+  text-align: center;
+}
+
+.arch-box.source { border-color: var(--blue); }
+.arch-box.parser { border-color: var(--orange); }
+.arch-box.db { border-color: var(--green); }
+.arch-box.enrich { border-color: var(--accent); }
+.arch-box.front { border-color: var(--yellow); }
+
+.arch-box .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.arch-box.source .label { color: var(--blue); }
+.arch-box.parser .label { color: var(--orange); }
+.arch-box.db .label { color: var(--green); }
+.arch-box.enrich .label { color: var(--accent); }
+.arch-box.front .label { color: var(--yellow); }
+
+.arch-box .name { color: var(--text); font-weight: 600; font-size: 13px; }
+.arch-box .detail { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
+
+.arch-arrow {
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Flow rows */
+.arch-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 16px 0 24px;
+}
+.arch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Info box */
+.info-box {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin: 16px 0;
+  font-size: 13px;
+}
+.info-box.warn {
+  border-left-color: var(--yellow);
+}
+
+/* Score table coloring */
+.pts { color: var(--accent); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 200;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .hamburger { display: block; }
+  .main { margin-left: 0; padding: 60px 16px 40px; }
+  table { font-size: 12px; }
+  th, td { padding: 6px 8px; }
+  .arch-row { gap: 6px; }
+  .arch-box { min-width: 100px; padding: 8px 10px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+<nav class="sidebar" id="sidebar">
+  <h2>Estate Invest</h2>
+  <a href="#arch">Архитектура</a>
+  <a href="#sources">Источники данных</a>
+  <a href="#enrichment">Обогащение</a>
+  <a href="#invest-score">invest_score (0-100)</a>
+  <a href="#risk-score">risk_score (0-100)</a>
+  <a href="#liquidity-score">liquidity_score (0-100)</a>
+  <a href="#recommendations">Рекомендации</a>
+  <a href="#confidence">Confidence уровни</a>
+  <a href="#ads-api">ads-api.ru</a>
+  <a href="#statuses">Статусы лотов</a>
+  <a href="#cron">Cron расписание</a>
+  <a href="#resolve-type">Определение типа</a>
+</nav>
+
+<div class="main">
+
+<h1>Аналитика Estate Invest</h1>
+<p class="subtitle">Техническая документация: потоки данных, скоринг, формулы</p>
+
+<!-- 1. Architecture -->
+<section id="arch">
+<h2>1. Архитектура</h2>
+
+<div class="arch-flow">
+  <div class="arch-row">
+    <div class="arch-box source">
+      <div class="label">Источник</div>
+      <div class="name">torgi.gov.ru</div>
+      <div class="detail">Арестованное имущество</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box parser">
+      <div class="label">Парсер</div>
+      <div class="name">torgi_monitor.py</div>
+      <div class="detail">cron */4h</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box db" style="grid-row: span 3;">
+      <div class="label">Хранилище</div>
+      <div class="name">Supabase</div>
+      <div class="detail">properties table</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box enrich">
+      <div class="label">Обогащение 1</div>
+      <div class="name">enrich_cadastral.py</div>
+      <div class="detail">НСПД API</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box enrich">
+      <div class="label">Обогащение 2</div>
+      <div class="name">enrich_market.py</div>
+      <div class="detail">ads-api.ru</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box enrich">
+      <div class="label">Обогащение 3</div>
+      <div class="name">enrich_scoring.py</div>
+      <div class="detail">invest/risk/liquidity</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box front">
+      <div class="label">Фронтенд</div>
+      <div class="name">lots-monitor.html</div>
+      <div class="detail">Карточки, таблица, Яндекс Карты</div>
+    </div>
+  </div>
+
+  <div class="arch-row">
+    <div class="arch-box source">
+      <div class="label">Источник</div>
+      <div class="name">ЕФРСБ</div>
+      <div class="detail">Банкротные торги</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box parser">
+      <div class="label">Парсер</div>
+      <div class="name">efrsb_monitor.py</div>
+      <div class="detail">cron */4h</div>
+    </div>
+    <div class="arch-arrow">&nearr;</div>
+  </div>
+
+  <div class="arch-row">
+    <div class="arch-box source">
+      <div class="label">Источник</div>
+      <div class="name">TBankrot</div>
+      <div class="detail">Агрегатор банкротных торгов</div>
+    </div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-box parser">
+      <div class="label">Парсер</div>
+      <div class="name">tbankrot_scraper.py</div>
+      <div class="detail">По запросу</div>
+    </div>
+    <div class="arch-arrow">&nearr;</div>
+  </div>
+</div>
+
+<div class="info-box">
+  Все скрипты запускаются на VPS (5.42.102.36, Ubuntu 24.04). Данные хранятся в Supabase (PostgreSQL). Цепочка обогащения: cadastral &rarr; market &rarr; scoring.
+</div>
+</section>
+
+<!-- 2. Sources -->
+<section id="sources">
+<h2>2. Источники данных</h2>
+<table>
+  <tr><th>Источник</th><th>Что собирает</th><th>Частота</th><th>Скрипт</th><th>Регионы</th></tr>
+  <tr>
+    <td><strong>torgi.gov.ru</strong></td>
+    <td>Арестованное имущество должников + приватизация гос/мун имущества <span class="badge badge-yellow">НЕ банкротство</span></td>
+    <td>*/4h</td>
+    <td><code>torgi_monitor.py</code></td>
+    <td>Пермский край (dynSubjRF=28), Калининград (43)</td>
+  </tr>
+  <tr>
+    <td><strong>ЕФРСБ</strong></td>
+    <td>Банкротные торги недвижимости</td>
+    <td>*/4h</td>
+    <td><code>efrsb_monitor.py</code></td>
+    <td>Пермский край (region=59), Калининград (39)</td>
+  </tr>
+  <tr>
+    <td><strong>TBankrot</strong></td>
+    <td>Агрегатор банкротных торгов (вторичный)</td>
+    <td>По запросу</td>
+    <td><code>tbankrot_scraper.py</code></td>
+    <td>Пермский край</td>
+  </tr>
+</table>
+
+<div class="info-box warn">
+  <strong>dynSubjRF</strong> на torgi.gov.ru НЕ совпадает с кадастровым кодом региона. Пермский край: dynSubjRF=28, subjectRFCode=59.
+</div>
+
+<h3>Категории torgi.gov.ru (PROD catCodes: 2,3,4,5,7,8,10,11,47)</h3>
+<table>
+  <tr><th>catCode</th><th>Тип</th><th>Примечание</th></tr>
+  <tr><td>2</td><td>Земля</td><td>ИЖС, ЛПХ, сады, аренда</td></tr>
+  <tr><td>7</td><td>Здания + жилье + гаражи</td><td>Квартиры, нежилые, гаражи (арест + приватизация)</td></tr>
+  <tr><td>8</td><td>Здания</td><td>Нежилые: магазины, АЗС, мастерские</td></tr>
+  <tr><td>10</td><td>Гаражи</td><td>Гаражи и боксы</td></tr>
+  <tr><td>11</td><td>Нежилые помещения</td><td>141 лот в Перми</td></tr>
+  <tr><td>47</td><td>Сооружения</td><td>Резерв на будущее</td></tr>
+</table>
+</section>
+
+<!-- 3. Enrichment -->
+<section id="enrichment">
+<h2>3. Обогащение</h2>
+
+<h3>3.1. enrich_cadastral.py — Кадастровые данные</h3>
+<p><strong>Источник:</strong> НСПД API (<code>nspd.gov.ru/api/geoportal/v2/search/geoportal</code>)</p>
+<table>
+  <tr><th>Поле</th><th>Описание</th></tr>
+  <tr><td><code>lat, lon</code></td><td>Координаты объекта</td></tr>
+  <tr><td><code>cadastral_value</code></td><td>Кадастровая стоимость</td></tr>
+  <tr><td><code>cadastral_area</code></td><td>Площадь по кадастру</td></tr>
+  <tr><td><code>cadastral_category</code></td><td>Категория земли</td></tr>
+  <tr><td><code>cadastral_permitted_use</code></td><td>Разрешённое использование</td></tr>
+  <tr><td><code>encumbrance_type</code></td><td>Обременения</td></tr>
+  <tr><td><code>boundary_geojson</code></td><td>Полигон границ (для участков)</td></tr>
+  <tr><td><code>cadastral_price_ratio</code></td><td>Соотношение цена/кадастр</td></tr>
+</table>
+
+<h3>3.2. enrich_market.py — Рыночная оценка</h3>
+<p><strong>Источник:</strong> ads-api.ru (агрегатор: Авито, ЦИАН, Яндекс.Недвижимость, Домклик)</p>
+<p><strong>Алгоритм:</strong></p>
+<ol>
+  <li>Определение <code>property_type</code> через <code>resolve_property_type()</code></li>
+  <li>Запрос аналогов через ads-api.ru по координатам, типу, площади</li>
+  <li>Фильтрация Haversine (по радиусу от объекта)</li>
+  <li>Фильтр площади +-50% (если мало &mdash; повтор без фильтра)</li>
+  <li>Отсев несовместимых категорий</li>
+  <li><strong>IQR очистка выбросов:</strong> Q1 - 1.5*IQR ... Q3 + 1.5*IQR</li>
+  <li>Медиана цен за единицу площади</li>
+  <li><strong>Торговая корректировка x0.9</strong> (листинги завышены на 5-15%)</li>
+</ol>
+
+<h3>Радиусы Haversine (город / село)</h3>
+<table>
+  <tr><th>Тип</th><th>Город</th><th>Село</th></tr>
+  <tr><td>apartment</td><td>1 500 м</td><td>1 500 м</td></tr>
+  <tr><td>commercial</td><td>2 000 м</td><td>2 000 м</td></tr>
+  <tr><td>land</td><td>2 500 м</td><td>10 000 м</td></tr>
+  <tr><td>house</td><td>3 000 м</td><td>5 000 м</td></tr>
+</table>
+
+<h3>Доходный метод (коммерция)</h3>
+<p>Для коммерческой недвижимости дополнительно: медиана аренды (руб/м2/мес) &times; полезная площадь (80%) &times; 12 &times; cap_rate.</p>
+<table>
+  <tr><th>Тип объекта</th><th>cap_rate (лет)</th></tr>
+  <tr><td>Стрит-ритейл / торговое</td><td>8</td></tr>
+  <tr><td>Склад</td><td>6</td></tr>
+  <tr><td>Офис</td><td>12</td></tr>
+  <tr><td>Гараж / бокс</td><td>10</td></tr>
+  <tr><td>По умолчанию</td><td>10</td></tr>
+</table>
+
+<h3>3.3. Кадастровый фаллбек</h3>
+<p>Если аналогов нет: <code>market_price = cadastral_value &times; multiplier</code></p>
+<table>
+  <tr><th>Тип</th><th>Множитель</th></tr>
+  <tr><td>apartment</td><td>1.2</td></tr>
+  <tr><td>house</td><td>1.3</td></tr>
+  <tr><td>land</td><td>1.3</td></tr>
+  <tr><td>commercial</td><td>1.5</td></tr>
+</table>
+</section>
+
+<!-- 4. invest_score -->
+<section id="invest-score">
+<h2>4. invest_score (0-100)</h2>
+<p>Инвестиционная привлекательность. <span class="score-green">Чем выше &mdash; тем лучше.</span></p>
+
+<h3>Дисконт к рынку (0-60 баллов) &mdash; главный фактор</h3>
+<table>
+  <tr><th>Дисконт</th><th>Баллы</th></tr>
+  <tr><td>&ge; 50%</td><td class="pts">60</td></tr>
+  <tr><td>&ge; 40%</td><td class="pts">50</td></tr>
+  <tr><td>&ge; 30%</td><td class="pts">40</td></tr>
+  <tr><td>&ge; 20%</td><td class="pts">28</td></tr>
+  <tr><td>&ge; 10%</td><td class="pts">15</td></tr>
+  <tr><td>&lt; 10%</td><td class="pts">5</td></tr>
+  <tr><td>Нет рыночной оценки</td><td class="pts">5</td></tr>
+</table>
+
+<h3>Качество оценки (0-10 баллов)</h3>
+<table>
+  <tr><th>Условие</th><th>Баллы</th></tr>
+  <tr><td>confidence = "высокая" И аналогов &ge; 10</td><td class="pts">10</td></tr>
+  <tr><td>confidence = "высокая"/"средняя" И аналогов &ge; 3</td><td class="pts">6</td></tr>
+  <tr><td>аналогов &ge; 1</td><td class="pts">3</td></tr>
+  <tr><td>confidence = "кадастр"</td><td class="pts">0</td></tr>
+</table>
+
+<h3>Кадастровое подтверждение (0-10 баллов)</h3>
+<p><code>cadastral_price_ratio = цена_лота / кадастровая_стоимость</code></p>
+<table>
+  <tr><th>Ratio</th><th>Баллы</th><th>Значение</th></tr>
+  <tr><td>&lt; 0.7</td><td class="pts">10</td><td>Значительно ниже кадастровой</td></tr>
+  <tr><td>&lt; 1.0</td><td class="pts">6</td><td>Ниже кадастровой</td></tr>
+  <tr><td>&lt; 1.5</td><td class="pts">3</td><td>Умеренно выше кадастровой</td></tr>
+  <tr><td>&ge; 1.5</td><td class="pts">0</td><td>&mdash;</td></tr>
+</table>
+
+<h3>Тип объекта (0-5 баллов)</h3>
+<table>
+  <tr><th>Тип</th><th>Баллы</th></tr>
+  <tr><td>apartment (квартира)</td><td class="pts">5</td></tr>
+  <tr><td>house / commercial</td><td class="pts">3</td></tr>
+  <tr><td>land (земля)</td><td class="pts">1</td></tr>
+</table>
+
+<h3>Локация (0-5 баллов)</h3>
+<table>
+  <tr><th>Условие</th><th>Баллы</th></tr>
+  <tr><td>Известен район (district)</td><td class="pts">3</td></tr>
+  <tr><td>Есть координаты (lat, lon)</td><td class="pts">2</td></tr>
+</table>
+
+<h3>Тип торгов (0-5 баллов)</h3>
+<table>
+  <tr><th>Тип</th><th>Баллы</th></tr>
+  <tr><td>Реализация имущества должников (арест)</td><td class="pts">5</td></tr>
+  <tr><td>Приватизация</td><td class="pts">3</td></tr>
+  <tr><td>Прочее</td><td class="pts">0</td></tr>
+</table>
+
+<h3>Штраф</h3>
+<table>
+  <tr><th>Условие</th><th>Эффект</th></tr>
+  <tr><td>Цена &lt; 50 000 руб</td><td class="score-red">-15 баллов</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>Максимум:</strong> 100 баллов. Формула: сумма всех компонентов, ограничение 0-100.
+</div>
+</section>
+
+<!-- 5. risk_score -->
+<section id="risk-score">
+<h2>5. risk_score (0-100)</h2>
+<p>Уровень риска. <span class="score-red">Чем выше &mdash; тем рискованнее.</span> Базовый уровень: <strong>20</strong>.</p>
+
+<table>
+  <tr><th>Фактор</th><th>Баллы</th><th>Условие</th></tr>
+  <tr><td>Базовый риск</td><td class="pts">+20</td><td>Всегда</td></tr>
+  <tr><td>Нет координат</td><td class="pts">+15</td><td>lat или lon отсутствуют</td></tr>
+  <tr><td>Нет кадастрового номера</td><td class="pts">+20</td><td>cadastral_number пуст или &lt; 5 символов</td></tr>
+  <tr><td>Нет рыночной оценки</td><td class="pts">+20</td><td>market_price = null</td></tr>
+  <tr><td>Мало аналогов</td><td class="pts">+10</td><td>analogs_count &lt; 3 (при наличии market_price)</td></tr>
+  <tr><td>Очень низкая цена</td><td class="pts">+25</td><td>0 &lt; price &lt; 50 000 руб</td></tr>
+  <tr><td>Обременения</td><td class="pts">+15</td><td>has_encumbrances = true</td></tr>
+  <tr><td>Долевая собственность</td><td class="pts">+10</td><td>encumbrance_type содержит "долевая"/"общедолевая"</td></tr>
+  <tr><td>Доля в праве</td><td class="pts">+15</td><td>name содержит "доля" или "доли"</td></tr>
+  <tr><td>Земля без района</td><td class="pts">+10</td><td>property_type = "land" И district пуст</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>Формула:</strong> 20 + сумма применимых факторов, ограничение 0-100.
+</div>
+</section>
+
+<!-- 6. liquidity_score -->
+<section id="liquidity-score">
+<h2>6. liquidity_score (0-100)</h2>
+<p>Скорость перепродажи. <span class="score-green">Чем выше &mdash; тем быстрее продастся.</span> Базовый уровень: <strong>30</strong>.</p>
+
+<h3>Тип объекта (0-30 баллов)</h3>
+<table>
+  <tr><th>Тип</th><th>Баллы</th></tr>
+  <tr><td>apartment</td><td class="pts">+30</td></tr>
+  <tr><td>house</td><td class="pts">+15</td></tr>
+  <tr><td>commercial</td><td class="pts">+10</td></tr>
+  <tr><td>land</td><td class="pts">+5</td></tr>
+</table>
+
+<h3>Площадь квартиры (0-15 баллов, только apartment)</h3>
+<table>
+  <tr><th>Площадь</th><th>Баллы</th></tr>
+  <tr><td>25-90 м2</td><td class="pts">+15</td></tr>
+  <tr><td>91-150 м2</td><td class="pts">+8</td></tr>
+  <tr><td>&gt; 150 м2</td><td class="pts">+3</td></tr>
+  <tr><td>&lt; 25 м2</td><td class="pts">+5</td></tr>
+</table>
+
+<h3>Ценовой сегмент (0-15 баллов)</h3>
+<table>
+  <tr><th>Цена</th><th>Баллы</th></tr>
+  <tr><td>&le; 2 000 000 руб</td><td class="pts">+15</td></tr>
+  <tr><td>&le; 5 000 000 руб</td><td class="pts">+10</td></tr>
+  <tr><td>&le; 10 000 000 руб</td><td class="pts">+5</td></tr>
+  <tr><td>&gt; 10 000 000 руб</td><td class="pts">0</td></tr>
+</table>
+
+<h3>Локация и штрафы</h3>
+<table>
+  <tr><th>Условие</th><th>Эффект</th></tr>
+  <tr><td>Известен район</td><td class="pts">+10</td></tr>
+  <tr><td>Доля в праве ("доля"/"доли" в name)</td><td class="score-red">-20</td></tr>
+</table>
+
+<div class="info-box">
+  <strong>Формула:</strong> 30 + сумма компонентов - штрафы, ограничение 0-100.
+</div>
+</section>
+
+<!-- 7. Recommendations -->
+<section id="recommendations">
+<h2>7. Рекомендации</h2>
+<p>Текстовая рекомендация на основе трёх оценок (<code>make_recommendation</code>):</p>
+
+<table>
+  <tr><th>Условие</th><th>Рекомендация</th></tr>
+  <tr><td>Нет market_price</td><td><span class="badge badge-yellow">Нет рыночной оценки &mdash; требует ручной проверки</span></td></tr>
+  <tr><td>invest &ge; 65, risk &le; 35</td><td><span class="badge badge-green">Отличная сделка &mdash; высокий дисконт, низкий риск</span></td></tr>
+  <tr><td>invest &ge; 65, risk &le; 55</td><td><span class="badge badge-green">Хороший вариант &mdash; проверить документы</span></td></tr>
+  <tr><td>invest &ge; 50, risk &le; 45</td><td><span class="badge badge-blue">Интересный объект &mdash; стоит изучить</span></td></tr>
+  <tr><td>risk &ge; 65</td><td><span class="badge badge-red">Высокий риск &mdash; требует тщательной проверки</span></td></tr>
+  <tr><td>invest &lt; 30 ИЛИ discount &lt; 10</td><td><span class="badge badge-red">Слабый дисконт &mdash; не рекомендуется</span></td></tr>
+  <tr><td>Прочее</td><td><span class="badge badge-yellow">Средний вариант &mdash; анализировать дополнительно</span></td></tr>
+</table>
+
+<h3>Финансовые оценки</h3>
+<table>
+  <tr><th>Метрика</th><th>Формула</th></tr>
+  <tr><td><code>estimated_profit</code></td><td>market_price - price - (market_price &times; 0.12)</td></tr>
+  <tr><td><code>estimated_roi</code></td><td>estimated_profit / price &times; 100%</td></tr>
+  <tr><td colspan="2">Транзакционные расходы 12% = налог (13%) + регистрация + агент</td></tr>
+</table>
+
+<h3>Срок продажи (estimated_sell_time)</h3>
+<table>
+  <tr><th>Тип</th><th>&le; X млн</th><th>Месяцев</th><th>&gt; X млн</th><th>Месяцев</th></tr>
+  <tr><td>apartment</td><td>&le; 3</td><td>2</td><td>&le; 6: 4, &le; 12: 6, &gt; 12</td><td>10</td></tr>
+  <tr><td>house</td><td>&le; 5</td><td>6</td><td>&gt; 5</td><td>12</td></tr>
+  <tr><td>commercial</td><td>&le; 5</td><td>6</td><td>&gt; 5</td><td>18</td></tr>
+  <tr><td>land</td><td>&le; 2</td><td>12</td><td>&gt; 2</td><td>24</td></tr>
+  <tr><td>прочее</td><td>&mdash;</td><td>12</td><td>&mdash;</td><td>12</td></tr>
+</table>
+</section>
+
+<!-- 8. Confidence -->
+<section id="confidence">
+<h2>8. Уровни confidence</h2>
+<p>Оценка надёжности рыночной цены:</p>
+<table>
+  <tr><th>Уровень</th><th>Условие</th><th>Значение</th></tr>
+  <tr>
+    <td><span class="badge badge-green">высокая</span></td>
+    <td>&ge; 10 аналогов И радиус &lt; 2 км</td>
+    <td>Много близких аналогов, оценка надёжная</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-blue">средняя</span></td>
+    <td>&ge; 3 аналогов</td>
+    <td>Достаточно аналогов для оценки</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-yellow">низкая</span></td>
+    <td>&lt; 3 аналогов (минимум 2)</td>
+    <td>Мало данных, оценка приблизительная</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-red">кадастр</span></td>
+    <td>0 аналогов, кадастровый фаллбек</td>
+    <td>cadastral_value &times; multiplier, ненадёжно</td>
+  </tr>
+</table>
+</section>
+
+<!-- 9. ads-api -->
+<section id="ads-api">
+<h2>9. ads-api.ru</h2>
+<p><strong>Что это:</strong> Платный API-агрегатор объявлений о продаже/аренде недвижимости в России.</p>
+
+<h3>Источники данных</h3>
+<ul>
+  <li>Авито</li>
+  <li>ЦИАН</li>
+  <li>Яндекс.Недвижимость</li>
+  <li>Домклик</li>
+</ul>
+
+<h3>Ограничения</h3>
+<div class="info-box warn">
+  <ul style="margin:0">
+    <li>Это <strong>листинговые цены</strong> (цены предложения), НЕ цены реальных сделок</li>
+    <li>Объявления могут быть уже проданными, но ещё не снятыми с публикации</li>
+    <li>Продавцы часто завышают цены &mdash; поэтому торговая корректировка <strong>&times;0.9</strong></li>
+    <li>Задержка: 5 секунд между запросами</li>
+  </ul>
+</div>
+
+<h3>Фильтрация аналогов</h3>
+<ol>
+  <li>По радиусу (Haversine distance от объекта)</li>
+  <li>По площади &plusmn;50%</li>
+  <li>По типу объекта (исключение несовместимых категорий)</li>
+  <li>IQR-очистка выбросов (Q1 - 1.5*IQR ... Q3 + 1.5*IQR)</li>
+  <li>Медиана оставшихся цен за единицу площади</li>
+</ol>
+</section>
+
+<!-- 10. Statuses -->
+<section id="statuses">
+<h2>10. Статусы лотов</h2>
+<p>Ручная разметка пользователем в lots-monitor.html. Сохраняются в Supabase (<code>lot_status</code>).</p>
+<table>
+  <tr><th>Статус</th><th>Значение</th><th>Визуализация</th></tr>
+  <tr><td><code>null</code></td><td>Не размечен</td><td>Обычный вид</td></tr>
+  <tr><td><span class="badge badge-red">skip</span></td><td>Не интересно</td><td>Полупрозрачный (opacity 0.4)</td></tr>
+  <tr><td><span class="badge badge-yellow">watch</span></td><td>Интересно, наблюдаем</td><td>Выделен</td></tr>
+  <tr><td><span class="badge badge-green">go</span></td><td>Заходим, покупаем</td><td>Выделен</td></tr>
+</table>
+</section>
+
+<!-- 11. Cron -->
+<section id="cron">
+<h2>11. Cron расписание</h2>
+<p>VPS (5.42.102.36), каждые 4 часа:</p>
+<table>
+  <tr><th>Время</th><th>Скрипт</th><th>Назначение</th></tr>
+  <tr><td><code>0 */4 * * *</code></td><td><code>torgi_monitor.py --region perm</code></td><td>Парсинг torgi.gov.ru</td></tr>
+  <tr><td><code>0 */4 * * *</code></td><td><code>efrsb_monitor.py --region perm</code></td><td>Парсинг ЕФРСБ</td></tr>
+  <tr><td>После парсинга</td><td>enrich_cadastral &rarr; enrich_market &rarr; enrich_scoring</td><td>Цепочка обогащения</td></tr>
+</table>
+<p>Каждый скрипт обрабатывает только лоты без соответствующих данных (resume-поддержка).</p>
+</section>
+
+<!-- 12. Resolve type -->
+<section id="resolve-type">
+<h2>12. Определение типа объекта</h2>
+<p><code>resolve_property_type()</code> &mdash; приоритетная логика:</p>
+
+<h3>Приоритет 1: Название лота (name)</h3>
+<table>
+  <tr><th>Ключевые слова</th><th>Результат</th></tr>
+  <tr><td>"нежил"</td><td>commercial</td></tr>
+  <tr><td>"жилой дом", "коттедж", "дача"</td><td>house</td></tr>
+  <tr><td>"квартир", "комнат" (без "многоквартирн")</td><td>apartment</td></tr>
+  <tr><td>"помещен", "здани", "склад", "офис", "магазин"</td><td>commercial</td></tr>
+  <tr><td>"земельн", "участ", "з/у"</td><td>land</td></tr>
+  <tr><td>"гараж", "бокс"</td><td>commercial</td></tr>
+</table>
+
+<h3>Приоритет 2: name + category (общий текст)</h3>
+<p>Те же правила, но по объединённому тексту названия и категории.</p>
+
+<h3>Приоритет 3: property_type из БД</h3>
+<p>Фаллбек на сохранённое значение. По умолчанию: <code>commercial</code>.</p>
+
+<div class="info-box warn">
+  Объекты с "права требования" или "дебиторская" &mdash; пропускаются (return None).
+</div>
+</section>
+
+</div>
+
+<script>
+// Sidebar active state
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.sidebar a');
+
+function updateActive() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  links.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}
+
+window.addEventListener('scroll', updateActive);
+updateActive();
+
+// Close sidebar on mobile after click
+links.forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      document.querySelector('.sidebar').classList.remove('open');
+    }
+  });
+});
+</script>
+</body>
+</html>

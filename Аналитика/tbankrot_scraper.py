@@ -34,8 +34,15 @@ from bs4 import BeautifulSoup
 
 BASE_URL = "https://tbankrot.ru"
 
-# Пермский край (region=51), Недвижимость (apId=2, parent_cat=2)
-LISTING_URL = BASE_URL + "/?page={page}&region[]=51&apId=2&parent_cat[]=2"
+TBANKROT_REGIONS = {
+    "perm": {"name": "Пермский край", "region_id": "51", "tg_channel": "-1003759471621"},
+    "kaliningrad": {"name": "Калининградская область", "region_id": "21", "tg_channel": "-1003759471621"},
+    "bryansk": {"name": "Брянская область", "region_id": "9", "tg_channel": "-5200571061"},
+}
+
+# По умолчанию Пермь, переопределяется через --region
+_REGION_KEY = "perm"
+LISTING_URL = BASE_URL + "/?page={page}&region[]={region_id}&apId=2&parent_cat[]=2"
 
 GSHEETS_ID = "1Wji_7UYqIRmxbsd1Ob52NutSrKThd3m37fkXDFuBfPk"
 GOOGLE_SA_JSON = "/opt/torgi-proxy/google-sa.json"
@@ -784,7 +791,8 @@ def sync_new_lots_to_sheets(new_lots):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="TBankrot scraper (Пермь)")
+    ap = argparse.ArgumentParser(description="TBankrot scraper")
+    ap.add_argument("--region", default="perm", choices=TBANKROT_REGIONS.keys())
     ap.add_argument("--detail", action="store_true")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--no-compare", action="store_true")
@@ -792,6 +800,13 @@ def main():
                     help="Автоматически добавлять новые лоты в Sheets (для cron)")
     ap.add_argument("--output-dir", type=str, default=".")
     args = ap.parse_args()
+
+    global _REGION_KEY, LISTING_URL, TG_CHANNEL_ID
+    _REGION_KEY = args.region
+    region_cfg = TBANKROT_REGIONS[_REGION_KEY]
+    LISTING_URL = BASE_URL + f"/?page={{page}}&region[]={region_cfg['region_id']}&apId=2&parent_cat[]=2"
+    TG_CHANNEL_ID = region_cfg.get("tg_channel", TG_CHANNEL_ID)
+    log.info(f"Region: {region_cfg['name']} (tbankrot region_id={region_cfg['region_id']})")
 
     today = datetime.now().strftime("%Y-%m-%d")
     log.info(f"=== TBankrot Scraper — {today} ===")

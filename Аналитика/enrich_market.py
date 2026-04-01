@@ -26,6 +26,7 @@ import requests
 # === CLI ===
 _parser = argparse.ArgumentParser(description="Батч-обогащение рыночной ценой")
 _parser.add_argument("--limit", type=int, default=0, help="Макс. кол-во лотов (0 = все)")
+_parser.add_argument("--force", action="store_true", help="Переобогатить ВСЕ лоты, даже с market_price")
 _parser.add_argument("--type", dest="prop_type", default="",
                      choices=["", "apartment", "land", "commercial", "house"],
                      help="Фильтр по property_type")
@@ -227,8 +228,8 @@ def _get_supabase():
     return _sb_client
 
 
-def fetch_lots_to_enrich(prop_type: str = "", limit: int = 0) -> list:
-    """Загрузить лоты из Supabase WHERE market_price IS NULL."""
+def fetch_lots_to_enrich(prop_type: str = "", limit: int = 0, force: bool = False) -> list:
+    """Загрузить лоты из Supabase. force=True — все, иначе WHERE market_price IS NULL."""
     sb = _get_supabase()
     if not sb:
         return []
@@ -236,26 +237,37 @@ def fetch_lots_to_enrich(prop_type: str = "", limit: int = 0) -> list:
     query = sb.table("properties").select(
         "id, lot_id, name, category, property_type, address, area, area_unit, "
         "price, lat, lon, cadastral_number, cadastral_value, district"
-    ).is_("market_price", "null")
+    )
+
+    if not force:
+        query = query.is_("market_price", "null")
 
     if prop_type:
         query = query.eq("property_type", prop_type)
 
     # Supabase ограничивает 1000 строк по умолчанию; загрузим пакетами
-    if limit > 0:
-        query = query.limit(limit)
-    else:
-        query = query.limit(1000)
+    all_lots = []
+    page_size = 1000
+    offset = 0
+    target = limit if limit > 0 else 999999
 
-    try:
-        resp = query.execute()
-        lots = resp.data or []
-        log.info(f"Загружено {len(lots)} лотов для обогащения"
-                 + (f" (type={prop_type})" if prop_type else ""))
-        return lots
-    except Exception as e:
-        log.error(f"Supabase fetch error: {e}")
-        return []
+    while len(all_lots) < target:
+        batch_size = min(page_size, target - len(all_lots))
+        try:
+            resp = query.range(offset, offset + batch_size - 1).execute()
+            batch = resp.data or []
+            all_lots.extend(batch)
+            if len(batch) < batch_size:
+                break
+            offset += batch_size
+        except Exception as e:
+            log.error(f"Supabase fetch error: {e}")
+            break
+
+    log.info(f"Загружено {len(all_lots)} лотов для обогащения"
+             + (f" (type={prop_type})" if prop_type else "")
+             + (" [FORCE]" if force else ""))
+    return all_lots
 
 
 def update_lot_market(lot_id: str, data: dict) -> bool:
@@ -329,7 +341,7 @@ def fetch_analogs(lot: dict, ads_category: int, prop_type: str) -> list | None:
     else:
         area_value = int(area) if area > 0 else 0
 
-    date_from = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+    date_from = (datetime.now() - timedelta(days=180)).strftime("%Y-%m-%d")
 
     log.info(f"  ads-api: г.{city}, cat={ads_category}, area={area_value}")
 
@@ -403,7 +415,7 @@ def fetch_rental_analogs(lot: dict) -> list | None:
         "is_actual": "11,1",
         "limit": "100",
         "sort": "desc",
-        "date1": (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d"),
+        "date1": (datetime.now() - timedelta(days=180)).strftime("%Y-%m-%d"),
     }
     if area_value > 0:
         params["param[4920]"] = str(area_value)
@@ -658,6 +670,25 @@ def calculate_market_price(analogs: list, lot: dict, prop_type: str, city: str =
     else:
         lot_area_cmp = area
 
+    # Фильтр типа: отсеиваем аналоги несовместимой категории
+    # ads-api category_id: 2=Квартиры, 4=Дома, 5=Земля, 6=Гаражи, 7=Коммерция
+    _REJECT_CATS = {
+        "land": {2, 7},         # земля: не квартиры и не коммерция
+        "apartment": {5, 7},    # квартиры: не земля и не коммерция
+    }
+    reject_set = _REJECT_CATS.get(prop_type, set())
+    if reject_set:
+        before = len(analogs)
+        analogs = [
+            a for a in analogs
+            if int(a.get("category_id") or 0) not in reject_set
+        ]
+        if len(analogs) != before:
+            log.info(f"  фильтр типа: {before} → {len(analogs)} (отсеяны несовместимые категории)")
+        if not analogs:
+            log.info("  оценка: все аналоги отсеяны фильтром типа")
+            return None
+
     # Собираем цены за единицу с фильтром площади +-50%
     unit_prices = []
     valid_analogs = []
@@ -767,6 +798,13 @@ def calculate_market_price(analogs: list, lot: dict, prop_type: str, city: str =
                 if lot_lat and lot_lon:
                     dist = int(haversine_m(lot_lat, lot_lon, a_lat, a_lon))
 
+        # Дата и актуальность
+        a_date = a.get("time_source_updated") or a.get("time_source_created") or a.get("time") or ""
+        if a_date and " " in a_date:
+            a_date = a_date.split(" ")[0]  # только YYYY-MM-DD
+        is_actual = a.get("is_actual")
+        a_source = a.get("source") or ""
+
         analogs_list.append({
             "price": int(a.get("price", 0)),
             "area": round(a_area, 1),
@@ -776,6 +814,9 @@ def calculate_market_price(analogs: list, lot: dict, prop_type: str, city: str =
             "url": a_url,
             "lat": float(a_lat) if a_lat else None,
             "lon": float(a_lon) if a_lon else None,
+            "date": a_date,
+            "is_actual": is_actual == 11 or is_actual == "11",
+            "source": a_source,
         })
 
     return {
@@ -874,7 +915,7 @@ def cadastral_fallback(lot: dict, prop_type: str) -> dict | None:
         "market_price": round(market_price, 2),
         "market_price_per_unit": round(market_per_unit, 2),
         "discount": round(discount, 1),
-        "confidence": "низкая",
+        "confidence": "кадастр",
         "analogs_count": 0,
         "analogs_median_price": None,
         "analogs_min_price": None,
@@ -909,18 +950,26 @@ def resolve_property_type(lot: dict) -> str | None:
         return "commercial"
     if any(w in name for w in ("жилой дом", "коттедж", "дача", "дом,")):
         return "house"
-    if any(w in name for w in ("квартир", "комнат")):
+    if any(w in name for w in ("квартир", "комнат")) and "многоквартирн" not in name:
         return "apartment"
-    if any(w in name for w in ("помещен", "здани")):
+    if any(w in name for w in ("помещен", "здани", "сооружен", "склад", "офис", "магазин")):
+        return "commercial"
+    if any(w in name for w in ("земельн", "участ", "з/у")):
+        return "land"
+    if any(w in name for w in ("гараж", "бокс")):
         return "commercial"
 
     # Приоритет 2: по общему тексту (name + category)
+    if any(w in text for w in ("нежил",)):
+        return "commercial"
+    if any(w in text for w in ("жилой дом", "коттедж", "дача")):
+        return "house"
+    if any(w in text for w in ("квартир", "комнат", "жилое помещение", "жилых")) and "многоквартирн" not in text:
+        return "apartment"
+    if any(w in text for w in ("помещен", "здани", "сооружен", "склад", "офис", "магазин", "торгов")):
+        return "commercial"
     if any(w in text for w in ("земельн", "участ", "участок", "з/у")):
         return "land"
-    if any(w in text for w in ("квартир", "комнат", "жилое помещение", "жилых")):
-        return "apartment"
-    if any(w in text for w in ("нежил", "здани", "помещен", "сооружен", "склад", "офис", "магазин", "торгов")):
-        return "commercial"
     if any(w in text for w in ("дом ", "жилой дом", "коттедж", "дача")):
         return "house"
     if "гараж" in text or "бокс" in text:
@@ -1058,7 +1107,7 @@ def enrich_lot(lot: dict) -> bool:
             else:
                 # Если были аналоги но мало — оставляем аналоги, меняем source
                 market_result["analogs_source"] = "cadastral-fallback"
-                market_result["confidence"] = "низкая"
+                market_result["confidence"] = "кадастр"
 
     if not market_result:
         log.warning(f"  НЕТ ОЦЕНКИ: нет аналогов и нет кадастровой стоимости")
@@ -1099,7 +1148,7 @@ def enrich_lot(lot: dict) -> bool:
 
 def main():
     log.info("=== enrich_market.py START ===")
-    lots = fetch_lots_to_enrich(prop_type=_args.prop_type, limit=_args.limit)
+    lots = fetch_lots_to_enrich(prop_type=_args.prop_type, limit=_args.limit, force=_args.force)
     if not lots:
         log.info("Нечего обогащать")
         return

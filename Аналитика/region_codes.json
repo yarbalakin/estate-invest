@@ -1,0 +1,169 @@
+{
+  "_comment": "Коды регионов для парсеров Estate Invest. dynSubjRF → torgi.gov.ru, efrsb → fedresurs.ru (=subjectRFCode), tbankrot → tbankrot.ru",
+  "_mapping_torgi": "dynSubjRF → subjectRFCode: 1→01, 2→04, 3→02, 4→03, 5→05, 6→06, 7→07, 8→08, 9→09, 10→10, 11→11, 12→91, 13→12, 14→13, 15→14, 16→15, 17→16, 18→17, 19→18, 20→19, 21→20, 22→21, 23→22, 24→75, 25→41, 26→23, 27→24, 28→59, 29→25, 30→26, 31→27, 32→28, 33→29, 34→30, 35→31, 36→32, 37→33, 38→34, 39→35, 40→36, 41→37, 42→38, 43→39, 44→40, 45→42, 46→43, 47→44, 48→45, 49→46, 50→47, 51→48, 52→49, 53→50, 54→51, 55→52, 56→53, 57→54, 58→55, 59→56, 60→57, 61→58, 62→60, 63→61, 64→62, 65→63, 66→64, 67→65, 68→66, 69→67, 70→68, 71→69, 72→70, 73→71, 74→72, 75→73, 76→74, 77→76, 78→77, 79→78, 80→92, 81→79, 82→83, 83→86, 84→87, 85→89",
+  "regions": {
+    "perm": {
+      "name": "Пермский край",
+      "subjectRFCode": "59",
+      "torgi_dynSubjRF": "28",
+      "efrsb_regionCode": "59",
+      "tbankrot_regionId": "51",
+      "default_city": "Пермь",
+      "cities": ["Пермь", "Краснокамск", "Березники", "Соликамск", "Чайковский", "Лысьва", "Кунгур", "Чусовой", "Добрянка", "Чернушка", "Оса", "Верещагино", "Нытва", "Губаха"]
+    },
+    "kaliningrad": {
+      "name": "Калининградская область",
+      "subjectRFCode": "39",
+      "torgi_dynSubjRF": "43",
+      "efrsb_regionCode": "39",
+      "tbankrot_regionId": "21",
+      "default_city": "Калининград",
+      "cities": ["Калининград", "Советск", "Черняховск", "Балтийск", "Гусев", "Светлый", "Гурьевск", "Зеленоградск", "Светлогорск"]
+    },
+    "bryansk": {
+      "name": "Брянская область",
+      "subjectRFCode": "32",
+      "torgi_dynSubjRF": "36",
+      "efrsb_regionCode": "32",
+      "tbankrot_regionId": "9",
+      "default_city": "Брянск",
+      "cities": ["Брянск", "Клинцы", "Новозыбков", "Дятьково", "Унеча", "Стародуб", "Карачев", "Жуковка", "Сельцо", "Фокино"]
+    },
+    "moscow": {
+      "name": "Москва",
+      "subjectRFCode": "77",
+      "torgi_dynSubjRF": "78",
+      "efrsb_regionCode": "77",
+      "tbankrot_regionId": "42",
+      "default_city": "Москва"
+    },
+    "moscow_obl": {
+      "name": "Московская область",
+      "subjectRFCode": "50",
+      "torgi_dynSubjRF": "53",
+      "efrsb_regionCode": "50",
+      "tbankrot_regionId": "43",
+      "default_city": "Красногорск"
+    },
+    "spb": {
+      "name": "Санкт-Петербург",
+      "subjectRFCode": "78",
+      "torgi_dynSubjRF": "79",
+      "efrsb_regionCode": "78",
+      "tbankrot_regionId": "58",
+      "default_city": "Санкт-Петербург"
+    },
+    "leningrad_obl": {
+      "name": "Ленинградская область",
+      "subjectRFCode": "47",
+      "torgi_dynSubjRF": "50",
+      "efrsb_regionCode": "47",
+      "tbankrot_regionId": "35",
+      "default_city": "Гатчина"
+    },
+    "sverdlovsk": {
+      "name": "Свердловская область",
+      "subjectRFCode": "66",
+      "torgi_dynSubjRF": "68",
+      "efrsb_regionCode": "66",
+      "tbankrot_regionId": "61",
+      "default_city": "Екатеринбург"
+    },
+    "krasnodar": {
+      "name": "Краснодарский край",
+      "subjectRFCode": "23",
+      "torgi_dynSubjRF": "26",
+      "efrsb_regionCode": "23",
+      "tbankrot_regionId": "31",
+      "default_city": "Краснодар"
+    },
+    "samara": {
+      "name": "Самарская область",
+      "subjectRFCode": "63",
+      "torgi_dynSubjRF": "65",
+      "efrsb_regionCode": "63",
+      "tbankrot_regionId": "57",
+      "default_city": "Самара"
+    },
+    "novosibirsk": {
+      "name": "Новосибирская область",
+      "subjectRFCode": "54",
+      "torgi_dynSubjRF": "57",
+      "efrsb_regionCode": "54",
+      "tbankrot_regionId": "46",
+      "default_city": "Новосибирск"
+    },
+    "nizhny_novgorod": {
+      "name": "Нижегородская область",
+      "subjectRFCode": "52",
+      "torgi_dynSubjRF": "55",
+      "efrsb_regionCode": "52",
+      "tbankrot_regionId": "44",
+      "default_city": "Нижний Новгород"
+    },
+    "chelyabinsk": {
+      "name": "Челябинская область",
+      "subjectRFCode": "74",
+      "torgi_dynSubjRF": "76",
+      "efrsb_regionCode": "74",
+      "tbankrot_regionId": "77",
+      "default_city": "Челябинск"
+    },
+    "tatarstan": {
+      "name": "Республика Татарстан",
+      "subjectRFCode": "16",
+      "torgi_dynSubjRF": "17",
+      "efrsb_regionCode": "16",
+      "tbankrot_regionId": "66",
+      "default_city": "Казань"
+    },
+    "bashkortostan": {
+      "name": "Республика Башкортостан",
+      "subjectRFCode": "02",
+      "torgi_dynSubjRF": "3",
+      "efrsb_regionCode": "02",
+      "tbankrot_regionId": "7",
+      "default_city": "Уфа"
+    },
+    "rostov": {
+      "name": "Ростовская область",
+      "subjectRFCode": "61",
+      "torgi_dynSubjRF": "63",
+      "efrsb_regionCode": "61",
+      "tbankrot_regionId": "55",
+      "default_city": "Ростов-на-Дону"
+    },
+    "voronezh": {
+      "name": "Воронежская область",
+      "subjectRFCode": "36",
+      "torgi_dynSubjRF": "40",
+      "efrsb_regionCode": "36",
+      "tbankrot_regionId": "14",
+      "default_city": "Воронеж"
+    },
+    "orenburg": {
+      "name": "Оренбургская область",
+      "subjectRFCode": "56",
+      "torgi_dynSubjRF": "59",
+      "efrsb_regionCode": "56",
+      "tbankrot_regionId": "48",
+      "default_city": "Оренбург"
+    },
+    "udmurtia": {
+      "name": "Удмуртская Республика",
+      "subjectRFCode": "18",
+      "torgi_dynSubjRF": "19",
+      "efrsb_regionCode": "18",
+      "tbankrot_regionId": "71",
+      "default_city": "Ижевск"
+    },
+    "tyumen": {
+      "name": "Тюменская область",
+      "subjectRFCode": "72",
+      "torgi_dynSubjRF": "74",
+      "efrsb_regionCode": "72",
+      "tbankrot_regionId": "69",
+      "default_city": "Тюмень"
+    }
+  }
+}

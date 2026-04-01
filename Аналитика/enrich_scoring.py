@@ -64,7 +64,9 @@ def calc_invest_score(lot: dict) -> int:
     # --- Качество оценки (10 очков) ---
     confidence = lot.get("confidence", "")
     analogs = lot.get("analogs_count") or 0
-    if confidence == "высокая" and analogs >= 10:
+    if confidence == "кадастр":
+        score += 0  # кадастровый фаллбек — нет реальных аналогов
+    elif confidence == "высокая" and analogs >= 10:
         score += 10
     elif confidence in ("высокая", "средняя") and analogs >= 3:
         score += 6
