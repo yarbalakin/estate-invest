@@ -637,6 +637,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // State
 let allLots = [], filteredLots = [];
+window._allLots = allLots; // for deep analysis callback
 let currentView = 'grid';
 let tableSortCol = 'date_added', tableSortDir = 'desc';
 
@@ -704,7 +705,7 @@ async function preloadBoundaries() {
 async function loadData() {
   showLoading();
   try {
-    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,land_use_type,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,created_at,updated_at';
+    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,land_use_type,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,ai_recommendation,created_at,updated_at';
     const PAGE = 1000;
     const query = () => db.from('properties').select(COLS).order('date_added', { ascending: false });
     const [r1, r2] = await Promise.all([
@@ -714,6 +715,7 @@ async function loadData() {
     ]);
     if (r1.error) throw r1.error;
     allLots = [...(r1.data || []), ...(r2.data || [])];
+    window._allLots = allLots;
     updateHeaderStats();
     populateDistrictFilter();
     document.getElementById('filter-score').value = '40';
@@ -1174,15 +1176,18 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // ============================================================
 // Modal
 // ============================================================
-function openModal(lotId) {
-  const lot = allLots.find(l => l.lot_id === lotId);
-  if (!lot) return;
+function showModal(lot) {
   destroyModalMap();
+  window._currentModalLot = lot;
   document.getElementById('modal-content').innerHTML = renderModalContent(lot);
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  // Инициализируем карту в модале асинхронно
   requestAnimationFrame(() => initModalMap(lot));
+}
+function openModal(lotId) {
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (!lot) return;
+  showModal(lot);
 }
 
 function closeModal(e) {
@@ -1307,7 +1312,7 @@ function renderModalContent(lot) {
       ${lot.cadastral_number ? `<a href="https://pkk.rosreestr.ru/#text=${encodeURIComponent(lot.cadastral_number)}&type=5" target="_blank" class="link-btn">ПКК Росреестра ↗</a>` : ''}
       ${lot.cadastral_number ? `<a href="https://nspd.gov.ru/map?search=${encodeURIComponent(lot.cadastral_number)}" target="_blank" class="link-btn">НСПД ↗</a>` : ''}
       ${lot.address ? `<a href="https://yandex.ru/maps/?text=${encodeURIComponent(lot.address_std||lot.address)}" target="_blank" class="link-btn">Яндекс Карты ↗</a>` : ''}
-      ${lot.source === 'tbankrot' && !lot.encumbrances ? `<button class="link-btn deep-analysis" onclick="deepAnalysis('${lot.lot_id}')" style="background:#7c3aed;color:#fff;border:none;cursor:pointer">Глубокий анализ</button>` : ''}
+      ${lot.source === 'tbankrot' ? `<button class="link-btn deep-analysis" onclick="deepAnalysis('${lot.lot_id}')" style="background:#7c3aed;color:#fff;border:none;cursor:pointer">${lot.photos?.length ? 'Обновить анализ' : 'Глубокий анализ'}</button>` : ''}
     </div>
   </div>`;
 
@@ -1343,6 +1348,44 @@ function renderModalContent(lot) {
       ${lot.cadastral_price_ratio ? detailRow('Кад./рынок', (lot.cadastral_price_ratio*100).toFixed(0)+'%'):''}
       ${lot.encumbrance_type ? detailRow('Тип собственности', escHtml(lot.encumbrance_type)):''}
     </div>${renderEncumbrances(lot)}</div>`;
+  }
+
+  // Фото (из глубокого анализа)
+  if (lot.photos?.length) {
+    const pid = 'gallery-' + lot.lot_id.replace(/[^a-zA-Z0-9]/g,'');
+    html += `<div class="modal-section"><div class="section-title">Фото (${lot.photos.length})</div>
+      <div id="${pid}" style="position:relative;border-radius:8px;overflow:hidden;background:#111;text-align:center;max-height:300px">
+        <img src="${lot.photos[0]}" style="max-width:100%;max-height:280px;object-fit:contain" id="${pid}-main" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22/>'">
+        ${lot.photos.length > 1 ? `
+          <button onclick="galNav('${pid}',-1)" style="position:absolute;left:4px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px">&lt;</button>
+          <button onclick="galNav('${pid}',1)" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px">&gt;</button>
+          <div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.6);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px" id="${pid}-counter">1 / ${lot.photos.length}</div>
+        ` : ''}
+      </div>
+      ${lot.photos.length > 1 ? `
+        <div style="display:flex;gap:4px;margin-top:6px;overflow-x:auto;padding-bottom:4px">
+          ${lot.photos.map((u,i) => `<img src="${u}" data-idx="${i}" onclick="galSet('${pid}',${i})" style="height:48px;width:48px;border-radius:4px;object-fit:cover;cursor:pointer;opacity:${i===0?1:.5};flex-shrink:0" onerror="this.style.display='none'">`).join('')}
+        </div>
+      ` : ''}
+    </div>`;
+  }
+
+  // Документы (из глубокого анализа)
+  if (lot.documents?.length) {
+    const docs = Array.isArray(lot.documents[0]) ? lot.documents : lot.documents.map(d => typeof d === 'string' ? {name:d} : d);
+    html += `<div class="modal-section"><div class="section-title">Документы (${docs.length})</div>
+      <ul style="margin:0;padding-left:18px;font-size:12px">
+        ${docs.map(d => `<li>${escHtml(typeof d === 'string' ? d : d.name||d)}</li>`).join('')}
+      </ul></div>`;
+  }
+
+  // Должник (из глубокого анализа)
+  if (lot.debtor_info) {
+    const di = lot.debtor_info;
+    html += `<div class="modal-section"><div class="section-title">Должник</div><div class="detail-grid">
+      ${di.inn ? detailRow('ИНН', escHtml(di.inn)) : ''}
+      ${di.case ? detailRow('Дело', `<a href="${di.case_url||'#'}" target="_blank" style="color:var(--primary)">${escHtml(di.case)}</a>`, true) : ''}
+    </div></div>`;
   }
 
   // Рыночная оценка
@@ -1414,8 +1457,11 @@ function renderModalContent(lot) {
     </div>`;
   }
 
-  if (lot.recommendation) {
-    html += `<div class="modal-section"><div class="section-title">Рекомендация AI</div><div class="recommendation">${escHtml(lot.recommendation)}</div></div>`;
+  if (lot.ai_recommendation || lot.recommendation) {
+    const recText = lot.ai_recommendation || lot.recommendation;
+    const isAi = !!lot.ai_recommendation;
+    const rendered = isAi ? simpleMd(recText) : escHtml(recText);
+    html += `<div class="modal-section"><div class="section-title"${isAi?' style="color:#7c3aed"':''}>Рекомендация${isAi?' AI':''}</div><div class="recommendation" style="white-space:pre-wrap;line-height:1.6;font-size:12.5px">${rendered}</div></div>`;
   }
 
   // Должник
@@ -1726,34 +1772,83 @@ function formatDate(d) {
   try { return new Date(d).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}); } catch{ return d; }
 }
 
+function simpleMd(s) {
+  if (s==null) return '';
+  s = String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');           // **жирный**
+  s = s.replace(/##\s+(.+)/g, '<b style="font-size:13px">$1</b>'); // ## заголовок
+  s = s.replace(/\*(.+?)\*/g, '<i>$1</i>');                 // *курсив*
+  s = s.replace(/^- (.+)/gm, '• $1');                       // - список → •
+  return s;
+}
 function escHtml(s) {
   if (s==null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// Photo gallery state
+const _galState = {};
+function galSet(pid, idx) {
+  const lot = window._currentModalLot;
+  if (!lot?.photos?.length) return;
+  idx = Math.max(0, Math.min(idx, lot.photos.length - 1));
+  _galState[pid] = idx;
+  const main = document.getElementById(pid + '-main');
+  if (main) main.src = lot.photos[idx];
+  const counter = document.getElementById(pid + '-counter');
+  if (counter) counter.textContent = `${idx + 1} / ${lot.photos.length}`;
+  // Update thumbnail opacity
+  const thumbs = document.querySelectorAll(`#${pid} + div img[data-idx]`);
+  thumbs.forEach(t => t.style.opacity = parseInt(t.dataset.idx) === idx ? 1 : 0.5);
+}
+function galNav(pid, dir) {
+  const lot = window._currentModalLot;
+  if (!lot?.photos?.length) return;
+  const cur = _galState[pid] || 0;
+  galSet(pid, cur + dir);
+}
+
 async function deepAnalysis(lotId) {
   const btn = event.target;
   btn.disabled = true;
-  btn.textContent = 'Анализ...';
+  btn.textContent = 'Загрузка...';
+  btn.style.background = '#6366f1';
   try {
     const tbId = lotId.replace('TB-', '');
-    const resp = await fetch(`https://5.42.102.36:8080/api/deep-analysis?lot_id=${encodeURIComponent(lotId)}&tb_id=${tbId}`, {
+    const isLocal = location.protocol === 'file:';
+    const base = isLocal ? 'http://5.42.102.36:8080' : '';
+    const url = `${base}/api/deep-analysis?lot_id=${encodeURIComponent(lotId)}&tb_id=${tbId}`;
+    console.log('Deep analysis URL:', url);
+    const resp = await fetch(url, {
       headers: {'X-API-Key': 'ei-torgi-2026-mvp'}
     });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
     const data = await resp.json();
-    btn.textContent = 'Готово!';
-    btn.style.background = '#22c55e';
-    // Обновляем лот в кэше и перерисовываем модалку
-    const lot = window._allLots?.find(l => l.lot_id === lotId);
-    if (lot && data.encumbrances) {
-      lot.encumbrances = data.encumbrances;
+    console.log('Deep analysis result:', data);
+    if (data.error) throw new Error(data.error);
+    // Обновляем лот в кэше
+    const lot = allLots.find(l => l.lot_id === lotId);
+    if (lot) {
+      if (data.encumbrances) lot.encumbrances = data.encumbrances;
+      if (data.photos?.length) lot.photos = data.photos;
+      if (data.documents?.length) lot.documents = data.documents;
+      if (data.card) lot.tbankrot_card = data.card;
+      if (data.debtor) lot.debtor_info = data.debtor;
+      if (data.links) lot._deep_links = data.links;
+      btn.textContent = `Готово! (${data.photos_count||0} фото)`;
+      btn.style.background = '#22c55e';
       showModal(lot);
+    } else {
+      btn.textContent = 'Лот не найден';
+      btn.style.background = '#ef4444';
     }
   } catch(e) {
+    console.error('Deep analysis error:', e);
     btn.textContent = 'Ошибка';
     btn.style.background = '#ef4444';
-    console.error('Deep analysis error:', e);
+    btn.title = e.message;
+    // Показываем ошибку пользователю
+    alert('Ошибка глубокого анализа: ' + e.message);
   }
 }
 
