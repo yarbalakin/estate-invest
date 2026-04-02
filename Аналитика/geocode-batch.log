@@ -1,0 +1,211 @@
+2026-03-16 09:06:46,316 HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=id%2Ccadastral_number%2Clat%2Clon&cadastral_number=neq.&cadastral_number=not.is.null "HTTP/2 200 OK"
+2026-03-16 09:06:46,319 Total: 128 properties
+2026-03-16 09:06:47,141 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.160 "HTTP/2 200 OK"
+2026-03-16 09:06:47,142 [1/128] 59:40:2010101:1107 -> (56.450888, 56.039309)
+2026-03-16 09:06:48,719 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.161 "HTTP/2 200 OK"
+2026-03-16 09:06:48,720 [2/128] 59:40:2010101:1100 -> (56.447205, 56.026898)
+2026-03-16 09:06:50,113 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.44 "HTTP/2 200 OK"
+2026-03-16 09:06:50,114 [3/128] 59:18:3580102:186 -> (58.298879, 56.499889)
+2026-03-16 09:06:51,556 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.162 "HTTP/2 200 OK"
+2026-03-16 09:06:53,175 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.11 "HTTP/2 200 OK"
+2026-03-16 09:06:54,516 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.165 "HTTP/2 200 OK"
+2026-03-16 09:06:56,276 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.164 "HTTP/2 200 OK"
+2026-03-16 09:06:58,253 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.9 "HTTP/2 200 OK"
+2026-03-16 09:06:59,803 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.166 "HTTP/2 200 OK"
+2026-03-16 09:07:01,275 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.167 "HTTP/2 200 OK"
+2026-03-16 09:07:03,110 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.13 "HTTP/2 200 OK"
+2026-03-16 09:07:09,689 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.168 "HTTP/2 200 OK"
+2026-03-16 09:07:11,152 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.169 "HTTP/2 200 OK"
+2026-03-16 09:07:12,985 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.170 "HTTP/2 200 OK"
+2026-03-16 09:07:29,515 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.4 "HTTP/2 200 OK"
+2026-03-16 09:07:31,226 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.128 "HTTP/2 200 OK"
+2026-03-16 09:07:32,510 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.157 "HTTP/2 200 OK"
+2026-03-16 09:07:34,288 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.171 "HTTP/2 200 OK"
+2026-03-16 09:07:36,132 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.45 "HTTP/2 200 OK"
+2026-03-16 09:07:37,674 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.41 "HTTP/2 200 OK"
+2026-03-16 09:07:37,675 [20/128] 59:18:3580102:184 -> (58.29411, 56.499109)
+2026-03-16 09:07:39,132 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.42 "HTTP/2 200 OK"
+2026-03-16 09:07:40,547 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.7 "HTTP/2 200 OK"
+2026-03-16 09:07:41,991 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.159 "HTTP/2 200 OK"
+2026-03-16 09:07:43,712 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.172 "HTTP/2 200 OK"
+2026-03-16 09:07:50,313 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.49 "HTTP/2 200 OK"
+2026-03-16 09:07:52,167 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.129 "HTTP/2 200 OK"
+2026-03-16 09:07:53,975 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.173 "HTTP/2 200 OK"
+2026-03-16 09:07:55,525 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.174 "HTTP/2 200 OK"
+2026-03-16 09:07:57,334 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.175 "HTTP/2 200 OK"
+2026-03-16 09:07:59,134 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.48 "HTTP/2 200 OK"
+2026-03-16 09:08:00,700 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.158 "HTTP/2 200 OK"
+2026-03-16 09:08:02,259 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.176 "HTTP/2 200 OK"
+2026-03-16 09:08:04,017 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.136 "HTTP/2 200 OK"
+2026-03-16 09:08:05,903 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.2 "HTTP/2 200 OK"
+2026-03-16 09:08:07,536 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.57 "HTTP/2 200 OK"
+2026-03-16 09:08:08,969 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.177 "HTTP/2 200 OK"
+2026-03-16 09:08:10,264 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.178 "HTTP/2 200 OK"
+2026-03-16 09:08:11,733 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.50 "HTTP/2 200 OK"
+2026-03-16 09:08:13,037 NSPD fetch 59:26:0000000:234 | 59:26:0000000:7785 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A26%3A0000000%3A234+%7C+59%3A26%3A0000000%3A7785&limit=1
+2026-03-16 09:08:13,039 [39/128] FAIL 59:26:0000000:234 | 59:26:0000000:7785
+2026-03-16 09:08:14,355 NSPD fetch 59:27:0321001:518 | 59:27:0321001:65 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A27%3A0321001%3A518+%7C+59%3A27%3A0321001%3A65&limit=1
+2026-03-16 09:08:14,357 [40/128] FAIL 59:27:0321001:518 | 59:27:0321001:65
+2026-03-16 09:08:15,671 NSPD fetch 59:13:0180206:34 | 59:13:0180206:4 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A13%3A0180206%3A34+%7C+59%3A13%3A0180206%3A4&limit=1
+2026-03-16 09:08:15,672 [41/128] FAIL 59:13:0180206:34 | 59:13:0180206:4
+2026-03-16 09:08:17,299 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.179 "HTTP/2 200 OK"
+2026-03-16 09:08:18,636 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.63 "HTTP/2 200 OK"
+2026-03-16 09:08:20,070 NSPD fetch 59:21:0560005:2445 | 59:21:0560005:882 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A21%3A0560005%3A2445+%7C+59%3A21%3A0560005%3A882&limit=1
+2026-03-16 09:08:20,071 [44/128] FAIL 59:21:0560005:2445 | 59:21:0560005:882
+2026-03-16 09:08:21,492 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.5 "HTTP/2 200 OK"
+2026-03-16 09:08:23,322 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.163 "HTTP/2 200 OK"
+2026-03-16 09:08:24,661 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.15 "HTTP/2 200 OK"
+2026-03-16 09:08:26,044 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.69 "HTTP/2 200 OK"
+2026-03-16 09:08:27,666 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.100 "HTTP/2 200 OK"
+2026-03-16 09:08:29,225 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.52 "HTTP/2 200 OK"
+2026-03-16 09:08:30,819 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.3 "HTTP/2 200 OK"
+2026-03-16 09:08:32,186 NSPD fetch 59024001000000000270012 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59024001000000000270012&limit=1
+2026-03-16 09:08:32,188 [52/128] FAIL 59024001000000000270012
+2026-03-16 09:08:33,976 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.43 "HTTP/2 200 OK"
+2026-03-16 09:08:35,373 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.47 "HTTP/2 200 OK"
+2026-03-16 09:08:42,121 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.77 "HTTP/2 200 OK"
+2026-03-16 09:08:43,822 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.64 "HTTP/2 200 OK"
+2026-03-16 09:08:45,240 NSPD fetch 81:02:0000000:576 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=81%3A02%3A0000000%3A576&limit=1
+2026-03-16 09:08:45,242 [57/128] FAIL 81:02:0000000:576
+2026-03-16 09:08:46,606 NSPD fetch 81:02:0632050:282 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=81%3A02%3A0632050%3A282&limit=1
+2026-03-16 09:08:46,608 [58/128] FAIL 81:02:0632050:282
+2026-03-16 09:08:48,358 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.101 "HTTP/2 200 OK"
+2026-03-16 09:08:49,731 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.75 "HTTP/2 200 OK"
+2026-03-16 09:08:49,732 [60/128] 59:18:0020202:161 -> (58.28784, 56.420928)
+2026-03-16 09:08:56,115 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.98 "HTTP/2 200 OK"
+2026-03-16 09:08:57,858 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.99 "HTTP/2 200 OK"
+2026-03-16 09:08:59,708 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.93 "HTTP/2 200 OK"
+2026-03-16 09:09:06,409 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.74 "HTTP/2 200 OK"
+2026-03-16 09:09:11,329 NSPD fetch 59000001000000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000006891032&limit=1
+2026-03-16 09:09:11,330 [65/128] FAIL 59000001000000006891032
+2026-03-16 09:09:12,412 NSPD fetch 59000001000000000040091 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000000040091&limit=1
+2026-03-16 09:09:12,413 [66/128] FAIL 59000001000000000040091
+2026-03-16 09:09:13,530 NSPD fetch 59000001000000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000006891032&limit=1
+2026-03-16 09:09:13,531 [67/128] FAIL 59000001000000006891032
+2026-03-16 09:09:14,834 NSPD fetch 59024001000000000270011 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59024001000000000270011&limit=1
+2026-03-16 09:09:14,836 [68/128] FAIL 59024001000000000270011
+2026-03-16 09:09:15,990 NSPD fetch 59006001000000000380017 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59006001000000000380017&limit=1
+2026-03-16 09:09:15,991 [69/128] FAIL 59006001000000000380017
+2026-03-16 09:09:17,365 NSPD fetch 59000001000000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000006891032&limit=1
+2026-03-16 09:09:17,367 [70/128] FAIL 59000001000000006891032
+2026-03-16 09:09:19,076 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.113 "HTTP/2 200 OK"
+2026-03-16 09:09:20,713 NSPD fetch 59000015000000001900015 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000015000000001900015&limit=1
+2026-03-16 09:09:20,714 [72/128] FAIL 59000015000000001900015
+2026-03-16 09:09:22,736 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.119 "HTTP/2 200 OK"
+2026-03-16 09:09:24,202 NSPD fetch 59:07:2370311:160 | 59:07:2370311:157 | 59:07:2370311:52 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A07%3A2370311%3A160+%7C+59%3A07%3A2370311%3A157+%7C+59%3A07%3A2370311%3A52&limit=1
+2026-03-16 09:09:24,204 [74/128] FAIL 59:07:2370311:160 | 59:07:2370311:157 | 59:07:2370311:52
+2026-03-16 09:09:25,437 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.118 "HTTP/2 200 OK"
+2026-03-16 09:09:36,874 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.120 "HTTP/2 200 OK"
+2026-03-16 09:09:38,951 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.88 "HTTP/2 200 OK"
+2026-03-16 09:09:40,223 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.127 "HTTP/2 200 OK"
+2026-03-16 09:09:47,019 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.96 "HTTP/2 200 OK"
+2026-03-16 09:09:52,119 NSPD fetch 59006001000000000380017 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59006001000000000380017&limit=1
+2026-03-16 09:09:52,120 [80/128] FAIL 59006001000000000380017
+2026-03-16 09:09:53,605 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.139 "HTTP/2 200 OK"
+2026-03-16 09:09:55,170 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.116 "HTTP/2 200 OK"
+2026-03-16 09:09:56,255 NSPD fetch 59000001000000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000006891032&limit=1
+2026-03-16 09:09:56,257 [83/128] FAIL 59000001000000006891032
+2026-03-16 09:09:58,341 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.125 "HTTP/2 200 OK"
+2026-03-16 09:09:59,923 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.114 "HTTP/2 200 OK"
+2026-03-16 09:10:01,566 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.153 "HTTP/2 200 OK"
+2026-03-16 09:10:03,100 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.149 "HTTP/2 200 OK"
+2026-03-16 09:10:04,478 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.126 "HTTP/2 200 OK"
+2026-03-16 09:10:05,955 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.55 "HTTP/2 200 OK"
+2026-03-16 09:10:17,885 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.46 "HTTP/2 200 OK"
+2026-03-16 09:10:19,065 NSPD fetch 59:23:0000000:6504 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A23%3A0000000%3A6504&limit=1
+2026-03-16 09:10:19,066 [91/128] FAIL 59:23:0000000:6504
+2026-03-16 09:10:20,659 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.143 "HTTP/2 200 OK"
+2026-03-16 09:10:32,297 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.53 "HTTP/2 200 OK"
+2026-03-16 09:10:34,273 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.138 "HTTP/2 200 OK"
+2026-03-16 09:10:35,826 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.140 "HTTP/2 200 OK"
+2026-03-16 09:10:37,667 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.54 "HTTP/2 200 OK"
+2026-03-16 09:10:39,240 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.142 "HTTP/2 200 OK"
+2026-03-16 09:10:40,801 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.151 "HTTP/2 200 OK"
+2026-03-16 09:10:42,479 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.94 "HTTP/2 200 OK"
+2026-03-16 09:10:44,250 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.137 "HTTP/2 200 OK"
+2026-03-16 09:10:44,251 [100/128] 59:32:3680012:2596 -> (57.850572, 56.721066)
+2026-03-16 09:10:45,913 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.144 "HTTP/2 200 OK"
+2026-03-16 09:10:48,226 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.121 "HTTP/2 200 OK"
+2026-03-16 09:10:50,312 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.150 "HTTP/2 200 OK"
+2026-03-16 09:10:52,122 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.59 "HTTP/2 200 OK"
+2026-03-16 09:10:53,694 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.152 "HTTP/2 200 OK"
+2026-03-16 09:10:55,747 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.6 "HTTP/2 200 OK"
+2026-03-16 09:10:57,264 NSPD fetch 59:23:0481012:79 | 59:23:0481012:24 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A23%3A0481012%3A79+%7C+59%3A23%3A0481012%3A24&limit=1
+2026-03-16 09:10:57,265 [107/128] FAIL 59:23:0481012:79 | 59:23:0481012:24
+2026-03-16 09:10:58,743 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.97 "HTTP/2 200 OK"
+2026-03-16 09:11:00,734 NSPD fetch 59000001000000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59000001000000006891032&limit=1
+2026-03-16 09:11:00,735 [109/128] FAIL 59000001000000006891032
+2026-03-16 09:11:02,157 NSPD fetch 59020000158000000010059 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59020000158000000010059&limit=1
+2026-03-16 09:11:02,158 [110/128] FAIL 59020000158000000010059
+2026-03-16 09:11:05,332 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.124 "HTTP/2 200 OK"
+2026-03-16 09:11:06,979 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.72 "HTTP/2 200 OK"
+2026-03-16 09:11:14,059 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.112 "HTTP/2 200 OK"
+2026-03-16 09:11:15,575 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.90 "HTTP/2 200 OK"
+2026-03-16 09:11:17,100 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.71 "HTTP/2 200 OK"
+2026-03-16 09:11:18,576 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.56 "HTTP/2 200 OK"
+2026-03-16 09:11:20,041 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.117 "HTTP/2 200 OK"
+2026-03-16 09:11:21,774 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.141 "HTTP/2 200 OK"
+2026-03-16 09:11:23,433 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.73 "HTTP/2 200 OK"
+2026-03-16 09:11:24,803 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.58 "HTTP/2 200 OK"
+2026-03-16 09:11:24,804 [120/128] 59:01:4410269:98 -> (57.9948, 56.271145)
+2026-03-16 09:11:26,345 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.68 "HTTP/2 200 OK"
+2026-03-16 09:11:27,779 NSPD fetch 59:32:0600001:71 | 59:32:0600001:17 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A32%3A0600001%3A71+%7C+59%3A32%3A0600001%3A17&limit=1
+2026-03-16 09:11:27,781 [122/128] FAIL 59:32:0600001:71 | 59:32:0600001:17
+2026-03-16 09:11:29,210 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.78 "HTTP/2 200 OK"
+2026-03-16 09:11:30,664 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.76 "HTTP/2 200 OK"
+2026-03-16 09:11:32,443 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.95 "HTTP/2 200 OK"
+2026-03-16 09:11:38,987 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.122 "HTTP/2 200 OK"
+2026-03-16 09:11:40,512 NSPD fetch 59:11:0690000:142 | 59:11:0690000:88 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A11%3A0690000%3A142+%7C+59%3A11%3A0690000%3A88&limit=1
+2026-03-16 09:11:40,513 [127/128] FAIL 59:11:0690000:142 | 59:11:0690000:88
+2026-03-16 09:11:42,136 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.115 "HTTP/2 200 OK"
+2026-03-16 09:11:43,138 DONE: 105 geocoded, 23 failed, 128 total
+2026-03-16 09:38:28,088 Split: '59:26:0000000:234 | 59:26:0000000:7785' -> ['59:26:0000000:234', '59:26:0000000:7785']
+2026-03-16 09:38:28,088 Split: '59000001000000006891032' -> ['59:00:0001000:000006891032']
+2026-03-16 09:38:28,088 Split: '59:07:2370311:160 | 59:07:2370311:157 | 59:07:2370311:52' -> ['59:07:2370311:160', '59:07:2370311:157', '59:07:2370311:52']
+2026-03-16 09:38:28,088 Split: '59020000158000000010059' -> ['59:02:0000158:000000010059']
+2026-03-16 09:38:29,546 HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=id%2Ccadastral_number&cadastral_number=neq.&cadastral_number=not.is.null&or=%28lat.is.null%2Clat.eq.0%29 "HTTP/2 200 OK"
+2026-03-16 09:38:29,547 Retry: 0 properties without coords
+2026-03-16 09:38:29,547 DONE: 0 geocoded, 0 still failed, 0 retried
+2026-03-16 09:39:13,755 HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=id%2Ccadastral_number&cadastral_number=neq.&cadastral_number=not.is.null "HTTP/2 200 OK"
+2026-03-16 09:39:13,757 Found 20 composite/non-standard cadastral numbers (out of 128)
+2026-03-16 09:39:14,482 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.51 "HTTP/2 200 OK"
+2026-03-16 09:39:14,484 [1/20] OK 59:26:0000000:234 | 59:26:0000000:7785 -> (59.336846, 56.576772)
+2026-03-16 09:39:16,109 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.65 "HTTP/2 200 OK"
+2026-03-16 09:39:16,110 [2/20] OK 59:27:0321001:518 | 59:27:0321001:65 -> (56.628466, 57.303343)
+2026-03-16 09:39:17,656 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.70 "HTTP/2 200 OK"
+2026-03-16 09:39:17,657 [3/20] OK 59:13:0180206:34 | 59:13:0180206:4 -> (56.847762, 55.768744)
+2026-03-16 09:39:24,615 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.67 "HTTP/2 200 OK"
+2026-03-16 09:39:24,616 [4/20] OK 59:21:0560005:2445 | 59:21:0560005:882 -> (58.262254, 54.926117)
+2026-03-16 09:39:25,961 NSPD fetch 59:02:4001000:000000270012 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A02%3A4001000%3A000000270012&limit=1
+2026-03-16 09:39:25,962 [5/20] FAIL 59024001000000000270012
+2026-03-16 09:39:27,238 NSPD fetch 59:00:0001000:000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000006891032&limit=1
+2026-03-16 09:39:27,240 [6/20] FAIL 59000001000000006891032
+2026-03-16 09:39:28,562 NSPD fetch 59:00:0001000:000000040091 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000000040091&limit=1
+2026-03-16 09:39:28,564 [7/20] FAIL 59000001000000000040091
+2026-03-16 09:39:30,248 NSPD fetch 59:00:0001000:000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000006891032&limit=1
+2026-03-16 09:39:30,250 [8/20] FAIL 59000001000000006891032
+2026-03-16 09:39:31,855 NSPD fetch 59:02:4001000:000000270011 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A02%3A4001000%3A000000270011&limit=1
+2026-03-16 09:39:31,857 [9/20] FAIL 59024001000000000270011
+2026-03-16 09:39:33,021 NSPD fetch 59:00:6001000:000000380017 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A6001000%3A000000380017&limit=1
+2026-03-16 09:39:33,022 [10/20] FAIL 59006001000000000380017
+2026-03-16 09:39:34,182 NSPD fetch 59:00:0001000:000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000006891032&limit=1
+2026-03-16 09:39:34,183 [11/20] FAIL 59000001000000006891032
+2026-03-16 09:39:35,889 NSPD fetch 59:00:0015000:000001900015 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0015000%3A000001900015&limit=1
+2026-03-16 09:39:35,890 [12/20] FAIL 59000015000000001900015
+2026-03-16 09:39:38,154 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.87 "HTTP/2 200 OK"
+2026-03-16 09:39:38,156 [13/20] OK 59:07:2370311:160 | 59:07:2370311:157 | 59:07:2370311:52 -> (58.098444, 55.866886)
+2026-03-16 09:39:39,399 NSPD fetch 59:00:6001000:000000380017 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A6001000%3A000000380017&limit=1
+2026-03-16 09:39:39,400 [14/20] FAIL 59006001000000000380017
+2026-03-16 09:39:40,774 NSPD fetch 59:00:0001000:000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000006891032&limit=1
+2026-03-16 09:39:40,775 [15/20] FAIL 59000001000000006891032
+2026-03-16 09:39:42,561 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.66 "HTTP/2 200 OK"
+2026-03-16 09:39:42,562 [16/20] OK 59:23:0481012:79 | 59:23:0481012:24 -> (56.427583, 55.582331)
+2026-03-16 09:39:49,050 NSPD fetch 59:00:0001000:000006891032 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A00%3A0001000%3A000006891032&limit=1
+2026-03-16 09:39:49,052 [17/20] FAIL 59000001000000006891032
+2026-03-16 09:39:50,455 NSPD fetch 59:02:0000158:000000010059 FAIL: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A02%3A0000158%3A000000010059&limit=1
+2026-03-16 09:39:50,457 [18/20] FAIL 59020000158000000010059
+2026-03-16 09:39:52,248 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.89 "HTTP/2 200 OK"
+2026-03-16 09:39:52,249 [19/20] OK 59:32:0600001:71 | 59:32:0600001:17 -> (57.916957, 55.753039)
+2026-03-16 09:39:53,693 HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?id=eq.60 "HTTP/2 200 OK"
+2026-03-16 09:39:53,694 [20/20] OK 59:11:0690000:142 | 59:11:0690000:88 -> (58.139354, 57.171325)
+2026-03-16 09:39:54,694 DONE: 8 fixed, 12 still failed, 20 retried

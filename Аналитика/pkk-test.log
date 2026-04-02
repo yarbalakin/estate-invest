@@ -1,0 +1,50 @@
+/usr/local/lib/python3.12/dist-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+GEOMETRY: {
+  "type": "Polygon",
+  "coordinates": [
+    [
+      [
+        6286033.952902904,
+        7997071.727439767
+      ],
+      [
+        6286043.114257022,
+        7997013.474588391
+      ],
+      [
+        6286066.577078146,
+        7997006.6674314635
+      ],
+      [
+        6286074.280095853,
+        7997060.37726915
+      ],
+      [
+        6286069.85641094,
+        7997061.299745538
+      ],
+      [
+        6286033.952902904,
+        7997071.727439767
+      ]
+    ]
+  ],
+  "crs": {
+    "type": 
+
+PROPERTIES KEYS: ['cadastralDistrictsCode', 'category', 'categoryName', 'descr', 'externalKey', 'interactionId', 'label', 'options', 'subcategory', 'systemInfo']
+/usr/local/lib/python3.12/dist-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+EPSG:3857 centroid: (6286053.62, 7997047.55)
+WGS-84: lat=58.141246, lon=56.468580
+Yandex Maps: https://yandex.ru/maps/?ll=56.46858046470229,58.14124563876183&z=17
+/usr/local/lib/python3.12/dist-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+59:01:3610013:148 -> (58.141246, 56.46858) https://yandex.ru/maps/?ll=56.46858,58.141246&z=17
+59:40:2010101:1107 -> (56.450888, 56.039309) https://yandex.ru/maps/?ll=56.039309,56.450888&z=17
+59:18:3580102:186 -> (58.298879, 56.499889) https://yandex.ru/maps/?ll=56.499889,58.298879&z=17

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Проданные объекты — Estate Invest</title>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+<style>
+:root {
+  --bg: #0a0b14; --bg2: #0f1120; --bg3: #161829;
+  --card: rgba(22,24,41,0.85);
+  --border: rgba(99,102,241,0.18);
+  --accent: #6366f1; --accent2: #818cf8;
+  --green: #10b981; --yellow: #f59e0b; --red: #ef4444;
+  --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+header {
+  background: rgba(10,11,20,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.logo-dot {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--green), #059669);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.stats { display: flex; gap: 24px; }
+.stat { text-align: center; }
+.stat-val { font-size: 16px; font-weight: 600; color: var(--green); }
+.stat-label { font-size: 11px; color: var(--text3); }
+.container { display: flex; height: calc(100vh - 64px); }
+#map { flex: 1; }
+.sidebar {
+  width: 380px; overflow-y: auto; padding: 16px;
+  background: var(--bg2); border-left: 1px solid var(--border);
+}
+.sidebar h3 { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
+.obj-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.obj-card:hover { border-color: var(--accent); }
+.obj-card.sold { border-left: 3px solid var(--green); }
+.obj-card.active { border-left: 3px solid var(--yellow); }
+.obj-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.obj-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); }
+.obj-row .val { color: var(--text); font-weight: 500; }
+.obj-roi { color: var(--green); font-weight: 600; }
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.badge-sold { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-active { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.filter-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-btn {
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-size: 12px;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-dot">EI</div>
+    Проданные объекты
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val">40</div>
+      <div class="stat-label">Продано</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">50</div>
+      <div class="stat-label">В продаже</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">40 354 992</div>
+      <div class="stat-label">Общая прибыль</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">19.6%</div>
+      <div class="stat-label">Средний ROI</div>
+    </div>
+  </div>
+</header>
+<div class="container">
+  <div id="map"></div>
+  <div class="sidebar">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all')">Все</button>
+      <button class="filter-btn" onclick="setFilter('sold')">Продано</button>
+      <button class="filter-btn" onclick="setFilter('active')">В продаже</button>
+    </div>
+    <h3>Объекты</h3>
+    <div id="cards"></div>
+  </div>
+</div>
+<script>
+const SOLD = [
+    {"id": "ИП 1", "name": "ИП 1 Чебоксары, Смирнова, 17", "address": "Чебоксары, Смирнова, 17", "lat": 56.134009, "lon": 47.25681, "status": "sold", "purchase": 4965118.0, "sale": 7500000.0, "profit_investors": 1046630.04, "roi": "19,96%", "roi_annual": "12,41%", "months": "20", "date_start": "04.02.2022", "date_end": "14.09.2023"},
+    {"id": "ИП 2", "name": "ИП 2 Пермь, Ветлужская, 62", "address": "Пермь, Ветлужская, 62", "lat": 58.0443001, "lon": 56.0854, "status": "sold", "purchase": 4218170.21, "sale": 10191273.0, "profit_investors": 2142869.31, "roi": "50,80%", "roi_annual": "62,54%", "months": "20", "date_start": "29.03.2022", "date_end": "28.11.2023"},
+    {"id": "ИП 3", "name": "ИП 3 Москва, Прокшино", "address": "Москва, Прокшино", "lat": 55.57637, "lon": 37.43649, "status": "sold", "purchase": 1444920.89, "sale": 1471465.84, "profit_investors": 0.0, "roi": "0,00%", "roi_annual": "0,00%", "months": "20", "date_start": "19.05.2023", "date_end": "30.12.2024"},
+    {"id": "ИП 12", "name": "ИП 12 Пермь, Ласьвинская 76а-35", "address": "Пермь, Ласьвинская 76а-35", "lat": 58.0119524, "lon": 55.9272807, "status": "sold", "purchase": 1658888.88, "sale": 2270000.0, "profit_investors": 119851.73, "roi": "6,09%", "roi_annual": "15,32%", "months": "5", "date_start": "20.12.2022", "date_end": ""},
+    {"id": "ИП 14", "name": "ИП 14 Пермь, ул. Водников, д.83, кв.8", "address": "Пермь, ул. Водников, д.83, кв.8", "lat": 58.02839, "lon": 56.027447, "status": "sold", "purchase": 2163200.0, "sale": 2800000.0, "profit_investors": 222672.97, "roi": "10,06%", "roi_annual": "16,92%", "months": "7", "date_start": "24.03.2023", "date_end": "27.10.2023"},
+    {"id": "ИП 15", "name": "ИП 15 ЗУ Пермь, Зеленая 118", "address": "ЗУ Пермь, Зеленая 118", "lat": 58.1452424, "lon": 56.4768866, "status": "sold", "purchase": 1388888.88, "sale": 3100000.0, "profit_investors": 600044.0, "roi": "40,30%", "roi_annual": "46,40%", "months": "11", "date_start": "18.04.2023", "date_end": "29.02.2024"},
+    {"id": "ИП 16", "name": "ИП 16 ЗУ Перм. кр., Пальники, с_т _Связист_,уч.42", "address": "ЗУ Перм. кр., Пальники, с т  Связист ,уч.42", "lat": 58.183711, "lon": 56.419682, "status": "sold", "purchase": 218955.03, "sale": 420000.0, "profit_investors": 65105.62, "roi": "28,19%", "roi_annual": "12,19%", "months": "28", "date_start": "06.04.2023", "date_end": "28.07.2025"},
+    {"id": "ИП 21", "name": "ИП 21 Пермь, Лодыгина, 32", "address": "Пермь, Лодыгина, 32", "lat": 57.966291, "lon": 56.22514, "status": "sold", "purchase": 2230000.0, "sale": 5795000.0, "profit_investors": 983680.04, "roi": "29,63%", "roi_annual": "37,42%", "months": "10", "date_start": "27.08.2023", "date_end": "11.06.2024"},
+    {"id": "ИП 23", "name": "ИП 23 Красный Восход-3", "address": "Красный Восход-3", "lat": 57.992273, "lon": 55.734877, "status": "sold", "purchase": 90665.88, "sale": 320000.0, "profit_investors": 50842.42, "roi": "42,37%", "roi_annual": "64,17%", "months": "8", "date_start": "20.06.2023", "date_end": "16.02.2024"},
+    {"id": "ИП 26", "name": "ИП 26 д.Скобелевка, ул Дружбы, з_у 31", "address": "д.Скобелевка, ул Дружбы, з у 31", "lat": 58.240024, "lon": 56.30001, "status": "sold", "purchase": 211700.03, "sale": 320000.0, "profit_investors": 38130.19, "roi": "15,78%", "roi_annual": "62,59%", "months": "3", "date_start": "14.09.2023", "date_end": "15.12.2023"},
+    {"id": "ИП 28", "name": "ИП 28_ЗУ_Солнечный", "address": "ИП 28 ЗУ Солнечный", "lat": 58.096681, "lon": 56.420043, "status": "sold", "purchase": 888888.88, "sale": 1400000.0, "profit_investors": 206142.09, "roi": "20,43%", "roi_annual": "213,08%", "months": "1", "date_start": "22.09.2023", "date_end": "27.10.2023"},
+    {"id": "ИП 29", "name": "ИП 29 _ КВ_Санкт-Петербург, ул. Купчинская, 24", "address": "КВ Санкт-Петербург, ул. Купчинская, 24", "lat": 59.832994, "lon": 30.394285, "status": "sold", "purchase": 6588000.0, "sale": 7776000.0, "profit_investors": 274481.24, "roi": "4,05%", "roi_annual": "4,53%", "months": "11", "date_start": "17.11.2023", "date_end": "08.10.2024"},
+    {"id": "ИП 33", "name": "ИП №33_ ЗУ+ЖД_Самарская область, г. Кинель, пл. Советы, д.6", "address": "ИП №33  ЗУ+ЖД Самарская область, г. Кинель, пл. Советы, д.6", "lat": 53.250326, "lon": 50.535207, "status": "sold", "purchase": 975200.0, "sale": 1800000.0, "profit_investors": 294740.27, "roi": "26,79%", "roi_annual": "113,72%", "months": "3", "date_start": "17.01.2024", "date_end": "12.04.2024"},
+    {"id": "ИП 34", "name": "ИП №34_ЗУ+ЖД_Пермский край, г. Краснокамск, Гражданский переулок, д. 35", "address": "ИП №34 ЗУ+ЖД Пермский край, г. Краснокамск, Гражданский переулок, д. 35", "lat": 58.076001, "lon": 55.661467, "status": "sold", "purchase": 5300888.88, "sale": 6500000.0, "profit_investors": 360516.84, "roi": "6,21%", "roi_annual": "87,25%", "months": "1", "date_start": "21.02.2024", "date_end": "18.03.2024"},
+    {"id": "ИП 36", "name": "ИП 36_ЗУ_Пермский край, дер. Городище, л.24", "address": "ИП 36 ЗУ Пермский край, дер. Городище, л.24", "lat": 58.175471, "lon": 56.360233, "status": "sold", "purchase": 301000.0, "sale": 650000.0, "profit_investors": 120229.15, "roi": "36,43%", "roi_annual": "44,03%", "months": "10", "date_start": "27.02.2024", "date_end": "25.12.2024"},
+    {"id": "ИП 37", "name": "ИП 37_ЗУ_Пермский край, дер. Городище, л.25", "address": "ИП 37 ЗУ Пермский край, дер. Городище, л.25", "lat": 58.175471, "lon": 56.360233, "status": "sold", "purchase": 301000.0, "sale": 650000.0, "profit_investors": 120244.14, "roi": "36,44%", "roi_annual": "44,04%", "months": "10", "date_start": "27.02.2024", "date_end": "25.12.2024"},
+    {"id": "ИП 40", "name": "ИП №40_Пермь, ул. Карпинского, 110", "address": "ИП №40 Пермь, ул. Карпинского, 110", "lat": 57.969804, "lon": 56.203707, "status": "sold", "purchase": 1580000.0, "sale": 4000000.0, "profit_investors": 685375.71, "roi": "34,27%", "roi_annual": "735,77%", "months": "1", "date_start": "19.03.2024", "date_end": "05.04.2024"},
+    {"id": "ИП 41", "name": "ИП №41_ЗУ_Самарская обл., село Хрящевка", "address": "ИП №41 ЗУ Самарская обл., село Хрящевка", "lat": 53.79872, "lon": 49.080879, "status": "sold", "purchase": 225540.0, "sale": 420000.0, "profit_investors": 49779.99, "roi": "19,91%", "roi_annual": "154,64%", "months": "2", "date_start": "21.03.2024", "date_end": "07.05.2024"},
+    {"id": "ИП 43", "name": "ИП 43_ЗУ_ Пермский край, д. Заполье, л. 1", "address": "ИП 43 ЗУ  Пермский край, д. Заполье, л. 1", "lat": 57.912257, "lon": 55.881606, "status": "sold", "purchase": 158028.0, "sale": 370000.0, "profit_investors": 69187.97, "roi": "38,44%", "roi_annual": "36,44%", "months": "13", "date_start": "26.03.2024", "date_end": "15.04.2025"},
+    {"id": "ИП 44", "name": "ИП 44_ЗУ_ Пермский край, д. Заполье, л. 2", "address": "ИП 44 ЗУ  Пермский край, д. Заполье, л. 2", "lat": 57.912206, "lon": 55.881929, "status": "sold", "purchase": 158028.0, "sale": 350000.0, "profit_investors": 62396.25, "roi": "34,66%", "roi_annual": "35,44%", "months": "12", "date_start": "26.03.2024", "date_end": "18.03.2025"},
+    {"id": "ИП 45", "name": "ИП 45/ЗУ/Самар.обл., г. Чапаевск зу", "address": "ИП 45/ЗУ/Самар.обл., г. Чапаевск зу", "lat": 52.981412, "lon": 49.67968, "status": "sold", "purchase": 256707.58, "sale": 350000.0, "profit_investors": 47184.87, "roi": "14,75%", "roi_annual": "31,47%", "months": "6", "date_start": "19.04.2024", "date_end": "07.10.2024"},
+    {"id": "ИП 46", "name": "ИП 46/КВ/Тольятти Ленина", "address": "ИП 46/КВ/Тольятти Ленина", "lat": 53.535577, "lon": 49.409466, "status": "sold", "purchase": 3040065.0, "sale": 4500000.0, "profit_investors": 246543.6, "roi": "7,86%", "roi_annual": "7,59%", "months": "13", "date_start": "16.04.2024", "date_end": "29.04.2025"},
+    {"id": "ИП 47", "name": "ИП 47 г. Пермь, ул. Промышленная, 87", "address": "г. Пермь, ул. Промышленная, 87", "lat": 57.946396, "lon": 56.135813, "status": "sold", "purchase": 926080.67, "sale": 1150000.0, "profit_investors": 70450.71, "roi": "5,95%", "roi_annual": "20,09%", "months": "4", "date_start": "19.04.2024", "date_end": "05.08.2024"},
+    {"id": "ИП 48", "name": "ИП 48/ЗУ/Самарская обл., п. Энергия", "address": "ИП 48/ЗУ/Самарская обл., п. Энергия", "lat": 53.257686, "lon": 50.701116, "status": "sold", "purchase": 257400.0, "sale": 400000.0, "profit_investors": 35657.42, "roi": "13,21%", "roi_annual": "9,56%", "months": "17", "date_start": "29.04.2024", "date_end": "15.09.2025"},
+    {"id": "ИП 49", "name": "ИП 49/ЗУ/Лен.области, Березовая роща", "address": "ИП 49/ЗУ/Лен.области, Березовая роща", "lat": 59.57603, "lon": 30.373241, "status": "sold", "purchase": 955180.0, "sale": 1100000.0, "profit_investors": 3642.53, "roi": "0,36%", "roi_annual": "0,49%", "months": "9", "date_start": "24.04.2024", "date_end": "20.01.2025"},
+    {"id": "ИП 52", "name": "ИП 52 ЗУ Пермь, пер. Сальский, 11", "address": "ЗУ Пермь, пер. Сальский, 11", "lat": 57.9761282, "lon": 56.1959755, "status": "sold", "purchase": 4683000.0, "sale": 7500000.0, "profit_investors": 838491.53, "roi": "16,66%", "roi_annual": "48,26%", "months": "4", "date_start": "13.05.2024", "date_end": "16.09.2024"},
+    {"id": "ИП 53", "name": "ИП 53 ЗУ Самарская область, п. Выселки", "address": "ЗУ Самарская область, п. Выселки", "lat": 53.7521768, "lon": 52.2278488, "status": "sold", "purchase": 158888.88, "sale": 350000.0, "profit_investors": 51089.37, "roi": "27,05%", "roi_annual": "28,13%", "months": "12", "date_start": "14.05.2024", "date_end": "30.04.2025"},
+    {"id": "ИП 54", "name": "ИП 54 ЗУ, Пермь, ул. Скалистая", "address": "ЗУ, Пермь, ул. Скалистая", "lat": 58.0073909, "lon": 56.3676093, "status": "sold", "purchase": 3657600.0, "sale": 6000000.0, "profit_investors": 633876.91, "roi": "16,68%", "roi_annual": "112,14%", "months": "4", "date_start": "29.05.2024", "date_end": "23.09.2024"},
+    {"id": "ИП 55", "name": "ИП 55 КП, Самара, ул. Советской Армии, 240б", "address": "КП, Самара, ул. Советской Армии, 240б", "lat": 53.238706, "lon": 50.179245, "status": "sold", "purchase": 4908888.88, "sale": 7862500.0, "profit_investors": 1053189.72, "roi": "19,88%", "roi_annual": "16,57%", "months": "15", "date_start": "20.05.2024", "date_end": "07.05.2025"},
+    {"id": "ИП 56", "name": "ИП 56 ЗУ Пермский край, п. Красный Восход", "address": "ЗУ Пермский край, п. Красный Восход", "lat": 57.967579, "lon": 55.730206, "status": "sold", "purchase": 356940.0, "sale": 356940.0, "profit_investors": 0.0, "roi": "0,00%", "roi_annual": "0,00%", "months": "9", "date_start": "17.12.2023", "date_end": "15.09.2024"},
+    {"id": "ИП 59", "name": "ИП 59. ЗУ Пермь, Олега Кошевого", "address": "ИП 59. ЗУ Пермь, Олега Кошевого", "lat": 57.975384, "lon": 56.190983, "status": "sold", "purchase": 4767840.0, "sale": 6000000.0, "profit_investors": 337889.31, "roi": "6,85%", "roi_annual": "14,71%", "months": "6", "date_start": "28.08.2024", "date_end": "14.02.2025"},
+    {"id": "ИП 61", "name": "ИП 61 КП Пермь, ул. Солдатова, 32, л.7 - 24,7 м2", "address": "КП Пермь, ул. Солдатова, 32, л.7 - 24,7 м2", "lat": 57.973764, "lon": 56.23468, "status": "sold", "purchase": 975000.0, "sale": 2000000.0, "profit_investors": 151207.86, "roi": "13,17%", "roi_annual": "15,51%", "months": "10", "date_start": "15.07.2024", "date_end": "21.05.2025"},
+    {"id": "ИП 66", "name": "ИП 66 ЗУ, Пермский край, д. Загришинское", "address": "ЗУ, Пермский край, д. Загришинское", "lat": 58.2348071, "lon": 56.3036615, "status": "sold", "purchase": 360300.0, "sale": 650000.0, "profit_investors": 60705.72, "roi": "14,23%", "roi_annual": "94,44%", "months": "2", "date_start": "03.09.2024", "date_end": "28.10.2024"},
+    {"id": "ИП 67", "name": "ИП 67 ЗУ Самарская обл., пгт. Новосемейкино", "address": "ЗУ Самарская обл., пгт. Новосемейкино", "lat": 53.386656, "lon": 50.347432, "status": "sold", "purchase": 407921.6, "sale": 750000.0, "profit_investors": 98532.88, "roi": "21,81%", "roi_annual": "24,12%", "months": "11", "date_start": "24.09.2024", "date_end": "20.08.2025"},
+    {"id": "ИП 68", "name": "ИП 68 КП Самара, ул. Ленинградская, 77", "address": "КП Самара, ул. Ленинградская, 77", "lat": 53.18474, "lon": 50.1015291, "status": "sold", "purchase": 1320000.0, "sale": 3270000.0, "profit_investors": 388470.03, "roi": "20,85%", "roi_annual": "60,89%", "months": "4", "date_start": "02.10.2024", "date_end": "04.02.2025"},
+    {"id": "ИП 69", "name": "ИП 69 ЗУ Перм.край, село Кояново", "address": "ЗУ Перм.край, село Кояново", "lat": 57.805616, "lon": 56.305902, "status": "sold", "purchase": 752103.06, "sale": 1200000.0, "profit_investors": 135936.49, "roi": "16,72%", "roi_annual": "96,85%", "months": "2", "date_start": "22.10.2024", "date_end": "24.12.2024"},
+    {"id": "ИП 76", "name": "ИП 76 ЗУ Самарская обл., СНТ \"Старая Бинарадка\"", "address": "ЗУ Самарская обл., СНТ \"Старая Бинарадка\"", "lat": 53.5595506, "lon": 49.9329819, "status": "sold", "purchase": 605164.86, "sale": 800000.0, "profit_investors": 54493.34, "roi": "8,47%", "roi_annual": "18,51%", "months": "6", "date_start": "27.11.2024", "date_end": "13.05.2025"},
+    {"id": "ИП 80", "name": "ИП 80 ЗУ Пермский край, д. Шилово, ул. Тепличная, з/у 38", "address": "ЗУ Пермский край, д. Шилово, ул. Тепличная, з/у 38", "lat": 57.9203991, "lon": 55.8871204, "status": "sold", "purchase": 864025.0, "sale": 1400000.0, "profit_investors": 140936.89, "roi": "15,48%", "roi_annual": "11,77%", "months": "16", "date_start": "21.11.2024", "date_end": "16.03.2026"},
+    {"id": "ИП 98", "name": "ИП 98 ММ Самара, ул. Братьев Коростелевых, д.79а", "address": "ММ Самара, ул. Братьев Коростелевых, д.79а", "lat": 53.191977, "lon": 50.113662, "status": "sold", "purchase": 973000.0, "sale": 1461000.0, "profit_investors": 121228.24, "roi": "10,98%", "roi_annual": "13,72%", "months": "10", "date_start": "27.02.2025", "date_end": "16.12.2025"},
+    {"id": "ИП 100", "name": "ИП 100 ЗУ Калининградская обл., п. Коврово", "address": "ЗУ Калининградская обл., п. Коврово", "lat": 54.920179, "lon": 20.405011, "status": "sold", "purchase": 356000.0, "sale": 800000.0, "profit_investors": 117070.67, "roi": "30,31%", "roi_annual": "43,04%", "months": "9", "date_start": "13.03.2025", "date_end": "25.11.2025"}
+];
+const ACTIVE = [
+    {"id": "ИП 4", "name": "ИП 4 Калининград, Краснодонская, 4", "address": "Калининград, Краснодонская, 4", "lat": 57.9012289, "lon": 55.895672, "status": "active", "purchase": 5028170.99, "sale": 7000000.0, "profit_investors": 346673.11, "roi": "6,63%", "roi_annual": "1,77%", "months": "46", "date_start": "02.07.2022", "date_end": "31.03.2026"},
+    {"id": "ИП 22", "name": "ИП 22 _2 ЗУ_Пермский край, д. Пашия, ул. Речная, з_у 13 и 15", "address": "2 ЗУ Пермский край, д. Пашия, ул. Речная, з у 13 и 15", "lat": 57.6760452, "lon": 55.5285814, "status": "active", "purchase": 336000.0, "sale": 540000.0, "profit_investors": 44778.4, "roi": "12,23%", "roi_annual": "4,07%", "months": "37", "date_start": "14.06.2023", "date_end": "14.06.2026"},
+    {"id": "ИП 27", "name": "ИП 27_ЗУ_Пермский край, г. Добрянка, с_т Заря, участок № 39", "address": "ИП 27 ЗУ Пермский край, г. Добрянка, с т Заря, участок № 39", "lat": 58.2949213, "lon": 56.4051544, "status": "active", "purchase": 129174.9, "sale": 270000.0, "profit_investors": 45771.55, "roi": "28,76%", "roi_annual": "11,93%", "months": "29", "date_start": "01.09.2023", "date_end": "28.01.2026"},
+    {"id": "ИП 30", "name": "ИП 30 _ ЗУ_Пермский край, СНТ _Кабельщик № 276_, уч. 130", "address": "ЗУ Пермский край, СНТ  Кабельщик № 276 , уч. 130", "lat": 58.2616967, "lon": 56.250721, "status": "active", "purchase": 173248.0, "sale": 450000.0, "profit_investors": 81404.16, "roi": "40,12%", "roi_annual": "16,24%", "months": "30", "date_start": "11.10.2023", "date_end": "31.03.2026"},
+    {"id": "ИП 31", "name": "ИП 31_ Соликамская", "address": "ИП 31  Соликамская", "lat": 58.1480502, "lon": 56.4190692, "status": "active", "purchase": 25888888.88, "sale": 90519334.0, "profit_investors": 21337424.0, "roi": "72,48%", "roi_annual": "31,20%", "months": "28", "date_start": "21.11.2023", "date_end": "18.03.2026"},
+    {"id": "ИП 35", "name": "ИП 35_ЗУ+ЖД_Пермский край, г. Краснокамск, Гражданский переулок, д. 37", "address": "ИП 35 ЗУ+ЖД Пермский край, г. Краснокамск, Гражданский переулок, д. 37", "lat": 58.0766761, "lon": 55.6641853, "status": "active", "purchase": 5300888.88, "sale": 17000000.0, "profit_investors": 1629313.01, "roi": "19,25%", "roi_annual": "8,40%", "months": "28", "date_start": "21.02.2024", "date_end": "06.06.2026"},
+    {"id": "ИП 50", "name": "ИП 50/ЗУ/Пермский край, д. Гамы", "address": "ИП 50/ЗУ/Пермский край, д. Гамы", "lat": 58.0197753, "lon": 55.7982337, "status": "active", "purchase": 598888.88, "sale": 2000000.0, "profit_investors": 304322.73, "roi": "38,04%", "roi_annual": "19,67%", "months": "24", "date_start": "24.04.2024", "date_end": "31.03.2026"},
+    {"id": "ИП 60", "name": "ИП 60 КП Пермь, ул. Солдатова, 32, л.5 - 11,2 м2", "address": "КП Пермь, ул. Солдатова, 32, л.5 - 11,2 м2", "lat": 57.973731, "lon": 56.234697, "status": "active", "purchase": 455000.0, "sale": 1200000.0, "profit_investors": 208135.79, "roi": "38,60%", "roi_annual": "22,58%", "months": "21", "date_start": "15.07.2024", "date_end": "31.03.2026"},
+    {"id": "ИП 62", "name": "ИП 62 КП Пермь, ул. Солдатова, 32, л.3 - 75 м2", "address": "КП Пермь, ул. Солдатова, 32, л.3 - 75 м2", "lat": 57.973731, "lon": 56.234697, "status": "active", "purchase": 2250000.0, "sale": 7010000.0, "profit_investors": 940791.44, "roi": "26,45%", "roi_annual": "29,08%", "months": "11", "date_start": "17.09.2024", "date_end": "15.08.2025"},
+    {"id": "ИП 63", "name": "ИП 63 КП Пермь, ул. Солдатова, 32, л.2 - 77,5 м2", "address": "КП Пермь, ул. Солдатова, 32, л.2 - 77,5 м2", "lat": 57.973731, "lon": 56.234697, "status": "active", "purchase": 2330000.0, "sale": 6020000.0, "profit_investors": 555244.42, "roi": "15,09%", "roi_annual": "9,83%", "months": "19", "date_start": "17.09.2024", "date_end": "31.03.2026"},
+    {"id": "ИП 64", "name": "ИП 64 КП Пермь, ул. Солдатова, 32, л.1 - 86,2 м2", "address": "КП Пермь, ул. Солдатова, 32, л.1 - 86,2 м2", "lat": 57.973731, "lon": 56.234697, "status": "active", "purchase": 2600000.0, "sale": 7000000.0, "profit_investors": 834521.13, "roi": "20,35%", "roi_annual": "13,27%", "months": "19", "date_start": "17.09.2024", "date_end": "31.03.2026"},
+    {"id": "ИП 73", "name": "ИП 73 Аренда ЗУ Калинингр.обл., п. Поваровка, лот14", "address": "Аренда ЗУ Калинингр.обл., п. Поваровка, лот14", "lat": 54.8320499, "lon": 20.0107262, "status": "active", "purchase": 480000.0, "sale": 700000.0, "profit_investors": 14086.16, "roi": "2,79%", "roi_annual": "2,14%", "months": "16", "date_start": "17.10.2024", "date_end": "05.02.2026"},
+    {"id": "ИП 74", "name": "ИП 74 ЗУ Пермский край, д. Христофоровка", "address": "ЗУ Пермский край, д. Христофоровка", "lat": 58.2162009, "lon": 56.2991822, "status": "active", "purchase": 808999.99, "sale": 1500000.0, "profit_investors": 198497.73, "roi": "21,82%", "roi_annual": "13,83%", "months": "19", "date_start": "24.09.2024", "date_end": "23.04.2026"},
+    {"id": "ИП 75", "name": "ИП 75/ЗУ/Пермский край, с. Лобаново, ул. Путейская (квартал Магистральный)", "address": "ИП 75/ЗУ/Пермский край, с. Лобаново, ул. Путейская (квартал Магистральный)", "lat": 57.863425, "lon": 56.2887742, "status": "active", "purchase": 2905479.38, "sale": 8000000.0, "profit_investors": 1627638.21, "roi": "165,92%", "roi_annual": "124,35%", "months": "16", "date_start": "18.11.2024", "date_end": "20.03.2026"},
+    {"id": "ИП 77", "name": "ИП 77 ЗУ Калининградская обл., п. Сосновка, л.12", "address": "ЗУ Калининградская обл., п. Сосновка, л.12", "lat": 54.9318222, "lon": 20.5103346, "status": "active", "purchase": 677350.0, "sale": 1100000.0, "profit_investors": 21682.01, "roi": "2,65%", "roi_annual": "2,85%", "months": "11", "date_start": "19.11.2024", "date_end": "25.10.2025"},
+    {"id": "ИП 78", "name": "ИП 78 ЗУ Калининградская обл., п. Сосновка, л.9", "address": "ЗУ Калининградская обл., п. Сосновка, л.9", "lat": 54.9318222, "lon": 20.5103346, "status": "active", "purchase": 712690.0, "sale": 1200000.0, "profit_investors": 9400.32, "roi": "1,25%", "roi_annual": "1,34%", "months": "11", "date_start": "19.11.2024", "date_end": "25.10.2025"},
+    {"id": "ИП 79", "name": "ИП 79 ЗУ Калининградская обл., п. Сосновка, л.2", "address": "ЗУ Калининградская обл., п. Сосновка, л.2", "lat": 54.9318222, "lon": 20.5103346, "status": "active", "purchase": 603000.0, "sale": 1000000.0, "profit_investors": 27576.82, "roi": "4,30%", "roi_annual": "4,62%", "months": "11", "date_start": "19.11.2024", "date_end": "25.10.2025"},
+    {"id": "ИП 82", "name": "ИП 82 ЗУ+Дом г. Калининград, СНТ «50 лет Октября»", "address": "ЗУ+Дом г. Калининград, СНТ «50 лет Октября»", "lat": 54.759105, "lon": 20.43039, "status": "active", "purchase": 3643200.0, "sale": 7200000.0, "profit_investors": 1200163.48, "roi": "29,21%", "roi_annual": "21,49%", "months": "17", "date_start": "20.11.2024", "date_end": "31.03.2026"},
+    {"id": "ИП 83", "name": "ИП 83 ЗУ Калининградская обл., пос. Заозерье, уч. №4", "address": "ЗУ Калининградская обл., пос. Заозерье, уч. №4", "lat": 54.9439073, "lon": 20.1514612, "status": "active", "purchase": 2140537.0, "sale": 3000000.0, "profit_investors": 191581.11, "roi": "8,10%", "roi_annual": "7,58%", "months": "13", "date_start": "18.02.2025", "date_end": "15.03.2026"},
+    {"id": "ИП 84", "name": "ИП 84 ЗУ Калининградская область, г. Балтийск, л.1", "address": "ЗУ Калининградская область, г. Балтийск, л.1", "lat": 54.6513858, "lon": 19.9140642, "status": "active", "purchase": 645000.0, "sale": 1300000.0, "profit_investors": 185153.02, "roi": "26,21%", "roi_annual": "16,58%", "months": "19", "date_start": "27.11.2024", "date_end": "27.06.2026"},
+    {"id": "ИП 85", "name": "ИП 85 ЗУ Калининградская область, г. Балтийск, л.2", "address": "ЗУ Калининградская область, г. Балтийск, л.2", "lat": 54.6513858, "lon": 19.9140642, "status": "active", "purchase": 658000.0, "sale": 1300000.0, "profit_investors": 168556.02, "roi": "23,41%", "roi_annual": "22,91%", "months": "12", "date_start": "27.11.2024", "date_end": "05.12.2025"},
+    {"id": "ИП 86", "name": "ИП 86 ЗУ Калининградская область, г. Балтийск, л.3", "address": "ЗУ Калининградская область, г. Балтийск, л.3", "lat": 54.6513858, "lon": 19.9140642, "status": "active", "purchase": 646000.0, "sale": 1300000.0, "profit_investors": 174077.27, "roi": "24,60%", "roi_annual": "24,07%", "months": "12", "date_start": "27.11.2024", "date_end": "05.12.2025"},
+    {"id": "ИП 87", "name": "ИП 87 ЗУ Калининградская область, г. Балтийск, л.4", "address": "ЗУ Калининградская область, г. Балтийск, л.4", "lat": 54.6513858, "lon": 19.9140642, "status": "active", "purchase": 639000.0, "sale": 1300000.0, "profit_investors": 188724.37, "roi": "26,95%", "roi_annual": "26,37%", "months": "12", "date_start": "27.11.2024", "date_end": "05.12.2025"},
+    {"id": "ИП 89", "name": "ИП 89 ЗУ Калининградская обл., г. Светлогорск, ул. Новая", "address": "ЗУ Калининградская обл., г. Светлогорск, ул. Новая", "lat": 54.9439073, "lon": 20.1514612, "status": "active", "purchase": 3875208.0, "sale": 6000000.0, "profit_investors": 847880.61, "roi": "21,11%", "roi_annual": "17,92%", "months": "14", "date_start": "27.11.2024", "date_end": "31.01.2026"},
+    {"id": "ИП 91", "name": "ИП 91 ЗУ+Дом Пермский край, г. Добрянка, ул. Луначарского, д. 33", "address": "ЗУ+Дом Пермский край, г. Добрянка, ул. Луначарского, д. 33", "lat": 58.44965, "lon": 56.4106538, "status": "active", "purchase": 2315600.0, "sale": 11500000.0, "profit_investors": 1173373.72, "roi": "11,00%", "roi_annual": "7,41%", "months": "18", "date_start": "11.12.2024", "date_end": "06.06.2026"},
+    {"id": "ИП 92", "name": "ИП 92 КП Пермский край, г. Нытва, ул. Карла Маркса, зд. 84", "address": "КП Пермский край, г. Нытва, ул. Карла Маркса, зд. 84", "lat": 57.9419857, "lon": 55.3255315, "status": "active", "purchase": 4463300.0, "sale": 28160000.0, "profit_investors": 3900887.18, "roi": "24,76%", "roi_annual": "24,76%", "months": "12", "date_start": "25.12.2024", "date_end": "25.12.2025"},
+    {"id": "ИП 93", "name": "ИП 93 ЗУ Пермский край, д. Загришинское, ул. Солнечная, зу 45", "address": "ЗУ Пермский край, д. Загришинское, ул. Солнечная, зу 45", "lat": 58.2348071, "lon": 56.3036615, "status": "active", "purchase": 360000.0, "sale": 700000.0, "profit_investors": 112282.72, "roi": "28,59%", "roi_annual": "19,76%", "months": "18", "date_start": "25.12.2024", "date_end": "06.06.2026"},
+    {"id": "ИП 94", "name": "ИП 94 ЗУ+Дом Пермский край, д. Устиново, ул. Школьная, д. 3", "address": "ЗУ+Дом Пермский край, д. Устиново, ул. Школьная, д. 3", "lat": 57.9092938, "lon": 56.2047085, "status": "active", "purchase": 2200000.0, "sale": 7700000.0, "profit_investors": 84216.67, "roi": "1,45%", "roi_annual": "1,00%", "months": "18", "date_start": "25.12.2024", "date_end": "06.06.2026"},
+    {"id": "ИП 95", "name": "ИП 95 ЗУ Пермский край, дер. Городище", "address": "ЗУ Пермский край, дер. Городище", "lat": 58.170188, "lon": 56.3567, "status": "active", "purchase": 278999.99, "sale": 500000.0, "profit_investors": 52151.54, "roi": "16,21%", "roi_annual": "11,67%", "months": "17", "date_start": "15.01.2025", "date_end": "06.06.2026"},
+    {"id": "ИП 96", "name": "ИП 96 ЗУ Пермский край, Краснокамск, ул. Тупиковая/ул.Осинская", "address": "ЗУ Пермский край, Краснокамск, ул. Тупиковая/ул.Осинская", "lat": 58.0820673, "lon": 55.7478889, "status": "active", "purchase": 1215994.84, "sale": 2600000.0, "profit_investors": 553799.83, "roi": "38,71%", "roi_annual": "31,05%", "months": "15", "date_start": "23.01.2025", "date_end": "23.04.2026"},
+    {"id": "ИП 101", "name": "ИП 101 ЗУ г. Пермь, ул. Затонская, з/у 16а", "address": "ЗУ г. Пермь, ул. Затонская, з/у 16а", "lat": 58.147635, "lon": 56.3109351, "status": "active", "purchase": 1577600.0, "sale": 2500000.0, "profit_investors": 332245.68, "roi": "20,26%", "roi_annual": "17,12%", "months": "14", "date_start": "31.03.2025", "date_end": "06.06.2026"},
+    {"id": "ИП 102", "name": "ИП 102 ЗУ Пермский край, рп Оверята, ул Молодежная, зу 108", "address": "ЗУ Пермский край, рп Оверята, ул Молодежная, зу 108", "lat": 58.0920406, "lon": 55.857351, "status": "active", "purchase": 451322.56, "sale": 1000000.0, "profit_investors": 162661.11, "roi": "29,95%", "roi_annual": "24,90%", "months": "15", "date_start": "24.03.2025", "date_end": "06.06.2026"},
+    {"id": "ИП 105", "name": "ИП 105 КП г. Пермь, ул. Теплогорская, д. 22, лот 25", "address": "КП г. Пермь, ул. Теплогорская, д. 22, лот 25", "lat": 57.9659743, "lon": 56.1761282, "status": "active", "purchase": 735174.0, "sale": 3527350.0, "profit_investors": 491813.98, "roi": "30,00%", "roi_annual": "44,51%", "months": "8", "date_start": "14.05.2025", "date_end": "15.01.2026"},
+    {"id": "ИП 106", "name": "ИП 106 КП г. Пермь, ул. Теплогорская, д. 22, лот 3", "address": "КП г. Пермь, ул. Теплогорская, д. 22, лот 3", "lat": 57.9659743, "lon": 56.1761282, "status": "active", "purchase": 681835.0, "sale": 1803200.0, "profit_investors": 177295.75, "roi": "15,18%", "roi_annual": "10,08%", "months": "18", "date_start": "14.05.2025", "date_end": "15.11.2026"},
+    {"id": "ИП 107", "name": "ИП 107 КП г. Пермь, ул. Теплогорская, д. 22, лот 23", "address": "КП г. Пермь, ул. Теплогорская, д. 22, лот 23", "lat": 57.9659743, "lon": 56.1761282, "status": "active", "purchase": 947606.0, "sale": 5662000.0, "profit_investors": 947269.62, "roi": "46,72%", "roi_annual": "31,00%", "months": "18", "date_start": "14.05.2025", "date_end": "15.11.2026"},
+    {"id": "ИП 108", "name": "ИП 108 ЗУ Пермский край, п. Красный Восход, ул. Пермская, зу 37", "address": "ЗУ Пермский край, п. Красный Восход, ул. Пермская, зу 37", "lat": 57.9935313, "lon": 55.712637, "status": "active", "purchase": 225000.0, "sale": 500000.0, "profit_investors": 75733.77, "roi": "29,98%", "roi_annual": "29,90%", "months": "12", "date_start": "14.05.2025", "date_end": "15.05.2026"},
+    {"id": "ИП 110", "name": "ИП 110 НП Пермский край, с Троица, ул Советская, 12", "address": "НП Пермский край, с Троица, ул Советская, 12", "lat": 54.4007901, "lon": 40.2316608, "status": "active", "purchase": 717520.0, "sale": 2800000.0, "profit_investors": 540168.8, "roi": "38,88%", "roi_annual": "38,88%", "months": "12", "date_start": "01.06.2025", "date_end": "01.06.2026"},
+    {"id": "ИП 111", "name": "ИП 111 ЗУ Калининградская обл., СНТ «Сосновка», уч.14б", "address": "ЗУ Калининградская обл., СНТ «Сосновка», уч.14б", "lat": 54.9218394, "lon": 20.5200337, "status": "active", "purchase": 588888.88, "sale": 1300000.0, "profit_investors": 224861.95, "roi": "34,75%", "roi_annual": "34,75%", "months": "12", "date_start": "09.06.2024", "date_end": "09.06.2025"},
+    {"id": "ИП 112", "name": "ИП 112 КП г. Пермь, ул. Липатова, д. 5, лот 7", "address": "КП г. Пермь, ул. Липатова, д. 5, лот 7", "lat": 58.0207428, "lon": 56.3444954, "status": "active", "purchase": 1350000.0, "sale": 4000000.0, "profit_investors": 1035729.67, "roi": "17,10%", "roi_annual": "17,24%", "months": "12", "date_start": "09.06.2025", "date_end": "06.06.2026"},
+    {"id": "ИП 113", "name": "ИП 113 КП г. Пермь, ул. Липатова, д. 5, лот 11", "address": "КП г. Пермь, ул. Липатова, д. 5, лот 11", "lat": 58.010446, "lon": 56.229429, "status": "active", "purchase": 1350000.0, "sale": 0.0, "profit_investors": 636506.35, "roi": "-32,92%", "roi_annual": "0,26%", "months": "-1526", "date_start": "09.06.2025", "date_end": ""},
+    {"id": "ИП 114", "name": "ИП 114 КП г. Пермь, ул. Липатова, д. 5, каб. 5-7", "address": "КП г. Пермь, ул. Липатова, д. 5, каб. 5-7", "lat": 58.010446, "lon": 56.229429, "status": "active", "purchase": 1350000.0, "sale": 0.0, "profit_investors": 637299.92, "roi": "-32,08%", "roi_annual": "0,26%", "months": "-1526", "date_start": "09.06.2025", "date_end": ""},
+    {"id": "ИП 115", "name": "ИП 115 ЗУ г. Пермь, ул. Новосельская, з/у 1в", "address": "ЗУ г. Пермь, ул. Новосельская, з/у 1в", "lat": 58.0487603, "lon": 56.0469202, "status": "active", "purchase": 1614900.0, "sale": 2600000.0, "profit_investors": 353595.87, "roi": "19,41%", "roi_annual": "27,15%", "months": "9", "date_start": "18.09.2025", "date_end": "06.06.2026"},
+    {"id": "ИП 116", "name": "ИП 116 ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у22 (лот 2)", "address": "ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у22 (лот 2)", "lat": 57.8937927, "lon": 55.9342434, "status": "active", "purchase": 750000.0, "sale": 1500000.0, "profit_investors": 264132.08, "roi": "31,95%", "roi_annual": "31,95%", "months": "12", "date_start": "10.12.2025", "date_end": "10.12.2026"},
+    {"id": "ИП 117", "name": "ИП 117 ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у21 (лот 4)", "address": "ЗУ Пермский край, с. Култаево, ул. Царскосельская, з/у21 (лот 4)", "lat": 57.9012289, "lon": 55.895672, "status": "active", "purchase": 735000.0, "sale": 1400000.0, "profit_investors": 225813.0, "roi": "26,49%", "roi_annual": "64,02%", "months": "5", "date_start": "16.12.2025", "date_end": "16.05.2026"},
+    {"id": "ИП 118", "name": "ИП 118 ЗУ Пермский край, село Култаево (лот 1)", "address": "ЗУ Пермский край, село Култаево (лот 1)", "lat": 57.8937927, "lon": 55.9342434, "status": "active", "purchase": 869000.0, "sale": 1700000.0, "profit_investors": 309971.1, "roi": "32,23%", "roi_annual": "32,23%", "months": "12", "date_start": "19.12.2025", "date_end": "19.12.2026"},
+    {"id": "ИП 119", "name": "ИП 119 Аренда ЗУ г. Пермь, ул. Башкирская, зу 54", "address": "Аренда ЗУ г. Пермь, ул. Башкирская, зу 54", "lat": 58.0575722, "lon": 56.0185186, "status": "active", "purchase": 914925.0, "sale": 2000000.0, "profit_investors": 446762.91, "roi": "42,12%", "roi_annual": "80,91%", "months": "6", "date_start": "20.12.2025", "date_end": "28.06.2026"},
+    {"id": "ИП 120", "name": "ИП 120 ЗУ Пермский край, д. Шилово, ул. Разгуляевская, з/у 12", "address": "ЗУ Пермский край, д. Шилово, ул. Разгуляевская, з/у 12", "lat": 57.9211223, "lon": 55.8895448, "status": "active", "purchase": 713156.0, "sale": 1500000.0, "profit_investors": 283476.93, "roi": "35,38%", "roi_annual": "35,38%", "months": "12", "date_start": "24.02.2026", "date_end": "24.02.2027"},
+    {"id": "ИП 121", "name": "ИП 121 ЗУ Пермский край, д. Загришинское, ул. Солнечная, з/у 49", "address": "ЗУ Пермский край, д. Загришинское, ул. Солнечная, з/у 49", "lat": 58.2348071, "lon": 56.3036615, "status": "active", "purchase": 393222.0, "sale": 800000.0, "profit_investors": 169382.19, "roi": "36,74%", "roi_annual": "36,74%", "months": "12", "date_start": "24.02.2026", "date_end": "24.02.2027"},
+    {"id": "ИП 122", "name": "ИП 122 ЗУ Аренда г. Пермь, ул. Черногорская, зу 52д", "address": "ЗУ Аренда г. Пермь, ул. Черногорская, зу 52д", "lat": 58.0487603, "lon": 56.0469202, "status": "active", "purchase": 517800.0, "sale": 1500000.0, "profit_investors": 388414.73, "roi": "65,89%", "roi_annual": "65,89%", "months": "12", "date_start": "02.03.2026", "date_end": "02.03.2027"},
+    {"id": "ИП 123", "name": "ИП 123 ЗУ Аренда Пермский край, д. Загришинское, ул. Солнечная, зу 59", "address": "ЗУ Аренда Пермский край, д. Загришинское, ул. Солнечная, зу 59", "lat": 58.2348071, "lon": 56.3036615, "status": "active", "purchase": 66964.21, "sale": 380000.0, "profit_investors": 109566.61, "roi": "87,86%", "roi_annual": "87,86%", "months": "12", "date_start": "02.03.2026", "date_end": "02.03.2027"}
+];
+const ALL = [...SOLD, ...ACTIVE];
+
+let map, currentFilter = 'all', placemarks = [];
+
+ymaps.ready(function() {
+  map = new ymaps.Map('map', {
+    center: [58.0, 56.3],
+    zoom: 10,
+    controls: ['zoomControl']
+  });
+  renderAll();
+});
+
+function fmt(n) {
+  if (!n) return '—';
+  return Math.round(n).toLocaleString('ru-RU');
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAll();
+}
+
+function renderAll() {
+  // Clear
+  placemarks.forEach(p => map.geoObjects.remove(p));
+  placemarks = [];
+
+  const items = currentFilter === 'all' ? ALL :
+                currentFilter === 'sold' ? SOLD : ACTIVE;
+
+  // Cards
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  items.forEach((obj, i) => {
+    const isSold = obj.status === 'sold';
+    const card = document.createElement('div');
+    card.className = 'obj-card ' + obj.status;
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span class="obj-name">${obj.id}</span>
+        <span class="badge ${isSold ? 'badge-sold' : 'badge-active'}">${isSold ? 'Продан' : 'В продаже'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${obj.address}</div>
+      <div class="obj-row"><span>Покупка</span><span class="val">${fmt(obj.purchase)}</span></div>
+      <div class="obj-row"><span>Продажа</span><span class="val">${fmt(obj.sale)}</span></div>
+      ${obj.roi ? `<div class="obj-row"><span>ROI</span><span class="obj-roi">${obj.roi}</span></div>` : ''}
+      ${obj.months ? `<div class="obj-row"><span>Срок</span><span class="val">${obj.months} мес</span></div>` : ''}
+    `;
+    card.onclick = () => {
+      map.setCenter([obj.lat, obj.lon], 14, {duration: 300});
+    };
+    container.appendChild(card);
+
+    // Placemark
+    const color = isSold ? '#10b981' : '#f59e0b';
+    const pm = new ymaps.Placemark([obj.lat, obj.lon], {
+      balloonContentHeader: `<b>${obj.id}</b> <span style="color:${color}">${isSold ? 'Продан' : 'В продаже'}</span>`,
+      balloonContentBody: `
+        <div>${obj.address}</div>
+        <div style="margin-top:6px">
+          <b>Покупка:</b> ${fmt(obj.purchase)} руб<br>
+          <b>Продажа:</b> ${fmt(obj.sale)} руб<br>
+          ${obj.roi ? `<b>ROI:</b> ${obj.roi}<br>` : ''}
+          ${obj.months ? `<b>Срок:</b> ${obj.months} мес` : ''}
+        </div>
+      `,
+      hintContent: obj.id
+    }, {
+      preset: isSold ? 'islands#greenDotIcon' : 'islands#yellowDotIcon'
+    });
+    map.geoObjects.add(pm);
+    placemarks.push(pm);
+  });
+
+  // Fit bounds
+  if (placemarks.length > 1) {
+    const bounds = map.geoObjects.getBounds();
+    if (bounds) map.setBounds(bounds, {checkZoomRange: true, zoomMargin: 50});
+  }
+}
+
+// Подгрузка кадастровых границ из Supabase
+async function loadBoundaries() {
+  try {
+    const resp = await fetch(
+      'https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=lot_id,cadastral_number,boundary_geojson&boundary_geojson=not.is.null',
+      { headers: { apikey: 'sb_publishable_JO8ZrGiCpncWrffYQO9LoQ_OOAwQj2V' } }
+    );
+    const lots = await resp.json();
+    lots.forEach(lot => {
+      if (!lot.boundary_geojson || !lot.boundary_geojson.coordinates) return;
+      const coords = lot.boundary_geojson.coordinates[0].map(p => [p[1], p[0]]);
+      const polygon = new ymaps.Polygon([coords], {
+        hintContent: lot.cadastral_number
+      }, {
+        fillColor: '#6366f120',
+        strokeColor: '#6366f1',
+        strokeWidth: 1,
+        strokeStyle: 'dash'
+      });
+      map.geoObjects.add(polygon);
+    });
+    console.log('Загружено границ:', lots.length);
+  } catch(e) {
+    console.error('Ошибка загрузки границ:', e);
+  }
+}
+
+// Чекбокс для границ
+map.events.once('boundschange', () => loadBoundaries());
+</script>
+</body>
+</html>

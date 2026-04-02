@@ -1,2 +1,8 @@
 .DS_Store
 *.docx
+__pycache__/
+*.pyc
+*.pyo
+.claude/
+Домовенок/bot.py
+*.zip

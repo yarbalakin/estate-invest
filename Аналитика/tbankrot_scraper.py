@@ -182,6 +182,7 @@ def parse_lots_html(html):
             "etp_url": "",
             "discount": "",
             "date_posted": "",
+            "trade_type": "",
         }
 
         # Название
@@ -196,8 +197,12 @@ def parse_lots_html(html):
         desc_div = lot_div.select_one("div.lot_description div.text")
         desc_text = desc_div.get_text(strip=True) if desc_div else ""
 
-        # Кадастровый номер
-        cad = re.search(r"\d{2}:\d{2}:\d{5,7}:\d+", desc_text)
+        # Необразованные участки — пропускаем (нет кадастра, только будущий лот)
+        if "не образован" in desc_text.lower():
+            lot["skip"] = True
+
+        # Кадастровый номер (полный XX:XX:XXXXXXX:123 или частичный XX:XX:XXXXXXX:ЗУ1)
+        cad = re.search(r"\d{2}:\d{2}:\d{5,7}:[\dА-Яа-яA-Za-z]+", desc_text)
         if cad:
             lot["cadastral"] = cad.group(0)
 
@@ -224,6 +229,8 @@ def parse_lots_html(html):
                     m = re.search(r"(\d{2}\.\d{2}\.\d{2,4})", title)
                     if m:
                         lot["deadline"] = m.group(1)
+                    if "окончание этапа" in tl:
+                        lot["trade_type"] = "public_offer"
                 elif "торгов" in tl or "начало" in tl:
                     lot["auction_date"] = text
 
@@ -302,7 +309,10 @@ def parse_detail_page(html, lot):
     soup = BeautifulSoup(html, "html.parser")
     text = soup.get_text(separator="\n", strip=True)
 
-    cad = re.search(r"\d{2}:\d{2}:\d{5,7}:\d+", text)
+    if "не образован" in text.lower():
+        lot["skip"] = True
+
+    cad = re.search(r"\d{2}:\d{2}:\d{5,7}:[\dА-Яа-яA-Za-z]+", text)
     if cad:
         lot["cadastral"] = cad.group(0)
 
@@ -330,7 +340,13 @@ def parse_detail_page(html, lot):
         text, re.I,
     )
     if trade_m:
-        lot["trade_type"] = trade_m.group(1)
+        raw = trade_m.group(1).lower()
+        if "публичн" in raw:
+            lot["trade_type"] = "public_offer"
+        elif "конкурс" in raw:
+            lot["trade_type"] = "contest"
+        else:
+            lot["trade_type"] = "auction"
 
     debtor_m = re.search(r"(?:Должник|Банкрот)[:\s]*([^\n]{5,150})", text, re.I)
     if debtor_m:
@@ -595,7 +611,19 @@ CATEGORY_TO_TYPE = {
 }
 
 
+_ZU_RE = re.compile(r":[ЗзZz][УуUu]\d*$", re.IGNORECASE)
+
+
 def write_to_supabase(lot, category):
+    # Пропускаем необразованные участки и ЗУ-кадастры
+    if lot.get("skip"):
+        log.debug("Пропуск необразованного участка: %s", lot.get("id"))
+        return False
+    cad = lot.get("cadastral", "") or ""
+    if cad and _ZU_RE.search(cad):
+        log.debug("Пропуск ЗУ-кадастра: %s (%s)", lot.get("id"), cad)
+        return False
+
     try:
         sb = _get_supabase()
         if not sb:
@@ -639,6 +667,7 @@ def write_to_supabase(lot, category):
             "area": area,
             "area_unit": "sotka" if is_land else "m2",
             "bidd_type": "Банкротство (TBankrot)",
+            "trade_type": lot.get("trade_type") or "auction",
             "auction_date": lot.get("auction_date", ""),
             "application_end": lot.get("deadline", ""),
             "status": "PUBLISHED",

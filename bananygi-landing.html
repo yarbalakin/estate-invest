@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>БАНАН ЯГИ — Инвестиционная платформа</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="ООО БАНАН ЯГИ — оператор инвестиционной платформы. Реестр ЦБ РФ №105. Готовимся к запуску.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090b;--surface:#111116;--surface2:#1c1c22;--surface3:#242430;
+  --border:#2a2a3a;--border2:#3a3a4a;
+  --text:#e4e4ed;--text2:#8888a0;--text3:#555568;
+  --accent:#7c6cf0;--accent2:#a29bfe;--accent-glow:#7c6cf030;
+  --green:#22c55e;--blue:#3b82f6;
+  --radius:12px;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+
+/* Animated gradient background */
+.bg-glow{position:fixed;top:-40%;left:-20%;width:140%;height:140%;background:radial-gradient(ellipse at 30% 20%,#7c6cf008 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,#3b82f606 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.container{max-width:720px;width:100%;padding:0 24px;position:relative;z-index:1}
+
+/* Header */
+header{width:100%;padding:24px 0;text-align:center}
+.logo{font-size:14px;font-weight:800;letter-spacing:2px;color:var(--text3);text-transform:uppercase}
+
+/* Hero */
+.hero{text-align:center;padding:80px 0 48px}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:8px 20px;font-size:12px;font-weight:600;color:var(--accent2);margin-bottom:32px}
+.badge-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:900;line-height:1.15;margin-bottom:16px;color:var(--accent2)}
+@supports(-webkit-background-clip:text){.hero h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent2) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}}
+.hero p{font-size:17px;color:var(--text2);line-height:1.7;max-width:520px;margin:0 auto}
+
+/* Info card */
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;margin-bottom:24px}
+.info-card h2{font-size:16px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.info-card h2 .icon{color:var(--accent2)}
+
+/* Company details table */
+.details{display:grid;gap:12px}
+.detail-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font-size:13px;color:var(--text3);flex-shrink:0;min-width:200px}
+.detail-value{font-size:13px;color:var(--text);text-align:right;font-weight:500}
+.detail-value a{color:var(--accent2);text-decoration:none}
+.detail-value a:hover{text-decoration:underline}
+
+/* Documents list */
+.doc-list{list-style:none;padding:0;display:grid;gap:8px}
+.doc-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;transition:all 150ms ease;cursor:pointer;text-decoration:none;color:var(--text)}
+.doc-item:hover{border-color:var(--accent);background:var(--surface3);transform:translateX(4px)}
+.doc-icon{width:36px;height:36px;background:var(--accent-glow);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.doc-info{flex:1}
+.doc-name{font-size:13px;font-weight:600}
+.doc-desc{font-size:11px;color:var(--text3);margin-top:2px}
+.doc-arrow{color:var(--text3);font-size:14px;transition:transform 150ms ease}
+.doc-item:hover .doc-arrow{transform:translateX(3px);color:var(--accent2)}
+
+/* Placeholder for documents not yet uploaded */
+.doc-item.pending{opacity:.5;cursor:default;pointer-events:none}
+.doc-item.pending .doc-icon{background:var(--surface2)}
+
+/* Status section */
+.status-banner{background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;display:flex;align-items:flex-start;gap:16px}
+.status-icon{font-size:28px;flex-shrink:0;margin-top:2px}
+.status-text h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.status-text p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.contact-item{padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;text-align:center}
+.contact-item .label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.contact-item .value{font-size:13px;font-weight:600}
+.contact-item .value a{color:var(--accent2);text-decoration:none}
+
+/* Footer */
+footer{padding:48px 0 32px;text-align:center;width:100%}
+.footer-line{font-size:11px;color:var(--text3);line-height:1.8}
+.footer-line a{color:var(--text3);text-decoration:none}
+.footer-line a:hover{color:var(--accent2)}
+.footer-reg{margin-top:8px;font-size:10px;color:var(--text3);opacity:.6}
+
+/* Responsive */
+@media(max-width:600px){
+  .hero{padding:48px 0 32px}
+  .info-card{padding:20px}
+  .detail-row{flex-direction:column;gap:2px}
+  .detail-label{min-width:auto}
+  .detail-value{text-align:left}
+  .contact-grid{grid-template-columns:1fr}
+  .status-banner{flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="container">
+
+<header>
+  <div class="logo">БАНАН ЯГИ</div>
+</header>
+
+<section class="hero">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Реестр ЦБ РФ &mdash; оператор №105
+  </div>
+  <h1>Готовимся к запуску</h1>
+  <p>Инвестиционная платформа для вложений в недвижимость. Сейчас ведутся технические работы &mdash; скоро здесь появится личный кабинет инвестора.</p>
+</section>
+
+<!-- Status -->
+<div class="status-banner">
+  <div class="status-icon">&#9881;</div>
+  <div class="status-text">
+    <h3>Платформа в разработке</h3>
+    <p>ООО «БАНАН ЯГИ» включено в реестр операторов инвестиционных платформ Банка России 20.03.2026 (запись №105). Мы готовим инфраструктуру, тестируем системы и оформляем документацию в соответствии с требованиями 259-ФЗ.</p>
+  </div>
+</div>
+
+<!-- Company info -->
+<div class="info-card">
+  <h2><span class="icon">&#9670;</span> Сведения об операторе</h2>
+  <div class="details">
+    <div class="detail-row">
+      <span class="detail-label">Полное наименование</span>
+      <span class="detail-value">Общество с ограниченной ответственностью «БАНАН ЯГИ»</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Сокращённое наименование</span>
+      <span class="detail-value">ООО «БАНАН ЯГИ»</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">ИНН</span>
+      <span class="detail-value">5903156505</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Дата включения в реестр ЦБ</span>
+      <span class="detail-value">20.03.2026</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Номер в реестре</span>
+      <span class="detail-value">105</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Реестр ЦБ РФ</span>
+      <span class="detail-value"><a href="https://www.cbr.ru/finm_infrastructure/oper/" target="_blank" rel="noopener">Проверить на сайте Банка России &#8599;</a></span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Место нахождения</span>
+      <span class="detail-value">614068, Пермский край, г. Пермь, ул. Плеханова, д. 13, оф. 55</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Сайт</span>
+      <span class="detail-value"><a href="https://bananygi.ru">bananygi.ru</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- Disclosure documents -->
+<div class="info-card">
+  <h2><span class="icon">&#9830;</span> Раскрытие информации (ст. 15 ФЗ-259)</h2>
+  <p style="font-size:12px;color:var(--text3);margin-bottom:16px;">
+    Документы публикуются в соответствии с Федеральным законом от 02.08.2019 №259-ФЗ «О привлечении инвестиций с использованием инвестиционных платформ».
+  </p>
+  <ul class="doc-list">
+
+    <!-- Active documents (replace # with real links when ready) -->
+    <a class="doc-item" href="/docs/charter.pdf" target="_blank">
+      <div class="doc-icon">&#128220;</div>
+      <div class="doc-info">
+        <div class="doc-name">Устав ООО «БАНАН ЯГИ»</div>
+        <div class="doc-desc">Актуальная редакция учредительного документа</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf" target="_blank">
+      <div class="doc-icon">&#128203;</div>
+      <div class="doc-info">
+        <div class="doc-name">Правила инвестиционной платформы</div>
+        <div class="doc-desc">Условия работы платформы, права и обязанности сторон</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf#page=36" target="_blank">
+      <div class="doc-icon">&#9888;</div>
+      <div class="doc-info">
+        <div class="doc-name">Декларация о рисках</div>
+        <div class="doc-desc">Описание рисков, связанных с инвестированием</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf#page=64" target="_blank">
+      <div class="doc-icon">&#128176;</div>
+      <div class="doc-info">
+        <div class="doc-name">Тарифы и комиссии</div>
+        <div class="doc-desc">Виды, размеры и сроки взимания платы за услуги</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf#page=14" target="_blank">
+      <div class="doc-icon">&#128101;</div>
+      <div class="doc-info">
+        <div class="doc-name">Порядок присоединения к договору</div>
+        <div class="doc-desc">Процедура регистрации для инвесторов и заёмщиков</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf#page=12" target="_blank">
+      <div class="doc-icon">&#128200;</div>
+      <div class="doc-info">
+        <div class="doc-name">Процедура инвестирования</div>
+        <div class="doc-desc">Порядок размещения инвестиций через платформу</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="/docs/rules.pdf#page=42" target="_blank">
+      <div class="doc-icon">&#128221;</div>
+      <div class="doc-info">
+        <div class="doc-name">Регламент квалификации инвесторов</div>
+        <div class="doc-desc">Порядок признания физлиц квалифицированными инвесторами</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <a class="doc-item" href="#" target="_blank">
+      <div class="doc-icon">&#128274;</div>
+      <div class="doc-info">
+        <div class="doc-name">Политика обработки персональных данных</div>
+        <div class="doc-desc">Порядок сбора, хранения и обработки персональных данных</div>
+      </div>
+      <span class="doc-arrow">&rarr;</span>
+    </a>
+
+    <!-- Future documents -->
+    <div class="doc-item pending">
+      <div class="doc-icon">&#128202;</div>
+      <div class="doc-info">
+        <div class="doc-name">Годовая бухгалтерская отчётность</div>
+        <div class="doc-desc">Будет опубликована по итогам отчётного периода</div>
+      </div>
+    </div>
+
+    <div class="doc-item pending">
+      <div class="doc-icon">&#128196;</div>
+      <div class="doc-info">
+        <div class="doc-name">Годовой отчёт оператора</div>
+        <div class="doc-desc">Будет опубликован по итогам отчётного периода</div>
+      </div>
+    </div>
+
+  </ul>
+</div>
+
+<!-- Additional info -->
+<div class="info-card">
+  <h2><span class="icon">&#9670;</span> Дополнительная информация</h2>
+  <div class="details">
+    <div class="detail-row">
+      <span class="detail-label">Контролирующий орган</span>
+      <span class="detail-value"><a href="https://www.cbr.ru" target="_blank" rel="noopener">Банк России (ЦБ РФ)</a></span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Интернет-приёмная ЦБ</span>
+      <span class="detail-value"><a href="https://www.cbr.ru/Reception/" target="_blank" rel="noopener">cbr.ru/Reception</a></span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Квалификация инвестора</span>
+      <span class="detail-value">Признание квалифицированным инвестором не является необходимым условием для оказания услуг по содействию в инвестировании</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Срок восстановления при сбоях</span>
+      <span class="detail-value"><a href="/docs/rules.pdf#page=60" target="_blank">Согласно Приложению №11 к Правилам</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- Contact -->
+<div class="info-card">
+  <h2><span class="icon">&#9670;</span> Контакты</h2>
+  <div class="contact-grid" style="grid-template-columns:1fr 1fr">
+    <div class="contact-item">
+      <div class="label">Email</div>
+      <div class="value"><a href="mailto:corp@bananygi.ru">corp@bananygi.ru</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="label">Телефон</div>
+      <div class="value"><a href="tel:+74952051390">8-495-205-13-90</a></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <div class="footer-line">
+    &copy; 2026 ООО &laquo;БАНАН ЯГИ&raquo; &middot; ИНН 5903156505 &middot; <a href="https://www.cbr.ru/finm_infrastructure/oper/" target="_blank">Реестр операторов ЦБ РФ №105</a>
+  </div>
+  <div class="footer-reg">
+    Деятельность осуществляется в соответствии с Федеральным законом от 02.08.2019 №259-ФЗ
+  </div>
+</footer>
+
+</body>
+</html>

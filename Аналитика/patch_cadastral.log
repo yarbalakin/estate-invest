@@ -1,0 +1,992 @@
+09:51:32 INFO Загрузка лотов tbankrot без кадастра...
+09:51:33 INFO HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=lot_id&source=eq.tbankrot&cadastral_number=is.null&offset=0&limit=1000 "HTTP/2 200 OK"
+09:51:33 INFO Найдено 597 лотов без кадастра
+09:51:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570925 "HTTP/2 200 OK"
+09:51:34 INFO [1/597] TB-7570925 → 39:10:480001:ЗУ15
+09:51:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520280 "HTTP/2 200 OK"
+09:51:35 INFO [2/597] TB-7520280 → 39:16:010650:ЗУ
+09:51:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522580 "HTTP/2 200 OK"
+09:51:37 INFO [3/597] TB-7522580 → 39:15:150802:1043
+09:51:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7528799 "HTTP/2 200 OK"
+09:51:39 INFO [4/597] TB-7528799 → 59:26:0900101:100000
+09:51:40 INFO [5/597] TB-7548280 — кадастр не найден
+09:51:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560421 "HTTP/2 200 OK"
+09:51:42 INFO [6/597] TB-7560421 → 39:02:040004:ЗУ
+09:51:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560148 "HTTP/2 200 OK"
+09:51:44 INFO [7/597] TB-7560148 → 39:02:350008:ЗУ1
+09:51:46 INFO [8/597] TB-7521686 — кадастр не найден
+09:51:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7573403 "HTTP/2 200 OK"
+09:51:47 INFO [9/597] TB-7573403 → 39:10:170001:ЗУ1
+09:51:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560424 "HTTP/2 200 OK"
+09:51:49 INFO [10/597] TB-7560424 → 39:02:100001:ЗУ1
+09:51:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521865 "HTTP/2 200 OK"
+09:51:51 INFO [11/597] TB-7521865 → 81:07:0118003:133
+09:51:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521925 "HTTP/2 200 OK"
+09:51:53 INFO [12/597] TB-7521925 → 81:03:0811006:ЗУ1
+09:51:55 INFO [13/597] TB-7541687 — кадастр не найден
+09:51:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537695 "HTTP/2 200 OK"
+09:51:56 INFO [14/597] TB-7537695 → 59:34:0340101:ЗУ1
+09:51:58 INFO [15/597] TB-7538389 — кадастр не найден
+09:52:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536573 "HTTP/2 200 OK"
+09:52:00 INFO [16/597] TB-7536573 → 59:19:1301003:ЗУ2
+09:52:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536581 "HTTP/2 200 OK"
+09:52:01 INFO [17/597] TB-7536581 → 59:19:1801001:ЗУ10
+09:52:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524990 "HTTP/2 200 OK"
+09:52:03 INFO [18/597] TB-7524990 → 59:05:0101010:ЗУ1
+09:52:05 INFO [19/597] TB-7552325 — кадастр не найден
+09:52:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562198 "HTTP/2 200 OK"
+09:52:07 INFO [20/597] TB-7562198 → 39:10:120002:ЗУ1
+09:52:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556781 "HTTP/2 200 OK"
+09:52:10 INFO [21/597] TB-7556781 → 39:10:480001:ЗУ1
+09:52:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522780 "HTTP/2 200 OK"
+09:52:12 INFO [22/597] TB-7522780 → 39:15:150802:1043
+09:52:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560420 "HTTP/2 200 OK"
+09:52:14 INFO [23/597] TB-7560420 → 39:02:010302:8
+09:52:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562201 "HTTP/2 200 OK"
+09:52:17 INFO [25/597] TB-7562201 → 39:10:010052:ЗУ1
+09:52:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531178 "HTTP/2 200 OK"
+09:52:19 INFO [26/597] TB-7531178 → 39:10:010011:ЗУ1
+09:52:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527378 "HTTP/2 200 OK"
+09:52:21 INFO [27/597] TB-7527378 → 39:02:330001:ЗУ1
+09:52:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568090 "HTTP/2 200 OK"
+09:52:24 INFO [29/597] TB-7568090 → 39:21:010102:ЗУ1
+09:52:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531173 "HTTP/2 200 OK"
+09:52:26 INFO [30/597] TB-7531173 → 39:10:380002:ЗУ1
+09:52:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569578 "HTTP/2 200 OK"
+09:52:27 INFO [31/597] TB-7569578 → 39:16:010416:ЗУ1
+09:52:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527629 "HTTP/2 200 OK"
+09:52:29 INFO [32/597] TB-7527629 → 39:05:060504:ЗУ1
+09:52:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518006 "HTTP/2 200 OK"
+09:52:30 INFO [33/597] TB-7518006 → 59:03:0400087:1997
+09:52:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557062 "HTTP/2 200 OK"
+09:52:32 INFO [34/597] TB-7557062 → 59:12:0010745:988
+09:52:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529205 "HTTP/2 200 OK"
+09:52:34 INFO [35/597] TB-7529205 → 39:10:380009:ЗУ2
+09:52:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527646 "HTTP/2 200 OK"
+09:52:36 INFO [36/597] TB-7527646 → 39:05:030101:ЗУ1
+09:52:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556859 "HTTP/2 200 OK"
+09:52:38 INFO [37/597] TB-7556859 → 32:03:0470202:1
+09:52:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531174 "HTTP/2 200 OK"
+09:52:41 INFO [38/597] TB-7531174 → 39:10:380005:ЗУ1
+09:52:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531182 "HTTP/2 200 OK"
+09:52:44 INFO [40/597] TB-7531182 → 39:10:010052:ЗУ1
+09:52:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524007 "HTTP/2 200 OK"
+09:52:46 INFO [41/597] TB-7524007 → 32:20:0250101:104
+09:52:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527619 "HTTP/2 200 OK"
+09:52:52 INFO [44/597] TB-7527619 → 39:05:030611:ЗУ1
+09:52:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7502635 "HTTP/2 200 OK"
+09:52:54 INFO [45/597] TB-7502635 → 59:11:0000000:5262
+09:52:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527614 "HTTP/2 200 OK"
+09:52:57 INFO [47/597] TB-7527614 → 39:05:030503:ЗУ1
+09:52:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543385 "HTTP/2 200 OK"
+09:52:59 INFO [48/597] TB-7543385 → 32:12:0010609:164
+09:53:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527631 "HTTP/2 200 OK"
+09:53:01 INFO [49/597] TB-7527631 → 39:05:050104:ЗУ1
+09:53:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538618 "HTTP/2 200 OK"
+09:53:03 INFO [50/597] TB-7538618 → 32:20:0380507:5
+09:53:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527622 "HTTP/2 200 OK"
+09:53:09 INFO [53/597] TB-7527622 → 39:05:030402:ЗУ1
+09:53:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527640 "HTTP/2 200 OK"
+09:53:12 INFO [55/597] TB-7527640 → 39:05:040203:ЗУ1
+09:53:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7540869 "HTTP/2 200 OK"
+09:53:14 INFO [56/597] TB-7540869 → 39:16:010109:ЗУ1
+09:53:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527644 "HTTP/2 200 OK"
+09:53:16 INFO [57/597] TB-7527644 → 39:05:030527:ЗУ1
+09:53:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570922 "HTTP/2 200 OK"
+09:53:21 INFO [59/597] TB-7570922 → 39:10:480001:ЗУ12
+09:53:23 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527615 "HTTP/2 200 OK"
+09:53:23 INFO [60/597] TB-7527615 → 39:05:051115:ЗУ4
+09:53:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543436 "HTTP/2 200 OK"
+09:53:24 INFO [61/597] TB-7543436 → 32:28:0011471:810
+09:53:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527627 "HTTP/2 200 OK"
+09:53:26 INFO [62/597] TB-7527627 → 39:05:060504:ЗУ1
+09:53:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557784 "HTTP/2 200 OK"
+09:53:39 INFO [64/597] TB-7557784 → 32:28:0032015:200
+09:53:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532688 "HTTP/2 200 OK"
+09:53:41 INFO [65/597] TB-7532688 → 39:09:020201:ЗУ1
+09:53:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7565731 "HTTP/2 200 OK"
+09:53:43 INFO [66/597] TB-7565731 → 59:20:2370101:ЗУ1
+09:53:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562199 "HTTP/2 200 OK"
+09:53:45 INFO [67/597] TB-7562199 → 39:10:120002:ЗУ1
+09:53:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7540998 "HTTP/2 200 OK"
+09:53:47 INFO [68/597] TB-7540998 → 39:22:010020:ЗУ1
+09:53:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7553094 "HTTP/2 200 OK"
+09:53:49 INFO [69/597] TB-7553094 → 39:04:230003:зу
+09:53:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591510 "HTTP/2 200 OK"
+09:53:55 INFO [71/597] TB-7591510 → 59:22:0730101:ЗУ1
+09:53:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7554121 "HTTP/2 200 OK"
+09:53:56 INFO [72/597] TB-7554121 → 59:34:2680102:ЗУ1
+09:54:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562877 "HTTP/2 200 OK"
+09:54:00 INFO [74/597] TB-7562877 → 59:04:0101090:ЗУ23
+09:54:02 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7554124 "HTTP/2 200 OK"
+09:54:02 INFO [75/597] TB-7554124 → 59:10:0408002:ЗУ1
+09:54:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584583 "HTTP/2 200 OK"
+09:54:08 INFO [78/597] TB-7584583 → 59:17:1003050:001
+09:54:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591505 "HTTP/2 200 OK"
+09:54:10 INFO [79/597] TB-7591505 → 59:22:0690101:ЗУ1
+09:54:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556783 "HTTP/2 200 OK"
+09:54:12 INFO [80/597] TB-7556783 → 39:10:480001:ЗУ3
+09:54:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560147 "HTTP/2 200 OK"
+09:54:14 INFO [81/597] TB-7560147 → 39:02:240001:ЗУ1
+09:54:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512042 "HTTP/2 200 OK"
+09:54:16 INFO [82/597] TB-7512042 → 59:09:0340001:10
+09:54:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7553404 "HTTP/2 200 OK"
+09:54:21 INFO [84/597] TB-7553404 → 59:09:0480001:53
+09:54:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592516 "HTTP/2 200 OK"
+09:54:22 INFO [85/597] TB-7592516 → 59:26:2520101:55
+09:54:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520328 "HTTP/2 200 OK"
+09:54:26 INFO [87/597] TB-7520328 → 59:37:0430101:1019
+09:54:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516544 "HTTP/2 200 OK"
+09:54:29 INFO [89/597] TB-7516544 → 39:09:070008:ЗУ1
+09:54:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523339 "HTTP/2 200 OK"
+09:54:31 INFO [90/597] TB-7523339 → 59:32:0010003:10926
+09:54:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7517718 "HTTP/2 200 OK"
+09:54:36 INFO [93/597] TB-7517718 → 39:11:070701:ЗУ1
+09:54:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516545 "HTTP/2 200 OK"
+09:54:39 INFO [95/597] TB-7516545 → 39:09:070008:ЗУ1
+09:54:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7526057 "HTTP/2 200 OK"
+09:54:40 INFO [96/597] TB-7526057 → 59:26:0460101:10000000
+09:54:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562894 "HTTP/2 200 OK"
+09:54:43 INFO [98/597] TB-7562894 → 59:04:0101090:ЗУ33
+09:54:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560146 "HTTP/2 200 OK"
+09:54:45 INFO [99/597] TB-7560146 → 39:02:350008:ЗУ1
+09:54:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560423 "HTTP/2 200 OK"
+09:54:47 INFO [100/597] TB-7560423 → 39:02:100001:ЗУ1
+09:54:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560422 "HTTP/2 200 OK"
+09:54:49 INFO [101/597] TB-7560422 → 39:02:100001:ЗУ1
+09:54:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7589650 "HTTP/2 200 OK"
+09:54:51 INFO [102/597] TB-7589650 → 59:32:1170001:1481
+09:54:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521924 "HTTP/2 200 OK"
+09:54:52 INFO [103/597] TB-7521924 → 81:03:0230001:ЗУ1
+09:54:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7528453 "HTTP/2 200 OK"
+09:54:54 INFO [104/597] TB-7528453 → 59:18:0380101:ЗУ1
+09:54:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520333 "HTTP/2 200 OK"
+09:54:56 INFO [105/597] TB-7520333 → 59:37:0890101:1586
+09:54:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520307 "HTTP/2 200 OK"
+09:54:59 INFO [107/597] TB-7520307 → 39:05:011009:683
+09:55:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536578 "HTTP/2 200 OK"
+09:55:01 INFO [108/597] TB-7536578 → 59:19:1209001:ЗУ7
+09:55:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536580 "HTTP/2 200 OK"
+09:55:03 INFO [109/597] TB-7536580 → 59:19:1209003:ЗУ9
+09:55:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584202 "HTTP/2 200 OK"
+09:55:08 INFO [110/597] TB-7584202 → 39:09:010205:ЗУ1
+09:55:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7495096 "HTTP/2 200 OK"
+09:55:12 INFO [111/597] TB-7495096 → 59:26:2380113:508
+09:55:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536582 "HTTP/2 200 OK"
+09:55:14 INFO [112/597] TB-7536582 → 59:19:1201005:206
+09:55:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524989 "HTTP/2 200 OK"
+09:55:16 INFO [113/597] TB-7524989 → 59:05:0101003:ЗУ1
+09:55:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584501 "HTTP/2 200 OK"
+09:55:18 INFO [114/597] TB-7584501 → 39:13:020703:ЗУ1
+09:55:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524988 "HTTP/2 200 OK"
+09:55:20 INFO [115/597] TB-7524988 → 59:05:0101017:ЗУ1
+09:55:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585791 "HTTP/2 200 OK"
+09:55:22 INFO [116/597] TB-7585791 → 39:13:040601:ЗУ1
+09:55:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-5174211 "HTTP/2 200 OK"
+09:55:24 INFO [117/597] TB-5174211 → 39:13:010517:47
+09:55:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584500 "HTTP/2 200 OK"
+09:55:25 INFO [118/597] TB-7584500 → 39:13:020703:ЗУ1
+09:55:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7566244 "HTTP/2 200 OK"
+09:55:30 INFO [120/597] TB-7566244 → 59:32:4370001:47
+09:55:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585793 "HTTP/2 200 OK"
+09:55:35 INFO [123/597] TB-7585793 → 39:13:040601:ЗУ1
+09:55:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520366 "HTTP/2 200 OK"
+09:55:37 INFO [124/597] TB-7520366 → 59:37:0240101:519
+09:55:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7576361 "HTTP/2 200 OK"
+09:55:46 INFO [125/597] TB-7576361 → 59:39:0010303:ЗУ1
+09:55:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588232 "HTTP/2 200 OK"
+09:55:47 INFO [126/597] TB-7588232 → 32:15:0360101:314
+09:55:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512040 "HTTP/2 200 OK"
+09:55:51 INFO [128/597] TB-7512040 → 59:09:0018615:147
+09:55:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7510748 "HTTP/2 200 OK"
+09:55:52 INFO [129/597] TB-7510748 → 59:24:0770101:ЗУ1
+09:55:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592564 "HTTP/2 200 OK"
+09:55:54 INFO [130/597] TB-7592564 → 59:01:1717124:336
+09:55:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524991 "HTTP/2 200 OK"
+09:55:59 INFO [131/597] TB-7524991 → 59:05:0103003:ЗУ1
+09:56:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7517712 "HTTP/2 200 OK"
+09:56:03 INFO [133/597] TB-7517712 → 39:11:060901:ЗУ2
+09:56:05 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537694 "HTTP/2 200 OK"
+09:56:05 INFO [134/597] TB-7537694 → 59:34:0740101:ЗУ1
+09:56:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531179 "HTTP/2 200 OK"
+09:56:10 INFO [136/597] TB-7531179 → 39:10:170001:ЗУ1
+09:56:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531175 "HTTP/2 200 OK"
+09:56:12 INFO [137/597] TB-7531175 → 39:10:400003:ЗУ1
+09:56:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516991 "HTTP/2 200 OK"
+09:56:14 INFO [138/597] TB-7516991 → 59:21:0560004:3681
+09:56:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537537 "HTTP/2 200 OK"
+09:56:15 INFO [139/597] TB-7537537 → 59:32:0390001:2351
+09:56:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562874 "HTTP/2 200 OK"
+09:56:17 INFO [140/597] TB-7562874 → 59:04:0101090:ЗУ22
+09:56:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531183 "HTTP/2 200 OK"
+09:56:19 INFO [141/597] TB-7531183 → 39:10:220004:ЗУ1
+09:56:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531176 "HTTP/2 200 OK"
+09:56:20 INFO [142/597] TB-7531176 → 39:10:370001:ЗУ1
+09:56:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538143 "HTTP/2 200 OK"
+09:56:22 INFO [143/597] TB-7538143 → 59:32:0010003:11034
+09:56:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7550382 "HTTP/2 200 OK"
+09:56:24 INFO [144/597] TB-7550382 → 39:03:071004:77
+09:56:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543108 "HTTP/2 200 OK"
+09:56:26 INFO [145/597] TB-7543108 → 59:16:0010146:310
+09:56:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570926 "HTTP/2 200 OK"
+09:56:32 INFO [146/597] TB-7570926 → 39:10:480001:ЗУ16
+09:56:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7528443 "HTTP/2 200 OK"
+09:56:35 INFO [147/597] TB-7528443 → 32:28:0011471:812
+09:56:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523338 "HTTP/2 200 OK"
+09:56:36 INFO [148/597] TB-7523338 → 59:32:0010003:10923
+09:56:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562891 "HTTP/2 200 OK"
+09:56:40 INFO [150/597] TB-7562891 → 59:04:0101090:ЗУ31
+09:56:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562881 "HTTP/2 200 OK"
+09:56:42 INFO [151/597] TB-7562881 → 59:04:0101090:ЗУ25
+09:56:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562939 "HTTP/2 200 OK"
+09:56:44 INFO [152/597] TB-7562939 → 59:01:1717164:371
+09:56:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7590402 "HTTP/2 200 OK"
+09:56:46 INFO [153/597] TB-7590402 → 90:05:130201:28
+09:56:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577764 "HTTP/2 200 OK"
+09:56:47 INFO [154/597] TB-7577764 → 59:02:0902086:75
+09:56:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7574907 "HTTP/2 200 OK"
+09:56:49 INFO [155/597] TB-7574907 → 32:13:0090201:87
+09:56:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518092 "HTTP/2 200 OK"
+09:56:52 INFO [157/597] TB-7518092 → 59:37:0620302:772
+09:56:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588010 "HTTP/2 200 OK"
+09:56:59 INFO [161/597] TB-7588010 → 59:13:0260121:399
+09:57:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7423246 "HTTP/2 200 OK"
+09:57:07 INFO [163/597] TB-7423246 → 59:23:0171002:239
+09:57:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7550350 "HTTP/2 200 OK"
+09:57:08 INFO [164/597] TB-7550350 → 13:04:0101001:ЗУ1
+09:57:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523329 "HTTP/2 200 OK"
+09:57:10 INFO [165/597] TB-7523329 → 59:32:5160006:3645
+09:57:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532720 "HTTP/2 200 OK"
+09:57:12 INFO [166/597] TB-7532720 → 59:18:3750210:32
+09:57:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562206 "HTTP/2 200 OK"
+09:57:15 INFO [168/597] TB-7562206 → 39:10:060001:ЗУ1
+09:57:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527496 "HTTP/2 200 OK"
+09:57:17 INFO [169/597] TB-7527496 → 39:02:060001:ЗУ1
+09:57:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527645 "HTTP/2 200 OK"
+09:57:19 INFO [170/597] TB-7527645 → 39:05:050804:ЗУ1
+09:57:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7564602 "HTTP/2 200 OK"
+09:57:20 INFO [171/597] TB-7564602 → 39:14:040702:ЗУ3
+09:57:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572930 "HTTP/2 200 OK"
+09:57:25 INFO [173/597] TB-7572930 → 59:22:0940101:ЗУ1
+09:57:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531181 "HTTP/2 200 OK"
+09:57:26 INFO [174/597] TB-7531181 → 39:10:010052:ЗУ1
+09:57:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577766 "HTTP/2 200 OK"
+09:57:28 INFO [175/597] TB-7577766 → 59:02:3601001:605
+09:57:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568089 "HTTP/2 200 OK"
+09:57:30 INFO [176/597] TB-7568089 → 39:21:020103:ЗУ1
+09:57:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527610 "HTTP/2 200 OK"
+09:57:31 INFO [177/597] TB-7527610 → 39:05:030519:ЗУ1
+09:57:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527611 "HTTP/2 200 OK"
+09:57:33 INFO [178/597] TB-7527611 → 39:05:030519:ЗУ1
+09:57:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538168 "HTTP/2 200 OK"
+09:57:35 INFO [179/597] TB-7538168 → 59:32:0660001:3440
+09:57:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7550007 "HTTP/2 200 OK"
+09:57:39 INFO [181/597] TB-7550007 → 39:10:010005:ЗУ1
+09:57:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7550012 "HTTP/2 200 OK"
+09:57:41 INFO [182/597] TB-7550012 → 39:10:010005:ЗУ1
+09:57:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529208 "HTTP/2 200 OK"
+09:57:48 INFO [183/597] TB-7529208 → 39:10:380009:ЗУ5
+09:57:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538765 "HTTP/2 200 OK"
+09:57:50 INFO [184/597] TB-7538765 → 59:01:4410269:3006
+09:57:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569255 "HTTP/2 200 OK"
+09:57:52 INFO [185/597] TB-7569255 → 39:16:010416:ЗУ1
+09:57:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531172 "HTTP/2 200 OK"
+09:57:54 INFO [186/597] TB-7531172 → 39:10:060001:ЗУ1
+09:57:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538164 "HTTP/2 200 OK"
+09:57:56 INFO [187/597] TB-7538164 → 59:32:0000000:13751
+09:57:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568086 "HTTP/2 200 OK"
+09:57:57 INFO [188/597] TB-7568086 → 39:21:010102:ЗУ1
+09:57:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527630 "HTTP/2 200 OK"
+09:57:59 INFO [189/597] TB-7527630 → 39:05:060504:ЗУ1
+09:58:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7571878 "HTTP/2 200 OK"
+09:58:01 INFO [190/597] TB-7571878 → 39:22:010018:ЗУ1
+09:58:02 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569436 "HTTP/2 200 OK"
+09:58:02 INFO [191/597] TB-7569436 → 39:16:010416:ЗУ1
+09:58:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529207 "HTTP/2 200 OK"
+09:58:04 INFO [192/597] TB-7529207 → 39:10:380009:ЗУ4
+09:58:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529202 "HTTP/2 200 OK"
+09:58:06 INFO [193/597] TB-7529202 → 39:10:220004:ЗУ1
+09:58:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569037 "HTTP/2 200 OK"
+09:58:08 INFO [194/597] TB-7569037 → 39:16:010416:ЗУ1
+09:58:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456204 "HTTP/2 200 OK"
+09:58:10 INFO [195/597] TB-7456204 → 59:22:0160130:203
+09:58:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569537 "HTTP/2 200 OK"
+09:58:13 INFO [196/597] TB-7569537 → 39:16:010416:ЗУ1
+09:58:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569449 "HTTP/2 200 OK"
+09:58:15 INFO [197/597] TB-7569449 → 39:16:010416:ЗУ1
+09:58:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562870 "HTTP/2 200 OK"
+09:58:17 INFO [198/597] TB-7562870 → 59:04:0101090:ЗУ21
+09:58:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512936 "HTTP/2 200 OK"
+09:58:18 INFO [199/597] TB-7512936 → 59:37:0570101:ЗУ84
+09:58:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527641 "HTTP/2 200 OK"
+09:58:20 INFO [200/597] TB-7527641 → 39:05:061125:ЗУ1
+09:58:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569944 "HTTP/2 200 OK"
+09:58:22 INFO [201/597] TB-7569944 → 39:04:020001:зу1
+09:58:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570919 "HTTP/2 200 OK"
+09:58:24 INFO [202/597] TB-7570919 → 39:10:480001:ЗУ8
+09:58:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529206 "HTTP/2 200 OK"
+09:58:30 INFO [203/597] TB-7529206 → 39:10:380009:ЗУ3
+09:58:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570924 "HTTP/2 200 OK"
+09:58:37 INFO [204/597] TB-7570924 → 39:10:480001:ЗУ14
+09:58:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570933 "HTTP/2 200 OK"
+09:58:39 INFO [205/597] TB-7570933 → 39:10:230003:ЗУ1
+09:58:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569452 "HTTP/2 200 OK"
+09:58:42 INFO [207/597] TB-7569452 → 39:16:010416:ЗУ1
+09:58:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577286 "HTTP/2 200 OK"
+09:58:44 INFO [208/597] TB-7577286 → 39:02:010115:ЗУ1
+09:58:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584496 "HTTP/2 200 OK"
+09:58:45 INFO [209/597] TB-7584496 → 39:13:020504:ЗУ1
+09:58:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584197 "HTTP/2 200 OK"
+09:58:47 INFO [210/597] TB-7584197 → 39:09:070004:ЗУ1
+09:58:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518797 "HTTP/2 200 OK"
+09:58:48 INFO [211/597] TB-7518797 → 59:29:1270002:261
+09:58:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584499 "HTTP/2 200 OK"
+09:58:50 INFO [212/597] TB-7584499 → 39:13:040406:ЗУ1
+09:58:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577247 "HTTP/2 200 OK"
+09:58:52 INFO [213/597] TB-7577247 → 39:02:330009:ЗУ
+09:58:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584199 "HTTP/2 200 OK"
+09:58:53 INFO [214/597] TB-7584199 → 39:09:070402:ЗУ1
+09:58:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585798 "HTTP/2 200 OK"
+09:58:55 INFO [215/597] TB-7585798 → 39:13:040601:ЗУ1
+09:58:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577284 "HTTP/2 200 OK"
+09:58:57 INFO [216/597] TB-7577284 → 39:02:010103:ЗУ1
+09:58:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527608 "HTTP/2 200 OK"
+09:58:58 INFO [217/597] TB-7527608 → 39:05:050201:ЗУ1
+09:59:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584200 "HTTP/2 200 OK"
+09:59:00 INFO [218/597] TB-7584200 → 39:09:010214:ЗУ1
+09:59:05 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584498 "HTTP/2 200 OK"
+09:59:05 INFO [221/597] TB-7584498 → 39:13:020504:ЗУ1
+09:59:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527637 "HTTP/2 200 OK"
+09:59:09 INFO [223/597] TB-7527637 → 39:05:040302:ЗУ
+09:59:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538160 "HTTP/2 200 OK"
+09:59:10 INFO [224/597] TB-7538160 → 59:32:3890013:1669
+09:59:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527634 "HTTP/2 200 OK"
+09:59:12 INFO [225/597] TB-7527634 → 39:05:060504:ЗУ1
+09:59:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520352 "HTTP/2 200 OK"
+09:59:14 INFO [226/597] TB-7520352 → 59:37:0890101:1494
+09:59:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585797 "HTTP/2 200 OK"
+09:59:19 INFO [229/597] TB-7585797 → 39:13:040601:ЗУ1
+09:59:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527638 "HTTP/2 200 OK"
+09:59:20 INFO [230/597] TB-7527638 → 39:05:051102:ЗУ1
+09:59:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518091 "HTTP/2 200 OK"
+09:59:22 INFO [231/597] TB-7518091 → 59:37:0000000:3128
+09:59:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518022 "HTTP/2 200 OK"
+09:59:24 INFO [232/597] TB-7518022 → 59:03:0400073:11454
+09:59:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518089 "HTTP/2 200 OK"
+09:59:25 INFO [233/597] TB-7518089 → 59:37:0620302:192
+09:59:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518030 "HTTP/2 200 OK"
+09:59:29 INFO [235/597] TB-7518030 → 59:03:0400073:11454
+09:59:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520326 "HTTP/2 200 OK"
+09:59:30 INFO [236/597] TB-7520326 → 59:37:0430101:1019
+09:59:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456202 "HTTP/2 200 OK"
+09:59:32 INFO [237/597] TB-7456202 → 59:22:0160153:58
+09:59:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527620 "HTTP/2 200 OK"
+09:59:34 INFO [238/597] TB-7527620 → 39:05:030402:ЗУ1
+09:59:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518035 "HTTP/2 200 OK"
+09:59:36 INFO [239/597] TB-7518035 → 59:03:0400068:3154
+09:59:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518088 "HTTP/2 200 OK"
+09:59:37 INFO [240/597] TB-7518088 → 59:37:0620302:192
+09:59:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7519951 "HTTP/2 200 OK"
+09:59:41 INFO [242/597] TB-7519951 → 59:10:0405003:36
+09:59:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520341 "HTTP/2 200 OK"
+09:59:42 INFO [243/597] TB-7520341 → 59:37:0890101:1590
+09:59:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562889 "HTTP/2 200 OK"
+09:59:44 INFO [244/597] TB-7562889 → 59:04:0101090:ЗУ30
+09:59:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527599 "HTTP/2 200 OK"
+09:59:49 INFO [247/597] TB-7527599 → 39:05:050201:ЗУ1
+09:59:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527632 "HTTP/2 200 OK"
+09:59:51 INFO [248/597] TB-7527632 → 39:05:000000:ЗУ1
+09:59:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7547013 "HTTP/2 200 OK"
+09:59:53 INFO [249/597] TB-7547013 → 59:32:3290001:15927
+09:59:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7548498 "HTTP/2 200 OK"
+09:59:55 INFO [250/597] TB-7548498 → 59:34:0620101:2344
+09:59:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523864 "HTTP/2 200 OK"
+09:59:56 INFO [251/597] TB-7523864 → 32:20:0420101:727
+09:59:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527621 "HTTP/2 200 OK"
+09:59:58 INFO [252/597] TB-7527621 → 39:05:030402:ЗУ1
+10:00:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572667 "HTTP/2 200 OK"
+10:00:00 INFO [253/597] TB-7572667 → 59:09:0010408:151
+10:00:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520362 "HTTP/2 200 OK"
+10:00:01 INFO [254/597] TB-7520362 → 59:37:0760101:426
+10:00:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527613 "HTTP/2 200 OK"
+10:00:03 INFO [255/597] TB-7527613 → 39:05:030503:ЗУ1
+10:00:05 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562896 "HTTP/2 200 OK"
+10:00:05 INFO [256/597] TB-7562896 → 59:04:0101090:ЗУ35
+10:00:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562895 "HTTP/2 200 OK"
+10:00:07 INFO [257/597] TB-7562895 → 59:04:0101090:ЗУ34
+10:00:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7589107 "HTTP/2 200 OK"
+10:00:09 INFO [258/597] TB-7589107 → 59:06:0103060:37
+10:00:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520349 "HTTP/2 200 OK"
+10:00:11 INFO [259/597] TB-7520349 → 59:37:0890101:1494
+10:00:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527618 "HTTP/2 200 OK"
+10:00:13 INFO [260/597] TB-7527618 → 39:05:030611:ЗУ1
+10:00:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527617 "HTTP/2 200 OK"
+10:00:15 INFO [261/597] TB-7527617 → 39:05:030611:ЗУ1
+10:00:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7575383 "HTTP/2 200 OK"
+10:00:16 INFO [262/597] TB-7575383 → 59:31:0491909:71
+10:00:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523328 "HTTP/2 200 OK"
+10:00:18 INFO [263/597] TB-7523328 → 59:32:0660001:3561
+10:00:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520355 "HTTP/2 200 OK"
+10:00:22 INFO [265/597] TB-7520355 → 59:37:0510105:1015
+10:00:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570935 "HTTP/2 200 OK"
+10:00:25 INFO [266/597] TB-7570935 → 39:10:230003:ЗУ3
+10:00:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531177 "HTTP/2 200 OK"
+10:00:32 INFO [267/597] TB-7531177 → 39:10:010102:218
+10:00:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527623 "HTTP/2 200 OK"
+10:00:34 INFO [268/597] TB-7527623 → 39:05:030401:ЗУ1
+10:00:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545133 "HTTP/2 200 OK"
+10:00:36 INFO [269/597] TB-7545133 → 39:11:050503:ЗУ1
+10:00:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545135 "HTTP/2 200 OK"
+10:00:38 INFO [270/597] TB-7545135 → 39:11:040015:ЗУ1
+10:00:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527636 "HTTP/2 200 OK"
+10:00:40 INFO [271/597] TB-7527636 → 39:05:030511:ЗУ1
+10:00:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7529209 "HTTP/2 200 OK"
+10:00:42 INFO [272/597] TB-7529209 → 39:10:470006:74
+10:00:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562197 "HTTP/2 200 OK"
+10:00:47 INFO [275/597] TB-7562197 → 39:10:120002:ЗУ1
+10:00:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7563145 "HTTP/2 200 OK"
+10:00:49 INFO [276/597] TB-7563145 → 81:07:0091005:248
+10:00:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7552981 "HTTP/2 200 OK"
+10:00:51 INFO [277/597] TB-7552981 → 39:04:020003:ЗУ1
+10:00:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527643 "HTTP/2 200 OK"
+10:00:53 INFO [278/597] TB-7527643 → 39:05:051211:ЗУ1
+10:00:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7530545 "HTTP/2 200 OK"
+10:00:55 INFO [279/597] TB-7530545 → 39:05:060103:254
+10:00:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7563148 "HTTP/2 200 OK"
+10:00:57 INFO [280/597] TB-7563148 → 81:07:0092002:593
+10:00:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7400203 "HTTP/2 200 OK"
+10:00:59 INFO [281/597] TB-7400203 → 39:06:000000:143
+10:01:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523331 "HTTP/2 200 OK"
+10:01:01 INFO [282/597] TB-7523331 → 59:32:1520001:1635
+10:01:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570934 "HTTP/2 200 OK"
+10:01:10 INFO [286/597] TB-7570934 → 39:10:230003:ЗУ2
+10:01:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7587864 "HTTP/2 200 OK"
+10:01:11 INFO [287/597] TB-7587864 → 59:14:0000000:730
+10:01:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527642 "HTTP/2 200 OK"
+10:01:13 INFO [288/597] TB-7527642 → 39:05:051104:ЗУ1
+10:01:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527633 "HTTP/2 200 OK"
+10:01:15 INFO [289/597] TB-7527633 → 39:05:030304:ЗУ1
+10:01:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592319 "HTTP/2 200 OK"
+10:01:19 INFO [291/597] TB-7592319 → 59:07:0010318:1088
+10:01:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532672 "HTTP/2 200 OK"
+10:01:21 INFO [292/597] TB-7532672 → 39:16:010408:ЗУ1
+10:01:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584494 "HTTP/2 200 OK"
+10:01:24 INFO [294/597] TB-7584494 → 39:13:050404:ЗУ1
+10:01:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7498887 "HTTP/2 200 OK"
+10:01:26 INFO [295/597] TB-7498887 → 74:25:0000000:17735
+10:01:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560149 "HTTP/2 200 OK"
+10:01:28 INFO [296/597] TB-7560149 → 32:13:0040201:11
+10:01:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591506 "HTTP/2 200 OK"
+10:01:30 INFO [297/597] TB-7591506 → 59:22:0730101:ЗУ1
+10:01:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527635 "HTTP/2 200 OK"
+10:01:32 INFO [298/597] TB-7527635 → 39:05:060903:ЗУ1
+10:01:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538155 "HTTP/2 200 OK"
+10:01:34 INFO [299/597] TB-7538155 → 59:32:0020001:4258
+10:01:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527616 "HTTP/2 200 OK"
+10:01:36 INFO [300/597] TB-7527616 → 39:05:051115:ЗУ5
+10:01:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7555873 "HTTP/2 200 OK"
+10:01:37 INFO [301/597] TB-7555873 → 59:07:2210103:ЗУ1
+10:01:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538159 "HTTP/2 200 OK"
+10:01:39 INFO [302/597] TB-7538159 → 59:32:1220001:4026
+10:01:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527607 "HTTP/2 200 OK"
+10:01:41 INFO [303/597] TB-7527607 → 39:05:050201:ЗУ1
+10:01:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527609 "HTTP/2 200 OK"
+10:01:43 INFO [304/597] TB-7527609 → 39:05:050201:ЗУ1
+10:01:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536575 "HTTP/2 200 OK"
+10:01:45 INFO [305/597] TB-7536575 → 59:19:2403011:ЗУ4
+10:01:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520887 "HTTP/2 200 OK"
+10:01:47 INFO [306/597] TB-7520887 → 39:18:090015:546
+10:01:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7536574 "HTTP/2 200 OK"
+10:01:48 INFO [307/597] TB-7536574 → 59:19:2403011:ЗУ3
+10:01:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527628 "HTTP/2 200 OK"
+10:01:50 INFO [308/597] TB-7527628 → 39:05:060504:ЗУ1
+10:01:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592367 "HTTP/2 200 OK"
+10:01:52 INFO [309/597] TB-7592367 → 32:28:0014803:486
+10:01:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7566364 "HTTP/2 200 OK"
+10:01:54 INFO [310/597] TB-7566364 → 59:32:3410007:183
+10:01:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545642 "HTTP/2 200 OK"
+10:01:57 INFO [312/597] TB-7545642 → 32:28:0024122:45
+10:01:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562860 "HTTP/2 200 OK"
+10:01:59 INFO [313/597] TB-7562860 → 59:04:0101090:ЗУ17
+10:02:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562883 "HTTP/2 200 OK"
+10:02:01 INFO [314/597] TB-7562883 → 59:04:0101090:ЗУ25
+10:02:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543613 "HTTP/2 200 OK"
+10:02:03 INFO [315/597] TB-7543613 → 63:25:0601022:388
+10:02:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557787 "HTTP/2 200 OK"
+10:02:04 INFO [316/597] TB-7557787 → 32:28:0031906:189
+10:02:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532684 "HTTP/2 200 OK"
+10:02:09 INFO [319/597] TB-7532684 → 39:09:070009:ЗУ1
+10:02:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518083 "HTTP/2 200 OK"
+10:02:11 INFO [320/597] TB-7518083 → 59:37:0620302:556
+10:02:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562897 "HTTP/2 200 OK"
+10:02:15 INFO [322/597] TB-7562897 → 59:04:0101090:ЗУ36
+10:02:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7565730 "HTTP/2 200 OK"
+10:02:17 INFO [323/597] TB-7565730 → 59:20:1010101:ЗУ1
+10:02:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518004 "HTTP/2 200 OK"
+10:02:21 INFO [325/597] TB-7518004 → 59:03:0400087:1999
+10:02:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7510749 "HTTP/2 200 OK"
+10:02:22 INFO [326/597] TB-7510749 → 59:24:0040101:ЗУ1
+10:02:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516997 "HTTP/2 200 OK"
+10:02:24 INFO [327/597] TB-7516997 → 59:21:0560004:3696
+10:02:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518090 "HTTP/2 200 OK"
+10:02:26 INFO [328/597] TB-7518090 → 59:37:0620302:499
+10:02:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456203 "HTTP/2 200 OK"
+10:02:28 INFO [329/597] TB-7456203 → 59:22:0160152:82
+10:02:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7578618 "HTTP/2 200 OK"
+10:02:31 INFO [331/597] TB-7578618 → 59:12:0150000:ЗУ1
+10:02:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557786 "HTTP/2 200 OK"
+10:02:33 INFO [332/597] TB-7557786 → 32:28:0014414:174
+10:02:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7579450 "HTTP/2 200 OK"
+10:02:34 INFO [333/597] TB-7579450 → 16:15:020401:122
+10:02:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592513 "HTTP/2 200 OK"
+10:02:36 INFO [334/597] TB-7592513 → 59:26:2380103:100000
+10:02:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520179 "HTTP/2 200 OK"
+10:02:37 INFO [335/597] TB-7520179 → 66:04:3401001:ЗУ1
+10:02:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521727 "HTTP/2 200 OK"
+10:02:40 INFO [337/597] TB-7521727 → 59:27:0251001:187
+10:02:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588129 "HTTP/2 200 OK"
+10:02:44 INFO [339/597] TB-7588129 → 59:09:0440001:2680
+10:02:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516998 "HTTP/2 200 OK"
+10:02:46 INFO [340/597] TB-7516998 → 59:21:0560004:3191
+10:02:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584133 "HTTP/2 200 OK"
+10:02:47 INFO [341/597] TB-7584133 → 32:11:0271502:187
+10:02:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588128 "HTTP/2 200 OK"
+10:02:49 INFO [342/597] TB-7588128 → 59:09:0180001:496
+10:02:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7590021 "HTTP/2 200 OK"
+10:02:50 INFO [343/597] TB-7590021 → 59:32:1170001:572
+10:02:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591511 "HTTP/2 200 OK"
+10:02:55 INFO [346/597] TB-7591511 → 59:22:0730101:ЗУ1
+10:02:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520470 "HTTP/2 200 OK"
+10:02:57 INFO [347/597] TB-7520470 → 66:04:2501001:ЗУ11
+10:02:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516547 "HTTP/2 200 OK"
+10:02:59 INFO [348/597] TB-7516547 → 39:09:010220:ЗУ1
+10:03:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516542 "HTTP/2 200 OK"
+10:03:01 INFO [349/597] TB-7516542 → 39:09:070014:ЗУ1
+10:03:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592515 "HTTP/2 200 OK"
+10:03:03 INFO [350/597] TB-7592515 → 59:26:2380103:1000000
+10:03:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591895 "HTTP/2 200 OK"
+10:03:04 INFO [351/597] TB-7591895 → 59:40:0580103:ЗУ51
+10:03:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516546 "HTTP/2 200 OK"
+10:03:06 INFO [352/597] TB-7516546 → 39:09:070014:ЗУ1
+10:03:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516543 "HTTP/2 200 OK"
+10:03:08 INFO [353/597] TB-7516543 → 39:09:070014:ЗУ1
+10:03:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520809 "HTTP/2 200 OK"
+10:03:09 INFO [354/597] TB-7520809 → 59:21:0560004:3683
+10:03:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7504179 "HTTP/2 200 OK"
+10:03:11 INFO [355/597] TB-7504179 → 59:11:0010901:493
+10:03:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591909 "HTTP/2 200 OK"
+10:03:13 INFO [356/597] TB-7591909 → 59:01:0000000:74260
+10:03:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523334 "HTTP/2 200 OK"
+10:03:15 INFO [357/597] TB-7523334 → 59:32:1520001:1646
+10:03:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592514 "HTTP/2 200 OK"
+10:03:16 INFO [358/597] TB-7592514 → 59:26:2380103:100000
+10:03:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7497168 "HTTP/2 200 OK"
+10:03:18 INFO [359/597] TB-7497168 → 59:30:0460092:1
+10:03:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7513225 "HTTP/2 200 OK"
+10:03:24 INFO [363/597] TB-7513225 → 39:08:080006:6
+10:03:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584495 "HTTP/2 200 OK"
+10:03:26 INFO [364/597] TB-7584495 → 39:13:050404:ЗУ1
+10:03:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584198 "HTTP/2 200 OK"
+10:03:28 INFO [365/597] TB-7584198 → 39:09:010206:ЗУ1
+10:03:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584675 "HTTP/2 200 OK"
+10:03:30 INFO [366/597] TB-7584675 → 57:04:0000000:36
+10:03:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7587714 "HTTP/2 200 OK"
+10:03:31 INFO [367/597] TB-7587714 → 59:15:0100101:1
+10:03:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556929 "HTTP/2 200 OK"
+10:03:33 INFO [368/597] TB-7556929 → 39:15:132404:17
+10:03:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585794 "HTTP/2 200 OK"
+10:03:34 INFO [369/597] TB-7585794 → 39:13:040601:ЗУ1
+10:03:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585795 "HTTP/2 200 OK"
+10:03:36 INFO [370/597] TB-7585795 → 39:13:040601:ЗУ1
+10:03:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7494247 "HTTP/2 200 OK"
+10:03:39 INFO [372/597] TB-7494247 → 59:13:2320101:150
+10:03:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577765 "HTTP/2 200 OK"
+10:03:41 INFO [373/597] TB-7577765 → 59:02:0902086:74
+10:03:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520471 "HTTP/2 200 OK"
+10:03:43 INFO [374/597] TB-7520471 → 66:04:2501001:ЗУ12
+10:03:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7591509 "HTTP/2 200 OK"
+10:03:44 INFO [375/597] TB-7591509 → 59:22:0730101:ЗУ1
+10:03:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562858 "HTTP/2 200 OK"
+10:03:46 INFO [376/597] TB-7562858 → 59:04:0101090:ЗУ16
+10:03:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512547 "HTTP/2 200 OK"
+10:03:48 INFO [377/597] TB-7512547 → 59:23:0221021:12
+10:03:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562175 "HTTP/2 200 OK"
+10:03:49 INFO [378/597] TB-7562175 → 59:12:0080000:ЗУ1
+10:03:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585577 "HTTP/2 200 OK"
+10:03:51 INFO [379/597] TB-7585577 → 32:13:0030101:1212
+10:03:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7489752 "HTTP/2 200 OK"
+10:03:52 INFO [380/597] TB-7489752 → 59:36:0870101:295
+10:03:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7408083 "HTTP/2 200 OK"
+10:03:54 INFO [381/597] TB-7408083 → 59:26:2380110:460
+10:03:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520469 "HTTP/2 200 OK"
+10:03:58 INFO [383/597] TB-7520469 → 66:04:2501001:ЗУ10
+10:04:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562900 "HTTP/2 200 OK"
+10:04:00 INFO [384/597] TB-7562900 → 59:04:0101090:ЗУ36
+10:04:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520357 "HTTP/2 200 OK"
+10:04:01 INFO [385/597] TB-7520357 → 59:37:0510105:1014
+10:04:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7510747 "HTTP/2 200 OK"
+10:04:03 INFO [386/597] TB-7510747 → 59:24:1300101:ЗУ1
+10:04:05 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7528442 "HTTP/2 200 OK"
+10:04:05 INFO [387/597] TB-7528442 → 32:28:0022701:576
+10:04:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568088 "HTTP/2 200 OK"
+10:04:07 INFO [388/597] TB-7568088 → 39:21:020103:145
+10:04:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7567767 "HTTP/2 200 OK"
+10:04:09 INFO [389/597] TB-7567767 → 59:07:2500110:37
+10:04:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527847 "HTTP/2 200 OK"
+10:04:11 INFO [390/597] TB-7527847 → 59:25:0010243:341
+10:04:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7586722 "HTTP/2 200 OK"
+10:04:12 INFO [391/597] TB-7586722 → 59:13:0270121:168
+10:04:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7561634 "HTTP/2 200 OK"
+10:04:14 INFO [392/597] TB-7561634 → 59:31:0730101:ЗУ1
+10:04:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7567726 "HTTP/2 200 OK"
+10:04:16 INFO [393/597] TB-7567726 → 59:29:0010635:9
+10:04:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569882 "HTTP/2 200 OK"
+10:04:18 INFO [394/597] TB-7569882 → 39:04:050006:зу1
+10:04:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537696 "HTTP/2 200 OK"
+10:04:19 INFO [395/597] TB-7537696 → 59:34:0590101:ЗУ1
+10:04:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7555233 "HTTP/2 200 OK"
+10:04:26 INFO [399/597] TB-7555233 → 59:40:0090102:ЗУ15
+10:04:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7534487 "HTTP/2 200 OK"
+10:04:28 INFO [400/597] TB-7534487 → 32:08:0200104:124
+10:04:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7555219 "HTTP/2 200 OK"
+10:04:31 INFO [401/597] TB-7555219 → 18:24:022001:ЗУ1
+10:04:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7507021 "HTTP/2 200 OK"
+10:04:32 INFO [402/597] TB-7507021 → 18:24:022001:ЗУ1
+10:04:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456201 "HTTP/2 200 OK"
+10:04:34 INFO [403/597] TB-7456201 → 59:22:0020101:1307
+10:04:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512549 "HTTP/2 200 OK"
+10:04:36 INFO [404/597] TB-7512549 → 59:23:0481002:39
+10:04:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572671 "HTTP/2 200 OK"
+10:04:38 INFO [405/597] TB-7572671 → 59:09:0018213:132
+10:04:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562857 "HTTP/2 200 OK"
+10:04:39 INFO [406/597] TB-7562857 → 59:04:0101090:ЗУ14
+10:04:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523369 "HTTP/2 200 OK"
+10:04:43 INFO [408/597] TB-7523369 → 59:07:0750101:ЗУ1
+10:04:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7575351 "HTTP/2 200 OK"
+10:04:44 INFO [409/597] TB-7575351 → 59:11:0010303:2441
+10:04:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570730 "HTTP/2 200 OK"
+10:04:46 INFO [410/597] TB-7570730 → 59:08:2501008:176
+10:04:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569260 "HTTP/2 200 OK"
+10:04:48 INFO [411/597] TB-7569260 → 59:25:0080001:289
+10:04:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7528798 "HTTP/2 200 OK"
+10:04:49 INFO [412/597] TB-7528798 → 59:26:2380103:100000
+10:04:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523341 "HTTP/2 200 OK"
+10:04:51 INFO [413/597] TB-7523341 → 59:32:0010003:10930
+10:04:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538166 "HTTP/2 200 OK"
+10:04:55 INFO [415/597] TB-7538166 → 59:32:0160007:901
+10:04:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569534 "HTTP/2 200 OK"
+10:04:58 INFO [417/597] TB-7569534 → 39:16:010416:ЗУ1
+10:04:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570913 "HTTP/2 200 OK"
+10:04:59 INFO [418/597] TB-7570913 → 39:10:480001:ЗУ2
+10:05:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570923 "HTTP/2 200 OK"
+10:05:01 INFO [419/597] TB-7570923 → 39:10:480001:ЗУ13
+10:05:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569156 "HTTP/2 200 OK"
+10:05:03 INFO [420/597] TB-7569156 → 74:36:0706002:4434
+10:05:05 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570917 "HTTP/2 200 OK"
+10:05:05 INFO [421/597] TB-7570917 → 39:10:480001:ЗУ6
+10:05:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7576454 "HTTP/2 200 OK"
+10:05:07 INFO [422/597] TB-7576454 → 32:28:0042239:300
+10:05:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520354 "HTTP/2 200 OK"
+10:05:10 INFO [424/597] TB-7520354 → 59:37:0890101:1494
+10:05:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569588 "HTTP/2 200 OK"
+10:05:12 INFO [425/597] TB-7569588 → 39:16:010416:ЗУ1
+10:05:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570932 "HTTP/2 200 OK"
+10:05:14 INFO [426/597] TB-7570932 → 39:10:480001:ЗУ6
+10:05:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570914 "HTTP/2 200 OK"
+10:05:15 INFO [427/597] TB-7570914 → 39:10:480001:ЗУ4
+10:05:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7575374 "HTTP/2 200 OK"
+10:05:17 INFO [428/597] TB-7575374 → 59:01:4410761:4088
+10:05:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562898 "HTTP/2 200 OK"
+10:05:19 INFO [429/597] TB-7562898 → 59:04:0101090:ЗУ37
+10:05:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520343 "HTTP/2 200 OK"
+10:05:20 INFO [430/597] TB-7520343 → 59:37:0890101:1494
+10:05:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562887 "HTTP/2 200 OK"
+10:05:22 INFO [431/597] TB-7562887 → 59:04:0101090:ЗУ29
+10:05:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520330 "HTTP/2 200 OK"
+10:05:24 INFO [432/597] TB-7520330 → 59:37:0430101:1019
+10:05:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7574043 "HTTP/2 200 OK"
+10:05:26 INFO [433/597] TB-7574043 → 59:38:0310156:ЗУ1
+10:05:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584491 "HTTP/2 200 OK"
+10:05:27 INFO [434/597] TB-7584491 → 39:13:050404:ЗУ1
+10:05:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7578653 "HTTP/2 200 OK"
+10:05:29 INFO [435/597] TB-7578653 → 39:06:020010:230
+10:05:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512041 "HTTP/2 200 OK"
+10:05:30 INFO [436/597] TB-7512041 → 59:09:0010803:158
+10:05:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577245 "HTTP/2 200 OK"
+10:05:32 INFO [437/597] TB-7577245 → 39:02:260008:ЗУ1
+10:05:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584497 "HTTP/2 200 OK"
+10:05:35 INFO [439/597] TB-7584497 → 39:13:020504:ЗУ1
+10:05:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7395959 "HTTP/2 200 OK"
+10:05:37 INFO [440/597] TB-7395959 → 59:26:0610665:509
+10:05:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520329 "HTTP/2 200 OK"
+10:05:39 INFO [441/597] TB-7520329 → 59:37:0430101:1019
+10:05:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7583916 "HTTP/2 200 OK"
+10:05:42 INFO [443/597] TB-7583916 → 39:12:030019:ЗУ1
+10:05:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584445 "HTTP/2 200 OK"
+10:05:43 INFO [444/597] TB-7584445 → 39:12:030402:484
+10:05:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7576039 "HTTP/2 200 OK"
+10:05:45 INFO [445/597] TB-7576039 → 39:12:020026:ЗУ1
+10:05:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523322 "HTTP/2 200 OK"
+10:05:47 INFO [446/597] TB-7523322 → 59:32:2010001:752
+10:05:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518016 "HTTP/2 200 OK"
+10:05:48 INFO [447/597] TB-7518016 → 59:03:0400073:11454
+10:05:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577244 "HTTP/2 200 OK"
+10:05:50 INFO [448/597] TB-7577244 → 39:02:270007:ЗУ1
+10:05:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518007 "HTTP/2 200 OK"
+10:05:52 INFO [449/597] TB-7518007 → 59:03:0400071:4719
+10:05:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456210 "HTTP/2 200 OK"
+10:05:53 INFO [450/597] TB-7456210 → 59:22:0300101:1152
+10:05:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577243 "HTTP/2 200 OK"
+10:05:55 INFO [451/597] TB-7577243 → 39:02:210003:ЗУ1
+10:05:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584467 "HTTP/2 200 OK"
+10:05:56 INFO [452/597] TB-7584467 → 39:12:030402:483
+10:06:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7590016 "HTTP/2 200 OK"
+10:06:00 INFO [454/597] TB-7590016 → 59:32:0010003:10927
+10:06:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7584502 "HTTP/2 200 OK"
+10:06:04 INFO [455/597] TB-7584502 → 39:13:020703:ЗУ1
+10:06:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518017 "HTTP/2 200 OK"
+10:06:06 INFO [456/597] TB-7518017 → 59:03:0400073:11454
+10:06:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543610 "HTTP/2 200 OK"
+10:06:08 INFO [457/597] TB-7543610 → 59:05:0101013:ЗУ1
+10:06:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518010 "HTTP/2 200 OK"
+10:06:09 INFO [458/597] TB-7518010 → 59:03:0400073:11454
+10:06:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7573969 "HTTP/2 200 OK"
+10:06:13 INFO [459/597] TB-7573969 → 59:38:0310159:ЗУ1
+10:06:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7574028 "HTTP/2 200 OK"
+10:06:14 INFO [460/597] TB-7574028 → 59:38:0310159:ЗУ1
+10:06:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518015 "HTTP/2 200 OK"
+10:06:18 INFO [462/597] TB-7518015 → 59:03:0400073:11454
+10:06:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592333 "HTTP/2 200 OK"
+10:06:20 INFO [463/597] TB-7592333 → 39:16:010202:ЗУ1
+10:06:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523330 "HTTP/2 200 OK"
+10:06:22 INFO [464/597] TB-7523330 → 59:32:0010003:11033
+10:06:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518023 "HTTP/2 200 OK"
+10:06:24 INFO [465/597] TB-7518023 → 59:03:0400073:11454
+10:06:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7585796 "HTTP/2 200 OK"
+10:06:25 INFO [466/597] TB-7585796 → 39:13:040601:ЗУ1
+10:06:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592127 "HTTP/2 200 OK"
+10:06:27 INFO [467/597] TB-7592127 → 39:18:010011:1251
+10:06:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518087 "HTTP/2 200 OK"
+10:06:29 INFO [468/597] TB-7518087 → 59:37:0620302:192
+10:06:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592311 "HTTP/2 200 OK"
+10:06:30 INFO [469/597] TB-7592311 → 39:16:010416:ЗУ1
+10:06:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518034 "HTTP/2 200 OK"
+10:06:32 INFO [470/597] TB-7518034 → 59:03:0400087:4841
+10:06:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7558791 "HTTP/2 200 OK"
+10:06:34 INFO [471/597] TB-7558791 → 32:28:0031002:11
+10:06:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518082 "HTTP/2 200 OK"
+10:06:36 INFO [472/597] TB-7518082 → 59:37:0620302:534
+10:06:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516989 "HTTP/2 200 OK"
+10:06:37 INFO [473/597] TB-7516989 → 59:21:0560004:3687
+10:06:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520356 "HTTP/2 200 OK"
+10:06:39 INFO [474/597] TB-7520356 → 59:37:0510105:1015
+10:06:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520367 "HTTP/2 200 OK"
+10:06:41 INFO [475/597] TB-7520367 → 59:37:0570101:597
+10:06:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7573946 "HTTP/2 200 OK"
+10:06:43 INFO [476/597] TB-7573946 → 59:38:0400103:ЗУ1
+10:06:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7590014 "HTTP/2 200 OK"
+10:06:44 INFO [477/597] TB-7590014 → 59:32:0010003:10923
+10:06:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520365 "HTTP/2 200 OK"
+10:06:46 INFO [478/597] TB-7520365 → 59:37:0240101:236
+10:06:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527626 "HTTP/2 200 OK"
+10:06:50 INFO [480/597] TB-7527626 → 39:05:061006:ЗУ1
+10:06:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545137 "HTTP/2 200 OK"
+10:06:51 INFO [481/597] TB-7545137 → 39:11:040015:ЗУ1
+10:06:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545136 "HTTP/2 200 OK"
+10:06:53 INFO [482/597] TB-7545136 → 39:11:040015:ЗУ1
+10:06:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7550011 "HTTP/2 200 OK"
+10:06:55 INFO [483/597] TB-7550011 → 39:10:010005:ЗУ1
+10:06:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572670 "HTTP/2 200 OK"
+10:06:58 INFO [484/597] TB-7572670 → 59:09:0014310:145
+10:06:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520327 "HTTP/2 200 OK"
+10:06:59 INFO [485/597] TB-7520327 → 59:37:0430101:1019
+10:07:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7534030 "HTTP/2 200 OK"
+10:07:04 INFO [486/597] TB-7534030 → 59:01:3810131:156
+10:07:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562208 "HTTP/2 200 OK"
+10:07:06 INFO [487/597] TB-7562208 → 39:10:370013:ЗУ1
+10:07:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570928 "HTTP/2 200 OK"
+10:07:08 INFO [488/597] TB-7570928 → 39:10:480001:ЗУ18
+10:07:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570435 "HTTP/2 200 OK"
+10:07:10 INFO [489/597] TB-7570435 → 59:01:1810026:261
+10:07:11 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570927 "HTTP/2 200 OK"
+10:07:11 INFO [490/597] TB-7570927 → 39:10:480001:ЗУ17
+10:07:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537535 "HTTP/2 200 OK"
+10:07:13 INFO [491/597] TB-7537535 → 59:32:3070002:2878
+10:07:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588486 "HTTP/2 200 OK"
+10:07:15 INFO [492/597] TB-7588486 → 59:01:4418025:252
+10:07:19 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557643 "HTTP/2 200 OK"
+10:07:19 INFO [494/597] TB-7557643 → 59:39:0880001:654
+10:07:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7554017 "HTTP/2 200 OK"
+10:07:25 INFO [498/597] TB-7554017 → 59:09:0014501:1228
+10:07:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520535 "HTTP/2 200 OK"
+10:07:27 INFO [499/597] TB-7520535 → 59:07:2370104:6558
+10:07:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7567490 "HTTP/2 200 OK"
+10:07:29 INFO [500/597] TB-7567490 → 32:16:0371205:271
+10:07:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531934 "HTTP/2 200 OK"
+10:07:33 INFO [502/597] TB-7531934 → 59:26:0000000:234
+10:07:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7525615 "HTTP/2 200 OK"
+10:07:36 INFO [504/597] TB-7525615 → 59:27:0041056:22
+10:07:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7566040 "HTTP/2 200 OK"
+10:07:38 INFO [505/597] TB-7566040 → 39:09:050007:ЗУ1
+10:07:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7551264 "HTTP/2 200 OK"
+10:07:39 INFO [506/597] TB-7551264 → 81:07:0118003:128
+10:07:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569990 "HTTP/2 200 OK"
+10:07:41 INFO [507/597] TB-7569990 → 59:24:3560101:491
+10:07:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7555868 "HTTP/2 200 OK"
+10:07:43 INFO [508/597] TB-7555868 → 59:07:0090101:ЗУ1
+10:07:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512548 "HTTP/2 200 OK"
+10:07:46 INFO [510/597] TB-7512548 → 59:23:0031004:21
+10:07:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538152 "HTTP/2 200 OK"
+10:07:48 INFO [511/597] TB-7538152 → 59:32:0010003:11039
+10:07:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7504178 "HTTP/2 200 OK"
+10:07:50 INFO [512/597] TB-7504178 → 59:11:0010901:418
+10:07:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7540403 "HTTP/2 200 OK"
+10:07:52 INFO [513/597] TB-7540403 → 59:28:0830101:928
+10:07:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7571280 "HTTP/2 200 OK"
+10:07:55 INFO [515/597] TB-7571280 → 59:35:0460101:ЗУ1
+10:07:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7579784 "HTTP/2 200 OK"
+10:07:58 INFO [517/597] TB-7579784 → 59:18:1070101:ЗУ1
+10:08:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562885 "HTTP/2 200 OK"
+10:08:00 INFO [518/597] TB-7562885 → 59:04:0101090:ЗУ28
+10:08:02 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572669 "HTTP/2 200 OK"
+10:08:02 INFO [519/597] TB-7572669 → 59:09:0010101:20
+10:08:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7574078 "HTTP/2 200 OK"
+10:08:04 INFO [520/597] TB-7574078 → 59:38:0310159:ЗУ1
+10:08:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532023 "HTTP/2 200 OK"
+10:08:07 INFO [521/597] TB-7532023 → 59:07:0610101:622
+10:08:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588126 "HTTP/2 200 OK"
+10:08:10 INFO [523/597] TB-7588126 → 59:09:0010311:16
+10:08:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562902 "HTTP/2 200 OK"
+10:08:12 INFO [524/597] TB-7562902 → 59:05:0101010:ЗУ3
+10:08:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7548792 "HTTP/2 200 OK"
+10:08:14 INFO [525/597] TB-7548792 → 59:16:0020104:ЗУ1
+10:08:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7511122 "HTTP/2 200 OK"
+10:08:16 INFO [526/597] TB-7511122 → 59:32:3290001:11594
+10:08:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-4805162 "HTTP/2 200 OK"
+10:08:18 INFO [527/597] TB-4805162 → 59:03:0000000:266
+10:08:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562879 "HTTP/2 200 OK"
+10:08:20 INFO [528/597] TB-7562879 → 59:04:0101090:ЗУ24
+10:08:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7588168 "HTTP/2 200 OK"
+10:08:21 INFO [529/597] TB-7588168 → 59:32:0050027:12094
+10:08:23 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7519879 "HTTP/2 200 OK"
+10:08:23 INFO [530/597] TB-7519879 → 59:32:3720008:329
+10:08:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572929 "HTTP/2 200 OK"
+10:08:25 INFO [531/597] TB-7572929 → 59:22:0810101:ЗУ1
+10:08:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7547923 "HTTP/2 200 OK"
+10:08:28 INFO [533/597] TB-7547923 → 59:24:2190101:188
+10:08:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523337 "HTTP/2 200 OK"
+10:08:32 INFO [534/597] TB-7523337 → 59:32:0010003:10700
+10:08:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7575757 "HTTP/2 200 OK"
+10:08:36 INFO [535/597] TB-7575757 → 32:03:0190101:314
+10:08:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521726 "HTTP/2 200 OK"
+10:08:38 INFO [536/597] TB-7521726 → 59:27:0041064:37
+10:08:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523343 "HTTP/2 200 OK"
+10:08:42 INFO [538/597] TB-7523343 → 59:32:1080001:1668
+10:08:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7525614 "HTTP/2 200 OK"
+10:08:43 INFO [539/597] TB-7525614 → 59:21:0720001:580
+10:08:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537531 "HTTP/2 200 OK"
+10:08:45 INFO [540/597] TB-7537531 → 59:32:0610001:491
+10:08:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520363 "HTTP/2 200 OK"
+10:08:47 INFO [541/597] TB-7520363 → 59:37:0010110:822
+10:08:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538161 "HTTP/2 200 OK"
+10:08:48 INFO [542/597] TB-7538161 → 59:32:3890013:1668
+10:08:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456976 "HTTP/2 200 OK"
+10:08:50 INFO [543/597] TB-7456976 → 59:28:0060101:415
+10:08:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572640 "HTTP/2 200 OK"
+10:08:52 INFO [544/597] TB-7572640 → 59:13:0060101:469
+10:08:54 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562901 "HTTP/2 200 OK"
+10:08:54 INFO [545/597] TB-7562901 → 59:04:0101090:ЗУ36
+10:08:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538150 "HTTP/2 200 OK"
+10:08:55 INFO [546/597] TB-7538150 → 59:32:0010003:11038
+10:08:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543530 "HTTP/2 200 OK"
+10:08:57 INFO [547/597] TB-7543530 → 59:26:0610319:21
+10:08:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572641 "HTTP/2 200 OK"
+10:08:59 INFO [548/597] TB-7572641 → 59:13:0060101:468
+10:09:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520364 "HTTP/2 200 OK"
+10:09:01 INFO [549/597] TB-7520364 → 59:37:0010110:822
+10:09:03 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7524987 "HTTP/2 200 OK"
+10:09:03 INFO [550/597] TB-7524987 → 59:05:0105003:ЗУ1
+10:09:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520348 "HTTP/2 200 OK"
+10:09:07 INFO [553/597] TB-7520348 → 59:37:0890101:1494
+10:09:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562174 "HTTP/2 200 OK"
+10:09:09 INFO [554/597] TB-7562174 → 59:12:0390009:ЗУ1
+10:09:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538156 "HTTP/2 200 OK"
+10:09:13 INFO [556/597] TB-7538156 → 59:32:3680012:2595
+10:09:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7548793 "HTTP/2 200 OK"
+10:09:15 INFO [557/597] TB-7548793 → 59:16:0020104:ЗУ1
+10:09:17 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7508130 "HTTP/2 200 OK"
+10:09:17 INFO [558/597] TB-7508130 → 59:34:0760101:1573
+10:09:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7554122 "HTTP/2 200 OK"
+10:09:18 INFO [559/597] TB-7554122 → 59:34:2680102:ЗУ1
+10:09:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523340 "HTTP/2 200 OK"
+10:09:20 INFO [560/597] TB-7523340 → 59:32:0010003:10927
+10:09:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7540407 "HTTP/2 200 OK"
+10:09:21 INFO [561/597] TB-7540407 → 59:28:0830101:1187
+10:09:23 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538149 "HTTP/2 200 OK"
+10:09:23 INFO [562/597] TB-7538149 → 59:32:0010003:11037
+10:09:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7532024 "HTTP/2 200 OK"
+10:09:25 INFO [563/597] TB-7532024 → 59:07:0610101:623
+10:09:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7526583 "HTTP/2 200 OK"
+10:09:27 INFO [564/597] TB-7526583 → 59:35:0220101:ЗУ1
+10:09:29 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7579575 "HTTP/2 200 OK"
+10:09:29 INFO [565/597] TB-7579575 → 59:18:0010604:4858
+10:09:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562893 "HTTP/2 200 OK"
+10:09:31 INFO [566/597] TB-7562893 → 59:04:0101090:ЗУ32
+10:09:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456205 "HTTP/2 200 OK"
+10:09:32 INFO [567/597] TB-7456205 → 59:22:0740101:157
+10:09:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7573682 "HTTP/2 200 OK"
+10:09:34 INFO [568/597] TB-7573682 → 90:10:120401:217
+10:09:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537538 "HTTP/2 200 OK"
+10:09:36 INFO [569/597] TB-7537538 → 59:32:1170001:1476
+10:09:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537540 "HTTP/2 200 OK"
+10:09:37 INFO [570/597] TB-7537540 → 59:32:1710001:634
+10:09:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7562863 "HTTP/2 200 OK"
+10:09:39 INFO [571/597] TB-7562863 → 59:04:0101090:ЗУ18
+10:09:41 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7435411 "HTTP/2 200 OK"
+10:09:41 INFO [572/597] TB-7435411 → 59:29:1400002:93
+10:09:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7569039 "HTTP/2 200 OK"
+10:09:43 INFO [573/597] TB-7569039 → 59:29:0660001:217
+10:09:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570433 "HTTP/2 200 OK"
+10:09:45 INFO [574/597] TB-7570433 → 59:01:5010047:141
+10:09:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7491925 "HTTP/2 200 OK"
+10:09:46 INFO [575/597] TB-7491925 → 59:07:0130101:185
+10:09:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521945 "HTTP/2 200 OK"
+10:09:48 INFO [576/597] TB-7521945 → 59:25:1880002:418
+10:09:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523319 "HTTP/2 200 OK"
+10:09:50 INFO [577/597] TB-7523319 → 59:32:3960006:7992
+10:09:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7489066 "HTTP/2 200 OK"
+10:09:51 INFO [578/597] TB-7489066 → 59:19:1209003:163
+10:09:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520534 "HTTP/2 200 OK"
+10:09:53 INFO [579/597] TB-7520534 → 59:07:0210101:984
+10:09:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523327 "HTTP/2 200 OK"
+10:09:55 INFO [580/597] TB-7523327 → 59:32:3020003:4503
+10:09:57 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7526978 "HTTP/2 200 OK"
+10:09:57 INFO [581/597] TB-7526978 → 59:25:0010243:340
+10:09:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538162 "HTTP/2 200 OK"
+10:09:59 INFO [582/597] TB-7538162 → 59:32:1140001:948
+10:10:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7495697 "HTTP/2 200 OK"
+10:10:00 INFO [583/597] TB-7495697 → 59:01:0919077:133
+10:10:02 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537539 "HTTP/2 200 OK"
+10:10:02 INFO [584/597] TB-7537539 → 59:32:4400001:604
+10:10:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456200 "HTTP/2 200 OK"
+10:10:07 INFO [585/597] TB-7456200 → 59:22:0020101:1308
+10:10:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523336 "HTTP/2 200 OK"
+10:10:12 INFO [587/597] TB-7523336 → 59:32:0010003:10699
+10:10:14 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572318 "HTTP/2 200 OK"
+10:10:14 INFO [588/597] TB-7572318 → 59:34:2680102:ЗУ1
+10:10:16 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7579572 "HTTP/2 200 OK"
+10:10:16 INFO [589/597] TB-7579572 → 78:32:0001013:58
+10:10:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537541 "HTTP/2 200 OK"
+10:10:18 INFO [590/597] TB-7537541 → 59:32:2430001:4318
+10:10:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545354 "HTTP/2 200 OK"
+10:10:22 INFO [591/597] TB-7545354 → 59:01:4311004:230
+10:10:26 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523342 "HTTP/2 200 OK"
+10:10:26 INFO [593/597] TB-7523342 → 59:32:1080001:1669
+10:10:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523323 "HTTP/2 200 OK"
+10:10:27 INFO [594/597] TB-7523323 → 59:32:3020003:4488
+10:10:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7540406 "HTTP/2 200 OK"
+10:10:31 INFO [596/597] TB-7540406 → 59:28:0830101:1185
+10:10:32 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7512546 "HTTP/2 200 OK"
+10:10:32 INFO [597/597] TB-7512546 → 59:23:0221005:182
+10:10:33 INFO ==================================================
+10:10:33 INFO Готово! Найден кадастр: 491, не найден: 106

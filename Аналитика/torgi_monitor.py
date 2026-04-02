@@ -170,6 +170,16 @@ def _get_supabase():
     return _sb_client
 
 
+def map_trade_type(bidd_type_str):
+    """Маппинг biddType torgi.gov.ru → trade_type."""
+    t = (bidd_type_str or "").lower()
+    if "приватизац" in t:
+        return "privatization"
+    if "конкурс" in t:
+        return "contest"
+    return "auction"  # реализация имущества и аренда — тоже аукционы
+
+
 def write_to_supabase(parsed, market=None):
     """Записать лот torgi.gov.ru в Supabase properties."""
     try:
@@ -192,6 +202,7 @@ def write_to_supabase(parsed, market=None):
             "area_unit": "sotka" if parsed["isLand"] else "m2",
             "price_per_unit": parsed["pricePerUnit"] or None,
             "bidd_type": parsed["biddType"],
+            "trade_type": map_trade_type(parsed["biddType"]),
             "auction_date": parsed["auctionDate"],
             "application_end": parsed["applicationEnd"],
             "status": parsed["status"],

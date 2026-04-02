@@ -131,6 +131,14 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .fav-btn:hover { opacity:0.8; transform:scale(1.2); }
 .fav-btn.active { opacity:1; }
 .fav-badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:12px; font-size:9px; font-weight:600; background:rgba(250,204,21,0.15); color:#facc15; margin-left:4px; }
+.trade-badge { display:inline-flex; align-items:center; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:600; white-space:nowrap; }
+.trade-auction { background:rgba(99,102,241,0.2); color:var(--accent3); }
+.trade-public  { background:rgba(245,158,11,0.2); color:#fbbf24; }
+.price-schedule-table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; }
+.price-schedule-table td { padding:5px 8px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.price-schedule-table tr.stage-past td { color:var(--text3); opacity:0.6; }
+.price-schedule-table tr.stage-current td { color:#34d399; font-weight:600; }
+.price-schedule-table tr.stage-current td:last-child::after { content:" ← сейчас"; font-size:10px; opacity:0.8; }
 .status-btns { display:flex; gap:3px; }
 .st-btn { width:28px; height:24px; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--text3); cursor:pointer; font-size:12px; transition:all .12s; display:flex; align-items:center; justify-content:center; }
 .st-btn:hover { border-color:var(--stc); color:var(--stc); background:color-mix(in srgb, var(--stc) 10%, transparent); }
@@ -522,6 +530,14 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       </select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">Вид торгов</span>
+      <select id="filter-trade-type" onchange="applyFilters()">
+        <option value="">Все</option>
+        <option value="auction">Аукцион ↑</option>
+        <option value="public_offer">Публичка ↓</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Источник</span>
       <select id="filter-source" onchange="applyFilters()">
         <option value="">Все</option>
@@ -736,6 +752,7 @@ function applyFilters() {
   const district = document.getElementById('filter-district').value;
   const minScore     = parseFloat(document.getElementById('filter-score').value) || 0;
   const minLookalike = parseFloat(document.getElementById('filter-lookalike').value) || 0;
+  const tradeType = document.getElementById('filter-trade-type').value;
   const source   = document.getElementById('filter-source').value;
   const region   = document.getElementById('filter-region').value;
   const confidence = document.getElementById('filter-confidence').value;
@@ -755,6 +772,10 @@ function applyFilters() {
     if (district && lot.district !== district) return false;
     if (minScore && (lot.invest_score || 0) < minScore) return false;
     if (minLookalike && (lot.lookalike_score || 0) < minLookalike) return false;
+    if (tradeType) {
+      if (tradeType === 'auction' && lot.trade_type === 'public_offer') return false;
+      if (tradeType === 'public_offer' && lot.trade_type !== 'public_offer') return false;
+    }
     if (source && (lot.source || 'torgi') !== source) return false;
     if (region) {
       const addr = (lot.address || '') + (lot.address_std || '');
@@ -857,6 +878,7 @@ function renderGrid() {
         <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
         <div style="display:flex;gap:6px;align-items:center">
           ${lot.lot_status && lot.lot_status !== 'skip' ? `<span class="fav-badge" style="background:${LOT_STATUSES[lot.lot_status].bg};color:${LOT_STATUSES[lot.lot_status].color}">${LOT_STATUSES[lot.lot_status].label}</span>` : ''}
+          ${tradeBadgeHtml(lot)}
           ${srcLabel ? `<span class="source-badge ${srcCls}">${srcLabel}</span>` : ''}
           ${dLabel ? `<span class="discount-badge ${dCls}">${dLabel}</span>` : ''}
         </div>
@@ -864,7 +886,7 @@ function renderGrid() {
       <div class="card-title">${escHtml(displayName(lot))}</div>
       <div class="card-address">${escHtml(lot.address_std||lot.address||'Адрес не указан')}</div>
       <div class="card-metrics">
-        <div class="metric"><div class="metric-label">Цена торгов</div><div class="metric-val accent">${formatPrice(lot.price)}</div></div>
+        <div class="metric"><div class="metric-label">Цена торгов</div><div class="metric-val accent">${formatPrice(actualPrice(lot))}${lot.trade_type==='public_offer'&&lot.price_schedule?' <span style="font-size:9px;opacity:0.6;font-weight:400">актуальная</span>':''}</div></div>
         <div class="metric">
           <div class="metric-label">Рыночная${conf ? ` <span class="confidence-dot" style="background:${confColor}" title="Точность: ${conf}"></span>` : ''}</div>
           <div class="metric-val ${lot.market_price?'green':''}">${lot.market_price?formatPrice(lot.market_price):'—'}</div>
@@ -904,6 +926,7 @@ function renderGrid() {
 const TABLE_COLS = [
   { key:'lot_status',    label:'Статус',  sortable:true,  w:'130px' },
   { key:'property_type', label:'Тип',     sortable:true,  w:'80px' },
+  { key:'trade_type',    label:'Торги',   sortable:true,  w:'80px' },
   { key:'name',          label:'Название',sortable:true,  w:'200px' },
   { key:'address',       label:'Адрес',   sortable:false, w:'160px' },
   { key:'area',          label:'Площадь', sortable:true,  w:'70px'  },
@@ -959,10 +982,11 @@ function renderTable() {
         </div>
       </td>
       <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
+      <td>${tradeBadgeHtml(lot)}</td>
       <td class="td-name"><span title="${escHtml(lot.name||'')}"> ${escHtml(displayName(lot))}</span></td>
       <td class="td-addr"><span title="${escHtml(lot.address_std||lot.address||'')}"> ${escHtml(lot.address_std||lot.address||'—')}</span></td>
       <td>${lot.area ? lot.area+' '+areaUnit(lot.area_unit) : '—'}</td>
-      <td style="color:var(--accent3);font-weight:500">${formatPrice(lot.price)}</td>
+      <td style="color:var(--accent3);font-weight:500">${formatPrice(actualPrice(lot))}</td>
       <td style="color:var(--green)">${lot.market_price ? formatPrice(lot.market_price) : '—'}</td>
       <td class="${dCls}">${dLabel}</td>
       <td>${lot.auction_date ? formatDate(lot.auction_date) : '—'}</td>
@@ -1207,6 +1231,7 @@ function renderModalContent(lot) {
     <div class="modal-title-group">
       <div class="modal-badges">
         <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+        ${tradeBadgeHtml(lot)}
         ${discount ? `<span class="discount-badge ${dCls}">−${discount}% дисконт</span>` : ''}
         ${lot.status ? `<span class="type-badge type-unknown">${escHtml(lot.status)}</span>` : ''}
       </div>
@@ -1222,12 +1247,32 @@ function renderModalContent(lot) {
   <div class="modal-body">`;
 
   // KPI
+  const dispPrice = actualPrice(lot);
   html += `<div class="modal-kpi">
-    <div class="kpi-card"><span class="kpi-val accent">${formatPrice(lot.price)}</span><span class="kpi-label">Цена лота</span></div>
+    <div class="kpi-card"><span class="kpi-val accent">${formatPrice(dispPrice)}</span><span class="kpi-label">${lot.trade_type==='public_offer'&&lot.price_schedule?'Цена (актуальная)':'Цена лота'}</span></div>
     <div class="kpi-card"><span class="kpi-val" style="color:var(--green)">${lot.market_price?formatPrice(lot.market_price):'—'}</span><span class="kpi-label">Рыночная</span></div>
     <div class="kpi-card"><span class="kpi-val" style="color:${discount>=30?'var(--green)':discount>=15?'var(--yellow)':'var(--text2)'}">${discount?discount+'%':'—'}</span><span class="kpi-label">Дисконт</span></div>
     <div class="kpi-card"><span class="kpi-val" style="color:${sColor}">${score||'—'}</span><span class="kpi-label">Invest Score</span></div>
   </div>`;
+
+  // График снижения цены (только для публичных предложений)
+  if (lot.trade_type === 'public_offer' && lot.price_schedule && lot.price_schedule.length) {
+    const today = new Date().toISOString().slice(0,10);
+    const schedRows = lot.price_schedule.map(s => {
+      const isPast = s.date_end < today;
+      const isCurrent = s.date_start <= today && s.date_end >= today;
+      const cls = isCurrent ? 'stage-current' : (isPast ? 'stage-past' : '');
+      const d1 = s.date_start.slice(5).replace('-','.');
+      const d2 = s.date_end.slice(5).replace('-','.');
+      return `<tr class="${cls}"><td>${d1}–${d2}</td><td style="text-align:right">${formatPrice(s.price)}</td></tr>`;
+    }).join('');
+    const minStr = lot.min_price ? ` · Мин: ${formatPrice(lot.min_price)}` : '';
+    html += `<div class="modal-section">
+      <div class="section-title">График снижения цены</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Начальная: ${formatPrice(lot.price)}${minStr}</div>
+      <table class="price-schedule-table">${schedRows}</table>
+    </div>`;
+  }
 
   // Карта локации
   html += `<div class="modal-section">
@@ -1237,6 +1282,7 @@ function renderModalContent(lot) {
       <div class="modal-map-status" id="modal-map-status"><div class="spinner"></div><span>Загрузка карты...</span></div>
     </div>
     <div class="modal-map-actions">
+      ${lot.cadastral_number ? `<a href="https://tbankrot.ru/?search=${encodeURIComponent(lot.cadastral_number)}" target="_blank" class="link-btn primary">TBankrot ↗</a>` : ''}
       ${lot.cadastral_number ? `<a href="https://pkk.rosreestr.ru/#text=${encodeURIComponent(lot.cadastral_number)}&type=5" target="_blank" class="link-btn">ПКК Росреестра ↗</a>` : ''}
       ${lot.cadastral_number ? `<a href="https://nspd.gov.ru/map?search=${encodeURIComponent(lot.cadastral_number)}" target="_blank" class="link-btn">НСПД ↗</a>` : ''}
       ${lot.address ? `<a href="https://yandex.ru/maps/?text=${encodeURIComponent(lot.address_std||lot.address)}" target="_blank" class="link-btn">Яндекс Карты ↗</a>` : ''}
@@ -1622,6 +1668,23 @@ function formatPrice(v) {
   if (v>=1e6)  return (v/1e6).toFixed(2).replace(/\.?0+$/,'') + ' млн ₽';
   if (v>=1000) return Math.round(v/1000) + ' тыс ₽';
   return v.toFixed(0) + ' ₽';
+}
+
+function actualPrice(lot) {
+  if (lot.trade_type !== 'public_offer' || !lot.price_schedule || !lot.price_schedule.length) return lot.price;
+  const today = new Date().toISOString().slice(0,10);
+  for (let i = lot.price_schedule.length - 1; i >= 0; i--) {
+    if (lot.price_schedule[i].date_start <= today) return lot.price_schedule[i].price;
+  }
+  return lot.price;
+}
+
+function tradeBadgeHtml(lot) {
+  if (!lot.trade_type) return ''; // неизвестный тип — не показываем
+  if (lot.trade_type === 'public_offer') {
+    return `<span class="trade-badge trade-public">Публичка ↓</span>`;
+  }
+  return `<span class="trade-badge trade-auction">Аукцион ↑</span>`;
 }
 
 function formatDate(d) {

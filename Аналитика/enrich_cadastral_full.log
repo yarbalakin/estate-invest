@@ -1,0 +1,278 @@
+09:32:38 INFO Загрузка лотов из Supabase...
+09:32:38 INFO HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=lot_id%2Ccadastral_number%2Cprice%2Cproperty_type%2Capartment&cadastral_number=not.is.null&cadastral_number=neq.&lat=is.null "HTTP/2 200 OK"
+09:32:38 INFO Найдено 55 лотов без координат (с кадастровым номером)
+09:32:38 INFO [1/55] TB-7543083 — 59:21:0310001:216
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543083 "HTTP/2 200 OK"
+09:32:40 INFO   OK: стоимость=80726.25, цена/кадастр=?
+09:32:42 INFO [2/55] TB-7519603 — 32:02:0080711:1017
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:43 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7519603 "HTTP/2 200 OK"
+09:32:43 INFO   OK: стоимость=746484.28, цена/кадастр=?
+09:32:45 INFO [3/55] TB-7516926 — 69:32:0260601:119
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516926 "HTTP/2 200 OK"
+09:32:46 INFO   OK: стоимость=395052.0, цена/кадастр=0.63
+09:32:48 INFO [4/55] TB-7493595 — 32:03:0030301:215
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7493595 "HTTP/2 200 OK"
+09:32:49 INFO   OK: стоимость=416403.54, цена/кадастр=0.68
+09:32:51 INFO [5/55] TB-7493592 — 32:03:0270601:195
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:52 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7493592 "HTTP/2 200 OK"
+09:32:52 INFO   OK: стоимость=1286460.42, цена/кадастр=0.68
+09:32:54 INFO [6/55] TB-7509441 — 32:28:0015003:879
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7509441 "HTTP/2 200 OK"
+09:32:55 INFO   OK: стоимость=2573617.66, цена/кадастр=0.28
+09:32:57 INFO [7/55] TB-7574188 — 32:22:0390245:149
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:32:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7574188 "HTTP/2 200 OK"
+09:32:58 INFO   OK: стоимость=1550240.68, цена/кадастр=0.51
+09:33:00 INFO [8/55] TB-7537167 — 32:05:0081401:539
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537167 "HTTP/2 200 OK"
+09:33:01 INFO   OK: стоимость=1151164.0, цена/кадастр=1.5
+09:33:03 INFO [9/55] TB-7522549 — 32:28:0014605:35
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522549 "HTTP/2 200 OK"
+09:33:04 INFO   OK: стоимость=1002087.65, цена/кадастр=2.36
+09:33:06 INFO [10/55] TB-7563832 — 32:10:0000000:1365
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7563832 "HTTP/2 200 OK"
+09:33:07 INFO   OK: стоимость=1900909.05, цена/кадастр=1.0
+09:33:09 INFO [11/55] TB-7522547 — 32:28:0014605:34
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522547 "HTTP/2 200 OK"
+09:33:09 INFO   OK: стоимость=1570375.13, цена/кадастр=1.98
+09:33:11 INFO [12/55] TB-7527340 — 39:03:040028:118
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527340 "HTTP/2 200 OK"
+09:33:12 INFO   OK: стоимость=405589.56, цена/кадастр=?
+09:33:14 INFO [13/55] TB-7516533 — 39:09:030013:200
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:15 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516533 "HTTP/2 200 OK"
+09:33:15 INFO   OK: стоимость=241044.0, цена/кадастр=?
+09:33:17 INFO [14/55] TB-7516532 — 39:09:030013:199
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516532 "HTTP/2 200 OK"
+09:33:25 INFO   OK: стоимость=241044.0, цена/кадастр=?
+09:33:27 INFO [15/55] TB-7507560 — 32:18:0030301:155
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:28 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7507560 "HTTP/2 200 OK"
+09:33:28 INFO   OK: стоимость=770606.54, цена/кадастр=0.47
+09:33:30 INFO [16/55] TB-7515433 — 32:30:0021008:99
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7515433 "HTTP/2 200 OK"
+09:33:31 INFO   OK: стоимость=5720214.09, цена/кадастр=0.09
+09:33:33 INFO [17/55] TB-7516537 — 39:09:030013:204
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516537 "HTTP/2 200 OK"
+09:33:33 INFO   OK: стоимость=241044.0, цена/кадастр=?
+09:33:35 INFO [18/55] TB-7516538 — 39:09:030013:205
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:36 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516538 "HTTP/2 200 OK"
+09:33:36 INFO   OK: стоимость=241044.0, цена/кадастр=?
+09:33:38 INFO [19/55] TB-7525964 — 39:17:020022:12
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:39 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7525964 "HTTP/2 200 OK"
+09:33:39 INFO   OK: стоимость=3436017.2, цена/кадастр=0.7
+09:33:41 INFO [20/55] TB-7575015 — 39:03:080817:8020
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7575015 "HTTP/2 200 OK"
+09:33:42 INFO   OK: стоимость=274699.62, цена/кадастр=4.44
+09:33:44 INFO [21/55] TB-7577539 — 39:15:131007:872
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7577539 "HTTP/2 200 OK"
+09:33:46 INFO   OK: стоимость=3239687.54, цена/кадастр=0.65
+09:33:48 INFO [22/55] TB-7568578 — 39:15:130812:62
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568578 "HTTP/2 200 OK"
+09:33:48 INFO   OK: стоимость=6073218.65, цена/кадастр=3.04
+09:33:50 INFO [23/55] TB-7568767 — 39:21:020102:125
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7568767 "HTTP/2 200 OK"
+09:33:51 INFO   OK: стоимость=37870000.0, цена/кадастр=0.5
+09:33:53 INFO [24/55] TB-7541121 — 39:17:020022:15
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7541121 "HTTP/2 200 OK"
+09:33:55 INFO   OK: стоимость=3698180.85, цена/кадастр=1.0
+09:33:57 INFO [25/55] TB-7551785 — 39:15:150829:534
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:33:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7551785 "HTTP/2 200 OK"
+09:33:58 INFO   OK: стоимость=3955832.12, цена/кадастр=0.27
+09:34:00 INFO [26/55] TB-7551780 — 39:10:010034:42
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7551780 "HTTP/2 200 OK"
+09:34:01 INFO   OK: стоимость=1379405.47, цена/кадастр=1.23
+09:34:03 INFO [27/55] TB-7570438 — 39:15:131828:3224
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:04 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7570438 "HTTP/2 200 OK"
+09:34:04 INFO   OK: стоимость=111212.54, цена/кадастр=8.54
+09:34:06 INFO [28/55] TB-7556043 — 39:19:010102:246
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556043 "HTTP/2 200 OK"
+09:34:07 INFO   OK: стоимость=3957974.59, цена/кадастр=2.7
+09:34:09 INFO [29/55] TB-7492945 — 39:05:010324:984
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7492945 "HTTP/2 200 OK"
+09:34:10 INFO   OK: стоимость=5013782.37, цена/кадастр=3.97
+09:34:12 INFO [30/55] TB-7549772 — 32:10:0020401:214
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7549772 "HTTP/2 200 OK"
+09:34:13 INFO   OK: стоимость=396171.9, цена/кадастр=?
+09:34:15 INFO [31/55] TB-7498562 — 59:17:4104001:400
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:16 ERROR   НСПД ошибка 59:17:4104001:400: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A17%3A4104001%3A400&limit=1
+09:34:17 WARNING   Не найден в НСПД
+09:34:19 INFO [32/55] TB-7527495 — 39:02:120003:464
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:21 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7527495 "HTTP/2 200 OK"
+09:34:21 INFO   OK: стоимость=349836.0, цена/кадастр=?
+09:34:23 INFO [33/55] TB-7587828 — 59:01:1713292:821
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:24 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7587828 "HTTP/2 200 OK"
+09:34:24 INFO   OK: стоимость=1208457.03, цена/кадастр=0.27
+09:34:26 INFO [34/55] TB-7556035 — 59:32:3980009:12874
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:27 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556035 "HTTP/2 200 OK"
+09:34:27 INFO   OK: стоимость=2226659.98, цена/кадастр=2.32
+09:34:29 INFO [35/55] TB-6930162 — 32:23:0051605:99
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:30 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-6930162 "HTTP/2 200 OK"
+09:34:30 INFO   OK: стоимость=132284.46, цена/кадастр=?
+09:34:32 INFO [36/55] TB-7554419 — 32:01:0310101:483
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:33 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7554419 "HTTP/2 200 OK"
+09:34:33 INFO   OK: стоимость=1520922.24, цена/кадастр=0.93
+09:34:35 INFO [37/55] TB-7572231 — 32:27:0220201:2
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:35 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572231 "HTTP/2 200 OK"
+09:34:35 INFO   OK: стоимость=0.0, цена/кадастр=?
+09:34:37 INFO [38/55] TB-7543666 — 32:01:0370202:113
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:38 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543666 "HTTP/2 200 OK"
+09:34:38 INFO   OK: стоимость=637590.0, цена/кадастр=1.0
+09:34:40 INFO [39/55] TB-7537168 — 32:01:0280111:143
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:42 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7537168 "HTTP/2 200 OK"
+09:34:42 INFO   OK: стоимость=422820.16, цена/кадастр=1.18
+09:34:44 INFO [40/55] TB-7526376 — 39:12:040803:57
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:45 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7526376 "HTTP/2 200 OK"
+09:34:45 INFO   OK: стоимость=135636.0, цена/кадастр=?
+09:34:47 INFO [41/55] TB-7515633 — 32:02:0160401:169
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:47 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7515633 "HTTP/2 200 OK"
+09:34:47 INFO   OK: стоимость=1116582.16, цена/кадастр=0.51
+09:34:49 INFO [42/55] TB-7522548 — 32:28:0014605:36
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:50 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522548 "HTTP/2 200 OK"
+09:34:50 INFO   OK: стоимость=272652.24, цена/кадастр=2.0
+09:34:52 INFO [43/55] TB-7491961 — 32:27:0320905:177
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:53 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7491961 "HTTP/2 200 OK"
+09:34:53 INFO   OK: стоимость=10620.0, цена/кадастр=49.07
+09:34:55 INFO [44/55] TB-7521286 — 39:12:040201:415
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:56 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521286 "HTTP/2 200 OK"
+09:34:56 INFO   OK: стоимость=310185.0, цена/кадастр=?
+09:34:58 INFO [45/55] TB-7458823 — 32:05:0180101:101
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:34:59 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7458823 "HTTP/2 200 OK"
+09:34:59 INFO   OK: стоимость=662480.0, цена/кадастр=0.01
+09:35:01 INFO [46/55] TB-7518097 — 39:11:070701:178
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:02 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518097 "HTTP/2 200 OK"
+09:35:02 INFO   OK: стоимость=369057.59, цена/кадастр=2.15
+09:35:04 INFO [47/55] TB-7556898 — 39:06:000000:505
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556898 "HTTP/2 200 OK"
+09:35:06 INFO   OK: стоимость=2387625.12, цена/кадастр=1.49
+09:35:08 INFO [48/55] TB-7484245 — 39:15:141202:545
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:09 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7484245 "HTTP/2 200 OK"
+09:35:09 INFO   OK: стоимость=4701758.99, цена/кадастр=1.31
+09:35:11 INFO [49/55] TB-7505498 — 39:12:030502:144
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:12 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7505498 "HTTP/2 200 OK"
+09:35:12 INFO   OK: стоимость=1146655.92, цена/кадастр=0.29
+09:35:14 INFO [50/55] TB-7575368 — 59:25:0010807:2
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:14 ERROR   НСПД ошибка 59:25:0010807:2: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A25%3A0010807%3A2&limit=1
+09:35:15 WARNING   Не найден в НСПД
+09:35:17 INFO [51/55] TB-7543667 — 32:01:0361207:220
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:18 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543667 "HTTP/2 200 OK"
+09:35:18 INFO   OK: стоимость=1082700.0, цена/кадастр=1.0
+09:35:20 INFO [52/55] TB-7572225 — 32:27:0210305:1
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7572225 "HTTP/2 200 OK"
+09:35:22 INFO   OK: стоимость=0.0, цена/кадастр=?
+09:35:24 INFO [53/55] TB-7470161 — 32:25:0410501:32
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:24 ERROR   НСПД ошибка 32:25:0410501:32: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=32%3A25%3A0410501%3A32&limit=1
+09:35:25 WARNING   Не найден в НСПД
+09:35:27 INFO [54/55] 23000001850000000011_1 — 59:01:4418025
+09:35:27 WARNING   Пропуск невалидного формата: 59:01:4418025
+09:35:28 WARNING   Не найден в НСПД
+09:35:30 INFO [55/55] 21000024330000000487_1 — 39:07:010077:01
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+09:35:31 ERROR   НСПД ошибка 39:07:010077:01: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=39%3A07%3A010077%3A01&limit=1
+09:35:32 WARNING   Не найден в НСПД
+09:35:34 INFO ==================================================
+09:35:34 INFO Готово! OK: 50, не найдено: 5, пропущено: 0

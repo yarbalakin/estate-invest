@@ -188,7 +188,7 @@ def curl_get(url, referer="https://fedresurs.ru/biddings"):
             os.remove(tmp)
 
 
-def fetch_biddings(region="59", page_size=15, pages=2):
+def fetch_biddings(region="59", page_size=15, pages=5):
     all_items, found = [], 0
     for page in range(pages):
         url = f"{BASE}/biddings?searchByRegion=true&regionCode={region}&limit={page_size}&offset={page*page_size}"
@@ -246,6 +246,18 @@ def save_seen(seen):
 def clean_seen(seen, days=30):
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     return {k: v for k, v in seen.items() if v > cutoff}
+
+
+def map_trade_type(type_name):
+    """Маппинг ЕФРСБ type.name → trade_type."""
+    t = (type_name or "").lower()
+    if "публичн" in t:
+        return "public_offer"
+    if "аукцион" in t:
+        return "auction"
+    if "конкурс" in t:
+        return "contest"
+    return "auction"  # fallback — большинство банкротных торгов это аукционы
 
 
 def is_realty_lot(lot):
@@ -354,9 +366,11 @@ def main():
             seen[guid] = datetime.now().isoformat()
             continue
 
+        type_name = detail.get("type", {}).get("name", "")
         bidding_info = {
             "biddingGuid":   guid,
-            "type":          detail.get("type", {}).get("name", ""),
+            "type":          type_name,
+            "trade_type":    map_trade_type(type_name),
             "status":        bidding_raw.get("status", {}).get("name", ""),
             "bankrupt":      bidding_raw.get("bankrupt", {}).get("name", ""),
             "tradePlace":    bidding_raw.get("tradePlace", {}).get("name", ""),
@@ -375,6 +389,8 @@ def main():
                 "category":        classifiers[0].get("name", "") if classifiers else "",
                 "advance":         lot.get("advance"),
                 "advanceStepUnit": lot.get("advanceStepUnit", "Percent"),
+                "priceReduction":  lot.get("priceReduction", ""),
+                "additionalText":  mc.get("additionalText", ""),
             }
             text = format_telegram_message(bidding_info, lot_info)
             if send_telegram(text):

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Invest — AI-трансформация с помощницей</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --bg: #0a0a0f;
+    --bg-card: rgba(255,255,255,0.03);
+    --bg-card-hover: rgba(255,255,255,0.055);
+    --text: #e4e4e7;
+    --text-secondary: #71717a;
+    --text-muted: #52525b;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #6366f1;
+    --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+    --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
+    --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.1);
+    --purple: #a855f7; --purple-bg: rgba(168,85,247,0.1);
+    --orange: #f97316; --orange-bg: rgba(249,115,22,0.1);
+    --pink: #ec4899; --pink-bg: rgba(236,72,153,0.1);
+    --teal: #14b8a6; --teal-bg: rgba(20,184,166,0.1);
+    --radius: 16px; --radius-sm: 10px;
+    --t: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    background-image:
+        radial-gradient(ellipse at 10% 30%, rgba(99,102,241,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 10%, rgba(168,85,247,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 95%, rgba(6,182,212,0.04) 0%, transparent 50%);
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed; left:0; top:0; bottom:0; width:240px;
+    background: #0e0e16;
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    display: flex; flex-direction: column;
+    z-index: 100; overflow-y: auto;
+}
+.sidebar-logo { font-size:14px; font-weight:800; padding:0 8px 18px; border-bottom:1px solid var(--border); margin-bottom:14px; letter-spacing:-.02em; }
+.sidebar-logo span { color: var(--accent); }
+.logo-sub { font-size:10px; font-weight:500; color:var(--text-muted); margin-top:2px; }
+.nav-section { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); padding:14px 8px 5px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:var(--radius-sm); color:var(--text-secondary); font-size:12.5px; font-weight:500; cursor:pointer; transition:all var(--t); text-decoration:none; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+.nav-item.active { color:#c4b5fd; }
+.dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.nav-badge { font-size:9px; font-weight:700; padding:1px 6px; border-radius:9999px; margin-left:auto; }
+
+/* MAIN */
+.main { margin-left:240px; padding:32px 40px 100px; max-width:1300px; }
+.page-header { margin-bottom:36px; }
+.page-header h1 { font-size:28px; font-weight:800; letter-spacing:-.03em; background:linear-gradient(135deg,#e4e4e7 20%,#a5b4fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.page-header .sub { font-size:13px; color:var(--text-secondary); margin-top:6px; }
+
+/* SECTION TITLE */
+.section-title { font-size:18px; font-weight:800; letter-spacing:-.02em; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* CYCLE */
+.cycle-wrap { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:40px; }
+.cycle-step { padding:20px 18px; background:var(--bg-card); border-right:1px solid var(--border); position:relative; transition:all var(--t); }
+.cycle-step:last-child { border-right:none; }
+.cycle-step:hover { background:var(--bg-card-hover); }
+.cycle-num { font-size:11px; font-weight:700; letter-spacing:.06em; margin-bottom:8px; }
+.cycle-title { font-size:14px; font-weight:700; margin-bottom:6px; letter-spacing:-.01em; }
+.cycle-who { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; padding:2px 8px; border-radius:9999px; display:inline-block; }
+.cycle-desc { font-size:12px; color:var(--text-secondary); line-height:1.6; }
+.cycle-arrow { position:absolute; right:-1px; top:50%; transform:translateY(-50%); width:20px; height:20px; z-index:1; }
+
+/* STATUS TABLE */
+.status-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:40px; }
+.status-table { width:100%; border-collapse:collapse; font-size:13px; }
+.status-table thead th { text-align:left; padding:10px 14px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); white-space:nowrap; }
+.status-table thead th:not(:first-child):not(:last-child) { text-align:center; }
+.status-table tbody td { padding:11px 14px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+.status-table tbody tr:last-child td { border-bottom:none; }
+.status-table tbody tr:hover { background:rgba(255,255,255,0.02); }
+.dept-name { font-weight:600; font-size:13px; }
+.dept-name small { display:block; font-size:11px; font-weight:400; color:var(--text-muted); margin-top:1px; }
+.status-cell { text-align:center; }
+.s-blank { width:20px; height:20px; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid var(--border); display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-muted); }
+.s-done { width:20px; height:20px; border-radius:6px; background:var(--green-bg); border:1px solid rgba(34,197,94,0.25); display:inline-flex; align-items:center; justify-content:center; font-size:11px; color:var(--green); }
+.s-wip { width:20px; height:20px; border-radius:6px; background:var(--yellow-bg); border:1px solid rgba(234,179,8,0.25); display:inline-flex; align-items:center; justify-content:center; font-size:11px; color:var(--yellow); }
+.priority-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:9999px; white-space:nowrap; }
+.p-max { background:var(--red-bg); color:var(--red); }
+.p-high { background:var(--orange-bg); color:var(--orange); }
+.p-mid { background:var(--yellow-bg); color:var(--yellow); }
+.p-low { background:var(--cyan-bg); color:var(--cyan); }
+.p-done { background:var(--green-bg); color:var(--green); }
+
+/* DEPT CARDS */
+.dept-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:40px; }
+.dept-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; transition:all var(--t); }
+.dept-card:hover { background:var(--bg-card-hover); border-color:var(--border-hover); }
+.dept-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+.dept-card-title { font-size:15px; font-weight:700; letter-spacing:-.01em; }
+.dept-card-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+.dept-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.staff-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.staff-chip { font-size:11px; font-weight:500; padding:3px 10px; border-radius:9999px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text-secondary); }
+.task-list { list-style:none; display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.task-list li { font-size:12px; color:var(--text-secondary); line-height:1.5; padding-left:14px; position:relative; }
+.task-list li::before { content:''; position:absolute; left:0; top:6px; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.auto-tag { font-size:10px; font-weight:600; padding:1px 6px; border-radius:9999px; margin-left:6px; white-space:nowrap; }
+.auto-yes { background:var(--green-bg); color:var(--green); }
+.auto-part { background:var(--yellow-bg); color:var(--yellow); }
+.auto-no { background:rgba(255,255,255,0.05); color:var(--text-muted); }
+.dept-footer { border-top:1px solid var(--border); padding-top:10px; font-size:11px; color:var(--text-muted); }
+.dept-footer strong { color:var(--text-secondary); }
+
+/* INTERVIEW BLOCK */
+.interview-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:40px; }
+.interview-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); }
+.interview-header h3 { font-size:14px; font-weight:700; }
+.interview-header p { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+.q-list { list-style:none; display:flex; flex-direction:column; gap:0; }
+.q-item { display:flex; gap:14px; padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.03); transition:background var(--t); }
+.q-item:last-child { border-bottom:none; }
+.q-item:hover { background:rgba(255,255,255,0.02); }
+.q-num { font-size:11px; font-weight:700; color:var(--accent); opacity:.7; min-width:20px; padding-top:1px; }
+.q-text { font-size:13px; color:var(--text-secondary); line-height:1.55; }
+
+/* CHECKLIST */
+.checklist-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:40px; }
+.checklist-header { padding:16px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); display:flex; align-items:center; gap:12px; }
+.check-list { list-style:none; display:flex; flex-direction:column; }
+.check-item { display:flex; align-items:center; gap:12px; padding:11px 20px; border-bottom:1px solid rgba(255,255,255,0.03); transition:background var(--t); }
+.check-item:last-child { border-bottom:none; }
+.check-item:hover { background:rgba(255,255,255,0.02); }
+.check-box { width:16px; height:16px; border-radius:5px; border:1.5px solid var(--border); flex-shrink:0; }
+.check-text { font-size:13px; color:var(--text-secondary); }
+.check-text strong { color:var(--text); }
+
+/* ROLES */
+.roles-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:40px; }
+.role-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; }
+.role-title { font-size:13px; font-weight:700; margin-bottom:4px; }
+.role-sub { font-size:11px; color:var(--text-muted); margin-bottom:14px; }
+.role-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.role-list li { font-size:12.5px; color:var(--text-secondary); padding-left:16px; position:relative; }
+.role-list li::before { content:'→'; position:absolute; left:0; font-size:11px; }
+
+@keyframes fadeInUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.section-block { animation:fadeInUp .35s ease forwards; opacity:0; }
+.section-block:nth-child(1){animation-delay:40ms}
+.section-block:nth-child(2){animation-delay:80ms}
+.section-block:nth-child(3){animation-delay:120ms}
+.section-block:nth-child(4){animation-delay:160ms}
+.section-block:nth-child(5){animation-delay:200ms}
+.section-block:nth-child(6){animation-delay:240ms}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+
+@media(max-width:900px){
+    .sidebar{display:none} .main{margin-left:0;padding:16px 14px 60px}
+    .cycle-wrap{grid-template-columns:1fr 1fr}
+    .dept-grid{grid-template-columns:1fr}
+    .roles-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div><span>Estate</span> Invest</div>
+        <div class="logo-sub">AI-трансформация 2026</div>
+    </div>
+
+    <div class="nav-section">Обзор</div>
+    <a href="#cycle" class="nav-item active">
+        <div class="dot" style="background:#6366f1"></div>
+        Цикл работы
+    </a>
+    <a href="#roles" class="nav-item">
+        <div class="dot" style="background:#a5b4fc"></div>
+        Роли
+    </a>
+    <a href="#status" class="nav-item">
+        <div class="dot" style="background:#22c55e"></div>
+        Статус отделов
+    </a>
+
+    <div class="nav-section">Отделы</div>
+    <a href="#d1" class="nav-item">
+        <div class="dot" style="background:#ef4444"></div>
+        1 — Статистика
+        <span class="nav-badge" style="background:var(--red-bg);color:var(--red)">1-й</span>
+    </a>
+    <a href="#d2" class="nav-item">
+        <div class="dot" style="background:#f97316"></div>
+        2 — Контент
+    </a>
+    <a href="#d3" class="nav-item">
+        <div class="dot" style="background:#eab308"></div>
+        3 — Поддержка
+    </a>
+    <a href="#d4" class="nav-item">
+        <div class="dot" style="background:#22c55e"></div>
+        4 — Аналитика
+    </a>
+    <a href="#d5" class="nav-item">
+        <div class="dot" style="background:#06b6d4"></div>
+        5 — Маркетинг
+    </a>
+    <a href="#d6" class="nav-item">
+        <div class="dot" style="background:#14b8a6"></div>
+        6 — Реализация
+    </a>
+    <a href="#d7" class="nav-item">
+        <div class="dot" style="background:#a855f7"></div>
+        7 — Юридический
+    </a>
+    <a href="#d8" class="nav-item">
+        <div class="dot" style="background:#ec4899"></div>
+        8 — Объекты
+    </a>
+    <a href="#d9" class="nav-item">
+        <div class="dot" style="background:#6366f1"></div>
+        9 — IT
+    </a>
+
+    <div class="nav-section">Дорожная карта</div>
+    <a href="#roadmap" class="nav-item">
+        <div class="dot" style="background:#6366f1"></div>
+        8 фаз — обзор
+    </a>
+    <a href="#endgame" class="nav-item">
+        <div class="dot" style="background:#22c55e"></div>
+        Конечное состояние
+    </a>
+
+    <div class="nav-section">Инструменты</div>
+    <a href="#passport" class="nav-item">
+        <div class="dot" style="background:#a855f7"></div>
+        Паспорт отдела
+    </a>
+    <a href="#interview" class="nav-item">
+        <div class="dot" style="background:#71717a"></div>
+        Вопросы интервью
+    </a>
+    <a href="#checklist" class="nav-item">
+        <div class="dot" style="background:#71717a"></div>
+        Чеклист недели 1
+    </a>
+</nav>
+
+<div class="main">
+
+    <div class="page-header">
+        <h1>AI-трансформация Estate Invest</h1>
+        <div class="sub">9 отделов &bull; Цикл: Картография → Проектирование → Сборка → Приёмка &bull; 2026</div>
+    </div>
+
+    <!-- CYCLE -->
+    <div id="cycle" class="section-block">
+        <div class="section-title">Цикл работы с помощницей</div>
+        <div class="cycle-wrap">
+            <div class="cycle-step">
+                <div class="cycle-num" style="color:var(--accent)">ШАГ 1</div>
+                <div class="cycle-title">Картография</div>
+                <div class="cycle-who" style="background:var(--purple-bg);color:var(--purple)">Помощница</div>
+                <div class="cycle-desc">
+                    Интервью с сотрудником отдела (30–60 мин). Заполнить паспорт: задачи, время, источники данных, боли, инструменты.<br><br>
+                    <strong style="color:var(--text)">Главный вопрос:</strong> «Опиши свой типичный рабочий день по шагам».
+                </div>
+            </div>
+            <div class="cycle-step">
+                <div class="cycle-num" style="color:var(--yellow)">ШАГ 2</div>
+                <div class="cycle-title">Проектирование</div>
+                <div class="cycle-who" style="background:rgba(99,102,241,0.12);color:#c4b5fd">Созвон 30 мин</div>
+                <div class="cycle-desc">
+                    Ярослав + Помощница разбирают паспорт.<br><br>
+                    Решаем:<br>
+                    &rarr; что автоматизировать первым<br>
+                    &rarr; какой стек (n8n / Python / API)<br>
+                    &rarr; как выглядит «готово»
+                </div>
+            </div>
+            <div class="cycle-step">
+                <div class="cycle-num" style="color:var(--orange)">ШАГ 3</div>
+                <div class="cycle-title">Сборка</div>
+                <div class="cycle-who" style="background:var(--orange-bg);color:var(--orange)">Ярослав</div>
+                <div class="cycle-desc">
+                    Строю AI-агента на основе паспорта.<br><br>
+                    Результат: рабочий инструмент в n8n или Python, подключённый к данным отдела и Telegram.
+                </div>
+            </div>
+            <div class="cycle-step">
+                <div class="cycle-num" style="color:var(--green)">ШАГ 4</div>
+                <div class="cycle-title">Приёмка</div>
+                <div class="cycle-who" style="background:var(--purple-bg);color:var(--purple)">Помощница</div>
+                <div class="cycle-desc">
+                    Прогнать 10 реальных задач через агента.<br><br>
+                    &rarr; Фиксировать ошибки<br>
+                    &rarr; Сравнить с ручным результатом<br>
+                    &rarr; Написать: что исправить<br><br>
+                    <strong style="color:var(--text)">После приёмки</strong> — переходим к следующему отделу.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROLES -->
+    <div id="roles" class="section-block">
+        <div class="section-title">Кто за что отвечает</div>
+        <div class="roles-row">
+            <div class="role-card" style="border-color:rgba(168,85,247,0.2)">
+                <div class="role-title" style="color:var(--purple)">Помощница — Картограф</div>
+                <div class="role-sub">Исследует и тестирует</div>
+                <ul class="role-list">
+                    <li>Проводит интервью с каждым сотрудником</li>
+                    <li>Заполняет паспорта отделов (❓ → факты)</li>
+                    <li>Обновляет статусы в таблице после каждого шага</li>
+                    <li>Пишет в группу: «Паспорт [отдел] готов»</li>
+                    <li>Тестирует готового AI-агента на 10 задачах</li>
+                    <li>Фиксирует ошибки и отдаёт feedback</li>
+                </ul>
+            </div>
+            <div class="role-card" style="border-color:rgba(249,115,22,0.2)">
+                <div class="role-title" style="color:var(--orange)">Ярослав — Архитектор</div>
+                <div class="role-sub">Проектирует и строит</div>
+                <ul class="role-list">
+                    <li>Принимает заполненные паспорта</li>
+                    <li>Проводит созвон по проектированию (30 мин)</li>
+                    <li>Строит AI-агентов и автоматизации</li>
+                    <li>Деплоит в n8n / VPS</li>
+                    <li>Исправляет по feedback от помощницы</li>
+                    <li>Ведёт общий статус всех отделов</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS TABLE -->
+    <div id="status" class="section-block">
+        <div class="section-title">Статус по отделам</div>
+        <div class="status-wrap">
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Отдел</th>
+                        <th>Приоритет</th>
+                        <th style="text-align:center">Картография</th>
+                        <th style="text-align:center">Проектирование</th>
+                        <th style="text-align:center">Сборка</th>
+                        <th style="text-align:center">Приёмка</th>
+                        <th>AI-агент</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">1</span></td>
+                        <td><div class="dept-name">Статистика<small>Александра Санникова</small></div></td>
+                        <td><span class="priority-badge p-max">Высший</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">2</span></td>
+                        <td><div class="dept-name">Контент<small>Глеб Хрянин</small></div></td>
+                        <td><span class="priority-badge p-high">Высокий</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">3</span></td>
+                        <td><div class="dept-name">Поддержка инвесторов<small>Ирина, Наталия, Снежана</small></div></td>
+                        <td><span class="priority-badge p-high">Высокий</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">4</span></td>
+                        <td><div class="dept-name">Аналитика<small>Кирилл Барсуков, Антонина, Татьяна</small></div></td>
+                        <td><span class="priority-badge p-mid">Средний</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-wip">~</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--yellow)">Монитор + Скоринг v1</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">5</span></td>
+                        <td><div class="dept-name">Маркетинг<small>Спартак Хачатурян</small></div></td>
+                        <td><span class="priority-badge p-mid">Средний</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">6</span></td>
+                        <td><div class="dept-name">Реализация / Продажи<small>Иван Мудров, Наталья Валетко, Жанна Шпехт</small></div></td>
+                        <td><span class="priority-badge p-mid">Средний</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-wip">~</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--yellow)">Сводка + Карта объектов</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">7</span></td>
+                        <td><div class="dept-name">Юридический<small>Галина Наборщикова</small></div></td>
+                        <td><span class="priority-badge p-low">Низкий</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">8</span></td>
+                        <td><div class="dept-name">Работа с объектами<small>Иван Мудров, Жанна Шпехт</small></div></td>
+                        <td><span class="priority-badge p-low">Низкий</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td class="status-cell"><span class="s-blank">_</span></td>
+                        <td style="font-size:12px;color:var(--text-muted)">—</td>
+                    </tr>
+                    <tr>
+                        <td><span style="font-size:12px;color:var(--text-muted)">9</span></td>
+                        <td><div class="dept-name">IT / Разработка<small>Сергей Дмитриев, Александр Никулин</small></div></td>
+                        <td><span class="priority-badge p-done">Работает</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td class="status-cell"><span class="s-done">V</span></td>
+                        <td style="font-size:12px;color:var(--green)">Ярослав + Claude</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DEPT CARDS -->
+    <div class="section-block">
+        <div class="section-title">Паспорта отделов</div>
+        <div class="dept-grid">
+
+            <!-- 1 СТАТИСТИКА -->
+            <div id="d1" class="dept-card" style="border-color:rgba(239,68,68,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">1. Статистика</div>
+                        <div class="dept-card-sub">Приоритет: ВЫСШИЙ — начинаем с этого отдела</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--red-bg)">📊</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Александра Санникова</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--red)">Расчёт метрик по объектам <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--red)">Ведение 16 таблиц Google Sheets <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--red)">Статистика по 900+ инвесторам <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--red)">Ведение 117 индивидуальных касс <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--red)">❓ Уточнить через интервью</li>
+                </ul>
+                <div class="dept-footer"><strong>Почему первый:</strong> 1 сотрудник, чистая рутина, максимальный ROI от автоматизации. Узкое место всей компании.</div>
+            </div>
+
+            <!-- 2 КОНТЕНТ -->
+            <div id="d2" class="dept-card" style="border-color:rgba(249,115,22,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">2. Контент</div>
+                        <div class="dept-card-sub">Приоритет: ВЫСОКИЙ — AI идеально подходит</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--orange-bg)">✍️</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Глеб Хрянин</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--orange)">Посты в Telegram (публичный канал) <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--orange)">Посты в закрытый канал инвесторов <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--orange)">Контент для VK и Дзен <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--orange)">YouTube видео <span class="auto-tag auto-part">частично</span></li>
+                    <li style="--c:var(--orange)">Ведение контент-плана <span class="auto-tag auto-yes">авто</span></li>
+                </ul>
+                <div class="dept-footer"><strong>Данные:</strong> 120+ завершённых объектов = контент на год. Один человек на все каналы.</div>
+            </div>
+
+            <!-- 3 ПОДДЕРЖКА -->
+            <div id="d3" class="dept-card" style="border-color:rgba(234,179,8,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">3. Поддержка инвесторов</div>
+                        <div class="dept-card-sub">Приоритет: ВЫСОКИЙ — FAQ идеально для AI-бота</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--yellow-bg)">💬</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Ирина Боброва</span>
+                    <span class="staff-chip">Наталия Титова</span>
+                    <span class="staff-chip">Снежана Подкорытова</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--yellow)">Расчёт доходности для инвесторов <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--yellow)">Начисления в личный кабинет <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--yellow)">Ответы на вопросы (Salebot) <span class="auto-tag auto-yes">AI-бот</span></li>
+                    <li style="--c:var(--yellow)">Выплаты инвесторам <span class="auto-tag auto-part">частично</span></li>
+                    <li style="--c:var(--yellow)">Коммуникация (TG, звонки) <span class="auto-tag auto-part">частично</span></li>
+                </ul>
+                <div class="dept-footer"><strong>Масштаб:</strong> 900+ инвесторов на 3 человека. KPI: ответ &lt;2ч, 95% с 1 контакта.</div>
+            </div>
+
+            <!-- 4 АНАЛИТИКА -->
+            <div id="d4" class="dept-card" style="border-color:rgba(34,197,94,0.3)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">4. Аналитика</div>
+                        <div class="dept-card-sub" style="color:var(--yellow)">Статус: В РАБОТЕ (Фаза 2 ~95%) — Сборка</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--green-bg)">🔍</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Кирилл Барсуков</span>
+                    <span class="staff-chip">Антонина Скурко</span>
+                    <span class="staff-chip">Татьяна Романова</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--green)">Мониторинг torgi.gov.ru + ЕФРСБ (cron 4ч) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Суpabase: 141 лот, 113 с координатами <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Скоринг v1 (invest/risk/liquidity score) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Фронтенд lots-monitor.html (карты, фильтры) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Streamlit аналитика (блоки 1-2) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--yellow)">Скоринг v2 — калибровка по реальным сделкам <span class="auto-tag auto-part">след.</span></li>
+                    <li style="--c:var(--yellow)">Streamlit блоки 3-5 (дашборд/деплой) <span class="auto-tag auto-part">в планах</span></li>
+                    <li style="--c:var(--text-muted)">Решение о выкупе <span class="auto-tag auto-no">нет — суждение</span></li>
+                </ul>
+                <div class="dept-footer"><strong>KPI:</strong> 50+ объектов/мес, конверсия 5-10%, скидка 30%+, цель 24 объекта/год. <strong>Следующее:</strong> скоринг v2 по 5-10 реальным сделкам.</div>
+            </div>
+
+            <!-- 5 МАРКЕТИНГ -->
+            <div id="d5" class="dept-card" style="border-color:rgba(6,182,212,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">5. Маркетинг</div>
+                        <div class="dept-card-sub">Приоритет: СРЕДНИЙ — нет системы, строим с нуля</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--cyan-bg)">📡</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Спартак Хачатурян</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--cyan)">Привлечение новых инвесторов <span class="auto-tag auto-yes">AI-воронка</span></li>
+                    <li style="--c:var(--cyan)">Таргетированная реклама <span class="auto-tag auto-part">частично</span></li>
+                    <li style="--c:var(--cyan)">SEO <span class="auto-tag auto-yes">AI-контент</span></li>
+                    <li style="--c:var(--cyan)">Реферальная программа <span class="auto-tag auto-yes">авто</span></li>
+                    <li style="--c:var(--cyan)">❓ Уточнить через интервью</li>
+                </ul>
+                <div class="dept-footer"><strong>Текущее:</strong> органика и сарафан. Потолок близко. Нет системного маркетинга.</div>
+            </div>
+
+            <!-- 6 РЕАЛИЗАЦИЯ -->
+            <div id="d6" class="dept-card" style="border-color:rgba(20,184,166,0.3)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">6. Реализация / Продажи</div>
+                        <div class="dept-card-sub" style="color:var(--yellow)">Статус: В РАБОТЕ — Домовенок готов, КУ-калькулятор в процессе</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--teal-bg)">🏠</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Иван Мудров</span>
+                    <span class="staff-chip">Наталья Валетко</span>
+                    <span class="staff-chip">Жанна Шпехт</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--green)">Реструктуризация: Реализация / Продажи / Содержание <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Картография болей и бизнес-процессов (5 БП) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Дашборд реализации-сводка.html (54 объекта) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Карта объектов на Leaflet <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--green)">Домовенок — бот для работы с файловой системой (ДКП, выписки, акты по ИП) <span class="auto-tag" style="background:var(--green-bg);color:var(--green)">ГОТОВО</span></li>
+                    <li style="--c:var(--yellow)">Калькулятор коммунальных услуг — веб-приложение (КУ Нытва) <span class="auto-tag auto-part">В РАБОТЕ</span></li>
+                    <li style="--c:var(--yellow)">Автогенерация объявлений Авито (сейчас 46/118) <span class="auto-tag auto-part">Волна 2</span></li>
+                    <li style="--c:var(--yellow)">Единый трекер объектов (канбан) <span class="auto-tag auto-part">Волна 3</span></li>
+                    <li style="--c:var(--yellow)">CRM покупателей + Битрикс24 <span class="auto-tag auto-part">Волна 3</span></li>
+                    <li style="--c:var(--yellow)">AI-генерация объявлений + оценка <span class="auto-tag auto-part">Волна 4</span></li>
+                </ul>
+                <div class="dept-footer"><strong>Главная боль:</strong> Антонина ушла, Иван + Наталья вдвоём на 118 объектов. <strong>KPI:</strong> продажа &lt;45 дней, 10+ показов/нед.</div>
+            </div>
+
+            <!-- 7 ЮРИДИЧЕСКИЙ -->
+            <div id="d7" class="dept-card" style="border-color:rgba(168,85,247,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">7. Юридический</div>
+                        <div class="dept-card-sub">Приоритет: НИЗКИЙ — но нужен</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--purple-bg)">⚖️</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Галина Наборщикова</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--purple)">Инвестиционные договоры <span class="auto-tag auto-yes">шаблоны + авто</span></li>
+                    <li style="--c:var(--purple)">Электронная подпись (SignEasy) <span class="auto-tag auto-yes">API</span></li>
+                    <li style="--c:var(--purple)">Проверка документов объектов <span class="auto-tag auto-part">AI-анализ</span></li>
+                    <li style="--c:var(--purple)">Контракты с подрядчиками <span class="auto-tag auto-yes">шаблоны</span></li>
+                    <li style="--c:var(--purple)">Легализация объектов <span class="auto-tag auto-no">нет — экспертиза</span></li>
+                </ul>
+                <div class="dept-footer"><strong>Инструменты:</strong> SignEasy (эл. подпись), Росреестр, Битрикс24.</div>
+            </div>
+
+            <!-- 8 ОБЪЕКТЫ -->
+            <div id="d8" class="dept-card" style="border-color:rgba(236,72,153,0.15)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">8. Работа с объектами</div>
+                        <div class="dept-card-sub">Приоритет: НИЗКИЙ — физический мир, AI координирует</div>
+                    </div>
+                    <div class="dept-icon" style="background:var(--pink-bg)">🔧</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Иван Мудров</span>
+                    <span class="staff-chip">Жанна Шпехт</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--pink)">Приёмка объектов после выкупа <span class="auto-tag auto-no">нет — физически</span></li>
+                    <li style="--c:var(--pink)">Сбор техдокументов <span class="auto-tag auto-part">чеклист + напоминания</span></li>
+                    <li style="--c:var(--pink)">Контроль ремонта <span class="auto-tag auto-part">AI-координатор</span></li>
+                    <li style="--c:var(--pink)">Раздел участков, межевание <span class="auto-tag auto-no">нет — кадастровый инж.</span></li>
+                </ul>
+                <div class="dept-footer"><strong>KPI:</strong> квартира 30 дней, дом 60 дней, отклонение бюджета &lt;10%, 3-8 объектов одновременно.</div>
+            </div>
+
+            <!-- 9 IT -->
+            <div id="d9" class="dept-card" style="border-color:rgba(99,102,241,0.25)">
+                <div class="dept-card-header">
+                    <div>
+                        <div class="dept-card-title">9. IT / Разработка</div>
+                        <div class="dept-card-sub" style="color:var(--green)">Статус: УЖЕ РАБОТАЕТ</div>
+                    </div>
+                    <div class="dept-icon" style="background:rgba(99,102,241,0.1)">💻</div>
+                </div>
+                <div class="staff-row">
+                    <span class="staff-chip">Сергей Дмитриев</span>
+                    <span class="staff-chip">Александр Никулин</span>
+                    <span class="staff-chip" style="background:var(--green-bg);border-color:rgba(34,197,94,0.2);color:var(--green)">Ярослав + Claude</span>
+                </div>
+                <ul class="task-list">
+                    <li style="--c:var(--accent)">Личный кабинет (React SPA) <span class="auto-tag auto-part">Claude Code</span></li>
+                    <li style="--c:var(--accent)">API интеграции <span class="auto-tag auto-part">Claude Code</span></li>
+                    <li style="--c:var(--accent)">Дизайн интерфейсов <span class="auto-tag auto-part">AI-генерация</span></li>
+                    <li style="--c:var(--accent)">n8n workflow <span class="auto-tag auto-yes">Ярослав делает</span></li>
+                </ul>
+                <div class="dept-footer"><strong>Стек:</strong> React SPA, Python/FastAPI, n8n, Supabase, VPS x2, Claude Code.</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div id="roadmap" class="section-block">
+        <div class="section-title">Дорожная карта — 8 фаз трансформации</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:10px 14px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);white-space:nowrap">Фаза</th>
+                        <th style="text-align:left;padding:10px 14px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)">Отдел</th>
+                        <th style="text-align:left;padding:10px 14px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)">Что автоматизируем</th>
+                        <th style="text-align:left;padding:10px 14px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);white-space:nowrap">Срок</th>
+                        <th style="text-align:left;padding:10px 14px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)">Эффект</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--red-bg);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">1 🔥</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Аналитика</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Парсер объектов всей РФ + AI-скоринг</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">1–3 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">В 10× больше горячих объектов</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--orange-bg);color:var(--orange);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">2</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Реализация</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Единая база + канбан + AI-объявления</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">2–4 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">–80% ручного труда со Sheets</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--yellow-bg);color:var(--yellow);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">3</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Маркетинг</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">AI-контент + воронка + реклама</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">3–5 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">CAC &lt; 5К, 3 кейса/нед автоматически</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--green-bg);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">4</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Поддержка</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">AI-бот 1 линии + умные уведомления</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">4–6 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">–70% нагрузки на поддержку</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--cyan-bg);color:var(--cyan);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">5</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Финансы</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Автоотчёты + прогнозы + расчёт выплат</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">5–7 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Александра → стратегия, не ввод</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--purple-bg);color:var(--purple);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">6</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Юридический</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">AI-проверка лотов + автодоговоры</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">6–8 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Due diligence за 10 мин вместо 2 дней</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+                        <td style="padding:11px 14px"><span style="background:var(--pink-bg);color:var(--pink);font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">7</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">Контент</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">Фабрика кейсов + мультиплатформа</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">пар. с Ф3</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">1 кейс → 5 форматов автоматически</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:11px 14px"><span style="background:rgba(59,130,246,0.1);color:#3b82f6;font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px">8</span></td>
+                        <td style="padding:11px 14px;font-weight:600;color:var(--text)">IT / Платформа</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">AI в ЛК + умный советник инвестора</td>
+                        <td style="padding:11px 14px;color:var(--text-muted);white-space:nowrap">7–12 мес.</td>
+                        <td style="padding:11px 14px;color:var(--text-secondary)">ЛК — конкурентное преимущество</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-muted);padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            Детальное описание каждой фазы — в файле <strong style="color:var(--text-secondary)">дорожная карта рекомендация/AI-трансформация.html</strong>
+        </div>
+    </div>
+
+    <!-- ENDGAME -->
+    <div id="endgame" class="section-block">
+        <div class="section-title">Конечное состояние — через 12–18 месяцев</div>
+        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(6,182,212,0.03));border:1px solid rgba(99,102,241,0.18);border-radius:var(--radius);padding:28px 32px;margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">Аналитик — утро</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">Открывает Telegram: топ-10 горячих лотов по всей России с AI-анализом. Выбирает 2 для разбора.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">Иван — канбан</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">ИП №119 перешёл в «Продажа» — объявление уже написано AI. Только проверить цену.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:4px">Глеб — контент</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">Очередь постов: 7 готовых кейсов ждут одобрения. 15 минут вместо целого дня.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">Ирина — поддержка</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">За день 2 эскалации со сложными случаями. Всё остальное — AI-бот закрыл мгновенно.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:4px">Александра — финансы</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">Проверяет автоотчёт за неделю. Не составляет — проверяет. Экономит 15 часов.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px">
+                    <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">Инвестор — ЛК</div>
+                    <div style="font-size:11px;color:var(--green);margin-bottom:5px">→</div>
+                    <div style="font-size:12px;color:var(--text-secondary);line-height:1.55">AI-советник предложил реинвестировать. Подписал договор одной кнопкой прямо в телефоне.</div>
+                </div>
+            </div>
+            <div style="padding-top:16px;border-top:1px solid var(--border);font-size:13.5px;color:var(--text-secondary);line-height:1.65">
+                <strong style="color:var(--text);font-size:14px">Итог:</strong> компания работает в 5–10 раз эффективнее при той же команде. Партнёры фокусируются на стратегии и сделках — рутина работает сама.
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSPORT CHECKLIST -->
+    <div id="passport" class="section-block">
+        <div class="section-title">Паспорт отдела — чеклист для Алёны</div>
+        <div style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--text-secondary);line-height:1.65">
+            <strong style="color:var(--text)">Цель паспорта:</strong> получить настолько полную картину работы отдела, чтобы можно было построить AI-инструмент, который реально облегчает жизнь — а не просто существует. Каждый ❓ в паспорте — это пробел в понимании, который делает автоматизацию хуже.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+
+            <!-- BLOCK 1 -->
+            <div class="interview-wrap">
+                <div class="interview-header">
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--red-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🗺️</div>
+                    <div>
+                        <h3>Блок 1 — Процессы и задачи</h3>
+                        <p>Что делает отдел и как именно</p>
+                    </div>
+                </div>
+                <ul class="q-list">
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">1</span><span class="q-text">Опиши свой типичный рабочий день по шагам — с утра до вечера</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">2</span><span class="q-text">Опиши типичную рабочую неделю — что происходит в понедельник, что в пятницу, что раз в месяц</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">3</span><span class="q-text">Какие задачи самые частые — сколько раз в день/неделю ты их делаешь?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">4</span><span class="q-text">Какие задачи занимают больше всего времени суммарно за неделю?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">5</span><span class="q-text">Какие задачи ты делаешь каждый раз одинаково — по одному и тому же алгоритму без изменений?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">6</span><span class="q-text">Есть ли задачи которые ты ненавидишь делать — скучные, монотонные, долгие?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--red)">7</span><span class="q-text">Где чаще всего случаются ошибки — что приходится переделывать?</span></li>
+                </ul>
+            </div>
+
+            <!-- BLOCK 2 -->
+            <div class="interview-wrap">
+                <div class="interview-header">
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--orange-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">📥</div>
+                    <div>
+                        <h3>Блок 2 — Данные и инструменты</h3>
+                        <p>Что на входе и что на выходе</p>
+                    </div>
+                </div>
+                <ul class="q-list">
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">8</span><span class="q-text">Какие программы, таблицы, сервисы используешь каждый день? Назови все — даже мессенджеры</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">9</span><span class="q-text">Откуда приходят данные для работы — кто или что является источником?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">10</span><span class="q-text">В каком виде приходят данные — таблица, сообщение в чат, звонок, файл, что-то ещё?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">11</span><span class="q-text">Кому и в каком виде отдаёшь результат своей работы?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">12</span><span class="q-text">Есть ли готовые инструкции, шаблоны, регламенты для твоих задач — или всё держишь в голове?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--orange)">13</span><span class="q-text">Покажи мне один пример выполненной задачи — как это выглядит от начала до конца?</span></li>
+                </ul>
+            </div>
+
+            <!-- BLOCK 3 -->
+            <div class="interview-wrap">
+                <div class="interview-header">
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--yellow-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🧠</div>
+                    <div>
+                        <h3>Блок 3 — Решения и исключения</h3>
+                        <p>Где нужна голова, а где нет</p>
+                    </div>
+                </div>
+                <ul class="q-list">
+                    <li class="q-item"><span class="q-num" style="color:var(--yellow)">14</span><span class="q-text">Какие решения принимаешь сама — без согласования с кем-либо?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--yellow)">15</span><span class="q-text">Что обязательно согласовываешь с руководством или партнёрами перед тем как делать?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--yellow)">16</span><span class="q-text">Что происходит когда что-то идёт не по плану — опиши последний раз когда была нестандартная ситуация</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--yellow)">17</span><span class="q-text">Какие задачи никогда не должен делать AI — где обязательно нужен человек и почему?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--yellow)">18</span><span class="q-text">С кем внутри компании ты взаимодействуешь чаще всего — по каким вопросам?</span></li>
+                </ul>
+            </div>
+
+            <!-- BLOCK 4 -->
+            <div class="interview-wrap">
+                <div class="interview-header">
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">📊</div>
+                    <div>
+                        <h3>Блок 4 — Объёмы и метрики</h3>
+                        <p>Сколько, как часто, как меряем</p>
+                    </div>
+                </div>
+                <ul class="q-list">
+                    <li class="q-item"><span class="q-num" style="color:var(--green)">19</span><span class="q-text">Сколько задач/запросов/объектов ты обрабатываешь в день? В неделю?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--green)">20</span><span class="q-text">Как ты понимаешь что твоя работа выполнена хорошо — есть ли какой-то критерий качества?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--green)">21</span><span class="q-text">Что считается срочным — что нужно сделать немедленно, что терпит до завтра?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--green)">22</span><span class="q-text">Есть ли пиковые периоды — когда нагрузка резко возрастает? Почему?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--green)">23</span><span class="q-text">Что ты сейчас делаешь медленно, но хотел бы делать быстро?</span></li>
+                </ul>
+            </div>
+
+            <!-- BLOCK 5 -->
+            <div class="interview-wrap" style="grid-column:1/-1">
+                <div class="interview-header">
+                    <div style="width:36px;height:36px;border-radius:10px;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">✨</div>
+                    <div>
+                        <h3>Блок 5 — Боли, мечты и границы</h3>
+                        <p>Главный блок — что реально изменить и как выглядит «хорошо»</p>
+                    </div>
+                </div>
+                <ul class="q-list">
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">24</span><span class="q-text">Если бы у тебя была волшебная кнопка — какую одну вещь ты автоматизировала бы прямо сейчас?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">25</span><span class="q-text">Что из твоей работы ты мог бы полностью делегировать — и тебе было бы не жалко?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">26</span><span class="q-text">Опиши идеальный рабочий день — как бы ты проводила время, если бы рутина делалась сама?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">27</span><span class="q-text">Что уже пробовали автоматизировать или улучшить — что получилось, что нет?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">28</span><span class="q-text">Есть ли что-то, что точно нельзя делать AI — что вызовет проблемы если сделано неправильно?</span></li>
+                    <li class="q-item"><span class="q-num" style="color:var(--purple)">29</span><span class="q-text">Что бы ты хотела видеть как результат нашей работы — опиши конкретно как изменится твой день через 3 месяца?</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:0">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px">После интервью — что должно быть в паспорте</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Список всех задач с частотой и временем</div>
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Карта источников данных и получателей</div>
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Все используемые инструменты и сервисы</div>
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Граница: что автоматизировать, что нет</div>
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Топ-3 боли (конкретные, не абстрактные)</div>
+                <div style="font-size:12px;color:var(--text-secondary);padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">→</span>Описание «идеального результата» словами сотрудника</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERVIEW QUESTIONS -->
+    <div id="interview" class="section-block">
+        <div class="section-title">10 вопросов для каждого интервью</div>
+        <div class="interview-wrap">
+            <div class="interview-header">
+                <div style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🎙️</div>
+                <div>
+                    <h3>Скрипт интервью с сотрудником</h3>
+                    <p>Длительность: 30–60 мин. Главная цель — понять рабочий процесс изнутри.</p>
+                </div>
+            </div>
+            <ul class="q-list">
+                <li class="q-item">
+                    <span class="q-num">01</span>
+                    <span class="q-text">Опиши свой типичный рабочий день / неделю по шагам — что делаешь с утра до вечера?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">02</span>
+                    <span class="q-text">Какие задачи занимают больше всего времени?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">03</span>
+                    <span class="q-text">Какие задачи самые рутинные — делаешь одно и то же по одному алгоритму?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">04</span>
+                    <span class="q-text">Где чаще всего бывают ошибки или что приходится переделывать?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">05</span>
+                    <span class="q-text">Какие решения принимаешь сама, а что согласовываешь с руководством или партнёрами?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">06</span>
+                    <span class="q-text">Какие программы, таблицы, сервисы используешь каждый день?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">07</span>
+                    <span class="q-text">Откуда берёшь данные для работы — кто или что является источником?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">08</span>
+                    <span class="q-text">Кому и в каком виде отдаёшь результат — отчёты, таблицы, сообщения в чат?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">09</span>
+                    <span class="q-text">Что бы ты автоматизировала в первую очередь, если бы была волшебная кнопка?</span>
+                </li>
+                <li class="q-item">
+                    <span class="q-num">10</span>
+                    <span class="q-text">Есть ли готовые инструкции или шаблоны для твоих задач — или всё в голове?</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div id="checklist" class="section-block">
+        <div class="section-title">Чеклист помощницы — Неделя 1</div>
+        <div class="checklist-wrap">
+            <div class="checklist-header">
+                <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">✅</div>
+                <div>
+                    <div style="font-size:14px;font-weight:700">Картография всех отделов</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Провести интервью и заполнить паспорта. Результат — все ❓ превращены в факты.</div>
+                </div>
+            </div>
+            <ul class="check-list">
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Александра Санникова</strong> — Статистика (начинаем с неё)</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Глеб Хрянин</strong> — Контент</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Ирина Боброва</strong> — Поддержка инвесторов</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Кирилл Барсуков</strong> — Аналитика</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Спартак Хачатурян</strong> — Маркетинг</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Андрей Паскал</strong> или Наталья Валетко — Продажи</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Галина Наборщикова</strong> — Юридический</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Иван Мудров + Жанна Шпехт</strong> — Работа с объектами</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Интервью: <strong>Сергей Дмитриев</strong> — IT</span></li>
+            </ul>
+        </div>
+
+        <div class="checklist-wrap" style="margin-top:16px">
+            <div class="checklist-header">
+                <div style="width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:circle;font-size:17px;flex-shrink:0;align-items:center;justify-content:center">⚡</div>
+                <div>
+                    <div style="font-size:14px;font-weight:700">Неделя 2 — Работа над Статистикой</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Первый полный цикл. Делаем AI-агента для Александры.</div>
+                </div>
+            </div>
+            <ul class="check-list">
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Созвон Ярослав + Помощница: разбор паспорта Статистики (30 мин)</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Решение: какие задачи автоматизировать первыми</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Ярослав: сборка первого AI-агента</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Помощница: тестирование агента на 10 реальных задачах</span></li>
+                <li class="check-item"><div class="check-box"></div><span class="check-text">Ретро: что сработало, что нет — пишем в группу</span></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Active nav highlight on scroll
+const sections = document.querySelectorAll('[id]');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    navItems.forEach(n => {
+        n.classList.remove('active');
+        if (n.getAttribute('href') === '#' + current) n.classList.add('active');
+    });
+});
+</script>
+</body>
+</html>

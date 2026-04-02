@@ -1,0 +1,296 @@
+10:14:39 INFO Загрузка лотов из Supabase...
+10:14:40 INFO HTTP Request: GET https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?select=lot_id%2Ccadastral_number%2Cprice%2Cproperty_type%2Capartment&cadastral_number=not.is.null&cadastral_number=neq.&lat=is.null "HTTP/2 200 OK"
+10:14:40 INFO Найдено 497 лотов без координат (с кадастровым номером)
+10:14:40 INFO [1/497] TB-7520280 — 39:16:010650:ЗУ
+10:14:40 WARNING   Пропуск невалидного формата: 39:16:010650:ЗУ
+10:14:41 WARNING   Не найден в НСПД
+10:14:43 INFO [2/497] TB-7522580 — 39:15:150802:1043
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:14:44 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7522580 "HTTP/2 200 OK"
+10:14:44 INFO   OK: стоимость=63483844.37, цена/кадастр=0.0
+10:14:46 INFO [3/497] TB-7528799 — 59:26:0900101:100000
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:14:47 ERROR   НСПД ошибка 59:26:0900101:100000: 404 Client Error: Not Found for url: https://nspd.gov.ru/api/geoportal/v2/search/geoportal?query=59%3A26%3A0900101%3A100000&limit=1
+10:14:48 WARNING   Не найден в НСПД
+10:14:50 INFO [4/497] TB-7547013 — 59:32:3290001:15927
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:14:51 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7547013 "HTTP/2 200 OK"
+10:14:51 INFO   OK: стоимость=83137.92, цена/кадастр=2.45
+10:14:53 INFO [5/497] TB-7560421 — 39:02:040004:ЗУ
+10:14:53 WARNING   Пропуск невалидного формата: 39:02:040004:ЗУ
+10:14:54 WARNING   Не найден в НСПД
+10:14:56 INFO [6/497] TB-7527621 — 39:05:030402:ЗУ1
+10:14:56 WARNING   Пропуск невалидного формата: 39:05:030402:ЗУ1
+10:14:57 WARNING   Не найден в НСПД
+10:14:59 INFO [7/497] TB-7560148 — 39:02:350008:ЗУ1
+10:14:59 WARNING   Пропуск невалидного формата: 39:02:350008:ЗУ1
+10:15:00 WARNING   Не найден в НСПД
+10:15:02 INFO [8/497] TB-7573403 — 39:10:170001:ЗУ1
+10:15:02 WARNING   Пропуск невалидного формата: 39:10:170001:ЗУ1
+10:15:03 WARNING   Не найден в НСПД
+10:15:05 INFO [9/497] TB-7521865 — 81:07:0118003:133
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:06 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7521865 "HTTP/2 200 OK"
+10:15:06 INFO   OK: стоимость=238260.0, цена/кадастр=?
+10:15:08 INFO [10/497] TB-7521925 — 81:03:0811006:ЗУ1
+10:15:08 WARNING   Пропуск невалидного формата: 81:03:0811006:ЗУ1
+10:15:09 WARNING   Не найден в НСПД
+10:15:11 INFO [11/497] TB-7527613 — 39:05:030503:ЗУ1
+10:15:11 WARNING   Пропуск невалидного формата: 39:05:030503:ЗУ1
+10:15:12 WARNING   Не найден в НСПД
+10:15:14 INFO [12/497] TB-7537695 — 59:34:0340101:ЗУ1
+10:15:14 WARNING   Пропуск невалидного формата: 59:34:0340101:ЗУ1
+10:15:15 WARNING   Не найден в НСПД
+10:15:17 INFO [13/497] TB-7536581 — 59:19:1801001:ЗУ10
+10:15:17 WARNING   Пропуск невалидного формата: 59:19:1801001:ЗУ10
+10:15:18 WARNING   Не найден в НСПД
+10:15:20 INFO [14/497] TB-7524990 — 59:05:0101010:ЗУ1
+10:15:20 WARNING   Пропуск невалидного формата: 59:05:0101010:ЗУ1
+10:15:21 WARNING   Не найден в НСПД
+10:15:23 INFO [15/497] TB-7562896 — 59:04:0101090:ЗУ35
+10:15:23 WARNING   Пропуск невалидного формата: 59:04:0101090:ЗУ35
+10:15:24 WARNING   Не найден в НСПД
+10:15:26 INFO [16/497] TB-7556781 — 39:10:480001:ЗУ1
+10:15:26 WARNING   Пропуск невалидного формата: 39:10:480001:ЗУ1
+10:15:27 WARNING   Не найден в НСПД
+10:15:29 INFO [17/497] TB-7560420 — 39:02:010302:8
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7560420 "HTTP/2 200 OK"
+10:15:31 INFO   OK: стоимость=104308.77, цена/кадастр=?
+10:15:33 INFO [18/497] TB-7520349 — 59:37:0890101:1494
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520349 "HTTP/2 200 OK"
+10:15:34 INFO   OK: стоимость=2274475.14, цена/кадастр=0.01
+10:15:36 INFO [19/497] TB-7523328 — 59:32:0660001:3561
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:37 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7523328 "HTTP/2 200 OK"
+10:15:37 INFO   OK: стоимость=821497.68, цена/кадастр=0.06
+10:15:39 INFO [20/497] TB-7531178 — 39:10:010011:ЗУ1
+10:15:39 WARNING   Пропуск невалидного формата: 39:10:010011:ЗУ1
+10:15:40 WARNING   Не найден в НСПД
+10:15:42 INFO [21/497] TB-7568090 — 39:21:010102:ЗУ1
+10:15:42 WARNING   Пропуск невалидного формата: 39:21:010102:ЗУ1
+10:15:43 WARNING   Не найден в НСПД
+10:15:45 INFO [22/497] TB-7520355 — 59:37:0510105:1015
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520355 "HTTP/2 200 OK"
+10:15:46 INFO   OK: стоимость=2580570.72, цена/кадастр=0.06
+10:15:48 INFO [23/497] TB-7531177 — 39:10:010102:218
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:15:48 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7531177 "HTTP/2 200 OK"
+10:15:48 INFO   OK: стоимость=92394.0, цена/кадастр=?
+10:15:50 INFO [24/497] TB-7569578 — 39:16:010416:ЗУ1
+10:15:50 WARNING   Пропуск невалидного формата: 39:16:010416:ЗУ1
+10:15:51 WARNING   Не найден в НСПД
+10:15:53 INFO [25/497] TB-7527629 — 39:05:060504:ЗУ1
+10:15:53 WARNING   Пропуск невалидного формата: 39:05:060504:ЗУ1
+10:15:54 WARNING   Не найден в НСПД
+10:15:56 INFO [26/497] TB-7545133 — 39:11:050503:ЗУ1
+10:15:56 WARNING   Пропуск невалидного формата: 39:11:050503:ЗУ1
+10:15:57 WARNING   Не найден в НСПД
+10:16:00 INFO [27/497] TB-7518006 — 59:03:0400087:1997
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:00 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518006 "HTTP/2 200 OK"
+10:16:00 INFO   OK: стоимость=614342.26, цена/кадастр=0.01
+10:16:02 INFO [28/497] TB-7529205 — 39:10:380009:ЗУ2
+10:16:02 WARNING   Пропуск невалидного формата: 39:10:380009:ЗУ2
+10:16:03 WARNING   Не найден в НСПД
+10:16:05 INFO [29/497] TB-7527646 — 39:05:030101:ЗУ1
+10:16:05 WARNING   Пропуск невалидного формата: 39:05:030101:ЗУ1
+10:16:06 WARNING   Не найден в НСПД
+10:16:08 INFO [30/497] TB-7556859 — 32:03:0470202:1
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7556859 "HTTP/2 200 OK"
+10:16:10 INFO   OK: стоимость=0.0, цена/кадастр=?
+10:16:12 INFO [31/497] TB-7527636 — 39:05:030511:ЗУ1
+10:16:12 WARNING   Пропуск невалидного формата: 39:05:030511:ЗУ1
+10:16:13 WARNING   Не найден в НСПД
+10:16:15 INFO [32/497] TB-7531182 — 39:10:010052:ЗУ1
+10:16:15 WARNING   Пропуск невалидного формата: 39:10:010052:ЗУ1
+10:16:16 WARNING   Не найден в НСПД
+10:16:18 INFO [33/497] TB-7562197 — 39:10:120002:ЗУ1
+10:16:18 WARNING   Пропуск невалидного формата: 39:10:120002:ЗУ1
+10:16:19 WARNING   Не найден в НСПД
+10:16:21 INFO [34/497] TB-7563145 — 81:07:0091005:248
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7563145 "HTTP/2 200 OK"
+10:16:22 INFO   OK: стоимость=16186156.49, цена/кадастр=0.0
+10:16:24 INFO [35/497] TB-7502635 — 59:11:0000000:5262
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:25 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7502635 "HTTP/2 200 OK"
+10:16:25 INFO   OK: стоимость=158954.19, цена/кадастр=0.08
+10:16:27 INFO [36/497] TB-7527643 — 39:05:051211:ЗУ1
+10:16:27 WARNING   Пропуск невалидного формата: 39:05:051211:ЗУ1
+10:16:28 WARNING   Не найден в НСПД
+10:16:30 INFO [37/497] TB-7543385 — 32:12:0010609:164
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543385 "HTTP/2 200 OK"
+10:16:31 INFO   OK: стоимость=316278.34, цена/кадастр=?
+10:16:33 INFO [38/497] TB-7530545 — 39:05:060103:254
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:34 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7530545 "HTTP/2 200 OK"
+10:16:34 INFO   OK: стоимость=2181315.0, цена/кадастр=0.63
+10:16:36 INFO [39/497] TB-7527631 — 39:05:050104:ЗУ1
+10:16:36 WARNING   Пропуск невалидного формата: 39:05:050104:ЗУ1
+10:16:37 WARNING   Не найден в НСПД
+10:16:39 INFO [40/497] TB-7538618 — 32:20:0380507:5
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538618 "HTTP/2 200 OK"
+10:16:40 INFO   OK: стоимость=338874.94, цена/кадастр=?
+10:16:42 INFO [41/497] TB-7570934 — 39:10:230003:ЗУ2
+10:16:42 WARNING   Пропуск невалидного формата: 39:10:230003:ЗУ2
+10:16:43 WARNING   Не найден в НСПД
+10:16:45 INFO [42/497] TB-7587864 — 59:14:0000000:730
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:46 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7587864 "HTTP/2 200 OK"
+10:16:46 INFO   OK: стоимость=31333837.43, цена/кадастр=0.13
+10:16:48 INFO [43/497] TB-7527622 — 39:05:030402:ЗУ1
+10:16:48 WARNING   Пропуск невалидного формата: 39:05:030402:ЗУ1
+10:16:49 WARNING   Не найден в НСПД
+10:16:51 INFO [44/497] TB-7527640 — 39:05:040203:ЗУ1
+10:16:51 WARNING   Пропуск невалидного формата: 39:05:040203:ЗУ1
+10:16:52 WARNING   Не найден в НСПД
+10:16:54 INFO [45/497] TB-7592319 — 59:07:0010318:1088
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:16:55 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7592319 "HTTP/2 200 OK"
+10:16:55 INFO   OK: стоимость=1167017.53, цена/кадастр=3.32
+10:16:57 INFO [46/497] TB-7527644 — 39:05:030527:ЗУ1
+10:16:57 WARNING   Пропуск невалидного формата: 39:05:030527:ЗУ1
+10:16:58 WARNING   Не найден в НСПД
+10:17:00 INFO [47/497] TB-7498887 — 74:25:0000000:17735
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:01 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7498887 "HTTP/2 200 OK"
+10:17:01 INFO   OK: стоимость=4421146.48, цена/кадастр=0.0
+10:17:03 INFO [48/497] TB-7570922 — 39:10:480001:ЗУ12
+10:17:03 WARNING   Пропуск невалидного формата: 39:10:480001:ЗУ12
+10:17:04 WARNING   Не найден в НСПД
+10:17:06 INFO [49/497] TB-7543436 — 32:28:0011471:810
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:07 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543436 "HTTP/2 200 OK"
+10:17:07 INFO   OK: стоимость=879132.0, цена/кадастр=1.0
+10:17:09 INFO [50/497] TB-7527627 — 39:05:060504:ЗУ1
+10:17:09 WARNING   Пропуск невалидного формата: 39:05:060504:ЗУ1
+10:17:10 WARNING   Не найден в НСПД
+10:17:12 INFO [51/497] TB-7591506 — 59:22:0730101:ЗУ1
+10:17:12 WARNING   Пропуск невалидного формата: 59:22:0730101:ЗУ1
+10:17:14 WARNING   Не найден в НСПД
+10:17:16 INFO [52/497] TB-7527635 — 39:05:060903:ЗУ1
+10:17:16 WARNING   Пропуск невалидного формата: 39:05:060903:ЗУ1
+10:17:17 WARNING   Не найден в НСПД
+10:17:19 INFO [53/497] TB-7538155 — 59:32:0020001:4258
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538155 "HTTP/2 200 OK"
+10:17:20 INFO   OK: стоимость=166392.12, цена/кадастр=0.24
+10:17:22 INFO [54/497] TB-7557784 — 32:28:0032015:200
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7557784 "HTTP/2 200 OK"
+10:17:23 INFO   OK: стоимость=3476404.1, цена/кадастр=0.27
+10:17:25 INFO [55/497] TB-7532688 — 39:09:020201:ЗУ1
+10:17:25 WARNING   Пропуск невалидного формата: 39:09:020201:ЗУ1
+10:17:26 WARNING   Не найден в НСПД
+10:17:28 INFO [56/497] TB-7562199 — 39:10:120002:ЗУ1
+10:17:28 WARNING   Пропуск невалидного формата: 39:10:120002:ЗУ1
+10:17:29 WARNING   Не найден в НСПД
+10:17:31 INFO [57/497] TB-7553094 — 39:04:230003:зу
+10:17:31 WARNING   Пропуск невалидного формата: 39:04:230003:зу
+10:17:32 WARNING   Не найден в НСПД
+10:17:34 INFO [58/497] TB-7540998 — 39:22:010020:ЗУ1
+10:17:34 WARNING   Пропуск невалидного формата: 39:22:010020:ЗУ1
+10:17:35 WARNING   Не найден в НСПД
+10:17:37 INFO [59/497] TB-7554121 — 59:34:2680102:ЗУ1
+10:17:37 WARNING   Пропуск невалидного формата: 59:34:2680102:ЗУ1
+10:17:38 WARNING   Не найден в НСПД
+10:17:40 INFO [60/497] TB-7538159 — 59:32:1220001:4026
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:40 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7538159 "HTTP/2 200 OK"
+10:17:40 INFO   OK: стоимость=207788.62, цена/кадастр=0.17
+10:17:42 INFO [61/497] TB-7591510 — 59:22:0730101:ЗУ1
+10:17:42 WARNING   Пропуск невалидного формата: 59:22:0730101:ЗУ1
+10:17:43 WARNING   Не найден в НСПД
+10:17:45 INFO [62/497] TB-7554124 — 59:10:0408002:ЗУ1
+10:17:45 WARNING   Пропуск невалидного формата: 59:10:0408002:ЗУ1
+10:17:46 WARNING   Не найден в НСПД
+10:17:48 INFO [63/497] TB-7545642 — 32:28:0024122:45
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:49 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7545642 "HTTP/2 200 OK"
+10:17:49 INFO   OK: стоимость=614023.7, цена/кадастр=1.0
+10:17:51 INFO [64/497] TB-7591505 — 59:22:0690101:ЗУ1
+10:17:51 WARNING   Пропуск невалидного формата: 59:22:0690101:ЗУ1
+10:17:52 WARNING   Не найден в НСПД
+10:17:54 INFO [65/497] TB-7556783 — 39:10:480001:ЗУ3
+10:17:54 WARNING   Пропуск невалидного формата: 39:10:480001:ЗУ3
+10:17:55 WARNING   Не найден в НСПД
+10:17:57 INFO [66/497] TB-7543613 — 63:25:0601022:388
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:17:58 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7543613 "HTTP/2 200 OK"
+10:17:58 INFO   OK: стоимость=267025.0, цена/кадастр=?
+10:18:00 INFO [67/497] TB-7532684 — 39:09:070009:ЗУ1
+10:18:00 WARNING   Пропуск невалидного формата: 39:09:070009:ЗУ1
+10:18:01 WARNING   Не найден в НСПД
+10:18:03 INFO [68/497] TB-7560147 — 39:02:240001:ЗУ1
+10:18:03 WARNING   Пропуск невалидного формата: 39:02:240001:ЗУ1
+10:18:04 WARNING   Не найден в НСПД
+10:18:06 INFO [69/497] TB-7553404 — 59:09:0480001:53
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:08 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7553404 "HTTP/2 200 OK"
+10:18:08 INFO   OK: стоимость=105825.0, цена/кадастр=0.28
+10:18:10 INFO [70/497] TB-7518083 — 59:37:0620302:556
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:10 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518083 "HTTP/2 200 OK"
+10:18:10 INFO   OK: стоимость=1899848.85, цена/кадастр=0.0
+10:18:12 INFO [71/497] TB-7520328 — 59:37:0430101:1019
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:13 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7520328 "HTTP/2 200 OK"
+10:18:13 INFO   OK: стоимость=1230656.26, цена/кадастр=0.03
+10:18:15 INFO [72/497] TB-7565730 — 59:20:1010101:ЗУ1
+10:18:15 WARNING   Пропуск невалидного формата: 59:20:1010101:ЗУ1
+10:18:16 WARNING   Не найден в НСПД
+10:18:18 INFO [73/497] TB-7518004 — 59:03:0400087:1999
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:20 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7518004 "HTTP/2 200 OK"
+10:18:20 INFO   OK: стоимость=197013.65, цена/кадастр=0.01
+10:18:22 INFO [74/497] TB-7516997 — 59:21:0560004:3696
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:22 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7516997 "HTTP/2 200 OK"
+10:18:22 INFO   OK: стоимость=612211.31, цена/кадастр=0.01
+10:18:24 INFO [75/497] TB-7516544 — 39:09:070008:ЗУ1
+10:18:24 WARNING   Пропуск невалидного формата: 39:09:070008:ЗУ1
+10:18:25 WARNING   Не найден в НСПД
+10:18:27 INFO [76/497] TB-7516545 — 39:09:070008:ЗУ1
+10:18:27 WARNING   Пропуск невалидного формата: 39:09:070008:ЗУ1
+10:18:28 WARNING   Не найден в НСПД
+10:18:30 INFO [77/497] TB-7456203 — 59:22:0160152:82
+/opt/homebrew/lib/python3.14/site-packages/urllib3/connectionpool.py:1097: InsecureRequestWarning: Unverified HTTPS request is being made to host 'nspd.gov.ru'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+  warnings.warn(
+10:18:31 INFO HTTP Request: PATCH https://eeahxalvnvbroswzyfjx.supabase.co/rest/v1/properties?lot_id=eq.TB-7456203 "HTTP/2 200 OK"
+10:18:31 INFO   OK: стоимость=8201714.75, цена/кадастр=0.01
