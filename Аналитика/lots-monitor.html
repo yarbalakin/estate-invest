@@ -307,6 +307,20 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .score-circle { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; position:relative; }
 .score-inner { width:52px; height:52px; border-radius:50%; background:var(--bg2); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; }
 .score-block-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; }
+.score-block.clickable { cursor:pointer; transition:border-color .15s; }
+.score-block.clickable:hover { border-color:var(--accent); }
+.score-breakdown { margin-top:12px; display:none; }
+.score-breakdown.open { display:block; }
+.score-breakdown-title { font-size:12px; font-weight:600; color:var(--accent2); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.sb-row { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border); margin-bottom:4px; font-size:12px; }
+.sb-factor { flex:1; color:var(--text); }
+.sb-pts { font-weight:600; min-width:45px; text-align:right; }
+.sb-pts.positive { color:var(--green); }
+.sb-pts.negative { color:var(--red); }
+.sb-pts.zero { color:var(--text3); }
+.sb-bar { width:60px; height:5px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; }
+.sb-bar-fill { height:100%; border-radius:3px; }
+.sb-note { font-size:11px; color:var(--text3); margin-top:1px; }
 .recommendation { padding:14px 18px; border-radius:12px; border-left:3px solid var(--accent); background:rgba(99,102,241,0.08); font-size:13px; line-height:1.6; color:var(--text2); }
 .spec-block { background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); border-radius:12px; padding:16px; margin-bottom:12px; }
 .spec-block-title { font-size:12px; font-weight:600; color:var(--accent3); margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px; }
@@ -667,7 +681,7 @@ async function preloadBoundaries() {
 async function loadData() {
   showLoading();
   try {
-    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,is_remote,is_favorite,lot_status,created_at,updated_at';
+    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,created_at,updated_at';
     const PAGE = 1000;
     const query = () => db.from('properties').select(COLS).order('date_added', { ascending: false });
     const [r1, r2] = await Promise.all([
@@ -847,7 +861,7 @@ function renderGrid() {
           ${dLabel ? `<span class="discount-badge ${dCls}">${dLabel}</span>` : ''}
         </div>
       </div>
-      <div class="card-title">${escHtml(lot.name||lot.category||'Без названия')}</div>
+      <div class="card-title">${escHtml(displayName(lot))}</div>
       <div class="card-address">${escHtml(lot.address_std||lot.address||'Адрес не указан')}</div>
       <div class="card-metrics">
         <div class="metric"><div class="metric-label">Цена торгов</div><div class="metric-val accent">${formatPrice(lot.price)}</div></div>
@@ -945,7 +959,7 @@ function renderTable() {
         </div>
       </td>
       <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
-      <td class="td-name"><span title="${escHtml(lot.name||'')}"> ${escHtml(lot.name||lot.category||'—')}</span></td>
+      <td class="td-name"><span title="${escHtml(lot.name||'')}"> ${escHtml(displayName(lot))}</span></td>
       <td class="td-addr"><span title="${escHtml(lot.address_std||lot.address||'')}"> ${escHtml(lot.address_std||lot.address||'—')}</span></td>
       <td>${lot.area ? lot.area+' '+areaUnit(lot.area_unit) : '—'}</td>
       <td style="color:var(--accent3);font-weight:500">${formatPrice(lot.price)}</td>
@@ -1050,7 +1064,7 @@ function updateMapMarkers() {
     ];
 
     const pm = new ymaps.Placemark([lat, lon], {
-      balloonContentHeader: escHtml(lot.name||lot.category||'Объект').substring(0,60),
+      balloonContentHeader: escHtml(displayName(lot)).substring(0,60),
       balloonContentBody: bodyParts.join(''),
       hintContent: `${formatPrice(lot.price)}${discount ? ' (−'+discount+'%)' : ''}`,
     }, {
@@ -1094,7 +1108,7 @@ async function loadCadastralPolygonYmapsMain(lot) {
   const color = colorMap[lot.property_type] || '#6366f1';
   const style = { fillColor: color + '28', strokeColor: color, strokeWidth: 3 };
   const balloon = {
-    balloonContentHeader: escHtml(lot.name||lot.category||'').substring(0,60),
+    balloonContentHeader: escHtml(displayName(lot)).substring(0,60),
     balloonContentBody: `<div class="lot-popup"><div class="lot-popup-price">${formatPrice(lot.price)}</div><div class="lot-popup-sub">${escHtml(cn)}</div><button class="lot-popup-btn" onclick="window.openModal('${escHtml(lot.lot_id)}')">Открыть карточку</button></div>`,
   };
 
@@ -1137,20 +1151,19 @@ function closeModal(e) {
 
 async function enrichDetail(lotId, source) {
   const btn = event.target;
-  const origText = btn.textContent;
-  btn.textContent = 'Загрузка...';
+  btn.textContent = 'Подтягиваю данные...';
   btn.disabled = true;
   btn.style.opacity = '0.6';
   try {
-    const resp = await fetch('http://5.42.102.36:8080/api/enrich-detail', {
+    const resp = await fetch('http://5.42.102.36:8080/api/enrich-full', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-API-Key': 'ei-torgi-2026-mvp'},
       body: JSON.stringify({lot_id: lotId, source: source})
     });
     const data = await resp.json();
-    if (data.success && data.updated.length > 0) {
-      const fields = data.updated.filter(f => f !== 'updated_at');
-      btn.textContent = 'Обновлено: ' + fields.join(', ');
+    if (data.success) {
+      const steps = data.steps || [];
+      btn.textContent = steps.join(' → ');
       btn.style.color = '#22c55e';
       btn.style.borderColor = 'rgba(34,197,94,0.4)';
       btn.style.background = 'rgba(34,197,94,0.1)';
@@ -1159,17 +1172,15 @@ async function enrichDetail(lotId, source) {
       if (freshLot) {
         const idx = allLots.findIndex(l => l.lot_id === lotId);
         if (idx >= 0) allLots[idx] = {...allLots[idx], ...freshLot};
-        setTimeout(() => openModal(lotId), 800);
+        setTimeout(() => openModal(lotId), 1500);
       }
     } else {
       btn.textContent = 'Нет новых данных';
       btn.style.color = '#f59e0b';
-      btn.style.borderColor = 'rgba(245,158,11,0.4)';
     }
   } catch(e) {
     btn.textContent = 'Ошибка: ' + (e.message||'сеть');
     btn.style.color = '#ef4444';
-    btn.style.borderColor = 'rgba(239,68,68,0.4)';
     btn.disabled = false;
     btn.style.opacity = '1';
   }
@@ -1199,7 +1210,7 @@ function renderModalContent(lot) {
         ${discount ? `<span class="discount-badge ${dCls}">−${discount}% дисконт</span>` : ''}
         ${lot.status ? `<span class="type-badge type-unknown">${escHtml(lot.status)}</span>` : ''}
       </div>
-      <div class="modal-title">${escHtml(lot.name||lot.category||'Без названия')}</div>
+      <div class="modal-title">${escHtml(displayName(lot))}</div>
       <div class="modal-subtitle">
         <span>🔑 ${escHtml(lot.lot_id)}</span>
         ${lot.date_added?`<span>· ${formatDate(lot.date_added)}</span>`:''}
@@ -1314,13 +1325,18 @@ function renderModalContent(lot) {
 
   // Скоринг
   if (lot.invest_score||lot.risk_score||lot.liquidity_score||lot.lookalike_score) {
-    html += `<div class="modal-section"><div class="section-title">Скоринг</div>
+    const sb = lot.scoring_breakdown || {};
+    const hasBreakdown = sb.invest || sb.risk || sb.liquidity;
+    html += `<div class="modal-section"><div class="section-title">Скоринг${hasBreakdown ? ' <span style="font-size:10px;color:var(--text3);font-weight:400">(клик = детали)</span>' : ''}</div>
       <div class="score-grid">
-        ${scoreBlock('Invest', lot.invest_score)}
-        ${scoreBlock('Риск', lot.risk_score, true)}
-        ${scoreBlock('Ликвидность', lot.liquidity_score)}
+        ${scoreBlock('Invest', lot.invest_score, false, sb.invest ? 'invest' : null)}
+        ${scoreBlock('Риск', lot.risk_score, true, sb.risk ? 'risk' : null)}
+        ${scoreBlock('Ликвидность', lot.liquidity_score, false, sb.liquidity ? 'liquidity' : null)}
         ${lot.lookalike_score != null ? scoreBlock('Lookalike', lot.lookalike_score) : ''}
       </div>
+      ${hasBreakdown ? renderBreakdown('invest', 'Invest — из чего складывается', sb.invest) : ''}
+      ${hasBreakdown ? renderBreakdown('risk', 'Риск — факторы', sb.risk) : ''}
+      ${hasBreakdown ? renderBreakdown('liquidity', 'Ликвидность — факторы', sb.liquidity) : ''}
       ${lot.estimated_profit||lot.estimated_roi?`<div class="detail-grid" style="margin-top:12px">
         ${lot.estimated_profit    ? detailRow('Ожид. прибыль', formatPrice(lot.estimated_profit),false,'good'):''}
         ${lot.estimated_roi       ? detailRow('Ожид. ROI', lot.estimated_roi.toFixed(1)+'%',false,'good'):''}
@@ -1405,7 +1421,7 @@ async function initModalMap(lot) {
   const ymap = new ymaps.Map('modal-map', {
     center: [lat, lon],
     zoom: 17,
-    type: 'yandex#satellite',         // спутник по умолчанию как в bankrot.ru
+    type: 'yandex#hybrid',
     controls: ['typeSelector', 'zoomControl'],  // встроенный Схема/Спутник/Гибрид
   }, { suppressMapOpenBlock: true });
 
@@ -1417,7 +1433,7 @@ async function initModalMap(lot) {
   // === Маркер объекта ===
   const presetMap = { apartment:'islands#violetDotIcon', land:'islands#greenDotIcon', house:'islands#yellowDotIcon', commercial:'islands#redDotIcon' };
   const lotMark = new ymaps.Placemark([lat, lon], {
-    balloonContentHeader: escHtml(lot.name || lot.category || 'Объект'),
+    balloonContentHeader: escHtml(displayName(lot)),
     balloonContentBody: `<b style="color:#6366f1">${formatPrice(lot.price)}</b>`,
   }, {
     preset: presetMap[lot.property_type] || 'islands#violetDotIcon',
@@ -1537,9 +1553,68 @@ function updateHeaderStats() {
 // ============================================================
 // Helpers
 // ============================================================
-function typeLabel(t) { return {apartment:'Квартира',land:'Земля',house:'Дом',commercial:'Коммерция'}[t]||'Прочее'; }
+function typeLabel(t) { return {apartment:'Квартира',land:'Земля',house:'Дом',commercial:'Коммерция',garage:'Гараж'}[t]||'Прочее'; }
 function areaUnit(u) { return {m2:'м²',sotka:'сот.',ha:'га'}[u]||'м²'; }
 function scoreColor(s) { return s>=70?'#34d399':s>=40?'#fbbf24':s?'#f87171':'#64748b'; }
+
+function displayName(lot) {
+  const type = lot.property_type || '';
+  const area = lot.area;
+  const unit = lot.area_unit === 'sotka' ? 'сот' : lot.area_unit === 'ha' ? 'га' : 'м²';
+
+  // Тип
+  let label = '';
+  if (type === 'apartment') {
+    // Попробуем извлечь кол-во комнат из названия
+    const rm = (lot.name||'').match(/(\d)\s*[-–]?\s*комн/i) || (lot.name||'').match(/(\d)\s*к[.,\s]/i);
+    label = rm ? `Квартира ${rm[1]}к` : 'Квартира';
+  } else if (type === 'land') {
+    label = 'Участок';
+  } else if (type === 'house') {
+    label = 'Дом';
+  } else if (type === 'commercial') {
+    // Попробуем уточнить подтип
+    const n = (lot.name||'').toLowerCase();
+    if (n.includes('офис')) label = 'Офис';
+    else if (n.includes('склад')) label = 'Склад';
+    else if (n.includes('магазин') || n.includes('торгов')) label = 'Торговое';
+    else if (n.includes('гараж') || n.includes('бокс')) label = 'Гараж';
+    else if (n.includes('здани')) label = 'Здание';
+    else label = 'Нежилое';
+  } else if (type === 'garage') {
+    label = 'Гараж';
+  } else {
+    label = lot.category || 'Объект';
+  }
+
+  // Площадь
+  let areaStr = '';
+  if (area) {
+    if (type === 'land' && unit === 'м²' && area >= 100) {
+      areaStr = (area / 100).toFixed(1).replace(/\.0$/, '') + ' сот';
+    } else {
+      areaStr = area + ' ' + unit;
+    }
+  }
+
+  // Адрес — короткий (город + улица)
+  let addr = '';
+  const raw = lot.address_std || lot.address || '';
+  if (raw) {
+    // Убираем "Пермский край," "Калининградская обл.," и т.п.
+    let clean = raw.replace(/^(Пермский край|Калининградская обл\.?|Брянская обл\.?|Россия|Российская Федерация)[,\s]*/i, '');
+    clean = clean.replace(/^м\.о\.\s*\S+[,\s]*/i, '');
+    clean = clean.replace(/^г\.о\.\s*\S+[,\s]*/i, '');
+    // Берём первые 2 значимых части
+    const parts = clean.split(',').map(s => s.trim()).filter(s => s.length > 2);
+    addr = parts.slice(0, 2).join(', ');
+    if (addr.length > 50) addr = addr.substring(0, 47) + '...';
+  }
+
+  // Собираем
+  const chunks = [label, areaStr, addr].filter(Boolean);
+  return chunks.join(' · ') || lot.name || 'Без названия';
+}
 
 function formatPrice(v) {
   if (!v && v!==0) return '—';
@@ -1566,18 +1641,41 @@ function detailRow(key, val, raw=false, cls='') {
   </div>`;
 }
 
-function scoreBlock(label, val, inverted=false) {
+function scoreBlock(label, val, inverted=false, breakdownKey=null) {
   const s = val ? Math.round(val) : null;
   const pct = s||0;
   const eff = inverted ? 100-pct : pct;
   const color = eff>=70?'#34d399':eff>=40?'#fbbf24':'#f87171';
   const deg = Math.round(pct*3.6);
-  return `<div class="score-block">
+  const clickAttr = breakdownKey ? `class="score-block clickable" onclick="toggleBreakdown('${breakdownKey}')"` : `class="score-block"`;
+  return `<div ${clickAttr}>
     <div class="score-circle" style="background:conic-gradient(${color} ${deg}deg,rgba(255,255,255,0.06) ${deg}deg)">
       <div class="score-inner" style="color:${color}">${s||'—'}</div>
     </div>
-    <div class="score-block-label">${label}</div>
+    <div class="score-block-label">${label}${breakdownKey ? ' ▾' : ''}</div>
   </div>`;
+}
+
+function toggleBreakdown(key) {
+  const el = document.getElementById('sb-'+key);
+  if (el) el.classList.toggle('open');
+}
+
+function renderBreakdown(key, label, reasons) {
+  if (!reasons || !reasons.length) return '';
+  const rows = reasons.map(r => {
+    const ptsClass = r.pts > 0 ? 'positive' : r.pts < 0 ? 'negative' : 'zero';
+    const ptsSign = r.pts > 0 ? '+' : '';
+    const barPct = r.max ? Math.min(100, Math.round(Math.abs(r.pts) / r.max * 100)) : 0;
+    const barColor = r.pts > 0 ? '#34d399' : r.pts < 0 ? '#f87171' : '#64748b';
+    return `<div class="sb-row">
+      <div class="sb-factor">${r.factor}<div class="sb-note">${r.note||''}</div></div>
+      ${r.max ? `<div class="sb-bar"><div class="sb-bar-fill" style="width:${barPct}%;background:${barColor}"></div></div>` : ''}
+      <div class="sb-pts ${ptsClass}">${ptsSign}${r.pts}</div>
+    </div>`;
+  }).join('');
+  return `<div class="score-breakdown" id="sb-${key}">
+    <div class="score-breakdown-title">${label}</div>${rows}</div>`;
 }
 
 // Управление слоями в модале Яндекс Карт

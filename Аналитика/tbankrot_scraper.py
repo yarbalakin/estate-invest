@@ -212,17 +212,20 @@ def parse_lots_html(html):
             lot["price_str"] = price_el.get_text(strip=True)
             lot["price"] = parse_price(lot["price_str"])
 
-        # Даты
-        for dd in lot_div.select("div.inline_dates div.date"):
-            title = dd.get("title", "")
-            span = dd.find("span")
-            text = span.get_text(strip=True) if span else ""
-            if "заявок" in title.lower():
-                m = re.search(r"(\d{2}\.\d{2}\.\d{2,4})", title)
-                if m:
-                    lot["deadline"] = m.group(1)
-            elif "торгов" in title.lower() or "начало" in title.lower():
-                lot["auction_date"] = text
+        # Даты — ищем все div с class содержащим "date" внутри inline_dates
+        dates_container = lot_div.select_one("div.inline_dates")
+        if dates_container:
+            for dd in dates_container.find_all("div", class_=lambda c: c and "date" in c):
+                title = dd.get("title", "")
+                span = dd.find("span")
+                text = span.get_text(strip=True) if span else ""
+                tl = title.lower()
+                if "заявок" in tl or "окончание этапа" in tl or "окончание приема" in tl:
+                    m = re.search(r"(\d{2}\.\d{2}\.\d{2,4})", title)
+                    if m:
+                        lot["deadline"] = m.group(1)
+                elif "торгов" in tl or "начало" in tl:
+                    lot["auction_date"] = text
 
         # Секция
         full_text = lot_div.get_text(separator=" ", strip=True).lower()
@@ -607,13 +610,28 @@ def write_to_supabase(lot, category):
         area = parse_area_num(lot.get("area", ""))
         is_land = "участ" in (lot.get("name", "") or "").lower()
 
+        # Определяем тип: название важнее категории (tbankrot часто ошибается)
+        name_lower = (lot.get("name") or "").lower()
+        if "земельн" in name_lower or "участ" in name_lower or "з/у" in name_lower:
+            ptype = "land"
+        elif "жилой дом" in name_lower or "коттедж" in name_lower or "дача" in name_lower:
+            ptype = "house"
+        elif "гараж" in name_lower or "бокс" in name_lower:
+            ptype = "garage"
+        elif "нежил" in name_lower or "здани" in name_lower or "помещен" in name_lower or "склад" in name_lower or "офис" in name_lower:
+            ptype = "commercial"
+        elif "квартир" in name_lower or "комнат" in name_lower:
+            ptype = "apartment"
+        else:
+            ptype = CATEGORY_TO_TYPE.get(category, "commercial")
+
         row = {
             "lot_id": lot_id,
             "source": "tbankrot",
             "date_added": datetime.now().strftime("%Y-%m-%d"),
             "name": (lot.get("name") or "")[:400],
             "category": category,
-            "property_type": CATEGORY_TO_TYPE.get(category, "commercial"),
+            "property_type": ptype,
             "address": (lot.get("address") or "")[:200],
             "cadastral_number": lot.get("cadastral") or None,
             "price": price if price else None,
