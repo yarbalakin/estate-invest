@@ -366,7 +366,46 @@ def parse_detail_page(html, lot):
     if case_m:
         lot["legal_case"] = case_m.group(0)
 
+    # --- Обременения из карточки недвижимости TBankrot ---
+    encumbrances = _parse_encumbrances(soup)
+    if encumbrances:
+        lot["encumbrances"] = encumbrances
+
     return lot
+
+
+def _parse_encumbrances(soup) -> dict | None:
+    """Извлечь обременения из блока ApartmentInfo (карточка недвижимости TBankrot)."""
+    block = soup.select_one("div.encumbrance__apartment")
+    if not block:
+        return None
+
+    result = {}
+    for row in block.select("div.row__info"):
+        label_el = row.select_one("div.flex.align-center")
+        data_el = row.select_one("div.data__row")
+        if not label_el or not data_el:
+            continue
+
+        label = label_el.get_text(strip=True).lower()
+        value = data_el.get_text(separator=" ", strip=True)
+
+        if "ипотек" in label:
+            result["mortgage"] = "нет" not in value.lower()
+        elif "залог" in label:
+            result["pledge"] = "нет" not in value.lower()
+        elif "арест" in label:
+            result["arrest"] = "нет" not in value.lower()
+        elif "обремен" in label:
+            has = "нет" not in value.lower()
+            result["has_encumbrances"] = has
+            if has:
+                items = []
+                for li in row.select("ul li"):
+                    items.append(li.get_text(strip=True))
+                result["encumbrance_list"] = items
+
+    return result if result else None
 
 
 def enrich_details(client, lots, limit=None):
@@ -675,6 +714,11 @@ def write_to_supabase(lot, category):
             "etp_url": lot.get("etp_url") or None,
             "district": "Пермский край",
         }
+
+        # Обременения из карточки TBankrot
+        enc = lot.get("encumbrances")
+        if enc:
+            row["encumbrances"] = enc
 
         row = {k: v for k, v in row.items() if v is not None and v != ""}
         sb.table("properties").upsert(row, on_conflict="lot_id").execute()

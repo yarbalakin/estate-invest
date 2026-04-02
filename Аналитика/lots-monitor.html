@@ -515,6 +515,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
         <option value="">Все регионы</option>
         <option value="perm">Пермский край</option>
         <option value="kaliningrad">Калининградская обл.</option>
+        <option value="bryansk">Брянская обл.</option>
       </select>
     </div>
     <div class="filter-group">
@@ -533,14 +534,6 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
         <option value="70">70+ (сильное совпадение)</option>
         <option value="50">50+ (среднее совпадение)</option>
         <option value="1">Есть оценка</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Регион</span>
-      <select id="filter-region" onchange="applyFilters()">
-        <option value="">Все регионы</option>
-        <option value="perm">Пермский край</option>
-        <option value="kaliningrad">Калининградская обл.</option>
       </select>
     </div>
     <div class="filter-group">
@@ -794,10 +787,18 @@ function applyFilters() {
     }
     if (source && (lot.source || 'torgi') !== source) return false;
     if (region) {
-      const addr = (lot.address || '') + (lot.address_std || '');
-      const isKaliningrad = /калининград/i.test(addr);
-      if (region === 'kaliningrad' && !isKaliningrad) return false;
-      if (region === 'perm' && isKaliningrad) return false;
+      // Определяем регион по кадастровому номеру (первые 2 цифры = код региона)
+      const cadRegionCodes = { perm: '59', kaliningrad: '39', bryansk: '32' };
+      const cad = lot.cadastral_number || '';
+      const cadPrefix = cad.split(':')[0];
+      if (cadPrefix && cadRegionCodes[region]) {
+        if (cadPrefix !== cadRegionCodes[region]) return false;
+      } else {
+        // Фоллбэк на адрес + district если нет кадастра
+        const haystack = (lot.address || '') + ' ' + (lot.address_std || '') + ' ' + (lot.district || '');
+        const regionPatterns = { perm: /перм/i, kaliningrad: /калининград/i, bryansk: /брянск/i };
+        if (regionPatterns[region] && !regionPatterns[region].test(haystack)) return false;
+      }
     }
     if (confidence) {
       if (confidence === 'высокая' && lot.confidence !== 'высокая') return false;
@@ -847,7 +848,7 @@ function populateDistrictFilter() {
 function renderResultsTags(search, type, discount, district) {
   const region = document.getElementById('filter-region').value;
   const confidence = document.getElementById('filter-confidence').value;
-  const regionLabels = { perm: 'Пермский край', kaliningrad: 'Калининградская обл.' };
+  const regionLabels = { perm: 'Пермский край', kaliningrad: 'Калининградская обл.', bryansk: 'Брянская обл.' };
   const confLabels = { 'высокая': 'Точность: высокая', 'средняя': 'Точность: средняя+', 'есть': 'Есть оценка' };
   const tags = [];
   if (type)       tags.push({ label: typeLabel(type), clear: () => { document.getElementById('filter-type').value=''; applyFilters(); }});
@@ -1306,6 +1307,7 @@ function renderModalContent(lot) {
       ${lot.cadastral_number ? `<a href="https://pkk.rosreestr.ru/#text=${encodeURIComponent(lot.cadastral_number)}&type=5" target="_blank" class="link-btn">ПКК Росреестра ↗</a>` : ''}
       ${lot.cadastral_number ? `<a href="https://nspd.gov.ru/map?search=${encodeURIComponent(lot.cadastral_number)}" target="_blank" class="link-btn">НСПД ↗</a>` : ''}
       ${lot.address ? `<a href="https://yandex.ru/maps/?text=${encodeURIComponent(lot.address_std||lot.address)}" target="_blank" class="link-btn">Яндекс Карты ↗</a>` : ''}
+      ${lot.source === 'tbankrot' && !lot.encumbrances ? `<button class="link-btn deep-analysis" onclick="deepAnalysis('${lot.lot_id}')" style="background:#7c3aed;color:#fff;border:none;cursor:pointer">Глубокий анализ</button>` : ''}
     </div>
   </div>`;
 
@@ -1339,8 +1341,8 @@ function renderModalContent(lot) {
       ${lot.cadastral_category    ? detailRow('Категория земли', escHtml(lot.cadastral_category)):''}
       ${lot.cadastral_permitted_use ? detailRow('ВРИ', escHtml(lot.cadastral_permitted_use)):''}
       ${lot.cadastral_price_ratio ? detailRow('Кад./рынок', (lot.cadastral_price_ratio*100).toFixed(0)+'%'):''}
-      ${lot.has_encumbrances!=null ? detailRow('Обременения', lot.has_encumbrances?`<span class="detail-val bad">${escHtml(lot.encumbrance_type||'Есть')}</span>`:'<span class="detail-val good">Нет</span>', true):''}
-    </div></div>`;
+      ${lot.encumbrance_type ? detailRow('Тип собственности', escHtml(lot.encumbrance_type)):''}
+    </div>${renderEncumbrances(lot)}</div>`;
   }
 
   // Рыночная оценка
@@ -1727,6 +1729,57 @@ function formatDate(d) {
 function escHtml(s) {
   if (s==null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function deepAnalysis(lotId) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Анализ...';
+  try {
+    const tbId = lotId.replace('TB-', '');
+    const resp = await fetch(`https://5.42.102.36:8080/api/deep-analysis?lot_id=${encodeURIComponent(lotId)}&tb_id=${tbId}`, {
+      headers: {'X-API-Key': 'ei-torgi-2026-mvp'}
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    btn.textContent = 'Готово!';
+    btn.style.background = '#22c55e';
+    // Обновляем лот в кэше и перерисовываем модалку
+    const lot = window._allLots?.find(l => l.lot_id === lotId);
+    if (lot && data.encumbrances) {
+      lot.encumbrances = data.encumbrances;
+      showModal(lot);
+    }
+  } catch(e) {
+    btn.textContent = 'Ошибка';
+    btn.style.background = '#ef4444';
+    console.error('Deep analysis error:', e);
+  }
+}
+
+function renderEncumbrances(lot) {
+  const enc = lot.encumbrances;
+  if (!enc) return '';
+  const items = [
+    ['Ипотека', enc.mortgage],
+    ['Залог', enc.pledge],
+    ['Арест', enc.arrest],
+    ['Обременения', enc.has_encumbrances],
+  ];
+  let html = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">';
+  html += '<div style="font-weight:600;font-size:11px;color:var(--text2);margin-bottom:4px">Обременения (TBankrot)</div>';
+  for (const [label, val] of items) {
+    const yes = val === true;
+    const color = yes ? '#ef4444' : '#22c55e';
+    const text = yes ? 'Да' : 'Нет';
+    html += `<div class="detail-row"><span class="detail-key">${label}</span><span style="color:${color};font-weight:600">${text}</span></div>`;
+  }
+  if (enc.encumbrance_list && enc.encumbrance_list.length) {
+    html += '<ul style="margin:4px 0 0 16px;font-size:11px;color:var(--text2)">';
+    for (const item of enc.encumbrance_list) html += `<li>${escHtml(item)}</li>`;
+    html += '</ul>';
+  }
+  return html + '</div>';
 }
 
 function detailRow(key, val, raw=false, cls='') {
