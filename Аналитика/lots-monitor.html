@@ -116,6 +116,7 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .type-land      { background:rgba(16,185,129,0.18); color:#6ee7b7; }
 .type-house     { background:rgba(245,158,11,0.18); color:#fcd34d; }
 .type-commercial{ background:rgba(239,68,68,0.18); color:#fca5a5; }
+.lut-badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:20px; font-size:10px; font-weight:600; letter-spacing:.3px; white-space:nowrap; margin-top:4px; }
 .type-unknown   { background:rgba(100,116,139,0.2); color:var(--text2); }
 .discount-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
 .discount-high { background:rgba(16,185,129,0.2); color:#34d399; }
@@ -482,6 +483,19 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
       </select>
     </div>
     <div class="filter-group">
+      <span class="filter-label">ВРИ земли</span>
+      <select id="filter-land-use" onchange="applyFilters()">
+        <option value="">Все</option>
+        <option value="ИЖС">ИЖС</option>
+        <option value="ЛПХ">ЛПХ</option>
+        <option value="СНТ/ДНП">СНТ/ДНП</option>
+        <option value="Сельхоз">Сельхоз</option>
+        <option value="Промышленность/Склады">Промышленность</option>
+        <option value="Коммерция">Коммерция</option>
+        <option value="Прочее">Прочее</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <span class="filter-label">Дисконт от</span>
       <select id="filter-discount" onchange="applyFilters()">
         <option value="">Любой</option>
@@ -697,7 +711,7 @@ async function preloadBoundaries() {
 async function loadData() {
   showLoading();
   try {
-    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,created_at,updated_at';
+    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,land_use_type,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,created_at,updated_at';
     const PAGE = 1000;
     const query = () => db.from('properties').select(COLS).order('date_added', { ascending: false });
     const [r1, r2] = await Promise.all([
@@ -757,6 +771,7 @@ function applyFilters() {
   const region   = document.getElementById('filter-region').value;
   const confidence = document.getElementById('filter-confidence').value;
   const statusFilter = document.getElementById('filter-status').value;
+  const landUse  = document.getElementById('filter-land-use').value;
   const sort     = document.getElementById('sort-by').value;
 
   displayPage = 1; // сброс пагинации при смене фильтров
@@ -768,6 +783,7 @@ function applyFilters() {
     if (statusFilter === 'skip' && lot.lot_status !== 'skip') return false;
     if (statusFilter === 'active' && !['watch','go'].includes(lot.lot_status)) return false;
     if (type && lot.property_type !== type) return false;
+    if (landUse && lot.land_use_type !== landUse) return false;
     if (discount && (lot.discount || 0) < discount) return false;
     if (district && lot.district !== district) return false;
     if (minScore && (lot.invest_score || 0) < minScore) return false;
@@ -875,7 +891,10 @@ function renderGrid() {
     <div class="lot-card" onclick="openModal('${escHtml(lot.lot_id)}')" style="position:relative;${lot.lot_status==='skip'?'opacity:0.4':''}">
       <button class="fav-btn ${lot.lot_status?'active':''}" style="color:${(LOT_STATUSES[lot.lot_status]||LOT_STATUSES[null]).color}" data-lot="${escHtml(lot.lot_id)}" onclick="cycleLotStatus('${escHtml(lot.lot_id)}',event)">${(LOT_STATUSES[lot.lot_status]||LOT_STATUSES[null]).icon}</button>
       <div class="card-head">
-        <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start">
+          <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+          ${lot.property_type==='land'&&lot.land_use_type?`<span class="lut-badge" style="${lutStyle(lot.land_use_type)}">${escHtml(lot.land_use_type)}</span>`:''}
+        </div>
         <div style="display:flex;gap:6px;align-items:center">
           ${lot.lot_status && lot.lot_status !== 'skip' ? `<span class="fav-badge" style="background:${LOT_STATUSES[lot.lot_status].bg};color:${LOT_STATUSES[lot.lot_status].color}">${LOT_STATUSES[lot.lot_status].label}</span>` : ''}
           ${tradeBadgeHtml(lot)}
@@ -1231,6 +1250,7 @@ function renderModalContent(lot) {
     <div class="modal-title-group">
       <div class="modal-badges">
         <span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span>
+        ${lot.property_type==='land'&&lot.land_use_type?`<span class="lut-badge" style="${lutStyle(lot.land_use_type)}">${escHtml(lot.land_use_type)}</span>`:''}
         ${tradeBadgeHtml(lot)}
         ${discount ? `<span class="discount-badge ${dCls}">−${discount}% дисконт</span>` : ''}
         ${lot.status ? `<span class="type-badge type-unknown">${escHtml(lot.status)}</span>` : ''}
@@ -1602,6 +1622,18 @@ function updateHeaderStats() {
 function typeLabel(t) { return {apartment:'Квартира',land:'Земля',house:'Дом',commercial:'Коммерция',garage:'Гараж'}[t]||'Прочее'; }
 function areaUnit(u) { return {m2:'м²',sotka:'сот.',ha:'га'}[u]||'м²'; }
 function scoreColor(s) { return s>=70?'#34d399':s>=40?'#fbbf24':s?'#f87171':'#64748b'; }
+function lutStyle(lut) {
+  const map = {
+    'ИЖС':                   'background:rgba(16,185,129,0.22);color:#34d399',
+    'ЛПХ':                   'background:rgba(16,185,129,0.12);color:#6ee7b7',
+    'СНТ/ДНП':               'background:rgba(245,158,11,0.18);color:#fcd34d',
+    'Сельхоз':               'background:rgba(239,68,68,0.15);color:#fca5a5',
+    'Промышленность/Склады': 'background:rgba(99,102,241,0.15);color:#a5b4fc',
+    'Коммерция':             'background:rgba(239,68,68,0.18);color:#fca5a5',
+    'МКД':                   'background:rgba(99,102,241,0.20);color:#818cf8',
+  };
+  return map[lut] || 'background:rgba(100,116,139,0.18);color:#94a3b8';
+}
 
 function displayName(lot) {
   const type = lot.property_type || '';

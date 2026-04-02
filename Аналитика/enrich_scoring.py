@@ -38,6 +38,57 @@ sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Расходы при покупке/продаже: налог (13%), регистрация, агент — итого ~12%
 TRANSACTION_COSTS = 0.12
 
+# Координаты центров городов для расчёта удалённости
+CITY_CENTERS = {
+    "пермь":    (58.0105, 56.2502),
+    "брянск":   (53.2521, 34.3717),
+    "киров":    (58.6035, 49.6680),
+    "екатеринбург": (56.8389, 60.6057),
+    "казань":   (55.8304, 49.0661),
+}
+DEFAULT_CITY = (58.0105, 56.2502)  # Пермь по умолчанию
+
+
+def normalize_land_use(vri: str) -> str:
+    """Нормализует полный текст ВРИ в категорию для скоринга."""
+    if not vri:
+        return "Неизвестно"
+    t = vri.lower()
+    if any(w in t for w in ("ижс", "индивидуальн", "жилого строительства", "жилищного строительства", "жилая застройка")):
+        return "ИЖС"
+    if any(w in t for w in ("лпх", "личного подсобного", "подсобного хозяйства")):
+        return "ЛПХ"
+    if any(w in t for w in ("снт", "садовод", "огородничеств", "дачн", "днп", "сады", " сад", "ведение сад")):
+        return "СНТ/ДНП"
+    if any(w in t for w in ("сельскохоз", "сельхоз", "с/х", "пашн", "угодь", "животновод", "растениевод", "скотовод", "сельскохозяйственного использования", "сельскохозяйственного производства")):
+        return "Сельхоз"
+    if any(w in t for w in ("промышлен", "производств", "склад", "логистик", "легкая промышленность")):
+        return "Промышленность/Склады"
+    if any(w in t for w in ("коммерч", "торговл", "офис", "магазин", "общепит")):
+        return "Коммерция"
+    if any(w in t for w in ("многоквартирн", "жилой дом", "многоэтажн")):
+        return "МКД"
+    return "Прочее"
+
+
+def calc_distance_km(lat: float, lon: float, district: str) -> float | None:
+    """Расстояние от объекта до ближайшего известного города (км)."""
+    import math
+    d = (district or "").lower()
+    city_coord = None
+    for city, coord in CITY_CENTERS.items():
+        if city in d:
+            city_coord = coord
+            break
+    if city_coord is None:
+        city_coord = DEFAULT_CITY
+    R = 6371
+    lat1, lon1 = math.radians(lat), math.radians(lon)
+    lat2, lon2 = math.radians(city_coord[0]), math.radians(city_coord[1])
+    dlat, dlon = lat2 - lat1, lon2 - lon1
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    return round(R * 2 * math.asin(math.sqrt(a)), 1)
+
 
 def calc_invest_score(lot: dict) -> tuple[int, list]:
     """Инвестиционная привлекательность 0-100. Возвращает (score, breakdown)."""
@@ -105,8 +156,17 @@ def calc_invest_score(lot: dict) -> tuple[int, list]:
 
     # --- Тип объекта (5 очков) ---
     ptype = lot.get("property_type", "")
-    type_map = {"apartment": (5, "Квартира — макс. ликвидность"), "house": (3, "Дом"), "commercial": (3, "Коммерция"), "land": (1, "Земля — низкая ликвидность")}
-    pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
+    if ptype == "land":
+        land_use = normalize_land_use(lot.get("cadastral_permitted_use") or "")
+        land_pts = {"ИЖС": 5, "ЛПХ": 4, "СНТ/ДНП": 3, "Коммерция": 3, "МКД": 3,
+                    "Промышленность/Склады": 2, "Сельхоз": 1, "Прочее": 1, "Неизвестно": 1}
+        pts = land_pts.get(land_use, 1)
+        note = f"Земля: {land_use}"
+        if lot.get("cadastral_permitted_use"):
+            note += f" ({lot['cadastral_permitted_use'][:50]})"
+    else:
+        type_map = {"apartment": (5, "Квартира — макс. ликвидность"), "house": (3, "Дом"), "commercial": (3, "Коммерция")}
+        pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
     score += pts
     reasons.append({"factor": "Тип объекта", "pts": pts, "max": 5, "note": note})
 
@@ -200,10 +260,58 @@ def calc_liquidity_score(lot: dict) -> tuple[int, list]:
     area = lot.get("area") or 0
     price = lot.get("price") or 0
 
-    type_map = {"apartment": (30, "Квартира — макс. спрос"), "house": (15, "Дом"), "commercial": (10, "Коммерция"), "land": (5, "Земля — низкий спрос")}
-    pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
-    score += pts
-    reasons.append({"factor": "Тип объекта", "pts": pts, "max": 30, "note": note})
+    if ptype == "land":
+        land_use = normalize_land_use(lot.get("cadastral_permitted_use") or "")
+        # ВРИ определяет базовую ликвидность земли
+        land_liq = {"ИЖС": 25, "ЛПХ": 18, "СНТ/ДНП": 14, "Коммерция": 12,
+                    "МКД": 10, "Промышленность/Склады": 7, "Сельхоз": 3,
+                    "Прочее": 5, "Неизвестно": 3}
+        pts = land_liq.get(land_use, 3)
+        note = f"Земля: {land_use}"
+        if lot.get("cadastral_permitted_use"):
+            note += f" ({lot['cadastral_permitted_use'][:50]})"
+        score += pts
+        reasons.append({"factor": "Тип/ВРИ участка", "pts": pts, "max": 25, "note": note})
+
+        # Площадь участка (оптимум 6–25 сот = 600–2500 м²)
+        area_m2 = (lot.get("cadastral_area") or lot.get("area") or 0)
+        if 600 <= area_m2 <= 2500:
+            score += 10
+            reasons.append({"factor": "Площадь", "pts": 10, "max": 10, "note": f"{area_m2:.0f} м² — оптимум (6–25 сот)"})
+        elif 2500 < area_m2 <= 10000:
+            score += 6
+            reasons.append({"factor": "Площадь", "pts": 6, "max": 10, "note": f"{area_m2:.0f} м² — средний (25–100 сот)"})
+        elif area_m2 > 10000:
+            score += 2
+            reasons.append({"factor": "Площадь", "pts": 2, "max": 10, "note": f"{area_m2:.0f} м² — крупный (>1 га)"})
+        elif 0 < area_m2 < 600:
+            score += 4
+            reasons.append({"factor": "Площадь", "pts": 4, "max": 10, "note": f"{area_m2:.0f} м² — маленький (<6 сот)"})
+
+        # Удалённость от города
+        lat, lon = lot.get("lat"), lot.get("lon")
+        if lat and lon:
+            dist = calc_distance_km(lat, lon, lot.get("district") or "")
+            if dist <= 15:
+                score += 15
+                reasons.append({"factor": "Удалённость", "pts": 15, "max": 15, "note": f"{dist} км от города — близко"})
+            elif dist <= 30:
+                score += 10
+                reasons.append({"factor": "Удалённость", "pts": 10, "max": 15, "note": f"{dist} км от города"})
+            elif dist <= 50:
+                score += 5
+                reasons.append({"factor": "Удалённость", "pts": 5, "max": 15, "note": f"{dist} км от города — далеко"})
+            else:
+                score += 1
+                reasons.append({"factor": "Удалённость", "pts": 1, "max": 15, "note": f"{dist} км от города — очень далеко"})
+        else:
+            reasons.append({"factor": "Удалённость", "pts": 0, "max": 15, "note": "Нет координат"})
+
+    else:
+        type_map = {"apartment": (30, "Квартира — макс. спрос"), "house": (15, "Дом"), "commercial": (10, "Коммерция")}
+        pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
+        score += pts
+        reasons.append({"factor": "Тип объекта", "pts": pts, "max": 30, "note": note})
 
     if ptype == "apartment":
         if 25 <= area <= 90:
@@ -279,7 +387,21 @@ def calc_estimated(lot: dict) -> dict:
     elif ptype == "commercial":
         months = 6 if price_m <= 5 else 18
     elif ptype == "land":
-        months = 12 if price_m <= 2 else 24
+        land_use = normalize_land_use(lot.get("cadastral_permitted_use") or "")
+        lat, lon = lot.get("lat"), lot.get("lon")
+        dist = calc_distance_km(lat, lon, lot.get("district") or "") if (lat and lon) else 999
+        if land_use == "ИЖС" and dist <= 30:
+            months = 2
+        elif land_use in ("ИЖС", "ЛПХ") and dist <= 50:
+            months = 6
+        elif land_use in ("СНТ/ДНП", "Коммерция", "МКД"):
+            months = 8
+        elif land_use == "Промышленность/Склады":
+            months = 12
+        elif land_use == "Сельхоз":
+            months = 24
+        else:
+            months = 12 if price_m <= 2 else 18
     else:
         months = 12
 
@@ -314,7 +436,8 @@ def main():
     COLS = (
         "lot_id, property_type, price, market_price, discount, confidence, "
         "analogs_count, cadastral_number, cadastral_price_ratio, cadastral_value, "
-        "has_encumbrances, encumbrance_type, bidd_type, area, district, lat, lon, name"
+        "has_encumbrances, encumbrance_type, bidd_type, area, cadastral_area, "
+        "cadastral_permitted_use, district, lat, lon, name"
     )
     PAGE = 1000
     lots = []
@@ -352,6 +475,10 @@ def main():
             "scoring_breakdown": scoring_breakdown,
             **estimated,
         }
+
+        # Нормализованная категория земли (короткий тег для фильтров)
+        if lot.get("property_type") == "land":
+            update["land_use_type"] = normalize_land_use(lot.get("cadastral_permitted_use") or "")
 
         try:
             sb.table("properties").update(update).eq("lot_id", lot_id).execute()

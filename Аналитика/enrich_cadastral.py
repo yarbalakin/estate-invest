@@ -237,30 +237,51 @@ def parse_nspd(raw: dict, price: float) -> dict:
         except (ValueError, TypeError):
             pass
 
-    # Площадь
+    # Площадь: сначала area (здания), потом land-поля (земля)
     area = raw.get("area")
     if area is not None:
         try:
             update["cadastral_area"] = float(area)
         except (ValueError, TypeError):
             pass
+    if not update.get("cadastral_area"):
+        land_area = raw.get("specified_area") or raw.get("land_record_area_verified") or raw.get("land_record_area")
+        if land_area is not None:
+            try:
+                update["cadastral_area"] = float(land_area)
+            except (ValueError, TypeError):
+                pass
 
-    # Назначение
-    purpose = raw.get("purpose")
-    if purpose:
-        update["cadastral_category"] = purpose
-    elif raw.get("_categoryName"):
-        update["cadastral_category"] = raw["_categoryName"]
+    # Категория: для земли — land_record_category_type ("Земли населенных пунктов" / "Земли сельхоз назначения")
+    # для остальных — purpose / categoryName
+    land_cat = raw.get("land_record_category_type")
+    if land_cat:
+        update["cadastral_category"] = land_cat
+    else:
+        purpose = raw.get("purpose")
+        if purpose:
+            update["cadastral_category"] = purpose
+        elif raw.get("_categoryName"):
+            update["cadastral_category"] = raw["_categoryName"]
 
-    # Тип объекта
-    params_type = raw.get("params_type")
-    if params_type:
-        update["cadastral_permitted_use"] = params_type
+    # ВРИ: для земли — permitted_use_established_by_document, для зданий — params_type
+    vri = raw.get("permitted_use_established_by_document")
+    if vri:
+        update["cadastral_permitted_use"] = vri
+    else:
+        params_type = raw.get("params_type")
+        if params_type:
+            update["cadastral_permitted_use"] = params_type
 
     # Тип собственности
     ownership = raw.get("ownership_type")
     if ownership:
         update["encumbrance_type"] = ownership
+
+    # Адрес из НСПД (заполняем если у лота пустой)
+    readable_addr = raw.get("readable_address")
+    if readable_addr:
+        update["address_std"] = readable_addr
 
     # Отношение цена / кадастровая стоимость
     cad_val = update.get("cadastral_value")
