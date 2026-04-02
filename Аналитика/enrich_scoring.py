@@ -39,175 +39,213 @@ sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 TRANSACTION_COSTS = 0.12
 
 
-def calc_invest_score(lot: dict) -> int:
-    """Инвестиционная привлекательность 0-100."""
+def calc_invest_score(lot: dict) -> tuple[int, list]:
+    """Инвестиционная привлекательность 0-100. Возвращает (score, breakdown)."""
     score = 0
+    reasons = []
 
     # --- Дисконт к рынку (главный фактор, 60 очков) ---
     discount = lot.get("discount")
     if discount is None:
-        # Нет рыночной оценки — базовый балл только за факт наличия данных
         score += 5
+        reasons.append({"factor": "Дисконт к рынку", "pts": 5, "max": 60, "note": "Нет рыночной оценки"})
     elif discount >= 50:
         score += 60
+        reasons.append({"factor": "Дисконт к рынку", "pts": 60, "max": 60, "note": f"Дисконт {discount:.0f}% (>50%)"})
     elif discount >= 40:
         score += 50
+        reasons.append({"factor": "Дисконт к рынку", "pts": 50, "max": 60, "note": f"Дисконт {discount:.0f}% (40-50%)"})
     elif discount >= 30:
         score += 40
+        reasons.append({"factor": "Дисконт к рынку", "pts": 40, "max": 60, "note": f"Дисконт {discount:.0f}% (30-40%)"})
     elif discount >= 20:
         score += 28
+        reasons.append({"factor": "Дисконт к рынку", "pts": 28, "max": 60, "note": f"Дисконт {discount:.0f}% (20-30%)"})
     elif discount >= 10:
         score += 15
+        reasons.append({"factor": "Дисконт к рынку", "pts": 15, "max": 60, "note": f"Дисконт {discount:.0f}% (10-20%)"})
     else:
-        score += 5  # дисконт < 10% — почти нет смысла
+        score += 5
+        reasons.append({"factor": "Дисконт к рынку", "pts": 5, "max": 60, "note": f"Дисконт {discount:.0f}% (<10%)"})
 
     # --- Качество оценки (10 очков) ---
     confidence = lot.get("confidence", "")
     analogs = lot.get("analogs_count") or 0
     if confidence == "кадастр":
-        score += 0  # кадастровый фаллбек — нет реальных аналогов
+        pts = 0
+        reasons.append({"factor": "Качество оценки", "pts": 0, "max": 10, "note": "Только кадастр, нет аналогов"})
     elif confidence == "высокая" and analogs >= 10:
-        score += 10
+        pts = 10; score += 10
+        reasons.append({"factor": "Качество оценки", "pts": 10, "max": 10, "note": f"Высокая, {analogs} аналогов"})
     elif confidence in ("высокая", "средняя") and analogs >= 3:
-        score += 6
+        pts = 6; score += 6
+        reasons.append({"factor": "Качество оценки", "pts": 6, "max": 10, "note": f"{confidence}, {analogs} аналогов"})
     elif analogs >= 1:
-        score += 3
+        pts = 3; score += 3
+        reasons.append({"factor": "Качество оценки", "pts": 3, "max": 10, "note": f"{analogs} аналог(ов)"})
+    else:
+        reasons.append({"factor": "Качество оценки", "pts": 0, "max": 10, "note": "Нет аналогов"})
 
     # --- Кадастровое подтверждение (10 очков) ---
     cad_ratio = lot.get("cadastral_price_ratio")
     if cad_ratio is not None:
-        # Если цена лота < 70% от кадастровой — это хорошо
         if cad_ratio < 0.7:
             score += 10
+            reasons.append({"factor": "Кадастровое подтверждение", "pts": 10, "max": 10, "note": f"Цена/кадастр = {cad_ratio:.1%}"})
         elif cad_ratio < 1.0:
             score += 6
+            reasons.append({"factor": "Кадастровое подтверждение", "pts": 6, "max": 10, "note": f"Цена/кадастр = {cad_ratio:.1%}"})
         elif cad_ratio < 1.5:
             score += 3
+            reasons.append({"factor": "Кадастровое подтверждение", "pts": 3, "max": 10, "note": f"Цена/кадастр = {cad_ratio:.1%}"})
+        else:
+            reasons.append({"factor": "Кадастровое подтверждение", "pts": 0, "max": 10, "note": f"Цена/кадастр = {cad_ratio:.1%} (>150%)"})
+    else:
+        reasons.append({"factor": "Кадастровое подтверждение", "pts": 0, "max": 10, "note": "Нет данных"})
 
     # --- Тип объекта (5 очков) ---
     ptype = lot.get("property_type", "")
-    if ptype == "apartment":
-        score += 5  # самый ликвидный
-    elif ptype in ("house", "commercial"):
-        score += 3
-    elif ptype == "land":
-        score += 1
+    type_map = {"apartment": (5, "Квартира — макс. ликвидность"), "house": (3, "Дом"), "commercial": (3, "Коммерция"), "land": (1, "Земля — низкая ликвидность")}
+    pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
+    score += pts
+    reasons.append({"factor": "Тип объекта", "pts": pts, "max": 5, "note": note})
 
     # --- Локация (5 очков) ---
+    loc_pts = 0
+    loc_notes = []
     if lot.get("district"):
-        score += 3  # знаем район
+        loc_pts += 3; loc_notes.append(f"район: {lot['district']}")
     if lot.get("lat") and lot.get("lon"):
-        score += 2  # есть координаты
+        loc_pts += 2; loc_notes.append("есть координаты")
+    score += loc_pts
+    reasons.append({"factor": "Локация", "pts": loc_pts, "max": 5, "note": ", ".join(loc_notes) if loc_notes else "Нет данных о локации"})
 
     # --- Тип торгов (5 очков) ---
     bidd = lot.get("bidd_type", "")
     if "реализация имущества должников" in bidd.lower():
-        score += 5  # арестованное — обычно дешевле
+        score += 5
+        reasons.append({"factor": "Тип торгов", "pts": 5, "max": 5, "note": "Арест — обычно дешевле"})
     elif "приватизац" in bidd.lower():
         score += 3
+        reasons.append({"factor": "Тип торгов", "pts": 3, "max": 5, "note": "Приватизация"})
+    else:
+        reasons.append({"factor": "Тип торгов", "pts": 0, "max": 5, "note": bidd[:50] if bidd else "Неизвестно"})
 
-    # --- Цена: слишком маленькая (< 100к) или явно ошибка ---
+    # --- Цена: слишком маленькая (< 50к) или явно ошибка ---
     price = lot.get("price") or 0
     if price < 50_000:
-        score = max(0, score - 15)  # скорее всего доля или ошибка
+        penalty = min(score, 15)
+        score = max(0, score - 15)
+        reasons.append({"factor": "Штраф: низкая цена", "pts": -penalty, "max": 0, "note": f"Цена {price:,.0f} руб (<50к)"})
 
-    return min(100, max(0, score))
+    final = min(100, max(0, score))
+    return final, reasons
 
 
-def calc_risk_score(lot: dict) -> int:
-    """Уровень риска 0-100 (выше = рискованнее)."""
-    risk = 20  # базовый риск
+def calc_risk_score(lot: dict) -> tuple[int, list]:
+    """Уровень риска 0-100 (выше = рискованнее). Возвращает (score, breakdown)."""
+    risk = 20
+    reasons = [{"factor": "Базовый риск", "pts": 20, "note": "Минимальный риск любой сделки"}]
 
-    # --- Нет координат — нельзя проверить объект (+15) ---
     if not lot.get("lat") or not lot.get("lon"):
         risk += 15
+        reasons.append({"factor": "Нет координат", "pts": 15, "note": "Нельзя проверить на карте"})
 
-    # --- Нет кадастрового номера — нельзя проверить в Росреестре (+20) ---
     cad = lot.get("cadastral_number") or ""
     if not cad or len(cad) < 5:
         risk += 20
+        reasons.append({"factor": "Нет кадастрового номера", "pts": 20, "note": "Нельзя проверить в Росреестре"})
 
-    # --- Нет рыночной оценки — неизвестная стоимость (+20) ---
     if lot.get("market_price") is None:
         risk += 20
+        reasons.append({"factor": "Нет рыночной оценки", "pts": 20, "note": "Неизвестная реальная стоимость"})
     elif (lot.get("analogs_count") or 0) < 3:
-        risk += 10  # мало аналогов — оценка ненадёжна
+        risk += 10
+        reasons.append({"factor": "Мало аналогов", "pts": 10, "note": f"{lot.get('analogs_count') or 0} аналогов — оценка ненадёжна"})
 
-    # --- Очень маленькая цена (< 50к) — возможно доля или мусор (+25) ---
     price = lot.get("price") or 0
     if 0 < price < 50_000:
         risk += 25
+        reasons.append({"factor": "Подозрительная цена", "pts": 25, "note": f"{price:,.0f} руб — возможно доля или ошибка"})
 
-    # --- Известные обременения ---
     if lot.get("has_encumbrances"):
         risk += 15
+        reasons.append({"factor": "Обременения", "pts": 15, "note": "Зарегистрированы обременения"})
     enc_type = (lot.get("encumbrance_type") or "").lower()
     if "долевая" in enc_type or "общедолевая" in enc_type:
         risk += 10
+        reasons.append({"factor": "Долевая собственность", "pts": 10, "note": "Общедолевая собственность"})
 
-    # --- Доля в праве — сложнее продать ---
     name = (lot.get("name") or "").lower()
     if "доля" in name or "доли" in name:
         risk += 15
+        reasons.append({"factor": "Доля в праве", "pts": 15, "note": "В названии упоминается доля"})
 
-    # --- Земля вне города — низкая ликвидность ---
     ptype = lot.get("property_type", "")
     district = lot.get("district") or ""
     if ptype == "land" and not district:
         risk += 10
+        reasons.append({"factor": "Земля вне города", "pts": 10, "note": "Район неизвестен — возможно удалённый участок"})
 
-    return min(100, max(0, risk))
+    final = min(100, max(0, risk))
+    return final, reasons
 
 
-def calc_liquidity_score(lot: dict) -> int:
-    """Ликвидность 0-100 (выше = быстрее продаётся)."""
-    score = 30  # базовый
+def calc_liquidity_score(lot: dict) -> tuple[int, list]:
+    """Ликвидность 0-100 (выше = быстрее продаётся). Возвращает (score, breakdown)."""
+    score = 30
+    reasons = [{"factor": "Базовая ликвидность", "pts": 30, "max": 30, "note": "Стартовый балл"}]
 
     ptype = lot.get("property_type", "")
     area = lot.get("area") or 0
     price = lot.get("price") or 0
 
-    # --- Тип объекта ---
-    if ptype == "apartment":
-        score += 30
-    elif ptype == "house":
-        score += 15
-    elif ptype == "commercial":
-        score += 10
-    elif ptype == "land":
-        score += 5
+    type_map = {"apartment": (30, "Квартира — макс. спрос"), "house": (15, "Дом"), "commercial": (10, "Коммерция"), "land": (5, "Земля — низкий спрос")}
+    pts, note = type_map.get(ptype, (0, ptype or "Неизвестный тип"))
+    score += pts
+    reasons.append({"factor": "Тип объекта", "pts": pts, "max": 30, "note": note})
 
-    # --- Площадь квартиры: типовая 25-90 м2 ---
     if ptype == "apartment":
         if 25 <= area <= 90:
             score += 15
+            reasons.append({"factor": "Площадь", "pts": 15, "max": 15, "note": f"{area:.0f} м² — типовая (25-90)"})
         elif 90 < area <= 150:
             score += 8
+            reasons.append({"factor": "Площадь", "pts": 8, "max": 15, "note": f"{area:.0f} м² — большая (90-150)"})
         elif area > 150:
-            score += 3  # большая квартира — уже сложнее продать
+            score += 3
+            reasons.append({"factor": "Площадь", "pts": 3, "max": 15, "note": f"{area:.0f} м² — элитная (>150)"})
         elif 0 < area < 25:
-            score += 5  # студия или доля
+            score += 5
+            reasons.append({"factor": "Площадь", "pts": 5, "max": 15, "note": f"{area:.0f} м² — студия (<25)"})
 
-    # --- Ценовой сегмент ---
     if 0 < price <= 2_000_000:
-        score += 15  # массовый сегмент
+        score += 15
+        reasons.append({"factor": "Ценовой сегмент", "pts": 15, "max": 15, "note": f"{price/1e6:.1f} млн — массовый (<2М)"})
     elif price <= 5_000_000:
         score += 10
+        reasons.append({"factor": "Ценовой сегмент", "pts": 10, "max": 15, "note": f"{price/1e6:.1f} млн — средний (2-5М)"})
     elif price <= 10_000_000:
         score += 5
-    # > 10 млн — ничего не добавляем
+        reasons.append({"factor": "Ценовой сегмент", "pts": 5, "max": 15, "note": f"{price/1e6:.1f} млн — высокий (5-10М)"})
+    elif price > 10_000_000:
+        reasons.append({"factor": "Ценовой сегмент", "pts": 0, "max": 15, "note": f"{price/1e6:.1f} млн — премиум (>10М)"})
 
-    # --- Локация: знаем район города (+10) ---
     district = lot.get("district") or ""
     if district:
         score += 10
+        reasons.append({"factor": "Локация", "pts": 10, "max": 10, "note": f"Район: {district}"})
+    else:
+        reasons.append({"factor": "Локация", "pts": 0, "max": 10, "note": "Район неизвестен"})
 
-    # --- Доля в праве — сложно продать ---
     name = (lot.get("name") or "").lower()
     if "доля" in name or "доли" in name:
+        penalty = min(score, 20)
         score = max(0, score - 20)
+        reasons.append({"factor": "Штраф: доля", "pts": -penalty, "max": 0, "note": "Доля — сложно продать"})
 
-    return min(100, max(0, score))
+    final = min(100, max(0, score))
+    return final, reasons
 
 
 def calc_estimated(lot: dict) -> dict:
@@ -294,17 +332,24 @@ def main():
     for i, lot in enumerate(lots, 1):
         lot_id = lot["lot_id"]
 
-        invest = calc_invest_score(lot)
-        risk = calc_risk_score(lot)
-        liquidity = calc_liquidity_score(lot)
+        invest, invest_reasons = calc_invest_score(lot)
+        risk, risk_reasons = calc_risk_score(lot)
+        liquidity, liq_reasons = calc_liquidity_score(lot)
         rec = make_recommendation(invest, risk, liquidity, lot)
         estimated = calc_estimated(lot)
+
+        scoring_breakdown = {
+            "invest": invest_reasons,
+            "risk": risk_reasons,
+            "liquidity": liq_reasons,
+        }
 
         update = {
             "invest_score": invest,
             "risk_score": risk,
             "liquidity_score": liquidity,
             "recommendation": rec,
+            "scoring_breakdown": scoring_breakdown,
             **estimated,
         }
 

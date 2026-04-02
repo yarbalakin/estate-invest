@@ -47,7 +47,7 @@ SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 ADS_API_USER = os.environ.get("ADS_API_USER", "yabalakin@yandex.ru")
 ADS_API_TOKEN = os.environ.get("ADS_API_TOKEN", "de5f6b208f2348f909fa7c3eb8793d95")
 ADS_API_URL = "https://ads-api.ru/main/api"
-ADS_API_DELAY = 5  # секунд между запросами
+ADS_API_DELAY = 1.5  # секунд между запросами
 
 DADATA_TOKEN = os.environ.get("DADATA_TOKEN", "")
 DADATA_CLEAN_URL = "https://cleaner.dadata.ru/api/v1/clean/address"
