@@ -110,7 +110,7 @@ def curl_get(url, referer="https://fedresurs.ru/biddings"):
 def search_by_cadastral(cadastral):
     """Ищет торги ЕФРСБ по кадастровому номеру. Возвращает список лотов."""
     encoded = urllib.parse.quote(cadastral)
-    url = f"{BASE}/biddings?limit=10&offset=0&searchString={encoded}"
+    url = f"{BASE}/biddings?limit=5&offset=0&searchString={encoded}"
     raw = curl_get(url)
     if not raw:
         return []
