@@ -247,6 +247,36 @@ def calc_risk_score(lot: dict) -> tuple[int, list]:
         risk += 10
         reasons.append({"factor": "Земля вне города", "pts": 10, "note": "Район неизвестен — возможно удалённый участок"})
 
+    # --- Стоп-факторы для земли ---
+    if ptype == "land":
+        area_m2 = lot.get("cadastral_area") or lot.get("area") or 0
+        land_use = normalize_land_use(lot.get("cadastral_permitted_use") or "")
+
+        # Площадь < 1 сотки (100 м²) — скорее всего доля или ошибка
+        if 0 < area_m2 < 100:
+            risk += 25
+            reasons.append({"factor": "Стоп: микроучасток", "pts": 25, "note": f"{area_m2:.0f} м² (<1 сот) — вероятно доля или ошибка"})
+
+        # Сельхоз без большого дисконта — долго продавать, перевод сложен
+        if land_use == "Сельхоз":
+            discount = lot.get("discount") or 0
+            if discount < 40:
+                risk += 20
+                reasons.append({"factor": "Стоп: сельхоз", "pts": 20, "note": f"Сельхоз земля, дисконт {discount:.0f}% — перевод сложен, срок >24 мес"})
+            else:
+                risk += 10
+                reasons.append({"factor": "Сельхоз с дисконтом", "pts": 10, "note": f"Сельхоз, но дисконт {discount:.0f}% — может окупиться"})
+
+        # Площадь > 10 га — сложно реализовать целиком
+        if area_m2 > 100_000:
+            risk += 15
+            reasons.append({"factor": "Стоп: огромный участок", "pts": 15, "note": f"{area_m2/10000:.1f} га — сложно продать целиком"})
+
+        # Неизвестный ВРИ без координат — максимальная неопределённость
+        if land_use == "Неизвестно" and not lot.get("lat"):
+            risk += 15
+            reasons.append({"factor": "Стоп: неизвестный ВРИ", "pts": 15, "note": "ВРИ не определён + нет координат"})
+
     final = min(100, max(0, risk))
     return final, reasons
 
