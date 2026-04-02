@@ -78,6 +78,55 @@ def send_tg(text):
         log.error(f"TG send error: {e}")
 
 
+def ai_diagnose_and_fix(step_name, error_output):
+    """
+    Вызывает Claude Code на Aeza для диагностики и автофикса.
+    Возвращает (diagnosis, fixed) — текст диагноза и был ли автофикс.
+    """
+    # Обрезаем лог до последних 80 строк
+    lines = error_output.strip().split("\n")
+    tail = "\n".join(lines[-80:])
+
+    prompt = f"""Ты — DevOps-агент Estate Invest. Шаг pipeline "{step_name}" упал.
+
+Лог ошибки (последние строки):
+```
+{tail}
+```
+
+Скрипт находится в /opt/torgi-proxy/{step_name}.py на сервере 5.42.102.36.
+
+Задачи:
+1. Диагностируй причину ошибки (1-2 предложения)
+2. Если можешь безопасно починить (retry, таймаут, смена параметров) — почини через SSH
+3. НЕ МЕНЯЙ бизнес-логику, SQL-запросы, API ключи
+4. Ответь кратко: что сломалось и что сделал"""
+
+    try:
+        result = subprocess.run(
+            [
+                "ssh", "-o", "StrictHostKeyChecking=no",
+                "-o", "ConnectTimeout=10",
+                "root@213.108.21.37",
+                f"claude -p {repr(prompt)} --max-turns 3 --allowedTools 'Bash(ssh *)' 2>/dev/null",
+            ],
+            capture_output=True, text=True,
+            timeout=180,  # 3 минуты макс
+            env={**os.environ, "SSHPASS": "QSK0M2xVsCdb"},
+        )
+        diagnosis = (result.stdout or "").strip()
+        if diagnosis:
+            log.info(f"  AI диагноз: {diagnosis[:200]}")
+            return diagnosis, True
+        return "AI не ответил", False
+    except subprocess.TimeoutExpired:
+        log.warning("  AI диагностика: таймаут 3мин")
+        return "AI таймаут", False
+    except Exception as e:
+        log.error(f"  AI диагностика ошибка: {e}")
+        return str(e), False
+
+
 def parse_stats_from_output(output):
     """
     Пытается извлечь статистику из вывода скрипта.
@@ -174,8 +223,17 @@ def main():
 
         results.append((name, "ok" if success else "FAIL", duration, error_rate))
 
-        # Алерт при >10% ошибок
-        if error_rate > 0.10:
+        # При ошибке → AI-диагностика и автофикс
+        if not success and not args.dry_run:
+            log.info(f"  → Вызываю Claude Code для диагностики {name}...")
+            diagnosis, fixed = ai_diagnose_and_fix(name, output)
+            if fixed:
+                alerts.append(f"🔧 {name}: AI починил → {diagnosis[:100]}")
+            else:
+                alerts.append(f"🔴 {name}: упал. AI: {diagnosis[:100]}")
+
+        # Алерт при >10% ошибок (но шаг не упал)
+        elif error_rate > 0.10:
             msg = f"⚠ {name}: {error_rate:.0%} ошибок"
             alerts.append(msg)
             log.warning(msg)
