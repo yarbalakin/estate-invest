@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estate Invest — Сбор финансирования</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 24px;
+      padding: 0 4px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #334155;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: #475569;
+    }
+
+    .card-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: #1a2332;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s ease;
+      min-width: 2px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stat-pct {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .stat-detail {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .stat-remaining {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #1e293b;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 16px 12px; }
+      h1 { font-size: 20px; }
+      .card { padding: 16px; }
+      .stat-pct { font-size: 18px; }
+      .stats { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Estate Invest</h1>
+      <div class="subtitle">Партнерское финансирование — активные сборы</div>
+    </header>
+
+    <div class="meta">
+      <span>Объектов: 17</span>
+      <span>Обновлено: 14.04.2026 19:19</span>
+    </div>
+
+
+    <div class="card">
+      <div class="card-name">ИП №109/НП (кафе)/г. Пермь, ул. Ленина, д. 85</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 50 тыс</span>
+        <span class="stat-remaining">Осталось: 50 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №104/НП (кафе № 2)/г. Пермь, ул. Попова, д. 14 стр. 1</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 125 тыс</span>
+        <span class="stat-remaining">Осталось: 125 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №103/НП (кафе № 1)/г. Пермь, ул. Попова, д. 14 стр. 4</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 125 тыс</span>
+        <span class="stat-remaining">Осталось: 125 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №97/ЗУ/Пермский край, г. Краснокамск, пер. Луговой, зу 3</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 830 тыс</span>
+        <span class="stat-remaining">Осталось: 830 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №92/КП/Пермский край, г. Нытва, ул. Карла Маркса, зд. 84</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 60.0%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">60.0%</span>
+        <span class="stat-detail">9.45 млн из 15.75 млн</span>
+        <span class="stat-remaining">Осталось: 6.31 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №91/ЗУ+Дом/Пермский край, г. Добрянка, ул. Луначарского, д. 33</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 60.1%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">60.1%</span>
+        <span class="stat-detail">12.64 млн из 21.03 млн</span>
+        <span class="stat-remaining">Осталось: 8.40 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №90/КП/г. Самара, ул. Садовая, д. 117</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 39.7%; background: #f59e0b;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">39.7%</span>
+        <span class="stat-detail">2.00 млн из 5.03 млн</span>
+        <span class="stat-remaining">Осталось: 3.03 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №81/ЗУ/Калининградская обл., г. Светлогорск, ул. Тургенева, д.8</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 38.6%; background: #f59e0b;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">38.6%</span>
+        <span class="stat-detail">2.07 млн из 5.35 млн</span>
+        <span class="stat-remaining">Осталось: 3.28 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №38 и ИП №39/ ЗУ/ КО, г. Зеленоградск, п. Малиновка л.12, л.13, ИП №40/ЗУ/г. Пермь, Карпинского и ИП №41/ЗУ/СО, с. Хрящевка</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 8.45 млн</span>
+        <span class="stat-remaining">Осталось: 8.45 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №36 и ИП №37/ ЗУ/ Пермский край, дер. Городище, л.24, л.25</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 660 тыс</span>
+        <span class="stat-remaining">Осталось: 660 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №34 и ИП №35/ ЗУ+ЖД/ Пермский край, г. Краснокамск, Гражданский переулок, д. 35, д. 37</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0.0%; background: #94a3b8;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">0.0%</span>
+        <span class="stat-detail">0 из 11.20 млн</span>
+        <span class="stat-remaining">Осталось: 11.20 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">Инвестиционное предложение №13 / Переделка авто + продажа</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 41.4%; background: #f59e0b;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">41.4%</span>
+        <span class="stat-detail">3.87 млн из 9.36 млн</span>
+        <span class="stat-remaining">Осталось: 5.49 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">ИП №11 / Выкуп авто</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 72.8%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">72.8%</span>
+        <span class="stat-detail">7.28 млн из 10.00 млн</span>
+        <span class="stat-remaining">Осталось: 2.72 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">Турция -3, Besthome «44 GARDENIA», B-46</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 79.9%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">79.9%</span>
+        <span class="stat-detail">2.29 млн из 2.86 млн</span>
+        <span class="stat-remaining">Осталось: 576 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">Турция -3, Besthome «44 GARDENIA», А-43</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 79.9%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">79.9%</span>
+        <span class="stat-detail">2.29 млн из 2.86 млн</span>
+        <span class="stat-remaining">Осталось: 576 тыс</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">Турция, Аланья 2 - кв.17</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 65.2%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">65.2%</span>
+        <span class="stat-detail">3.00 млн из 4.60 млн</span>
+        <span class="stat-remaining">Осталось: 1.60 млн</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">Турция, Аланья 1</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 71.6%; background: #3b82f6;"></div>
+      </div>
+      <div class="stats">
+        <span class="stat-pct">71.6%</span>
+        <span class="stat-detail">522 тыс из 729 тыс</span>
+        <span class="stat-remaining">Осталось: 207 тыс</span>
+      </div>
+    </div>
+
+    <footer>
+      Estate Invest &copy; 2026
+    </footer>
+  </div>
+</body>
+</html>
