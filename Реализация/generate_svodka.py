@@ -1098,19 +1098,31 @@ def generate_rieltory_html(objects):
 
     # Точки для карты — только объекты с координатами
     map_points = []
+    # Загрузка кэша полигонов
+    polygon_cache = {}
+    polygon_cache_path = os.path.join(os.path.dirname(__file__), "polygon_cache.json")
+    if os.path.exists(polygon_cache_path):
+        with open(polygon_cache_path, encoding="utf-8") as f:
+            polygon_cache = json.load(f)
+
     for obj in rieltory:
         lat = obj.get("lat")
         lon = obj.get("lon")
         if lat and lon:
             avito_links = obj.get("avito_links", [])
-            map_points.append({
+            cad = obj.get("cadastral", "")
+            point = {
                 "ip": obj["ip_num"],
                 "address": obj.get("address") or obj.get("name", f"ИП {obj['ip_num']}"),
-                "cadastral": obj.get("cadastral", ""),
+                "cadastral": cad,
                 "lat": lat,
                 "lon": lon,
                 "avito": avito_links[0] if avito_links else "",
-            })
+            }
+            # Добавить полигон если есть в кэше
+            if cad and cad in polygon_cache:
+                point["polygon"] = polygon_cache[cad]
+            map_points.append(point)
     map_points_json = json.dumps(map_points, ensure_ascii=False)
     with_map = len(map_points)
 
@@ -1404,6 +1416,20 @@ function initYMap() {{
         {{ preset: 'islands#darkBlueCircleDotIcon' }}
       );
       map.geoObjects.add(placemark);
+
+      // Полигон кадастровой границы
+      if (p.polygon && p.polygon.coordinates) {{
+        var coords = p.polygon.coordinates[0].map(function(c) {{ return [c[1], c[0]]; }});
+        var poly = new ymaps.Polygon([coords], {{
+          balloonContent: balloon
+        }}, {{
+          fillColor: '#6366f140',
+          strokeColor: '#6366f1',
+          strokeWidth: 2,
+          fillOpacity: 0.25
+        }});
+        map.geoObjects.add(poly);
+      }}
     }});
 
     if (MAP_POINTS.length > 1) {{

@@ -163,7 +163,8 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 /* === TABLE VIEW === */
 #view-table { overflow-x:auto; }
 .lot-table { width:100%; border-collapse:collapse; }
-.lot-table thead th {
+.lot-table { table-layout:fixed; }
+.lot-table thead th { position:relative;
   padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
   text-transform:uppercase; letter-spacing:.6px; color:var(--text3);
   background:var(--bg3); border-bottom:1px solid var(--border);
@@ -176,6 +177,8 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .lot-table thead th.sort-desc .sort-icon::after { content:'↓'; opacity:1; color:var(--accent3); }
 .lot-table thead th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content:'↕'; }
 .lot-table tbody tr { cursor:pointer; transition:background .15s; border-bottom:1px solid rgba(255,255,255,0.04); }
+.col-resize-handle { position:absolute; right:-3px; top:0; bottom:0; width:6px; cursor:col-resize; z-index:2; }
+.col-resize-handle:hover, .col-resize-handle.active { background:var(--accent); opacity:0.4; }
 .lot-table tbody tr:hover { background:rgba(99,102,241,0.08); }
 .lot-table tbody td { padding:11px 14px; font-size:13px; color:var(--text2); vertical-align:middle; }
 .lot-table tbody td:first-child { color:var(--text); }
@@ -185,9 +188,8 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
 .tbl-discount-neg  { color:#ef4444; font-weight:600; }
 .tbl-score { display:inline-flex; align-items:center; gap:6px; }
 .tbl-score-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.lot-table .td-name { max-width:240px; }
-.lot-table .td-name span { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; color:var(--text); }
-.lot-table .td-addr span { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; max-width:200px; }
+.lot-table .td-name span, .lot-table .td-addr span { display:block; overflow:hidden; text-overflow:ellipsis; color:var(--text); }
+.lot-table td { overflow:hidden; text-overflow:ellipsis; }
 
 /* === MAP VIEW === */
 #view-map { position:relative; }
@@ -431,9 +433,89 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
   .modal { border-radius:16px; }
   #main-map { height:450px; }
 }
+/* === Agent Workspace === */
+.login-overlay { position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; }
+.login-box { background:var(--bg3); border:1px solid var(--border); border-radius:16px; padding:40px; max-width:340px; width:90%; text-align:center; }
+.login-box h2 { margin:0 0 24px; font-size:20px; color:var(--text); }
+.login-box input { width:100%; padding:10px 14px; margin-bottom:12px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; box-sizing:border-box; }
+.login-box button { width:100%; padding:10px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+.login-box .login-err { color:#ef4444; font-size:12px; margin-top:8px; min-height:18px; }
+.agent-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:var(--bg3); font-size:12px; margin-left:12px; }
+.agent-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+.agent-logout { background:none; border:none; color:var(--text3); cursor:pointer; font-size:11px; margin-left:6px; }
+.agent-logout:hover { color:var(--red); }
+
+/* Workspace tabs */
+.aw-tabs { display:flex; gap:2px; background:var(--bg2); border-radius:10px; padding:3px; margin-bottom:12px; }
+.aw-tab { flex:1; padding:8px 4px; text-align:center; font-size:11px; font-weight:500; border:none; background:none; color:var(--text3); cursor:pointer; border-radius:8px; transition:all .2s; }
+.aw-tab.active { background:var(--bg3); color:var(--text); }
+.aw-panel { display:none; }
+.aw-panel.active { display:block; }
+
+/* Status buttons */
+.aw-status-btns { display:flex; gap:8px; margin-bottom:16px; }
+.aw-status-btn { flex:1; padding:10px; border:2px solid var(--border); border-radius:10px; background:none; color:var(--text3); font-size:13px; font-weight:500; cursor:pointer; transition:all .2s; }
+.aw-status-btn.active-skip { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,0.1); }
+.aw-status-btn.active-watch { border-color:#f59e0b; color:#f59e0b; background:rgba(245,158,11,0.1); }
+.aw-status-btn.active-go { border-color:#10b981; color:#10b981; background:rgba(16,185,129,0.1); }
+
+/* Valuation inputs */
+.aw-val-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+.aw-val-input { padding:8px 10px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; width:100%; box-sizing:border-box; }
+.aw-val-label { font-size:10px; color:var(--text3); margin-bottom:4px; }
+
+/* Others review mini */
+.aw-others { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+.aw-other { display:flex; align-items:center; gap:4px; font-size:11px; color:var(--text3); }
+
+/* Checklist */
+.aw-checklist { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.aw-check-row { display:flex; align-items:center; gap:8px; padding:6px 10px; background:var(--bg2); border-radius:8px; font-size:12px; cursor:pointer; }
+.aw-check-icon { width:20px; height:20px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; border:1px solid var(--border); }
+.aw-check-icon.yes { background:rgba(16,185,129,0.15); color:#10b981; border-color:#10b981; }
+.aw-check-icon.no { background:rgba(239,68,68,0.15); color:#ef4444; border-color:#ef4444; }
+
+/* Notes */
+.aw-notes { width:100%; min-height:100px; padding:10px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; resize:vertical; box-sizing:border-box; font-family:inherit; }
+.aw-save-status { font-size:10px; color:var(--text3); margin-top:4px; text-align:right; }
+
+/* Photos */
+.aw-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; margin-top:8px; }
+.aw-photo-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; cursor:pointer; }
+.aw-photo-thumb img { width:100%; height:100%; object-fit:cover; }
+.aw-photo-del { position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.7); color:#fff; border:none; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; }
+.aw-upload-btn { padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:12px; }
+
+/* Comments */
+.aw-comment { padding:8px 0; border-bottom:1px solid var(--border); }
+.aw-comment:last-child { border-bottom:none; }
+.aw-comment-header { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+.aw-comment-text { font-size:13px; color:var(--text); line-height:1.4; }
+.aw-comment-time { font-size:10px; color:var(--text3); }
+.aw-comment-input { display:flex; gap:8px; margin-top:12px; }
+.aw-comment-input input { flex:1; padding:8px 12px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; }
+.aw-comment-input button { padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:12px; white-space:nowrap; }
+
+/* Agent dots on cards */
+.agent-dots { display:flex; gap:3px; margin-top:4px; }
+.agent-mini-dot { width:6px; height:6px; border-radius:50%; }
+.ec-display { cursor:pointer; font-size:12px; color:var(--text); white-space:nowrap; }
+.ec-display:hover { color:var(--accent3); }
+.ec-filled { font-weight:500; }
 </style>
 </head>
 <body>
+
+<!-- Login overlay -->
+<div class="login-overlay" id="login-overlay" style="display:none">
+  <div class="login-box">
+    <h2>Estate Invest</h2>
+    <input type="text" id="login-user" placeholder="Логин" autofocus>
+    <input type="password" id="login-pass" placeholder="Пароль" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Войти</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
 
 <header>
   <div class="logo">
@@ -446,6 +528,11 @@ select:hover, select:focus, input[type="text"]:hover, input[type="text"]:focus {
     <div class="hstat"><div class="hstat-val" id="hstat-avg-discount">—</div><div class="hstat-label">ср. дисконт</div></div>
     <div class="hstat"><div class="hstat-val" id="hstat-avg-price">—</div><div class="hstat-label">ср. цена</div></div>
     <button class="btn btn-primary btn-small" onclick="loadData()">Обновить</button>
+    <span class="agent-badge" id="agent-badge" style="display:none">
+      <span class="agent-dot" id="agent-dot"></span>
+      <span id="agent-name-display"></span>
+      <button class="agent-logout" onclick="doLogout()">выйти</button>
+    </span>
   </div>
 </header>
 
@@ -638,8 +725,381 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // State
 let allLots = [], filteredLots = [];
 window._allLots = allLots; // for deep analysis callback
-let currentView = 'grid';
+let currentView = new URLSearchParams(window.location.search).get('type') ? 'table' : 'grid';
 let tableSortCol = 'date_added', tableSortDir = 'desc';
+
+// === Agent Auth ===
+let currentAgent = null;
+let allReviews = {}; // lot_id → [{ agent_id, status, ... }]
+let allAgents = []; // loaded on init
+
+async function sha256(text) {
+  // crypto.subtle requires HTTPS; fallback to pure JS for HTTP
+  if (window.crypto && window.crypto.subtle) {
+    try {
+      const enc = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    } catch(e) { /* fallback below */ }
+  }
+  // Pure JS SHA-256 fallback (for HTTP)
+  function r(n,x){return(x>>>n)|(x<<(32-n))}
+  function S(x){return(r(2,x)^r(13,x)^r(22,x))>>>0}
+  function s(x){return(r(6,x)^r(11,x)^r(25,x))>>>0}
+  function G(x){return(r(7,x)^r(18,x)^(x>>>3))>>>0}
+  function g(x){return(r(17,x)^r(19,x)^(x>>>10))>>>0}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const enc=new TextEncoder().encode(text);
+  const len=enc.length,bits=len*8;
+  const pad=new Uint8Array(((len+9+63)&~63));
+  pad.set(enc); pad[len]=0x80;
+  const dv=new DataView(pad.buffer); dv.setUint32(pad.length-4,bits);
+  let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+  for(let off=0;off<pad.length;off+=64){
+    const w=new Uint32Array(64);
+    for(let i=0;i<16;i++) w[i]=dv.getUint32(off+i*4);
+    for(let i=16;i<64;i++) w[i]=(g(w[i-2])+w[i-7]+G(w[i-15])+w[i-16])>>>0;
+    let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,gg=h6,h=h7;
+    for(let i=0;i<64;i++){
+      const t1=(h+s(e)+((e&f)^(~e&gg))+K[i]+w[i])>>>0;
+      const t2=(S(a)+((a&b)^(a&c)^(b&c)))>>>0;
+      h=gg;gg=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;
+    }
+    h0=(h0+a)>>>0;h1=(h1+b)>>>0;h2=(h2+c)>>>0;h3=(h3+d)>>>0;h4=(h4+e)>>>0;h5=(h5+f)>>>0;h6=(h6+gg)>>>0;h7=(h7+h)>>>0;
+  }
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map(v=>v.toString(16).padStart(8,'0')).join('');
+}
+
+function getAgent() {
+  try { return JSON.parse(localStorage.getItem('ei_agent')); } catch { return null; }
+}
+
+function checkAuth() {
+  const urlType = new URLSearchParams(window.location.search).get('type');
+  currentAgent = getAgent();
+  if (urlType && !currentAgent) {
+    document.getElementById('login-overlay').style.display = 'flex';
+    return false;
+  }
+  if (currentAgent) {
+    document.getElementById('agent-badge').style.display = 'inline-flex';
+    document.getElementById('agent-dot').style.background = currentAgent.color;
+    document.getElementById('agent-name-display').textContent = currentAgent.name;
+  }
+  return true;
+}
+
+async function doLogin() {
+  const login = document.getElementById('login-user').value.trim().toLowerCase();
+  const pwd = document.getElementById('login-pass').value;
+  if (!login || !pwd) return;
+  document.getElementById('login-err').textContent = '';
+  const hash = await sha256(pwd);
+  try {
+    const { data: rows, error } = await db.from('agents').select('id,name,login,color').eq('login', login).eq('password_hash', hash);
+    if (error) { document.getElementById('login-err').textContent = 'Ошибка: ' + error.message; return; }
+    if (!rows || rows.length === 0) { document.getElementById('login-err').textContent = 'Неверный логин или пароль'; return; }
+    const agent = rows[0];
+    localStorage.setItem('ei_agent', JSON.stringify(agent));
+    currentAgent = agent;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('agent-badge').style.display = 'inline-flex';
+    document.getElementById('agent-dot').style.background = agent.color;
+    document.getElementById('agent-name-display').textContent = agent.name;
+    await loadAgents();
+    await loadAllReviews();
+    loadData();
+  } catch(e) {
+    document.getElementById('login-err').textContent = 'Ошибка: ' + e.message;
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('ei_agent');
+  currentAgent = null;
+  document.getElementById('agent-badge').style.display = 'none';
+  location.reload();
+}
+
+async function loadAgents() {
+  const { data } = await db.from('agents').select('id,name,login,color');
+  allAgents = data || [];
+}
+
+async function loadAllReviews() {
+  const { data } = await db.from('agent_reviews').select('lot_id,agent_id,status,notes,estimated_market_price,expected_profit,expected_sell_months,checklist,photos,updated_at');
+  allReviews = {};
+  (data || []).forEach(r => {
+    if (!allReviews[r.lot_id]) allReviews[r.lot_id] = [];
+    allReviews[r.lot_id].push(r);
+  });
+}
+
+function getMyReview(lotId) {
+  if (!currentAgent) return null;
+  return (allReviews[lotId] || []).find(r => r.agent_id === currentAgent.id) || null;
+}
+
+// === Workspace CRUD ===
+let _saveTimer = null;
+function autoSaveReview(lotId, field, value) {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(async () => {
+    const update = { lot_id: lotId, agent_id: currentAgent.id, [field]: value, updated_at: new Date().toISOString() };
+    await db.from('agent_reviews').upsert(update, { onConflict: 'lot_id,agent_id' });
+    // Update local cache
+    if (!allReviews[lotId]) allReviews[lotId] = [];
+    const existing = allReviews[lotId].find(r => r.agent_id === currentAgent.id);
+    if (existing) { Object.assign(existing, update); } else { allReviews[lotId].push(update); }
+    const el = document.getElementById('aw-save-status');
+    if (el) el.textContent = 'Сохранено';
+  }, 800);
+  const el = document.getElementById('aw-save-status');
+  if (el) el.textContent = 'Сохранение...';
+}
+
+async function setAgentStatus(lotId, status) {
+  const review = getMyReview(lotId);
+  const newStatus = review && review.status === status ? null : status;
+  await db.from('agent_reviews').upsert(
+    { lot_id: lotId, agent_id: currentAgent.id, status: newStatus, updated_at: new Date().toISOString() },
+    { onConflict: 'lot_id,agent_id' }
+  );
+  if (!allReviews[lotId]) allReviews[lotId] = [];
+  const existing = allReviews[lotId].find(r => r.agent_id === currentAgent.id);
+  if (existing) existing.status = newStatus; else allReviews[lotId].push({ lot_id: lotId, agent_id: currentAgent.id, status: newStatus });
+  // Re-render workspace status buttons + table row
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (lot) renderWorkspaceInModal(lot);
+  if (currentView === 'table') renderTable();
+}
+
+async function addComment(lotId) {
+  const input = document.getElementById('aw-comment-input');
+  const text = input.value.trim();
+  if (!text || !currentAgent) return;
+  await db.from('lot_comments').insert({ lot_id: lotId, agent_id: currentAgent.id, text });
+  input.value = '';
+  // Reload comments
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (lot) renderCommentsTab(lotId);
+}
+
+async function renderCommentsTab(lotId) {
+  const { data } = await db.from('lot_comments').select('*').eq('lot_id', lotId).order('created_at', { ascending: false });
+  const container = document.getElementById('aw-comments-list');
+  if (!container) return;
+  container.innerHTML = (data || []).map(c => {
+    const agent = allAgents.find(a => a.id === c.agent_id) || { name: '?', color: '#666' };
+    const ago = timeAgo(c.created_at);
+    return `<div class="aw-comment">
+      <div class="aw-comment-header"><span class="agent-dot" style="background:${agent.color}"></span><b style="font-size:12px">${escHtml(agent.name)}</b><span class="aw-comment-time">${ago}</span></div>
+      <div class="aw-comment-text">${escHtml(c.text)}</div>
+    </div>`;
+  }).join('') || '<div style="color:var(--text3);font-size:12px">Нет комментариев</div>';
+}
+
+function timeAgo(dt) {
+  const diff = (Date.now() - new Date(dt).getTime()) / 1000;
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff/60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600) + ' ч назад';
+  return Math.floor(diff/86400) + ' дн назад';
+}
+
+async function uploadPhoto(lotId, file) {
+  // Compress image client-side
+  const canvas = document.createElement('canvas');
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  await new Promise(r => { img.onload = r; img.src = url; });
+  const maxDim = 1200;
+  let w = img.width, h = img.height;
+  if (w > maxDim || h > maxDim) {
+    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+    else { w = Math.round(w * maxDim / h); h = maxDim; }
+  }
+  canvas.width = w; canvas.height = h;
+  canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+  URL.revokeObjectURL(url);
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.7));
+
+  const path = `${lotId}/${currentAgent.id}/${Date.now()}.jpg`;
+  const { error } = await db.storage.from('agent-photos').upload(path, blob, { contentType: 'image/jpeg' });
+  if (error) { alert('Ошибка загрузки: ' + error.message); return; }
+
+  const { data: urlData } = db.storage.from('agent-photos').getPublicUrl(path);
+  const photoUrl = urlData.publicUrl;
+
+  // Add to review
+  const review = getMyReview(lotId) || {};
+  const photos = [...(review.photos || []), photoUrl];
+  await db.from('agent_reviews').upsert(
+    { lot_id: lotId, agent_id: currentAgent.id, photos, updated_at: new Date().toISOString() },
+    { onConflict: 'lot_id,agent_id' }
+  );
+  if (!allReviews[lotId]) allReviews[lotId] = [];
+  const existing = allReviews[lotId].find(r => r.agent_id === currentAgent.id);
+  if (existing) existing.photos = photos; else allReviews[lotId].push({ lot_id: lotId, agent_id: currentAgent.id, photos });
+
+  const lot = allLots.find(l => l.lot_id === lotId);
+  if (lot) renderPhotosTab(lotId);
+}
+
+async function deletePhoto(lotId, photoUrl) {
+  const review = getMyReview(lotId);
+  if (!review) return;
+  const photos = (review.photos || []).filter(p => p !== photoUrl);
+  await db.from('agent_reviews').upsert(
+    { lot_id: lotId, agent_id: currentAgent.id, photos, updated_at: new Date().toISOString() },
+    { onConflict: 'lot_id,agent_id' }
+  );
+  review.photos = photos;
+  renderPhotosTab(lotId);
+  // Delete from storage
+  const path = photoUrl.split('/agent-photos/')[1];
+  if (path) db.storage.from('agent-photos').remove([path]);
+}
+
+function renderPhotosTab(lotId) {
+  const review = getMyReview(lotId) || {};
+  const photos = review.photos || [];
+  const container = document.getElementById('aw-photos-grid');
+  if (!container) return;
+  container.innerHTML = photos.map(p =>
+    `<div class="aw-photo-thumb"><img src="${p}" onclick="window.open('${p}')"><button class="aw-photo-del" onclick="deletePhoto('${lotId}','${p}')">×</button></div>`
+  ).join('') || '<div style="color:var(--text3);font-size:12px">Нет фото</div>';
+}
+
+const CHECKLIST_ITEMS = [
+  { key: 'gas', label: 'Газ' }, { key: 'water', label: 'Вода' },
+  { key: 'electricity', label: 'Электричество' }, { key: 'sewage', label: 'Канализация' },
+  { key: 'road_quality', label: 'Дорога' }, { key: 'neighbors', label: 'Соседи' },
+  { key: 'legal_clean', label: 'Юр. чистота' }, { key: 'vri_confirmed', label: 'ВРИ подтверждён' },
+  { key: 'access', label: 'Подъезд' }, { key: 'terrain', label: 'Рельеф' },
+];
+
+function toggleChecklist(lotId, key) {
+  const review = getMyReview(lotId) || {};
+  const cl = { ...(review.checklist || {}) };
+  if (cl[key] === true) cl[key] = false;
+  else if (cl[key] === false) cl[key] = null;
+  else cl[key] = true;
+  autoSaveReview(lotId, 'checklist', cl);
+  // Update local
+  if (!allReviews[lotId]) allReviews[lotId] = [];
+  const existing = allReviews[lotId].find(r => r.agent_id === currentAgent.id);
+  if (existing) existing.checklist = cl;
+  renderChecklistTab(lotId);
+}
+
+function renderChecklistTab(lotId) {
+  const review = getMyReview(lotId) || {};
+  const cl = review.checklist || {};
+  const container = document.getElementById('aw-checklist-grid');
+  if (!container) return;
+  container.innerHTML = CHECKLIST_ITEMS.map(item => {
+    const val = cl[item.key];
+    const icon = val === true ? '✓' : val === false ? '✗' : '—';
+    const cls = val === true ? 'yes' : val === false ? 'no' : '';
+    return `<div class="aw-check-row" onclick="toggleChecklist('${lotId}','${item.key}')">
+      <div class="aw-check-icon ${cls}">${icon}</div>
+      <span>${item.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// === Agent dots for cards/table ===
+function agentDotsHtml(lotId) {
+  const reviews = allReviews[lotId] || [];
+  if (!reviews.length) return '';
+  const dots = reviews.filter(r => r.status).map(r => {
+    const a = allAgents.find(ag => ag.id === r.agent_id) || { name:'?', color:'#666' };
+    const icon = r.status === 'go' ? '✔' : r.status === 'watch' ? '★' : '✖';
+    const clr = r.status === 'go' ? '#10b981' : r.status === 'watch' ? '#f59e0b' : '#ef4444';
+    return `<span title="${a.name}: ${icon}" style="display:inline-flex;align-items:center;gap:2px;font-size:10px;color:${clr}"><span class="agent-mini-dot" style="background:${a.color}"></span>${icon}</span>`;
+  });
+  return dots.length ? `<span class="agent-dots">${dots.join('')}</span>` : '';
+}
+
+// === Render workspace inside modal ===
+function renderWorkspaceInModal(lot) {
+  const container = document.getElementById('aw-container');
+  if (!container || !currentAgent) return;
+
+  const review = getMyReview(lot.lot_id) || {};
+  const status = review.status;
+  const otherReviews = (allReviews[lot.lot_id] || []).filter(r => r.agent_id !== currentAgent.id);
+
+  container.innerHTML = `
+    <div class="aw-tabs">
+      <button class="aw-tab active" onclick="switchAwTab(this,0)">Оценка</button>
+      <button class="aw-tab" onclick="switchAwTab(this,1)">Чеклист</button>
+      <button class="aw-tab" onclick="switchAwTab(this,2)">Заметки</button>
+      <button class="aw-tab" onclick="switchAwTab(this,3)">Фото</button>
+      <button class="aw-tab" onclick="switchAwTab(this,4)">Комментарии</button>
+    </div>
+
+    <div class="aw-panel active" id="aw-panel-0">
+      <div class="aw-status-btns">
+        <button class="aw-status-btn ${status==='skip'?'active-skip':''}" onclick="setAgentStatus('${lot.lot_id}','skip')">✖ Пропустить</button>
+        <button class="aw-status-btn ${status==='watch'?'active-watch':''}" onclick="setAgentStatus('${lot.lot_id}','watch')">★ Наблюдать</button>
+        <button class="aw-status-btn ${status==='go'?'active-go':''}" onclick="setAgentStatus('${lot.lot_id}','go')">✔ Покупать</button>
+      </div>
+      <div class="aw-val-grid" style="grid-template-columns:1fr 1fr">
+        <div><div class="aw-val-label">Моя оценка рынка</div><input class="aw-val-input" type="number" placeholder="₽" value="${review.estimated_market_price||''}" oninput="autoSaveReview('${lot.lot_id}','estimated_market_price',+this.value||null)"></div>
+        <div><div class="aw-val-label">Срок продажи</div><input class="aw-val-input" type="number" placeholder="мес." value="${review.expected_sell_months||''}" oninput="autoSaveReview('${lot.lot_id}','expected_sell_months',+this.value||null)"></div>
+      </div>
+      ${otherReviews.length ? `<div class="aw-others">${otherReviews.map(r => {
+        const a = allAgents.find(ag => ag.id === r.agent_id) || { name:'?', color:'#666' };
+        const st = r.status === 'go' ? '✔' : r.status === 'watch' ? '★' : r.status === 'skip' ? '✖' : '—';
+        const price = r.estimated_market_price ? formatPrice(r.estimated_market_price) : '';
+        return `<div class="aw-other"><span class="agent-dot" style="background:${a.color}"></span>${a.name}: ${st} ${price}</div>`;
+      }).join('')}</div>` : ''}
+    </div>
+
+    <div class="aw-panel" id="aw-panel-1"><div class="aw-checklist" id="aw-checklist-grid"></div></div>
+
+    <div class="aw-panel" id="aw-panel-2">
+      <textarea class="aw-notes" placeholder="Заметки по участку..." oninput="autoSaveReview('${lot.lot_id}','notes',this.value)">${escHtml(review.notes||'')}</textarea>
+      <div class="aw-save-status" id="aw-save-status"></div>
+    </div>
+
+    <div class="aw-panel" id="aw-panel-3">
+      <input type="file" id="aw-photo-file" accept="image/*" multiple style="display:none" onchange="[...this.files].forEach(f=>uploadPhoto('${lot.lot_id}',f))">
+      <button class="aw-upload-btn" onclick="document.getElementById('aw-photo-file').click()">Загрузить фото</button>
+      <div class="aw-photo-grid" id="aw-photos-grid"></div>
+    </div>
+
+    <div class="aw-panel" id="aw-panel-4">
+      <div id="aw-comments-list"></div>
+      <div class="aw-comment-input">
+        <input id="aw-comment-input" placeholder="Комментарий..." onkeydown="if(event.key==='Enter')addComment('${lot.lot_id}')">
+        <button onclick="addComment('${lot.lot_id}')">Отправить</button>
+      </div>
+    </div>
+  `;
+
+  renderChecklistTab(lot.lot_id);
+  renderPhotosTab(lot.lot_id);
+  renderCommentsTab(lot.lot_id);
+}
+
+function switchAwTab(btn, idx) {
+  btn.parentElement.querySelectorAll('.aw-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  btn.closest('.modal-section, .modal-body').querySelectorAll('.aw-panel').forEach((p,i) => {
+    p.classList.toggle('active', i === idx);
+  });
+}
 
 // Статусы лотов
 const LOT_STATUSES = {
@@ -683,43 +1143,90 @@ const _loadedCadastralIds = new Set();
 // ============================================================
 // Data loading
 // ============================================================
-// boundary_geojson — кэш полигонов (предзагружаются одним батч-запросом в фоне)
+// Лёгкие колонки для списка/карточек/фильтров/карты (~35 вместо 80)
+const LIGHT_COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,price_per_unit,trade_type,price_schedule,bidd_type,auction_date,application_end,status,area,area_unit,market_price,discount,confidence,analogs_count,analogs_source,cadastral_price_ratio,invest_score,lookalike_score,lot_status,land_use_type,is_remote,is_favorite';
+
+// Кэш полных данных лота (подгружаются при открытии модала)
+const FULL_LOT_CACHE = {};
+
+async function fetchFullLot(lotId) {
+  if (FULL_LOT_CACHE[lotId]) return FULL_LOT_CACHE[lotId];
+  const { data, error } = await db.from('properties').select('*').eq('lot_id', lotId).single();
+  if (error) throw error;
+  FULL_LOT_CACHE[lotId] = data;
+  const idx = allLots.findIndex(l => l.lot_id === lotId);
+  if (idx >= 0) allLots[idx] = { ...allLots[idx], ...data };
+  return data;
+}
+
+// boundary_geojson — кэш полигонов (загружаются при переключении на карту)
 const BOUNDARY_CACHE = {};
+let _boundariesLoaded = false;
 
 function fetchBoundary(lot_id) {
-  // Возвращает уже закэшированное значение (синхронно после preloadBoundaries)
   const val = BOUNDARY_CACHE[lot_id];
   return Promise.resolve(val !== undefined ? val : null);
 }
 
 async function preloadBoundaries() {
-  // Один запрос — все полигоны (~150KB, только лоты с boundary_geojson)
+  if (_boundariesLoaded) return;
+  _boundariesLoaded = true;
   try {
     const { data } = await db.from('properties')
       .select('lot_id,boundary_geojson')
       .not('boundary_geojson', 'is', null);
     (data || []).forEach(row => { BOUNDARY_CACHE[row.lot_id] = row.boundary_geojson; });
-  } catch(e) {}
+  } catch(e) { _boundariesLoaded = false; }
 }
 
 async function loadData() {
   showLoading();
   try {
-    const COLS = 'lot_id,source,property_type,date_added,name,category,cadastral_number,address,address_std,lat,lon,district,url,etp_url,price,deposit,price_per_unit,bidd_type,auction_date,application_end,status,area,area_unit,cadastral_value,cadastral_value_date,cadastral_area,cadastral_category,cadastral_permitted_use,land_use_type,has_encumbrances,encumbrance_type,market_price,market_price_per_unit,discount,confidence,analogs_count,analogs_median_price,analogs_min_price,analogs_max_price,district_avg_price,cadastral_price_ratio,debtor_name,debtor_inn,debtor_type,bankruptcy_case,fssp_debts,fssp_count,court_cases,price_history,original_price,price_reduction,total_discount,days_on_market,previous_auctions,photos,photos_count,has_photos,invest_score,risk_score,liquidity_score,recommendation,estimated_profit,estimated_roi,estimated_sell_time,lookalike_score,lookalike_match_reason,apartment,building,land,house,commercial,rental,infra,analogs_list,analogs_source,analogs_radius_m,scoring_breakdown,is_remote,is_favorite,lot_status,ai_recommendation,created_at,updated_at';
     const PAGE = 1000;
-    const query = () => db.from('properties').select(COLS).order('date_added', { ascending: false });
-    const [r1, r2] = await Promise.all([
-      query().range(0, PAGE - 1),
-      query().range(PAGE, PAGE * 2 - 1),
-      preloadBoundaries(),
-    ]);
+    const _urlTypeFilter = new URLSearchParams(window.location.search).get('type');
+    const query = () => {
+      let q = db.from('properties').select(LIGHT_COLS).order('date_added', { ascending: false });
+      if (_urlTypeFilter) q = q.eq('property_type', _urlTypeFilter);
+      return q;
+    };
+    const promises = [query().range(0, PAGE - 1)];
+    if (!_urlTypeFilter) {
+      promises.push(query().range(PAGE, PAGE * 2 - 1));
+      promises.push(query().range(PAGE * 2, PAGE * 3 - 1));
+    } else {
+      promises.push(query().range(PAGE, PAGE * 2 - 1));
+    }
+    const results = await Promise.all(promises);
+    const r1 = results[0];
     if (r1.error) throw r1.error;
-    allLots = [...(r1.data || []), ...(r2.data || [])];
+    allLots = [...(r1.data || [])];
+    for (let i = 1; i < results.length; i++) {
+      if (results[i].data) allLots.push(...results[i].data);
+    }
     window._allLots = allLots;
     updateHeaderStats();
     populateDistrictFilter();
     document.getElementById('filter-score').value = '40';
     document.getElementById('sort-by').value = 'score_desc';
+
+    // URL-параметр ?type=land → режим "только земля"
+    const urlType = new URLSearchParams(window.location.search).get('type');
+    if (urlType) {
+      document.getElementById('filter-type').value = urlType;
+      document.getElementById('filter-type').style.display = 'none';
+      // Заголовок
+      const typeNames = {land:'Земельные участки', apartment:'Квартиры', house:'Дома', commercial:'Коммерция', garage:'Гаражи'};
+      const h = document.querySelector('h1, .header-title, .logo-text');
+      if (h && typeNames[urlType]) h.textContent = 'Монитор — ' + typeNames[urlType];
+      document.title = (typeNames[urlType] || urlType) + ' — Estate Invest';
+      // Для земли: показать ВРИ фильтр, скрыть нерелевантные
+      if (urlType === 'land') {
+        document.getElementById('filter-land-use').style.display = '';
+      }
+    }
+
+    // Активируем правильный таб
+    if (currentView !== 'grid') setView(currentView);
     applyFilters();
   } catch(err) {
     showError(err.message);
@@ -744,6 +1251,7 @@ function setView(v) {
     document.getElementById('tab-' + id).classList.toggle('active', id === v);
   });
   if (v === 'map') {
+    preloadBoundaries(); // lazy: грузим полигоны только при переключении на карту
     initMainMap();
     updateMapMarkers();
   } else if (v === 'table') {
@@ -772,11 +1280,12 @@ function applyFilters() {
   displayPage = 1; // сброс пагинации при смене фильтров
   filteredLots = allLots.filter(lot => {
     if (lot.is_remote) return false; // скрываем далёкие по умолчанию
-    if (statusFilter === 'new' && lot.lot_status) return false;
-    if (statusFilter === 'watch' && lot.lot_status !== 'watch') return false;
-    if (statusFilter === 'go' && lot.lot_status !== 'go') return false;
-    if (statusFilter === 'skip' && lot.lot_status !== 'skip') return false;
-    if (statusFilter === 'active' && !['watch','go'].includes(lot.lot_status)) return false;
+    const _st = _isAgentMode && currentAgent ? (getMyReview(lot.lot_id)||{}).status||null : lot.lot_status;
+    if (statusFilter === 'new' && _st) return false;
+    if (statusFilter === 'watch' && _st !== 'watch') return false;
+    if (statusFilter === 'go' && _st !== 'go') return false;
+    if (statusFilter === 'skip' && _st !== 'skip') return false;
+    if (statusFilter === 'active' && !['watch','go'].includes(_st)) return false;
     if (type && lot.property_type !== type) return false;
     if (landUse && lot.land_use_type !== landUse) return false;
     if (discount && (lot.discount || 0) < discount) return false;
@@ -930,6 +1439,7 @@ function renderGrid() {
           <span class="score-label">цена/кад.</span>
         </div>
       </div>
+      ${agentDotsHtml(lot.lot_id)}
     </div>`;
   }).join('');
   if (hasMore) {
@@ -945,7 +1455,16 @@ function renderGrid() {
 // ============================================================
 // Table rendering
 // ============================================================
-const TABLE_COLS = [
+const _isAgentMode = !!new URLSearchParams(window.location.search).get('type');
+const TABLE_COLS = _isAgentMode ? [
+  { key:'lot_status',    label:'Статус',     sortable:true,  w:'130px' },
+  { key:'address',       label:'Адрес',      sortable:false, w:'250px' },
+  { key:'area',          label:'Площадь',    sortable:true,  w:'80px'  },
+  { key:'land_use_type', label:'ВРИ',        sortable:true,  w:'80px'  },
+  { key:'agent_price',   label:'Моя оценка', sortable:false, w:'120px' },
+  { key:'agent_months',  label:'Срок (мес)', sortable:false, w:'90px'  },
+  { key:'agent_dots',    label:'Агенты',     sortable:false, w:'80px'  },
+] : [
   { key:'lot_status',    label:'Статус',  sortable:true,  w:'130px' },
   { key:'property_type', label:'Тип',     sortable:true,  w:'80px' },
   { key:'trade_type',    label:'Торги',   sortable:true,  w:'80px' },
@@ -958,6 +1477,38 @@ const TABLE_COLS = [
   { key:'auction_date',          label:'Торги',      sortable:true,  w:'85px'  },
   { key:'invest_score',          label:'Скоринг',    sortable:true,  w:'70px'  },
 ];
+
+// Column resize
+let _colWidths = JSON.parse(localStorage.getItem('ei_col_widths') || '{}');
+let _resizeCol = null, _resizeStartX = 0, _resizeStartW = 0, _resizeTh = null;
+
+function startColResize(e, key) {
+  e.stopPropagation();
+  e.preventDefault();
+  _resizeCol = key;
+  _resizeTh = e.target.parentElement;
+  _resizeStartX = e.clientX;
+  _resizeStartW = _resizeTh.offsetWidth;
+  e.target.classList.add('active');
+  document.addEventListener('mousemove', doColResize);
+  document.addEventListener('mouseup', endColResize);
+}
+function doColResize(e) {
+  if (!_resizeTh) return;
+  const w = Math.max(40, _resizeStartW + e.clientX - _resizeStartX);
+  _resizeTh.style.width = w + 'px';
+}
+function endColResize() {
+  if (_resizeTh && _resizeCol) {
+    _colWidths[_resizeCol] = _resizeTh.style.width;
+    localStorage.setItem('ei_col_widths', JSON.stringify(_colWidths));
+    _resizeTh.querySelector('.col-resize-handle').classList.remove('active');
+  }
+  _resizeTh = null;
+  _resizeCol = null;
+  document.removeEventListener('mousemove', doColResize);
+  document.removeEventListener('mouseup', endColResize);
+}
 
 function renderTable() {
   if (!filteredLots.length) {
@@ -978,7 +1529,9 @@ function renderTable() {
   const headers = TABLE_COLS.map(c => {
     const sortCls = c.sortable ? `sortable ${c.key===tableSortCol ? 'sort-'+tableSortDir : ''}` : '';
     const onclick = c.sortable ? `onclick="sortTable('${c.key}')"` : '';
-    return `<th class="${sortCls}" style="width:${c.w}" ${onclick}>${c.label}<span class="sort-icon"></span></th>`;
+    const savedW = _colWidths[c.key];
+    const w = savedW || c.w;
+    return `<th class="${sortCls}" style="width:${w}" ${onclick}>${c.label}<span class="sort-icon"></span><div class="col-resize-handle" onmousedown="startColResize(event,'${c.key}')"></div></th>`;
   }).join('');
 
   const rows = sorted.map(lot => {
@@ -994,6 +1547,38 @@ function renderTable() {
     const confLabel = conf || '—';
     const st = lot.lot_status;
     const lid = escHtml(lot.lot_id);
+    if (_isAgentMode) {
+      const rev = getMyReview(lot.lot_id) || {};
+      const agSt = rev.status;
+      return `
+      <tr onclick="openModal('${lid}')" style="${agSt==='skip'?'opacity:0.35':''}">
+        <td onclick="event.stopPropagation()" style="padding:4px 6px">
+          <div class="status-btns">
+            <button class="st-btn ${agSt==='skip'?'st-active':''}" style="--stc:#ef4444" onclick="setAgentStatus('${lid}','skip');event.stopPropagation()" title="Пропустить">✖</button>
+            <button class="st-btn ${agSt==='watch'?'st-active':''}" style="--stc:#facc15" onclick="setAgentStatus('${lid}','watch');event.stopPropagation()" title="Наблюдать">★</button>
+            <button class="st-btn ${agSt==='go'?'st-active':''}" style="--stc:#22c55e" onclick="setAgentStatus('${lid}','go');event.stopPropagation()" title="Покупать">✔</button>
+          </div>
+        </td>
+        <td class="td-addr"><span title="${escHtml(lot.address_std||lot.address||'')}">${escHtml(lot.address_std||lot.address||'—')}</span></td>
+        <td>${lot.area ? lot.area+' '+areaUnit(lot.area_unit) : '—'}</td>
+        <td>${lot.land_use_type ? `<span class="lut-badge" style="${lutStyle(lot.land_use_type)}">${escHtml(lot.land_use_type)}</span>` : '—'}</td>
+        <td onclick="event.stopPropagation()" class="editable-cell">
+          <span class="ec-display${rev.estimated_market_price?' ec-filled':''}" onclick="this.style.display='none';this.nextElementSibling.style.display='';this.nextElementSibling.focus()">${rev.estimated_market_price?formatPrice(rev.estimated_market_price):'<span style=color:var(--text3)>—  ✎</span>'}</span>
+          <input class="aw-val-input ec-input" style="display:none;width:100px;padding:4px 6px;font-size:12px" type="number" value="${rev.estimated_market_price||''}" placeholder="₽"
+            oninput="autoSaveReview('${lid}','estimated_market_price',+this.value||null)"
+            onblur="this.style.display='none';const s=this.previousElementSibling;s.style.display='';s.className='ec-display'+(this.value?' ec-filled':'');s.innerHTML=this.value?formatPrice(+this.value):'<span style=color:var(--text3)>— ✎</span>'"
+            onkeydown="if(event.key==='Enter')this.blur()">
+        </td>
+        <td onclick="event.stopPropagation()" class="editable-cell">
+          <span class="ec-display${rev.expected_sell_months?' ec-filled':''}" onclick="this.style.display='none';this.nextElementSibling.style.display='';this.nextElementSibling.focus()">${rev.expected_sell_months?rev.expected_sell_months+' мес':'<span style=color:var(--text3)>— ✎</span>'}</span>
+          <input class="aw-val-input ec-input" style="display:none;width:60px;padding:4px 6px;font-size:12px" type="number" value="${rev.expected_sell_months||''}" placeholder="мес"
+            oninput="autoSaveReview('${lid}','expected_sell_months',+this.value||null)"
+            onblur="this.style.display='none';const s=this.previousElementSibling;s.style.display='';s.className='ec-display'+(this.value?' ec-filled':'');s.innerHTML=this.value?this.value+' мес':'<span style=color:var(--text3)>— ✎</span>'"
+            onkeydown="if(event.key==='Enter')this.blur()">
+        </td>
+        <td>${agentDotsHtml(lot.lot_id)}</td>
+      </tr>`;
+    }
     return `
     <tr onclick="openModal('${lid}')" style="${st==='skip'?'opacity:0.35':''}">
       <td onclick="event.stopPropagation()" style="padding:4px 6px">
@@ -1002,6 +1587,7 @@ function renderTable() {
           <button class="st-btn ${st==='watch'?'st-active':''}" style="--stc:#facc15" onclick="setLotStatus('${lid}','${st==='watch'?'':'watch'}',event)" title="Интересно">★</button>
           <button class="st-btn ${st==='go'?'st-active':''}" style="--stc:#22c55e" onclick="setLotStatus('${lid}','${st==='go'?'':'go'}',event)" title="Заходим">✔</button>
         </div>
+        ${agentDotsHtml(lot.lot_id)}
       </td>
       <td><span class="type-badge type-${lot.property_type||'unknown'}">${typeLabel(lot.property_type)}</span></td>
       <td>${tradeBadgeHtml(lot)}</td>
@@ -1183,11 +1769,25 @@ function showModal(lot) {
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => initModalMap(lot));
+  // Render agent workspace after DOM is ready
+  if (currentAgent) requestAnimationFrame(() => renderWorkspaceInModal(lot));
 }
-function openModal(lotId) {
-  const lot = allLots.find(l => l.lot_id === lotId);
-  if (!lot) return;
-  showModal(lot);
+async function openModal(lotId) {
+  // Показываем модал сразу с лёгкими данными, потом догружаем полные
+  const lightLot = allLots.find(l => l.lot_id === lotId);
+  if (!lightLot) return;
+  // Открываем оверлей с индикатором загрузки
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modal-content').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3)"><div class="spinner"></div><span style="margin-left:12px">Загрузка данных...</span></div>';
+  try {
+    const lot = await fetchFullLot(lotId);
+    showModal(lot);
+  } catch(e) {
+    // Фоллбэк: показываем что есть
+    showModal(lightLot);
+  }
 }
 
 function closeModal(e) {
@@ -1216,11 +1816,10 @@ async function enrichDetail(lotId, source) {
       btn.style.color = '#22c55e';
       btn.style.borderColor = 'rgba(34,197,94,0.4)';
       btn.style.background = 'rgba(34,197,94,0.1)';
-      // Reload lot data from Supabase
-      const {data: freshLot} = await db.from('properties').select('*').eq('lot_id', lotId).single();
+      // Reload lot data from Supabase (сбрасываем кэш)
+      delete FULL_LOT_CACHE[lotId];
+      const freshLot = await fetchFullLot(lotId);
       if (freshLot) {
-        const idx = allLots.findIndex(l => l.lot_id === lotId);
-        if (idx >= 0) allLots[idx] = {...allLots[idx], ...freshLot};
         setTimeout(() => openModal(lotId), 1500);
       }
     } else {
@@ -1272,17 +1871,25 @@ function renderModalContent(lot) {
   </div>
   <div class="modal-body">`;
 
-  // KPI
+  // KPI (скрыт в режиме агента ?type=)
   const dispPrice = actualPrice(lot);
-  html += `<div class="modal-kpi">
-    <div class="kpi-card"><span class="kpi-val accent">${formatPrice(dispPrice)}</span><span class="kpi-label">${lot.trade_type==='public_offer'&&lot.price_schedule?'Цена (актуальная)':'Цена лота'}</span></div>
-    <div class="kpi-card"><span class="kpi-val" style="color:var(--green)">${lot.market_price?formatPrice(lot.market_price):'—'}</span><span class="kpi-label">Рыночная</span></div>
-    <div class="kpi-card"><span class="kpi-val" style="color:${discount>=30?'var(--green)':discount>=15?'var(--yellow)':'var(--text2)'}">${discount?discount+'%':'—'}</span><span class="kpi-label">Дисконт</span></div>
-    <div class="kpi-card"><span class="kpi-val" style="color:${sColor}">${score||'—'}</span><span class="kpi-label">Invest Score</span></div>
-  </div>`;
+  const _urlType = new URLSearchParams(window.location.search).get('type');
+  if (!_urlType) {
+    html += `<div class="modal-kpi">
+      <div class="kpi-card"><span class="kpi-val accent">${formatPrice(dispPrice)}</span><span class="kpi-label">${lot.trade_type==='public_offer'&&lot.price_schedule?'Цена (актуальная)':'Цена лота'}</span></div>
+      <div class="kpi-card"><span class="kpi-val" style="color:var(--green)">${lot.market_price?formatPrice(lot.market_price):'—'}</span><span class="kpi-label">Рыночная</span></div>
+      <div class="kpi-card"><span class="kpi-val" style="color:${discount>=30?'var(--green)':discount>=15?'var(--yellow)':'var(--text2)'}">${discount?discount+'%':'—'}</span><span class="kpi-label">Дисконт</span></div>
+      <div class="kpi-card"><span class="kpi-val" style="color:${sColor}">${score||'—'}</span><span class="kpi-label">Invest Score</span></div>
+    </div>`;
+  }
 
-  // График снижения цены (только для публичных предложений)
-  if (lot.trade_type === 'public_offer' && lot.price_schedule && lot.price_schedule.length) {
+  // Agent Workspace (если залогинен)
+  if (currentAgent) {
+    html += `<div class="modal-section" id="aw-container" data-lot="${lot.lot_id}"></div>`;
+  }
+
+  // График снижения цены (только для публичных предложений, скрыт в agent mode)
+  if (lot.trade_type === 'public_offer' && lot.price_schedule && lot.price_schedule.length && !_isAgentMode) {
     const today = new Date().toISOString().slice(0,10);
     const schedRows = lot.price_schedule.map(s => {
       const isPast = s.date_end < today;
@@ -1326,16 +1933,18 @@ function renderModalContent(lot) {
     </div></div>`;
   }
 
-  // Торги
-  html += `<div class="modal-section"><div class="section-title">Торги</div><div class="detail-grid">
-    ${detailRow('Тип торгов', escHtml(lot.bidd_type||'—'))}
-    ${detailRow('Площадь', lot.area?(lot.area+' '+areaUnit(lot.area_unit)):'—')}
-    ${lot.price_per_unit  ? detailRow('Цена за ед.', escHtml(lot.price_per_unit)):''}
-    ${detailRow('Задаток', lot.deposit?formatPrice(lot.deposit):'—')}
-    ${lot.auction_date    ? detailRow('Дата торгов', formatDate(lot.auction_date)):''}
-    ${lot.application_end ? detailRow('Подача заявок до', formatDate(lot.application_end)):''}
-    ${lot.category        ? detailRow('Категория', escHtml(lot.category)):''}
-  </div></div>`;
+  // Торги (скрыто в agent mode)
+  if (!_isAgentMode) {
+    html += `<div class="modal-section"><div class="section-title">Торги</div><div class="detail-grid">
+      ${detailRow('Тип торгов', escHtml(lot.bidd_type||'—'))}
+      ${detailRow('Площадь', lot.area?(lot.area+' '+areaUnit(lot.area_unit)):'—')}
+      ${lot.price_per_unit  ? detailRow('Цена за ед.', escHtml(lot.price_per_unit)):''}
+      ${detailRow('Задаток', lot.deposit?formatPrice(lot.deposit):'—')}
+      ${lot.auction_date    ? detailRow('Дата торгов', formatDate(lot.auction_date)):''}
+      ${lot.application_end ? detailRow('Подача заявок до', formatDate(lot.application_end)):''}
+      ${lot.category        ? detailRow('Категория', escHtml(lot.category)):''}
+    </div></div>`;
+  }
 
   // Кадастр
   if (lot.cadastral_number||lot.cadastral_value) {
@@ -1379,8 +1988,8 @@ function renderModalContent(lot) {
       </ul></div>`;
   }
 
-  // Должник (из глубокого анализа)
-  if (lot.debtor_info) {
+  // Должник (из глубокого анализа) — скрыто в agent mode
+  if (lot.debtor_info && !_isAgentMode) {
     const di = lot.debtor_info;
     html += `<div class="modal-section"><div class="section-title">Должник</div><div class="detail-grid">
       ${di.inn ? detailRow('ИНН', escHtml(di.inn)) : ''}
@@ -1388,8 +1997,8 @@ function renderModalContent(lot) {
     </div></div>`;
   }
 
-  // Рыночная оценка
-  if (lot.market_price||lot.analogs_count) {
+  // Рыночная оценка — скрыто в agent mode
+  if ((lot.market_price||lot.analogs_count) && !_isAgentMode) {
     const analogsList = Array.isArray(lot.analogs_list) ? lot.analogs_list : [];
     const aUnit = lot.area_unit === 'sotka' ? '₽/сот' : '₽/м²';
 
@@ -1434,8 +2043,8 @@ function renderModalContent(lot) {
     html += `</div>`; // close modal-section
   }
 
-  // Скоринг
-  if (lot.invest_score||lot.risk_score||lot.liquidity_score||lot.lookalike_score) {
+  // Скоринг — скрыто в agent mode
+  if ((lot.invest_score||lot.risk_score||lot.liquidity_score||lot.lookalike_score) && !_isAgentMode) {
     const sb = lot.scoring_breakdown || {};
     const hasBreakdown = sb.invest || sb.risk || sb.liquidity;
     html += `<div class="modal-section"><div class="section-title">Скоринг${hasBreakdown ? ' <span style="font-size:10px;color:var(--text3);font-weight:400">(клик = детали)</span>' : ''}</div>
@@ -1457,15 +2066,15 @@ function renderModalContent(lot) {
     </div>`;
   }
 
-  if (lot.ai_recommendation || lot.recommendation) {
+  if ((lot.ai_recommendation || lot.recommendation) && !_isAgentMode) {
     const recText = lot.ai_recommendation || lot.recommendation;
     const isAi = !!lot.ai_recommendation;
     const rendered = isAi ? simpleMd(recText) : escHtml(recText);
     html += `<div class="modal-section"><div class="section-title"${isAi?' style="color:#7c3aed"':''}>Рекомендация${isAi?' AI':''}</div><div class="recommendation" style="white-space:pre-wrap;line-height:1.6;font-size:12.5px">${rendered}</div></div>`;
   }
 
-  // Должник
-  if (lot.debtor_name||lot.fssp_count) {
+  // Должник — скрыто в agent mode
+  if ((lot.debtor_name||lot.fssp_count) && !_isAgentMode) {
     html += `<div class="modal-section"><div class="section-title">Должник</div><div class="detail-grid">
       ${lot.debtor_name     ? detailRow('Должник', escHtml(lot.debtor_name)):''}
       ${lot.debtor_inn      ? detailRow('ИНН', escHtml(lot.debtor_inn)):''}
@@ -1827,6 +2436,7 @@ async function deepAnalysis(lotId) {
     console.log('Deep analysis result:', data);
     if (data.error) throw new Error(data.error);
     // Обновляем лот в кэше
+    delete FULL_LOT_CACHE[lotId];
     const lot = allLots.find(l => l.lot_id === lotId);
     if (lot) {
       if (data.encumbrances) lot.encumbrances = data.encumbrances;
@@ -1835,6 +2445,7 @@ async function deepAnalysis(lotId) {
       if (data.card) lot.tbankrot_card = data.card;
       if (data.debtor) lot.debtor_info = data.debtor;
       if (data.links) lot._deep_links = data.links;
+      FULL_LOT_CACHE[lotId] = lot; // сохраняем обновлённый кэш
       btn.textContent = `Готово! (${data.photos_count||0} фото)`;
       btn.style.background = '#22c55e';
       showModal(lot);
@@ -2059,7 +2670,18 @@ window.zoomToLotCadastre = function(lotId) {
     loadCadastralPolygonYmapsMain(lot);
   }
 };
-loadData();
+// Init: check auth, load agents + reviews (always for dots), then data
+(async () => {
+  try {
+    if (!checkAuth()) return; // shows login overlay for ?type= mode
+    await loadAgents().catch(e => console.warn('loadAgents:', e));
+    await loadAllReviews().catch(e => console.warn('loadAllReviews:', e));
+    loadData();
+  } catch(e) {
+    console.error('Init error:', e);
+    loadData(); // загружаем данные даже если агенты не загрузились
+  }
+})();
 </script>
 </body>
 </html>

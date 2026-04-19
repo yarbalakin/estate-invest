@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Угадай цену — Estate Invest</title>
+<style>
+:root {
+  --bg: #0f0e17;
+  --card: #1a1930;
+  --card-border: #2d2b55;
+  --accent: #6366f1;
+  --accent-glow: rgba(99,102,241,.25);
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --orange: #f97316;
+  --text: #e8e6f0;
+  --muted: #8b8aa0;
+  --glass: rgba(26,25,48,.85);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === HEADER === */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+  z-index: 10;
+}
+.header h1 { font-size: 18px; font-weight: 700; }
+.header h1 span { color: var(--accent); }
+.stats {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.stats b { color: var(--text); font-weight: 600; }
+.streak-fire { color: var(--orange); }
+
+/* === SCREENS === */
+.screen { display:none; flex:1; flex-direction:column; overflow:hidden; }
+.screen.active { display:flex; }
+
+/* === MENU === */
+.menu {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  padding:24px;
+}
+.menu-logo {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 8px;
+  box-shadow: 0 8px 32px var(--accent-glow);
+}
+.menu h2 { font-size: 24px; font-weight: 800; text-align: center; }
+.menu p { color: var(--muted); text-align:center; font-size: 14px; line-height: 1.5; max-width: 300px; }
+.mode-btn {
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all .2s;
+}
+.mode-btn:active { transform: scale(.97); background: var(--card-border); }
+.mode-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.mode-btn small { color: var(--muted); font-weight: 400; font-size: 12px; display: block; margin-top: 2px; }
+.best-score { color: var(--muted); font-size: 13px; margin-top: 8px; }
+.best-score b { color: var(--accent); }
+
+/* === GAME AREA === */
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 4px;
+  background: var(--card-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #818cf8);
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+
+/* Property card */
+.prop-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 20px;
+  flex-shrink: 0;
+  transition: transform .3s;
+}
+.prop-card.correct { border-color: var(--green); box-shadow: 0 0 20px rgba(34,197,94,.2); }
+.prop-card.wrong { border-color: var(--red); box-shadow: 0 0 20px rgba(239,68,68,.2); }
+
+.prop-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.prop-type.apartment { background: rgba(168,85,247,.2); color: #c084fc; }
+.prop-type.land { background: rgba(34,197,94,.2); color: #4ade80; }
+.prop-type.house { background: rgba(249,115,22,.2); color: #fb923c; }
+.prop-type.commercial { background: rgba(239,68,68,.2); color: #f87171; }
+.prop-type.garage { background: rgba(100,116,139,.2); color: #94a3b8; }
+
+.prop-title { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+.prop-address { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+.prop-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.detail-item label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 2px;
+}
+.detail-item span {
+  font-size: 15px;
+  font-weight: 600;
+}
+.detail-item .hidden-price {
+  color: var(--accent);
+  font-size: 20px;
+  letter-spacing: 4px;
+}
+
+/* === SLIDER MODE === */
+.slider-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.price-display {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.price-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--card-border);
+  border-radius: 4px;
+  outline: none;
+}
+.price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+.confirm-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.confirm-btn:active { transform: scale(.97); }
+
+/* === HIGHER/LOWER MODE === */
+.hl-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.hl-prev-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: .7;
+}
+.hl-prev-card .hl-prev-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.hl-prev-card .hl-prev-title {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hl-prev-card .hl-prev-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.hl-vs {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+.hl-buttons {
+  display: flex;
+  gap: 12px;
+}
+.hl-btn {
+  flex: 1;
+  padding: 20px 16px;
+  border: 2px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all .2s;
+}
+.hl-btn:active { transform: scale(.96); }
+.hl-btn .arrow { font-size: 28px; }
+.hl-btn.up:active { border-color: var(--green); background: rgba(34,197,94,.1); }
+.hl-btn.down:active { border-color: var(--red); background: rgba(239,68,68,.1); }
+
+/* === SCORE MODE === */
+.score-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+  align-content: center;
+}
+.score-opt {
+  padding: 18px 12px;
+  background: var(--card);
+  border: 2px solid var(--card-border);
+  border-radius: 14px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.score-opt:active { transform: scale(.96); }
+.score-opt.correct-answer { border-color: var(--green); background: rgba(34,197,94,.15); }
+.score-opt.wrong-answer { border-color: var(--red); background: rgba(239,68,68,.15); }
+
+/* === RESULT FEEDBACK === */
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,14,23,.9);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+.result-overlay.show { display: flex; }
+.result-box {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+}
+.result-emoji { font-size: 56px; margin-bottom: 16px; }
+.result-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.result-subtitle { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+.result-subtitle b { color: var(--text); }
+.result-points {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.result-points.good { color: var(--green); }
+.result-points.ok { color: var(--yellow); }
+.result-points.bad { color: var(--red); }
+.result-next {
+  margin-top: 20px;
+  padding: 14px 32px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.result-next:active { transform: scale(.97); }
+
+/* === GAME OVER === */
+.gameover {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 16px;
+  text-align: center;
+}
+.gameover-score { font-size: 64px; font-weight: 900; color: var(--accent); }
+.gameover-label { font-size: 14px; color: var(--muted); }
+.gameover-detail { font-size: 15px; line-height: 1.6; }
+.gameover-detail b { color: var(--accent); }
+.gameover-stars { font-size: 40px; letter-spacing: 8px; margin: 8px 0; }
+.gameover-btn {
+  margin-top: 12px;
+  padding: 14px 40px;
+  background: var(--accent);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.gameover-btn:active { transform: scale(.97); }
+.gameover-btn.secondary {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+/* === TIMER BAR === */
+.timer-bar {
+  height: 3px;
+  background: var(--card-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.timer-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width .1s linear, background .3s;
+  border-radius: 2px;
+}
+.timer-fill.warn { background: var(--yellow); }
+.timer-fill.danger { background: var(--red); }
+
+/* Animations */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@keyframes pop {
+  0% { transform: scale(.8); opacity:0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity:1; }
+}
+.shake { animation: shake .4s ease; }
+.pop { animation: pop .3s ease; }
+
+/* Safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .game-area, .menu, .gameover { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1><span>EI</span> Угадай цену</h1>
+  <div class="stats">
+    <span>Очки: <b id="totalScore">0</b></span>
+    <span id="streakDisplay" style="display:none" class="streak-fire">x<b id="streakCount">0</b></span>
+  </div>
+</div>
+
+<!-- MENU SCREEN -->
+<div class="screen active" id="menuScreen">
+  <div class="menu">
+    <div class="menu-logo">EI</div>
+    <h2>Тренажёр оценки<br>недвижимости</h2>
+    <p>Прокачивай интуицию — угадывай реальные цены лотов Пермского края</p>
+
+    <button class="mode-btn" onclick="startGame('slider')">
+      <div class="mode-icon" style="background:rgba(99,102,241,.15);color:var(--accent);">&#x2195;</div>
+      <div>
+        Ползунок
+        <small>Двигай ползунок, угадай точную цену</small>
+      </div>
+    </button>
+
+    <button class="mode-btn" onclick="startGame('higher_lower')">
+      <div class="mode-icon" style="background:rgba(34,197,94,.15);color:var(--green);">&#x21C5;</div>
+      <div>
+        Выше / Ниже
+        <small>Дороже или дешевле предыдущего?</small>
+      </div>
+    </button>
+
+    <button class="mode-btn" onclick="startGame('quiz')">
+      <div class="mode-icon" style="background:rgba(249,115,22,.15);color:var(--orange);">4</div>
+      <div>
+        Викторина
+        <small>Выбери правильную цену из четырёх</small>
+      </div>
+    </button>
+
+    <div class="best-score" id="bestScoreDisplay"></div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="gameScreen">
+  <div class="game-area">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+
+    <div class="prop-card" id="propCard">
+      <div class="prop-type" id="propType"></div>
+      <div class="prop-title" id="propTitle"></div>
+      <div class="prop-address" id="propAddress"></div>
+      <div class="prop-details" id="propDetails"></div>
+    </div>
+
+    <!-- Slider mode -->
+    <div class="slider-area" id="sliderArea" style="display:none">
+      <div class="price-display" id="priceDisplay">0 р.</div>
+      <input type="range" class="price-slider" id="priceSlider" min="0" max="100" value="50">
+      <button class="confirm-btn" onclick="submitSlider()">Подтвердить</button>
+    </div>
+
+    <!-- Higher/Lower mode -->
+    <div id="hlArea" style="display:none" class="hl-container"></div>
+
+    <!-- Quiz mode -->
+    <div class="score-options" id="quizArea" style="display:none"></div>
+  </div>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div class="screen" id="overScreen">
+  <div class="gameover">
+    <div class="gameover-label">Раунд завершён</div>
+    <div class="gameover-score" id="finalScore">0</div>
+    <div class="gameover-label">очков</div>
+    <div class="gameover-stars" id="finalStars"></div>
+    <div class="gameover-detail" id="finalDetail"></div>
+    <button class="gameover-btn" onclick="startGame(currentMode)">Ещё раунд</button>
+    <button class="gameover-btn secondary" onclick="showMenu()">Меню</button>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-box pop">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-subtitle" id="resultSubtitle"></div>
+    <div class="result-points" id="resultPoints"></div>
+    <button class="result-next" onclick="nextRound()">Далее</button>
+  </div>
+</div>
+
+<script>
+// ============ PROPERTY DATABASE ============
+// Realistic properties based on Perm region data
+const PROPERTIES = [
+  // --- КВАРТИРЫ ---
+  {type:'apartment',title:'1-комн. квартира, 32.4 м²',address:'г. Пермь, ул. Куйбышева, д. 97, кв. 14',area:32.4,price:1850000,cadastral:'59:01:4410073:456',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+  {type:'apartment',title:'2-комн. квартира, 54.1 м²',address:'г. Пермь, ул. Пушкина, д. 50, кв. 88',area:54.1,price:3420000,cadastral:'59:01:4311072:112',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'apartment',title:'3-комн. квартира, 68.7 м²',address:'г. Пермь, ул. Ленина, д. 78, кв. 22',area:68.7,price:4780000,cadastral:'59:01:4413025:789',source:'ЕФРСБ',biddType:'Публичное предложение'},
+  {type:'apartment',title:'1-комн. квартира, 28.3 м²',address:'г. Пермь, ул. Комсомольский пр-т, д. 45, кв. 3',area:28.3,price:1620000,cadastral:'59:01:4311055:234',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'apartment',title:'2-комн. квартира, 47.8 м²',address:'г. Березники, ул. Мира, д. 12, кв. 41',area:47.8,price:1890000,cadastral:'59:03:0100107:567',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+  {type:'apartment',title:'Комната, 14.2 м²',address:'г. Пермь, ул. Крисанова, д. 18, ком. 5',area:14.2,price:580000,cadastral:'59:01:4410042:321',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'apartment',title:'1-комн. квартира, 36.5 м²',address:'г. Краснокамск, ул. Энтузиастов, д. 7, кв. 29',area:36.5,price:1280000,cadastral:'59:07:0010104:890',source:'ЕФРСБ',biddType:'Публичное предложение'},
+  {type:'apartment',title:'3-комн. квартира, 72.3 м²',address:'г. Пермь, ул. Революции, д. 26, кв. 55',area:72.3,price:5650000,cadastral:'59:01:4413078:445',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'apartment',title:'2-комн. квартира, 44.0 м²',address:'г. Соликамск, ул. 20 лет Победы, д. 35, кв. 8',area:44.0,price:1150000,cadastral:'59:10:0010203:112',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+  {type:'apartment',title:'1-комн. квартира, 38.9 м²',address:'г. Пермь, Бульвар Гагарина, д. 44, кв. 117',area:38.9,price:2950000,cadastral:'59:01:4311089:678',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'apartment',title:'Студия, 22.1 м²',address:'г. Пермь, ул. Максима Горького, д. 14, кв. 301',area:22.1,price:1750000,cadastral:'59:01:4410088:901',source:'ЕФРСБ',biddType:'Публичное предложение'},
+  {type:'apartment',title:'2-комн. квартира, 51.6 м²',address:'г. Чусовой, ул. Ленина, д. 67, кв. 12',area:51.6,price:980000,cadastral:'59:11:0010055:234',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+
+  // --- ЗЕМЛЯ ---
+  {type:'land',title:'Участок ИЖС, 10 сот.',address:'Пермский р-н, д. Кондратово',area:1000,price:750000,cadastral:'59:32:2550003:178',source:'torgi.gov.ru',biddType:'Продажа муниципального имущества',landUse:'ИЖС'},
+  {type:'land',title:'Участок ЛПХ, 15 сот.',address:'Добрянский р-н, с. Полазна',area:1500,price:320000,cadastral:'59:18:0010301:45',source:'ЕФРСБ',biddType:'Реализация имущества должника',landUse:'ЛПХ'},
+  {type:'land',title:'Участок ИЖС, 8 сот.',address:'г. Пермь, Верхние Муллы',area:800,price:1450000,cadastral:'59:01:4812005:223',source:'torgi.gov.ru',biddType:'Аренда земельного участка',landUse:'ИЖС'},
+  {type:'land',title:'Участок СНТ, 6 сот.',address:'Пермский р-н, СНТ Заря',area:600,price:185000,cadastral:'59:32:3310001:89',source:'ЕФРСБ',biddType:'Реализация имущества должника',landUse:'СНТ'},
+  {type:'land',title:'Участок сельхоз, 2.5 га',address:'Пермский р-н, вблизи д. Култаево',area:25000,price:890000,cadastral:'59:32:2550008:334',source:'torgi.gov.ru',biddType:'Продажа муниципального имущества',landUse:'Сельхоз'},
+  {type:'land',title:'Участок ИЖС, 12 сот.',address:'Нытвенский р-н, г. Нытва',area:1200,price:280000,cadastral:'59:25:0010102:156',source:'ЕФРСБ',biddType:'Публичное предложение',landUse:'ИЖС'},
+  {type:'land',title:'Участок ИЖС, 20 сот.',address:'Пермский р-н, д. Лобаново',area:2000,price:1680000,cadastral:'59:32:2580002:445',source:'torgi.gov.ru',biddType:'Продажа муниципального имущества',landUse:'ИЖС'},
+  {type:'land',title:'Участок ЛПХ, 30 сот.',address:'Кунгурский р-н, с. Филипповка',area:3000,price:190000,cadastral:'59:24:0050201:78',source:'ЕФРСБ',biddType:'Реализация имущества должника',landUse:'ЛПХ'},
+
+  // --- ДОМА ---
+  {type:'house',title:'Жилой дом, 85.4 м², участок 8 сот.',address:'г. Пермь, ул. Тургенева, д. 54',area:85.4,price:3200000,cadastral:'59:01:4410156:112',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+  {type:'house',title:'Дом, 120 м², участок 15 сот.',address:'Пермский р-н, д. Кондратово, ул. Садовая, д. 8',area:120,price:5400000,cadastral:'59:32:2550003:567',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'house',title:'Дом, 48 м², участок 6 сот.',address:'Добрянский р-н, г. Добрянка, ул. Советская, д. 112',area:48,price:920000,cadastral:'59:18:0010045:234',source:'ЕФРСБ',biddType:'Публичное предложение'},
+  {type:'house',title:'1/2 доля дома, 67 м²',address:'г. Пермь, ул. Ижевская, д. 29',area:67,price:1350000,cadastral:'59:01:4413067:890',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+
+  // --- КОММЕРЦИЯ ---
+  {type:'commercial',title:'Нежилое помещение, 156.8 м²',address:'г. Пермь, ул. Ленина, д. 58, пом. 1',area:156.8,price:8900000,cadastral:'59:01:4413025:901',source:'torgi.gov.ru',biddType:'Приватизация муниципального имущества'},
+  {type:'commercial',title:'Магазин, 78.3 м²',address:'г. Пермь, ул. Мира, д. 45',area:78.3,price:4200000,cadastral:'59:01:4311045:567',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+  {type:'commercial',title:'Офис, 42.1 м²',address:'г. Пермь, Комсомольский пр-т, д. 29, офис 312',area:42.1,price:2150000,cadastral:'59:01:4311055:123',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'commercial',title:'Склад, 340 м²',address:'г. Пермь, ул. Героев Хасана, д. 105, стр. 2',area:340,price:3800000,cadastral:'59:01:4410234:456',source:'ЕФРСБ',biddType:'Публичное предложение'},
+  {type:'commercial',title:'Торговое помещение, 210 м²',address:'г. Березники, ул. Пятилетки, д. 85',area:210,price:5600000,cadastral:'59:03:0100234:789',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+
+  // --- ГАРАЖИ ---
+  {type:'garage',title:'Гаражный бокс, 24 м²',address:'г. Пермь, ГК Восход, бокс 156',area:24,price:320000,cadastral:'59:01:4413090:234',source:'torgi.gov.ru',biddType:'Реализация имущества должников'},
+  {type:'garage',title:'Гараж, 18 м²',address:'г. Пермь, ул. Маршала Рыбалко, ГК Радуга',area:18,price:185000,cadastral:'59:01:4311078:567',source:'ЕФРСБ',biddType:'Реализация имущества должника'},
+];
+
+const TYPE_LABELS = {
+  apartment: 'Квартира',
+  land: 'Земля',
+  house: 'Дом',
+  commercial: 'Коммерция',
+  garage: 'Гараж'
+};
+
+// ============ GAME STATE ============
+let currentMode = 'slider';
+let roundIndex = 0;
+const ROUNDS = 10;
+let totalScore = 0;
+let streak = 0;
+let maxStreak = 0;
+let correctCount = 0;
+let roundProperties = [];
+let prevPrice = 0;
+let prevProp = null;
+let timerInterval = null;
+let timerRemaining = 0;
+const TIMER_SECONDS = { slider: 20, higher_lower: 12, quiz: 12 };
+
+// Best scores
+let bestScores = JSON.parse(localStorage.getItem('ei_best_scores') || '{}');
+
+// ============ HELPERS ============
+function fmt(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + ' млн р.';
+  if (n >= 1000) return Math.round(n / 1000) + ' тыс. р.';
+  return n + ' р.';
+}
+function fmtFull(n) {
+  return n.toLocaleString('ru-RU') + ' р.';
+}
+function fmtArea(prop) {
+  if (prop.type === 'land' && prop.area >= 100) {
+    return (prop.area / 100).toFixed(1).replace('.0','') + ' сот.';
+  }
+  return prop.area + ' м²';
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function pickRandom(arr, n) {
+  return shuffle([...arr]).slice(0, n);
+}
+
+// ============ UI ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showMenu() {
+  showScreen('menuScreen');
+  updateBestScores();
+}
+
+function updateBestScores() {
+  const el = document.getElementById('bestScoreDisplay');
+  const parts = [];
+  if (bestScores.slider) parts.push('Ползунок: <b>' + bestScores.slider + '</b>');
+  if (bestScores.higher_lower) parts.push('В/Н: <b>' + bestScores.higher_lower + '</b>');
+  if (bestScores.quiz) parts.push('Викторина: <b>' + bestScores.quiz + '</b>');
+  el.innerHTML = parts.length ? 'Рекорды: ' + parts.join(' | ') : '';
+}
+
+function startGame(mode) {
+  currentMode = mode;
+  roundIndex = 0;
+  totalScore = 0;
+  streak = 0;
+  maxStreak = 0;
+  correctCount = 0;
+  prevPrice = 0;
+  prevProp = null;
+  // For higher_lower we need ROUNDS+1 properties (pairs)
+  roundProperties = pickRandom(PROPERTIES, mode === 'higher_lower' ? ROUNDS + 1 : ROUNDS);
+  document.getElementById('totalScore').textContent = '0';
+  updateStreak();
+  showScreen('gameScreen');
+  showRound();
+}
+
+function showRound() {
+  if (roundIndex >= ROUNDS) return endGame();
+
+  // For HL mode: prop[0] is first "previous", prop[1..10] are the ones to guess
+  // So the displayed card is prop[roundIndex+1], previous is prop[roundIndex]
+  const prop = currentMode === 'higher_lower' ? roundProperties[roundIndex + 1] : roundProperties[roundIndex];
+  const card = document.getElementById('propCard');
+  card.className = 'prop-card';
+
+  // Progress
+  document.getElementById('progressFill').style.width = ((roundIndex / ROUNDS) * 100) + '%';
+
+  // Type badge
+  const typeEl = document.getElementById('propType');
+  typeEl.className = 'prop-type ' + prop.type;
+  let typeLabel = TYPE_LABELS[prop.type];
+  if (prop.landUse) typeLabel += ' / ' + prop.landUse;
+  typeEl.textContent = typeLabel;
+
+  // Title & address
+  document.getElementById('propTitle').textContent = prop.title;
+  document.getElementById('propAddress').textContent = prop.address;
+
+  // Details
+  const details = document.getElementById('propDetails');
+  details.innerHTML = `
+    <div class="detail-item"><label>Цена лота</label><span class="hidden-price">???</span></div>
+    <div class="detail-item"><label>Кадастровый №</label><span style="font-size:12px">${prop.cadastral}</span></div>
+    <div class="detail-item"><label>Источник</label><span style="font-size:13px">${prop.source}</span></div>
+    <div class="detail-item"><label>Тип торгов</label><span style="font-size:11px;font-weight:400">${prop.biddType}</span></div>
+  `;
+
+  // Mode-specific UI
+  document.getElementById('sliderArea').style.display = currentMode === 'slider' ? 'flex' : 'none';
+  document.getElementById('hlArea').style.display = currentMode === 'higher_lower' ? '' : 'none';
+  document.getElementById('quizArea').style.display = currentMode === 'quiz' ? 'grid' : 'none';
+
+  if (currentMode === 'slider') setupSlider(prop);
+  if (currentMode === 'higher_lower') setupHL(prop);
+  if (currentMode === 'quiz') setupQuiz(prop);
+
+  startTimer();
+}
+
+// ============ TIMER ============
+function startTimer() {
+  clearInterval(timerInterval);
+  timerRemaining = TIMER_SECONDS[currentMode] * 10;
+  const total = timerRemaining;
+  const fill = document.getElementById('timerFill');
+  fill.style.width = '100%';
+  fill.className = 'timer-fill';
+
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    const pct = (timerRemaining / total) * 100;
+    fill.style.width = pct + '%';
+    if (pct < 25) fill.className = 'timer-fill danger';
+    else if (pct < 50) fill.className = 'timer-fill warn';
+    else fill.className = 'timer-fill';
+
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timeOut();
+    }
+  }, 100);
+}
+
+function timeOut() {
+  const idx = currentMode === 'higher_lower' ? roundIndex + 1 : roundIndex;
+  const prop = roundProperties[idx];
+  streak = 0;
+  updateStreak();
+  showResult(false, 0, prop.price, 'Время вышло!');
+}
+
+// ============ SLIDER MODE ============
+function setupSlider(prop) {
+  const slider = document.getElementById('priceSlider');
+  // Range: 20% to 300% of real price
+  const min = Math.max(50000, Math.round(prop.price * 0.2));
+  const max = Math.round(prop.price * 3);
+  slider.min = min;
+  slider.max = max;
+  slider.value = Math.round((min + max) / 2);
+  slider.step = prop.price > 1000000 ? 50000 : 10000;
+  updateSliderDisplay();
+  slider.oninput = updateSliderDisplay;
+}
+
+function updateSliderDisplay() {
+  const v = parseInt(document.getElementById('priceSlider').value);
+  document.getElementById('priceDisplay').textContent = fmtFull(v);
+}
+
+function submitSlider() {
+  clearInterval(timerInterval);
+  const prop = roundProperties[roundIndex];
+  const guess = parseInt(document.getElementById('priceSlider').value);
+  const diff = Math.abs(guess - prop.price) / prop.price;
+
+  let points = 0;
+  let isCorrect = diff < 0.25;
+  if (diff < 0.05) points = 100;
+  else if (diff < 0.10) points = 80;
+  else if (diff < 0.15) points = 60;
+  else if (diff < 0.25) points = 40;
+  else if (diff < 0.40) points = 20;
+  else points = 0;
+
+  // Streak bonus
+  if (isCorrect) {
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    correctCount++;
+    if (streak >= 3) points = Math.round(points * (1 + (streak - 2) * 0.15));
+  } else {
+    streak = 0;
+  }
+  updateStreak();
+  totalScore += points;
+  document.getElementById('totalScore').textContent = totalScore;
+
+  const diffPct = Math.round(diff * 100);
+  const label = guess > prop.price ? 'выше' : 'ниже';
+  showResult(isCorrect, points, prop.price, `Разница: ${diffPct}% ${diff > 0.01 ? '(' + label + ')' : ''}`);
+}
+
+// ============ HIGHER/LOWER MODE ============
+function setupHL(prop) {
+  // prop is roundProperties[roundIndex+1] (the current card to guess)
+  // roundProperties[roundIndex] is the previous card
+  const prev = roundProperties[roundIndex];
+  prevPrice = prev.price;
+
+  const hlArea = document.getElementById('hlArea');
+  hlArea.innerHTML = `
+    <div class="hl-prev-card">
+      <div>
+        <div class="hl-prev-label">Предыдущий лот</div>
+        <div class="hl-prev-title">${prev.title}</div>
+      </div>
+      <div class="hl-prev-price">${fmt(prev.price)}</div>
+    </div>
+    <div class="hl-vs">ЭТОТ ЛОТ ...</div>
+    <div class="hl-buttons">
+      <button class="hl-btn up" onclick="submitHL('higher')">
+        <span class="arrow">&#x25B2;</span>Дороже
+      </button>
+      <button class="hl-btn down" onclick="submitHL('lower')">
+        <span class="arrow">&#x25BC;</span>Дешевле
+      </button>
+    </div>
+  `;
+}
+
+function submitHL(guess) {
+  clearInterval(timerInterval);
+  const prop = roundProperties[roundIndex + 1]; // current card
+  const actual = prop.price >= prevPrice ? 'higher' : 'lower';
+  const isCorrect = guess === actual || prop.price === prevPrice;
+
+  let points = isCorrect ? 100 : 0;
+  if (isCorrect) {
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    correctCount++;
+    if (streak >= 3) points = Math.round(points * (1 + (streak - 2) * 0.2));
+  } else {
+    streak = 0;
+  }
+  updateStreak();
+  totalScore += points;
+  document.getElementById('totalScore').textContent = totalScore;
+
+  const diffPct = Math.round(((prop.price - prevPrice) / prevPrice) * 100);
+  showResult(isCorrect, points, prop.price, `${diffPct >= 0 ? '+' : ''}${diffPct}% от предыдущего`);
+}
+
+// ============ QUIZ MODE ============
+function setupQuiz(prop) {
+  const area = document.getElementById('quizArea');
+  const real = prop.price;
+
+  // Generate 3 fake prices
+  const fakes = new Set();
+  while (fakes.size < 3) {
+    const mult = 0.3 + Math.random() * 2.4;
+    let fake = Math.round(real * mult);
+    // Round nicely
+    if (fake > 1000000) fake = Math.round(fake / 100000) * 100000;
+    else if (fake > 100000) fake = Math.round(fake / 10000) * 10000;
+    else fake = Math.round(fake / 5000) * 5000;
+    if (Math.abs(fake - real) / real > 0.1) fakes.add(fake);
+  }
+
+  const options = shuffle([real, ...fakes]);
+  area.innerHTML = options.map((price, i) =>
+    `<button class="score-opt" data-price="${price}" onclick="submitQuiz(this, ${price})">${fmtFull(price)}</button>`
+  ).join('');
+}
+
+function submitQuiz(btn, guess) {
+  clearInterval(timerInterval);
+  const prop = roundProperties[roundIndex];
+  const isCorrect = guess === prop.price;
+
+  // Highlight answers
+  document.querySelectorAll('.score-opt').forEach(b => {
+    b.onclick = null;
+    if (parseInt(b.dataset.price) === prop.price) b.classList.add('correct-answer');
+    else if (b === btn && !isCorrect) b.classList.add('wrong-answer');
+  });
+
+  let points = isCorrect ? 100 : 0;
+  // Time bonus
+  if (isCorrect) {
+    const timeLeft = timerRemaining / (TIMER_SECONDS[currentMode] * 10);
+    points += Math.round(timeLeft * 50); // up to 50 bonus
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    correctCount++;
+    if (streak >= 3) points = Math.round(points * (1 + (streak - 2) * 0.15));
+  } else {
+    streak = 0;
+  }
+  updateStreak();
+  totalScore += points;
+  document.getElementById('totalScore').textContent = totalScore;
+
+  setTimeout(() => {
+    showResult(isCorrect, points, prop.price, isCorrect ? 'Точно!' : `Вы выбрали: ${fmtFull(guess)}`);
+  }, 600);
+}
+
+// ============ RESULT & FLOW ============
+function showResult(isCorrect, points, realPrice, detail) {
+  const card = document.getElementById('propCard');
+  card.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) card.classList.add('shake');
+
+  // Reveal price
+  const hp = card.querySelector('.hidden-price');
+  if (hp) { hp.textContent = fmtFull(realPrice); hp.style.color = isCorrect ? 'var(--green)' : 'var(--red)'; }
+
+  const overlay = document.getElementById('resultOverlay');
+  document.getElementById('resultEmoji').textContent = isCorrect ? (points >= 80 ? '\u{1F3AF}' : '\u{2705}') : '\u{274C}';
+  document.getElementById('resultTitle').textContent = isCorrect ? (points >= 80 ? 'Отлично!' : 'Верно!') : 'Мимо!';
+  document.getElementById('resultSubtitle').innerHTML = `Реальная цена: <b>${fmtFull(realPrice)}</b><br>${detail}`;
+
+  const pointsEl = document.getElementById('resultPoints');
+  pointsEl.textContent = '+' + points;
+  pointsEl.className = 'result-points ' + (points >= 60 ? 'good' : points >= 20 ? 'ok' : 'bad');
+  if (streak >= 3) {
+    pointsEl.innerHTML += `<br><span style="font-size:14px;color:var(--orange)">x${streak} серия!</span>`;
+  }
+
+  overlay.classList.add('show');
+}
+
+function nextRound() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  roundIndex++;
+  showRound();
+}
+
+function endGame() {
+  clearInterval(timerInterval);
+
+  // Save best
+  if (!bestScores[currentMode] || totalScore > bestScores[currentMode]) {
+    bestScores[currentMode] = totalScore;
+    localStorage.setItem('ei_best_scores', JSON.stringify(bestScores));
+  }
+
+  document.getElementById('finalScore').textContent = totalScore;
+
+  const maxPossible = currentMode === 'slider' ? 1000 : (currentMode === 'quiz' ? 1500 : 900);
+  const ratio = totalScore / maxPossible;
+  let stars = '';
+  if (ratio >= 0.8) stars = '\u2B50\u2B50\u2B50';
+  else if (ratio >= 0.5) stars = '\u2B50\u2B50';
+  else if (ratio >= 0.2) stars = '\u2B50';
+  document.getElementById('finalStars').textContent = stars || '\u{1F4AA}';
+
+  const effectiveRounds = ROUNDS;
+  document.getElementById('finalDetail').innerHTML = `
+    Правильных: <b>${correctCount}/${effectiveRounds}</b><br>
+    Макс. серия: <b>${maxStreak}</b><br>
+    ${bestScores[currentMode] === totalScore ? '<span style="color:var(--yellow)">Новый рекорд!</span>' : 'Рекорд: <b>' + bestScores[currentMode] + '</b>'}
+  `;
+
+  showScreen('overScreen');
+}
+
+function updateStreak() {
+  const el = document.getElementById('streakDisplay');
+  const cnt = document.getElementById('streakCount');
+  if (streak >= 2) {
+    el.style.display = '';
+    cnt.textContent = streak;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// Init
+updateBestScores();
+</script>
+</body>
+</html>
