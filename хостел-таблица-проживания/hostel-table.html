@@ -2,143 +2,274 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Таблица проживания — Хостел</title>
+  <link rel="icon" href="/estate-logo.jpg" type="image/jpeg">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8; min-height: 100vh;
-      display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0c14;
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 28px 16px 52px;
+      position: relative;
+      overflow-x: hidden;
     }
-    .card {
-      background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08);
-      width: 100%; max-width: 520px; padding: 36px 40px 40px;
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px; left: -80px;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(245,192,0,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
     }
-    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
-    .logo-icon { width: 36px; height: 36px; background: #1a73e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
-    .logo-text { font-size: 17px; font-weight: 700; color: #1a1a1a; line-height: 1.2; }
-    .logo-sub  { font-size: 12px; color: #888; }
-    h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 24px; }
-    label { display: block; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; margin-top: 18px; }
-    label:first-of-type { margin-top: 0; }
-    select, input[type=text], input[type=number] {
-      width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px;
-      font-size: 14px; color: #222; background: #fafafa; transition: border-color .15s; appearance: none;
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -100px; right: -60px;
+      width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(245,192,0,0.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
     }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23888'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-    select:focus, input:focus { outline: none; border-color: #1a73e8; background: #fff; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+    .container { max-width: 520px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* Header */
+    header {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; margin-bottom: 36px; text-align: center;
+    }
+    .logo-wrap {
+      width: 64px; height: 64px; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 0 0 2px rgba(245,192,0,0.35), 0 8px 32px rgba(245,192,0,0.2);
+    }
+    .logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .header-title {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #F5C000 0%, #ffe066 60%, #e8a800 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .header-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: -6px; }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2px; color: #F5C000; opacity: 0.7;
+      margin-bottom: 10px; padding-left: 2px;
+    }
+
+    /* Card block */
+    .block {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 12px;
+      opacity: 0; transform: translateY(14px);
+      animation: fadeUp 0.4s ease forwards;
+    }
+    .block:nth-child(1) { animation-delay: 0.05s; }
+    .block:nth-child(2) { animation-delay: 0.12s; }
+    .block:nth-child(3) { animation-delay: 0.19s; }
+    .block:nth-child(4) { animation-delay: 0.26s; }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* Form elements */
+    label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: rgba(245,192,0,0.7); text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 6px;
+    }
+    input[type=text], input[type=date] {
+      width: 100%; padding: 10px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      font-size: 14px; color: #e8e8e8;
+      font-family: inherit;
+      transition: border-color .15s, background .15s;
+      appearance: none;
+    }
+    input:focus {
+      outline: none;
+      border-color: rgba(245,192,0,0.5);
+      background: rgba(245,192,0,0.05);
+    }
+    input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.8) sepia(1) saturate(3) hue-rotate(5deg); cursor: pointer; }
+
+    /* Кастомный дропдаун */
+    .custom-select { position: relative; width: 100%; }
+    .custom-select-trigger {
+      width: 100%; padding: 10px 36px 10px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      font-size: 14px; color: #e8e8e8;
+      font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .custom-select-trigger:hover,
+    .custom-select.open .custom-select-trigger {
+      border-color: rgba(245,192,0,0.5);
+      background: rgba(245,192,0,0.05);
+    }
+    .custom-select-arrow {
+      flex-shrink: 0; margin-left: 8px;
+      color: #F5C000; font-size: 11px; opacity: 0.7;
+      transition: transform .2s;
+    }
+    .custom-select.open .custom-select-arrow { transform: rotate(180deg); }
+    .custom-select-dropdown {
+      display: none;
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 100;
+      background: #131626;
+      border: 1px solid rgba(245,192,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+    .custom-select.open .custom-select-dropdown { display: block; }
+    .custom-select-option {
+      padding: 11px 14px;
+      font-size: 14px; color: #e8e8e8;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .custom-select-option:last-child { border-bottom: none; }
+    .custom-select-option:hover { background: rgba(245,192,0,0.1); color: #F5C000; }
+    .custom-select-option.selected { background: rgba(245,192,0,0.08); color: #F5C000; font-weight: 600; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 8px; }
+
+    /* Buttons */
     .btn {
-      display: block; width: 100%; margin-top: 28px; padding: 13px; border: none; border-radius: 10px;
-      background: #1a73e8; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s;
+      display: block; width: 100%; margin-top: 4px; padding: 13px;
+      border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #F5C000, #e8a800);
+      color: #0a0c14; font-size: 15px; font-weight: 800;
+      cursor: pointer; transition: opacity .15s, transform .1s;
+      letter-spacing: 0.2px;
     }
-    .btn:hover:not(:disabled) { background: #1558b0; }
-    .btn:disabled { background: #aaa; cursor: default; }
+    .btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: scale(0.98); }
+    .btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; transform: none; }
+
     .btn-test {
-      display: block; width: 100%; margin-top: 10px; padding: 9px; border: 1.5px solid #ddd; border-radius: 8px;
-      background: #fff; color: #555; font-size: 13px; cursor: pointer;
+      display: block; width: 100%; margin-top: 8px; padding: 10px;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+      background: transparent; color: rgba(255,255,255,0.4);
+      font-size: 13px; font-family: inherit; cursor: pointer;
+      transition: border-color .15s, color .15s;
     }
-    .btn-test:hover { border-color: #1a73e8; color: #1a73e8; }
-    .status { margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
-    .status.loading { background: #e8f0fe; color: #1a73e8; display: block; }
-    .status.ok      { background: #e6f4ea; color: #1e7e34; display: block; }
-    .status.err     { background: #fce8e6; color: #c62828; display: block; white-space: pre-wrap; word-break: break-all; }
-    .setup-note { margin-top: 28px; padding: 14px 16px; background: #fffde7; border-radius: 8px; font-size: 12px; color: #666; line-height: 1.6; }
-    .setup-note strong { color: #333; }
-    .setup-note code { background: #f5f5f5; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 11px; }
+    .btn-test:hover { border-color: rgba(245,192,0,0.4); color: rgba(245,192,0,0.8); }
+
+    /* Status */
+    .status { margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
+    .status.loading { background: rgba(245,192,0,0.08); color: #F5C000; border: 1px solid rgba(245,192,0,0.2); display: block; }
+    .status.ok  { background: rgba(34,197,94,0.08); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); display: block; }
+    .status.err { background: rgba(239,68,68,0.08); color: #f87171; border: 1px solid rgba(239,68,68,0.2); display: block; white-space: pre-wrap; word-break: break-all; }
+
+    /* Settings */
+    details { margin-top: 8px; }
+    details summary {
+      font-size: 11px; color: rgba(255,255,255,0.2);
+      cursor: pointer; user-select: none; list-style: none;
+      text-align: center; padding: 8px;
+      transition: color .15s;
+    }
+    details summary:hover { color: rgba(245,192,0,0.5); }
+    details[open] summary { color: rgba(245,192,0,0.6); }
+    .settings-inner { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
   </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">
-    <div class="logo-icon">🏠</div>
-    <div>
-      <div class="logo-text">Estate Invest</div>
-      <div class="logo-sub">Хостел · г. Краснокамск</div>
+<div class="container">
+
+  <header>
+    <div class="logo-wrap"><img src="/estate-logo.jpg" alt="Estate Invest"></div>
+    <div class="header-title">Таблица проживания</div>
+    <div class="header-sub">Хостел · г. Краснокамск</div>
+  </header>
+
+  <div class="block">
+    <div class="section-label">Контрагент</div>
+    <div class="custom-select" id="companySelect">
+      <div class="custom-select-trigger" id="companyTrigger">
+        <span id="companyLabel">— загрузка... —</span>
+        <span class="custom-select-arrow">▼</span>
+      </div>
+      <div class="custom-select-dropdown" id="companyDropdown"></div>
     </div>
+    <input type="hidden" id="company" value="">
   </div>
 
-  <h1>Таблица проживания</h1>
-
-  <input type="hidden" id="apiUrl">
-
-  <label>Контрагент</label>
-  <select id="company"><option value="">— введите URL выше —</option></select>
-  <div style="margin-top:6px">
-    <input type="text" id="companyManual" placeholder="Или введите вручную (перекроет выбор)">
+  <div class="block">
+    <div class="section-label">Период</div>
+    <div class="row2">
+      <div>
+        <label>С даты</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div>
+        <label>По дату</label>
+        <input type="date" id="dateTo">
+      </div>
+    </div>
+    <div class="hint">Если «по дату» позже сегодня — обрезается автоматически</div>
   </div>
 
-  <div class="row2">
-    <div>
-      <label>С даты</label>
-      <input type="date" id="dateFrom">
-    </div>
-    <div>
-      <label>По дату</label>
-      <input type="date" id="dateTo">
-    </div>
+  <div class="block">
+    <button class="btn" id="btn" onclick="generate()" disabled>Скачать Excel-таблицу</button>
+    <button class="btn-test" onclick="testConnection()">Проверить подключение</button>
+    <div class="status" id="status"></div>
+
+    <details>
+      <summary>⚙ Настройки</summary>
+      <div class="settings-inner">
+        <label>URL Apps Script (переопределить)</label>
+        <input type="text" id="apiUrl" placeholder="Оставьте пустым — используется встроенный URL">
+        <div class="hint">Меняйте только если задеплоили новую версию скрипта</div>
+      </div>
+    </details>
   </div>
-  <div class="hint" style="margin-top:6px">Если «по дату» позже сегодня — автоматически обрезается по сегодня</div>
 
-  <button class="btn" id="btn" onclick="generate()" disabled>Скачать Excel-таблицу</button>
-  <button class="btn-test" onclick="testConnection()">Проверить подключение</button>
-  <div class="status" id="status"></div>
-
-  <details style="margin-top:20px">
-    <summary style="font-size:12px;color:#aaa;cursor:pointer;user-select:none">⚙ Настройки</summary>
-    <div style="margin-top:10px">
-      <label style="margin-top:0">URL Apps Script (переопределить)</label>
-      <input type="text" id="apiUrl" placeholder="Оставьте пустым — используется встроенный URL">
-      <div class="hint">Меняйте только если задеплоили новую версию скрипта</div>
-    </div>
-  </details>
 </div>
 
 <script>
-var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 var DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbyuYnkFWj6nZFd-oweeNaeiJXuWlFW8o7KaQNntGJ0hCLXkzdHpzhDArm6tysuwwzXYKQ/exec';
 var SCRIPT_URL  = localStorage.getItem('hostel_script_url') || DEFAULT_URL;
 
 function init() {
   var now = new Date();
-  // Дефолт: с 1-го числа текущего месяца по сегодня
   var y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
-  var today = y + '-' + m + '-' + d;
-  var firstOfMonth = y + '-' + m + '-01';
-  document.getElementById('dateFrom').value = firstOfMonth;
+  var today = y+'-'+m+'-'+d;
+  document.getElementById('dateFrom').value = y+'-'+m+'-01';
   document.getElementById('dateTo').value   = today;
   document.getElementById('dateTo').max     = today;
-
-  if (SCRIPT_URL !== DEFAULT_URL) {
-    document.getElementById('apiUrl').value = SCRIPT_URL;
-  }
+  if (SCRIPT_URL !== DEFAULT_URL) document.getElementById('apiUrl').value = SCRIPT_URL;
   loadCompanies();
 }
 
 document.getElementById('apiUrl').addEventListener('blur', function() {
   var url = this.value.trim();
-  if (url && url !== SCRIPT_URL) {
-    SCRIPT_URL = url;
-    localStorage.setItem('hostel_script_url', url);
-    loadCompanies();
-  } else if (!url) {
-    SCRIPT_URL = DEFAULT_URL;
-    localStorage.removeItem('hostel_script_url');
-  }
+  if (url && url !== SCRIPT_URL) { SCRIPT_URL = url; localStorage.setItem('hostel_script_url', url); loadCompanies(); }
+  else if (!url) { SCRIPT_URL = DEFAULT_URL; localStorage.removeItem('hostel_script_url'); }
 });
 
-// ── Запрос через серверный прокси /hostel-api/ (нет CORS-проблем) ────────
 function apiFetch(params, callback) {
-  if (!SCRIPT_URL) { callback(new Error('URL не указан')); return; }
-
   var proxyParams = Object.assign({ scriptUrl: SCRIPT_URL }, params);
   var qs = Object.keys(proxyParams).map(function(k) {
     return encodeURIComponent(k) + '=' + encodeURIComponent(proxyParams[k]);
   }).join('&');
-
   fetch('/hostel-api/?' + qs)
     .then(function(r) { return r.text(); })
     .then(function(text) {
@@ -148,84 +279,80 @@ function apiFetch(params, callback) {
     .catch(function(err) { callback(err); });
 }
 
-function jsonp(url, callback) {
-  var cbName = '_cb_' + Date.now();
-  var script = document.createElement('script');
-  var timer  = setTimeout(function() {
-    delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-    callback(new Error('Timeout — Apps Script не ответил за 10 сек'));
-  }, 10000);
-
-  window[cbName] = function(data) {
-    clearTimeout(timer);
-    delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-    callback(null, data);
-  };
-  script.onerror = function() {
-    clearTimeout(timer);
-    delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-    callback(new Error('Не удалось загрузить скрипт с Google. Проверь URL и настройки деплоя.'));
-  };
-  // Добавляем callback к URL
-  script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cbName;
-  document.head.appendChild(script);
-}
-
 function testConnection() {
-  if (!SCRIPT_URL) { setStatus('Введите URL Apps Script выше.', 'err'); return; }
   setStatus('Тестирую подключение...', 'loading');
-
   apiFetch({ action: 'companies' }, function(err, data) {
-    if (err) {
-      setStatus('ОШИБКА: ' + err.message, 'err');
-      return;
-    }
-    if (!data.ok) {
-      setStatus('Apps Script вернул ошибку:\n' + JSON.stringify(data, null, 2), 'err');
-      return;
-    }
-    setStatus('✓ Подключено! Контрагентов найдено: ' + data.companies.length + '\n' + data.companies.slice(0,5).join(', ') + (data.companies.length > 5 ? '...' : ''), 'ok');
+    if (err || !data.ok) { setStatus('Ошибка: ' + (err ? err.message : data.error), 'err'); return; }
+    setStatus('✓ Подключено! Контрагентов: ' + data.companies.length + ' — ' + data.companies.join(', '), 'ok');
   });
 }
 
-function loadCompanies() {
-  setStatus('Загружаю контрагентов...', 'loading');
+// Кастомный дропдаун
+(function() {
+  var trigger  = document.getElementById('companyTrigger');
+  var wrap     = document.getElementById('companySelect');
+  var dropdown = document.getElementById('companyDropdown');
 
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    wrap.classList.toggle('open');
+  });
+  document.addEventListener('click', function() { wrap.classList.remove('open'); });
+  dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+})();
+
+function setCompanyOptions(companies) {
+  var dropdown = document.getElementById('companyDropdown');
+  var hidden   = document.getElementById('company');
+  var label    = document.getElementById('companyLabel');
+  var wrap     = document.getElementById('companySelect');
+
+  dropdown.innerHTML = '';
+  companies.forEach(function(c, i) {
+    var opt = document.createElement('div');
+    opt.className = 'custom-select-option' + (i === 0 ? ' selected' : '');
+    opt.textContent = c;
+    opt.addEventListener('click', function() {
+      hidden.value = c;
+      label.textContent = c;
+      dropdown.querySelectorAll('.custom-select-option').forEach(function(o) { o.classList.remove('selected'); });
+      opt.classList.add('selected');
+      wrap.classList.remove('open');
+    });
+    dropdown.appendChild(opt);
+  });
+
+  // Выбрать первый по умолчанию
+  if (companies.length > 0) {
+    hidden.value = companies[0];
+    label.textContent = companies[0];
+  }
+}
+
+function loadCompanies() {
+  setStatus('Загружаю...', 'loading');
   apiFetch({ action: 'companies' }, function(err, data) {
-    var sel = document.getElementById('company');
     if (err || !data || !data.ok) {
-      sel.innerHTML = '<option value="">Ошибка загрузки</option>';
-      setStatus('Не удалось загрузить список.\n' + (err ? err.message : (data && data.error || 'Неизвестная ошибка')), 'err');
+      document.getElementById('companyLabel').textContent = 'Ошибка загрузки';
+      setStatus('Не удалось загрузить список.\n' + (err ? err.message : (data && data.error || '')), 'err');
       return;
     }
-    sel.innerHTML = data.companies.map(function(c) {
-      return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
-    }).join('');
+    setCompanyOptions(data.companies);
     document.getElementById('btn').disabled = false;
     clearStatus();
   });
 }
 
 function generate() {
-  var manual   = document.getElementById('companyManual').value.trim();
-  var company  = manual || document.getElementById('company').value;
+  var company  = document.getElementById('company').value;
   var dateFrom = document.getElementById('dateFrom').value;
   var dateTo   = document.getElementById('dateTo').value;
+  if (!company)  { setStatus('Выберите контрагента.', 'err'); return; }
+  if (!dateFrom || !dateTo) { setStatus('Укажите даты.', 'err'); return; }
 
-  if (!company)  { setStatus('Выберите или введите контрагента.', 'err'); return; }
-  if (!dateFrom) { setStatus('Укажите дату начала.', 'err'); return; }
-  if (!dateTo)   { setStatus('Укажите дату окончания.', 'err'); return; }
-
-  // Обрезаем dateTo по сегодня
   var today = new Date(); today.setHours(0,0,0,0);
   var toDate = new Date(dateTo); toDate.setHours(0,0,0,0);
-  if (toDate > today) {
-    dateTo = today.toISOString().slice(0,10);
-    document.getElementById('dateTo').value = dateTo;
-  }
+  if (toDate > today) { dateTo = today.toISOString().slice(0,10); document.getElementById('dateTo').value = dateTo; }
 
   document.getElementById('btn').disabled = true;
   setStatus('Загружаю данные...', 'loading');
@@ -240,29 +367,20 @@ function generate() {
 
 function buildXlsx(data) {
   setStatus('Формирую файл...', 'loading');
-  var residents  = data.residents;
-  var colHeaders = data.colHeaders; // массив заголовков дней
-  var nDays      = colHeaders.length;
-  var company    = data.company;
-
+  var residents = data.residents, colHeaders = data.colHeaders, nDays = colHeaders.length;
   var periodLabel = data.dateFrom.split('-').reverse().join('.') + ' — ' + data.dateTo.split('-').reverse().join('.');
 
-  var wb   = XLSX.utils.book_new();
-  var rows = [];
+  var wb = XLSX.utils.book_new(), rows = [];
   rows.push(['Таблица проживания сотрудников за период ' + periodLabel]);
-  rows.push(['Контрагент: ' + company]);
+  rows.push(['Контрагент: ' + data.company]);
   rows.push(['Объект: ' + data.location + '   |   Цена: ' + data.price + ' руб./сут.']);
   rows.push([]);
-
-  var header = ['№', 'ФИО', 'Ком.'].concat(colHeaders).concat(['Дней', 'Сумма']);
-  rows.push(header);
+  rows.push(['№', 'ФИО', 'Ком.'].concat(colHeaders).concat(['Дней', 'Сумма']));
 
   var totalDays = 0, totalAmount = 0;
   residents.forEach(function(res, idx) {
-    var row = [idx + 1, res.fio, res.room];
-    for (var d = 1; d <= nDays; d++) {
-      row.push(res.days.indexOf(d) >= 0 ? res.price : '');
-    }
+    var row = [idx+1, res.fio, res.room];
+    for (var d = 1; d <= nDays; d++) row.push(res.days.indexOf(d) >= 0 ? res.price : '');
     row.push(res.daysCount, res.total || '');
     rows.push(row);
     totalDays += res.daysCount; totalAmount += res.total;
@@ -273,33 +391,24 @@ function buildXlsx(data) {
   tot[1] = 'Всего проживают:'; tot.push(totalDays, totalAmount);
   rows.push(tot);
   rows.push([]); rows.push([]);
-  rows.push(['Представитель ' + company + ': ________________________________']);
+  rows.push(['Представитель ' + data.company + ': ________________________________']);
   rows.push([data.hostName + ':  ________________________________']);
 
-  var ws        = XLSX.utils.aoa_to_sheet(rows);
-  var totalCols = 3 + nDays + 2;
-  ws['!merges'] = [
-    {s:{r:0,c:0}, e:{r:0,c:totalCols-1}},
-    {s:{r:1,c:0}, e:{r:1,c:totalCols-1}},
-    {s:{r:2,c:0}, e:{r:2,c:totalCols-1}},
-  ];
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  var tc = 3 + nDays + 2;
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:tc-1}},{s:{r:1,c:0},e:{r:1,c:tc-1}},{s:{r:2,c:0},e:{r:2,c:tc-1}}];
   var cols = [{wch:4},{wch:30},{wch:6}];
-  for (var d = 0; d < nDays; d++) cols.push({wch:3});
+  for (var i = 0; i < nDays; i++) cols.push({wch:3});
   cols.push({wch:6},{wch:10});
   ws['!cols'] = cols;
 
-  var sheetName = periodLabel.replace(/ /g,'');
-  XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
-  XLSX.writeFile(wb, 'Таблица проживания ' + periodLabel + ' — ' + company + '.xlsx');
-
+  XLSX.utils.book_append_sheet(wb, ws, periodLabel.replace(/ /g,'').substring(0,31));
+  XLSX.writeFile(wb, 'Таблица проживания ' + periodLabel + ' — ' + data.company + '.xlsx');
   setStatus('✓ Файл скачан. ' + residents.length + ' чел., ' + totalDays + ' чел/дней' +
     (totalAmount > 0 ? ', ' + totalAmount.toLocaleString('ru-RU') + ' ₽' : ''), 'ok');
 }
 
-function setStatus(msg, type) {
-  var el = document.getElementById('status');
-  el.textContent = msg; el.className = 'status ' + type;
-}
+function setStatus(msg, type) { var el = document.getElementById('status'); el.textContent = msg; el.className = 'status ' + type; }
 function clearStatus() { document.getElementById('status').className = 'status'; }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
