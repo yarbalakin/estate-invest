@@ -63,9 +63,7 @@
 
   <h1>Таблица проживания</h1>
 
-  <label>URL Apps Script Web App</label>
-  <input type="text" id="apiUrl" placeholder="https://script.google.com/macros/s/...">
-  <div class="hint">Вставьте один раз — браузер запомнит</div>
+  <input type="hidden" id="apiUrl">
 
   <label>Контрагент</label>
   <select id="company"><option value="">— введите URL выше —</option></select>
@@ -75,48 +73,49 @@
 
   <div class="row2">
     <div>
-      <label>Месяц</label>
-      <select id="month">
-        <option value="1">Январь</option><option value="2">Февраль</option>
-        <option value="3">Март</option><option value="4">Апрель</option>
-        <option value="5">Май</option><option value="6">Июнь</option>
-        <option value="7">Июль</option><option value="8">Август</option>
-        <option value="9">Сентябрь</option><option value="10">Октябрь</option>
-        <option value="11">Ноябрь</option><option value="12">Декабрь</option>
-      </select>
+      <label>С даты</label>
+      <input type="date" id="dateFrom">
     </div>
     <div>
-      <label>Год</label>
-      <input type="number" id="year" min="2024" max="2030" value="2026">
+      <label>По дату</label>
+      <input type="date" id="dateTo">
     </div>
   </div>
+  <div class="hint" style="margin-top:6px">Если «по дату» позже сегодня — автоматически обрезается по сегодня</div>
 
   <button class="btn" id="btn" onclick="generate()" disabled>Скачать Excel-таблицу</button>
   <button class="btn-test" onclick="testConnection()">Проверить подключение</button>
   <div class="status" id="status"></div>
 
-  <div class="setup-note">
-    <strong>Настройка (один раз):</strong><br>
-    1. Google Sheets → <code>Extensions → Apps Script</code> → вставь <code>Code.gs</code><br>
-    2. <code>Deploy → New deployment → Web App</code><br>
-    3. Execute as: <strong>Me</strong> &nbsp;|&nbsp; Who has access: <strong>Anyone</strong><br>
-    4. Скопируй URL деплоя → вставь выше
-  </div>
+  <details style="margin-top:20px">
+    <summary style="font-size:12px;color:#aaa;cursor:pointer;user-select:none">⚙ Настройки</summary>
+    <div style="margin-top:10px">
+      <label style="margin-top:0">URL Apps Script (переопределить)</label>
+      <input type="text" id="apiUrl" placeholder="Оставьте пустым — используется встроенный URL">
+      <div class="hint">Меняйте только если задеплоили новую версию скрипта</div>
+    </div>
+  </details>
 </div>
 
 <script>
 var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-var SCRIPT_URL  = localStorage.getItem('hostel_script_url') || '';
+var DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbyuYnkFWj6nZFd-oweeNaeiJXuWlFW8o7KaQNntGJ0hCLXkzdHpzhDArm6tysuwwzXYKQ/exec';
+var SCRIPT_URL  = localStorage.getItem('hostel_script_url') || DEFAULT_URL;
 
 function init() {
   var now = new Date();
-  document.getElementById('month').value = now.getMonth() + 1;
-  document.getElementById('year').value  = now.getFullYear();
+  // Дефолт: с 1-го числа текущего месяца по сегодня
+  var y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+  var today = y + '-' + m + '-' + d;
+  var firstOfMonth = y + '-' + m + '-01';
+  document.getElementById('dateFrom').value = firstOfMonth;
+  document.getElementById('dateTo').value   = today;
+  document.getElementById('dateTo').max     = today;
 
-  if (SCRIPT_URL) {
+  if (SCRIPT_URL !== DEFAULT_URL) {
     document.getElementById('apiUrl').value = SCRIPT_URL;
-    loadCompanies();
   }
+  loadCompanies();
 }
 
 document.getElementById('apiUrl').addEventListener('blur', function() {
@@ -125,6 +124,9 @@ document.getElementById('apiUrl').addEventListener('blur', function() {
     SCRIPT_URL = url;
     localStorage.setItem('hostel_script_url', url);
     loadCompanies();
+  } else if (!url) {
+    SCRIPT_URL = DEFAULT_URL;
+    localStorage.removeItem('hostel_script_url');
   }
 });
 
@@ -208,72 +210,87 @@ function loadCompanies() {
 }
 
 function generate() {
-  var manual  = document.getElementById('companyManual').value.trim();
-  var company = manual || document.getElementById('company').value;
-  var month   = parseInt(document.getElementById('month').value);
-  var year    = parseInt(document.getElementById('year').value);
+  var manual   = document.getElementById('companyManual').value.trim();
+  var company  = manual || document.getElementById('company').value;
+  var dateFrom = document.getElementById('dateFrom').value;
+  var dateTo   = document.getElementById('dateTo').value;
 
-  if (!company) { setStatus('Выберите или введите контрагента.', 'err'); return; }
+  if (!company)  { setStatus('Выберите или введите контрагента.', 'err'); return; }
+  if (!dateFrom) { setStatus('Укажите дату начала.', 'err'); return; }
+  if (!dateTo)   { setStatus('Укажите дату окончания.', 'err'); return; }
+
+  // Обрезаем dateTo по сегодня
+  var today = new Date(); today.setHours(0,0,0,0);
+  var toDate = new Date(dateTo); toDate.setHours(0,0,0,0);
+  if (toDate > today) {
+    dateTo = today.toISOString().slice(0,10);
+    document.getElementById('dateTo').value = dateTo;
+  }
 
   document.getElementById('btn').disabled = true;
   setStatus('Загружаю данные...', 'loading');
 
-  apiFetch({ action: 'residents', company: company, month: month, year: year }, function(err, data) {
+  apiFetch({ action: 'residents', company: company, dateFrom: dateFrom, dateTo: dateTo }, function(err, data) {
     document.getElementById('btn').disabled = false;
-    if (err)       { setStatus('Ошибка: ' + err.message, 'err'); return; }
-    if (!data.ok)  { setStatus('Ошибка: ' + data.error, 'err'); return; }
+    if (err)      { setStatus('Ошибка: ' + err.message, 'err'); return; }
+    if (!data.ok) { setStatus('Ошибка: ' + data.error, 'err'); return; }
     buildXlsx(data);
   });
 }
 
 function buildXlsx(data) {
   setStatus('Формирую файл...', 'loading');
-  var residents = data.residents, daysInMonth = data.daysInMonth;
-  var month = data.month, year = data.year, company = data.company;
+  var residents  = data.residents;
+  var colHeaders = data.colHeaders; // массив заголовков дней
+  var nDays      = colHeaders.length;
+  var company    = data.company;
 
-  var wb = XLSX.utils.book_new();
+  var periodLabel = data.dateFrom.split('-').reverse().join('.') + ' — ' + data.dateTo.split('-').reverse().join('.');
+
+  var wb   = XLSX.utils.book_new();
   var rows = [];
-  rows.push(['Таблица проживания сотрудников за ' + MONTH_NAMES[month-1] + ' ' + year + ' г.']);
+  rows.push(['Таблица проживания сотрудников за период ' + periodLabel]);
   rows.push(['Контрагент: ' + company]);
-  rows.push(['Объект: ' + data.location]);
+  rows.push(['Объект: ' + data.location + '   |   Цена: ' + data.price + ' руб./сут.']);
   rows.push([]);
 
-  var header = ['№', 'ФИО', 'Ком.'];
-  for (var d = 1; d <= daysInMonth; d++) header.push(d);
-  header.push('Дней', 'Цена', 'Сумма');
+  var header = ['№', 'ФИО', 'Ком.'].concat(colHeaders).concat(['Дней', 'Сумма']);
   rows.push(header);
 
   var totalDays = 0, totalAmount = 0;
   residents.forEach(function(res, idx) {
     var row = [idx + 1, res.fio, res.room];
-    for (var d = 1; d <= daysInMonth; d++) row.push(res.days.indexOf(d) >= 0 ? 1 : '');
-    row.push(res.daysCount, res.price || '', res.total || '');
+    for (var d = 1; d <= nDays; d++) {
+      row.push(res.days.indexOf(d) >= 0 ? res.price : '');
+    }
+    row.push(res.daysCount, res.total || '');
     rows.push(row);
     totalDays += res.daysCount; totalAmount += res.total;
   });
 
   rows.push([]);
-  var tot = new Array(3 + daysInMonth).fill('');
-  tot[1] = 'ИТОГО:'; tot.push(totalDays, '', totalAmount);
+  var tot = new Array(3 + nDays).fill('');
+  tot[1] = 'Всего проживают:'; tot.push(totalDays, totalAmount);
   rows.push(tot);
   rows.push([]); rows.push([]);
-  rows.push(['Представитель заказчика: ________________________________  (' + company + ')']);
+  rows.push(['Представитель ' + company + ': ________________________________']);
   rows.push([data.hostName + ':  ________________________________']);
 
-  var ws = XLSX.utils.aoa_to_sheet(rows);
-  var totalCols = 3 + daysInMonth + 3;
+  var ws        = XLSX.utils.aoa_to_sheet(rows);
+  var totalCols = 3 + nDays + 2;
   ws['!merges'] = [
     {s:{r:0,c:0}, e:{r:0,c:totalCols-1}},
     {s:{r:1,c:0}, e:{r:1,c:totalCols-1}},
     {s:{r:2,c:0}, e:{r:2,c:totalCols-1}},
   ];
   var cols = [{wch:4},{wch:30},{wch:6}];
-  for (var d = 1; d <= daysInMonth; d++) cols.push({wch:3});
-  cols.push({wch:6},{wch:7},{wch:10});
+  for (var d = 0; d < nDays; d++) cols.push({wch:3});
+  cols.push({wch:6},{wch:10});
   ws['!cols'] = cols;
 
-  XLSX.utils.book_append_sheet(wb, ws, MONTH_NAMES[month-1] + ' ' + year);
-  XLSX.writeFile(wb, 'Таблица проживания ' + MONTH_NAMES[month-1] + ' ' + year + ' — ' + company + '.xlsx');
+  var sheetName = periodLabel.replace(/ /g,'');
+  XLSX.utils.book_append_sheet(wb, ws, sheetName.substring(0, 31));
+  XLSX.writeFile(wb, 'Таблица проживания ' + periodLabel + ' — ' + company + '.xlsx');
 
   setStatus('✓ Файл скачан. ' + residents.length + ' чел., ' + totalDays + ' чел/дней' +
     (totalAmount > 0 ? ', ' + totalAmount.toLocaleString('ru-RU') + ' ₽' : ''), 'ok');

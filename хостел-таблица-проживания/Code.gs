@@ -1,140 +1,168 @@
 // ================================================================
 // ХОСТЕЛ — Автогенерация таблицы проживания
-// Вставить в Apps Script: Extensions → Apps Script
 // ================================================================
 
-var SPREADSHEET_ID = '1D7fujy57l_GXUzQ-mF9JWz2LkuAr5jET'; // ID таблицы хостела
+var SPREADSHEET_ID = '1sWT0ADxpyRPHOIeeClddBOl914bdaoheMVDqzGZUmnA';
 var LOCATION       = 'г. Краснокамск';
 var HOST_NAME      = 'ИП Мудров И.Ю.';
 
-// Колонки в исходных листах (0-indexed, т.е. A=0, B=1, ...)
-var COL_FIO     = 1; // B — ФИО проживающего
-var COL_COMPANY = 2; // C — Название компании, номер комнаты
-var COL_CHECKIN = 3; // D — Заезд
-var COL_CHECKOUT= 4; // E — Выезд
-var COL_PRICE   = 7; // H — Цена/день
+// Листы
+var SHEET_BASE      = 'Общая база';
+var SHEET_COMPANIES = 'Компании';
+var OUTPUT_PREFIX   = 'Таблица — ';
 
-// Префикс создаваемых листов (чтобы не путать с исходными)
-var OUTPUT_PREFIX = 'Таблица — ';
+// Колонки "Общая база" (0-indexed)
+var COL_FIO      = 1; // B
+var COL_COMPANY  = 2; // C
+var COL_ROOM     = 3; // D
+var COL_CHECKIN  = 4; // E — строка "DD.MM.YYYY"
+var COL_CHECKOUT = 5; // F — строка "DD.MM.YYYY", может быть пустой
+
+// Колонки "Компании" (0-indexed)
+var COL_CO_NAME  = 1; // B
+var COL_CO_PRICE = 2; // C
 
 // ================================================================
-// WEB APP API — вызывается с внешней страницы через JSONP
-// Задеплоить: Deploy → New deployment → Web App
-//   Execute as: Me | Who has access: Anyone
+// WEB APP — Deploy → New deployment → Web App
+// Execute as: Me | Who has access: Anyone
 // ================================================================
 function doGet(e) {
   var action   = (e && e.parameter && e.parameter.action)   || 'companies';
   var callback = (e && e.parameter && e.parameter.callback) || null;
-
   var result;
   try {
     if (action === 'companies') {
-      result = { ok: true, companies: getUniqueCompanies_() };
+      result = { ok: true, companies: getCompanyList_() };
     } else if (action === 'residents') {
-      var company = e.parameter.company;
-      var month   = parseInt(e.parameter.month, 10);
-      var year    = parseInt(e.parameter.year,  10);
-      result = getResidentsData_(company, month, year);
+      result = getResidentsData_(
+        e.parameter.company,
+        e.parameter.dateFrom,
+        e.parameter.dateTo
+      );
     } else {
       result = { ok: false, error: 'Unknown action: ' + action };
     }
   } catch (err) {
     result = { ok: false, error: err.message };
   }
-
   var json = JSON.stringify(result);
   if (callback) {
     return ContentService.createTextOutput(callback + '(' + json + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
-  return ContentService.createTextOutput(json)
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
-// Собирает уникальные значения из колонки "Компания" по всем листам
-// Использует openById — работает как из Web App, так и из меню Sheets
-function getUniqueCompanies_() {
-  var ss     = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheets = ss.getSheets();
-  var seen   = {};
-
-  sheets.forEach(function(sheet) {
-    if (sheet.getName().indexOf(OUTPUT_PREFIX) === 0) return;
-    var lastRow = sheet.getLastRow();
-    if (lastRow < 2) return;
-
-    var values = sheet.getRange(2, COL_COMPANY + 1, lastRow - 1, 1).getValues();
-    values.forEach(function(row) {
-      var val = row[0];
-      if (val && typeof val === 'string' && val.trim().length > 0) {
-        seen[val.trim()] = true;
-      }
-    });
-  });
-
-  return Object.keys(seen).sort(function(a, b) {
-    return a.localeCompare(b, 'ru');
-  });
+// Список компаний из листа "Компании" (колонка B, непустые)
+function getCompanyList_() {
+  var ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ws   = ss.getSheetByName(SHEET_COMPANIES);
+  var data = ws.getDataRange().getValues();
+  var list = [];
+  for (var i = 1; i < data.length; i++) {
+    var name = data[i][COL_CO_NAME];
+    if (name && typeof name === 'string' && name.trim()) {
+      list.push(name.trim());
+    }
+  }
+  return list.sort(function(a, b) { return a.localeCompare(b, 'ru'); });
 }
 
-// Возвращает данные для Web App (без создания листа в таблице)
-function getResidentsData_(company, month, year) {
-  var ss     = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheets = ss.getSheets();
+// Цена за день для компании (из листа "Компании")
+function getCompanyPrice_(companyName) {
+  var ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ws   = ss.getSheetByName(SHEET_COMPANIES);
+  var data = ws.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    var name = data[i][COL_CO_NAME];
+    if (name && name.toString().toLowerCase() === companyName.toLowerCase()) {
+      var price = data[i][COL_CO_PRICE];
+      return (typeof price === 'number' && price > 0) ? price : parseFloat(price) || 0;
+    }
+  }
+  return 0;
+}
 
-  var monthStart = new Date(year, month - 1, 1);
-  monthStart.setHours(0, 0, 0, 0);
-  var monthEnd = new Date(year, month, 0);
-  monthEnd.setHours(23, 59, 59, 999);
-  var daysInMonth = monthEnd.getDate();
+// Парсинг даты — принимает и строку "DD.MM.YYYY", и Date-объект (Apps Script возвращает оба)
+function parseDate_(s) {
+  if (!s) return null;
+  if (s instanceof Date) {
+    var copy = new Date(s); copy.setHours(0, 0, 0, 0);
+    return isNaN(copy.getTime()) ? null : copy;
+  }
+  var str = s.toString().trim();
+  if (!str) return null;
+  var parts = str.split('.');
+  if (parts.length !== 3) return null;
+  var d = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+  d.setHours(0, 0, 0, 0);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// Данные для Web App — жители за компанию и диапазон дат
+// dateFrom, dateTo — строки "YYYY-MM-DD"
+function getResidentsData_(company, dateFrom, dateTo) {
+  var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var ws    = ss.getSheetByName(SHEET_BASE);
+  var data  = ws.getDataRange().getValues();
+  var price = getCompanyPrice_(company);
+
+  var rangeStart = parseDateISO_(dateFrom);
+  var rangeEnd   = parseDateISO_(dateTo);
+  if (!rangeStart || !rangeEnd) {
+    return { ok: false, error: 'Неверный формат дат: ' + dateFrom + ' / ' + dateTo };
+  }
+
+  // Строим массив дат диапазона
+  var rangeDays = [];
+  for (var cur = new Date(rangeStart); cur <= rangeEnd; cur.setDate(cur.getDate() + 1)) {
+    rangeDays.push(new Date(cur));
+  }
+  var totalDays = rangeDays.length;
 
   var residents = [];
 
-  sheets.forEach(function(sheet) {
-    if (sheet.getName().indexOf(OUTPUT_PREFIX) === 0) return;
-    var lastRow = sheet.getLastRow();
-    if (lastRow < 2) return;
+  for (var i = 1; i < data.length; i++) {
+    var row        = data[i];
+    var fio        = row[COL_FIO];
+    var companyVal = row[COL_COMPANY];
+    var room       = row[COL_ROOM];
+    var checkInStr = row[COL_CHECKIN];
+    var checkOutStr= row[COL_CHECKOUT];
 
-    var data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
-    data.forEach(function(row) {
-      var fio         = row[COL_FIO];
-      var companyRoom = row[COL_COMPANY];
-      var checkIn     = row[COL_CHECKIN];
-      var checkOut    = row[COL_CHECKOUT];
-      var price       = row[COL_PRICE];
+    if (!fio || typeof fio !== 'string' || !fio.trim()) continue;
+    if (!companyVal || companyVal.toString().toLowerCase() !== company.toLowerCase()) continue;
 
-      if (!fio || typeof fio !== 'string' || !fio.trim()) return;
-      if (!companyRoom || typeof companyRoom !== 'string') return;
-      if (companyRoom.toLowerCase().indexOf(company.toLowerCase()) === -1) return;
-      if (!(checkIn instanceof Date) || !(checkOut instanceof Date)) return;
+    var stayStart = parseDate_(checkInStr);
+    if (!stayStart) continue;
 
-      var stayStart = new Date(checkIn); stayStart.setHours(0, 0, 0, 0);
-      var stayEnd   = new Date(checkOut); stayEnd.setHours(0, 0, 0, 0);
-      if (stayEnd <= monthStart || stayStart > monthEnd) return;
+    // Выезд: если пустой — живёт до конца диапазона (по dateTo)
+    var stayEnd = parseDate_(checkOutStr);
+    if (!stayEnd) stayEnd = new Date(rangeEnd);
 
-      var presentDays = [];
-      for (var d = 1; d <= daysInMonth; d++) {
-        var day = new Date(year, month - 1, d);
-        if (day >= stayStart && day < stayEnd) presentDays.push(d);
-      }
-      if (presentDays.length === 0) return;
+    // Нет пересечения с диапазоном
+    if (stayEnd < rangeStart || stayStart > rangeEnd) continue;
 
-      var roomMatch = companyRoom.match(/[,\s]+(\d+)\s*$/);
-      var priceNum  = (typeof price === 'number' && price > 0) ? price : 0;
+    // Индексы дней внутри диапазона (1-based)
+    var presentIdxs = [];
+    for (var d = 0; d < rangeDays.length; d++) {
+      var day = rangeDays[d];
+      if (day >= stayStart && day <= stayEnd) presentIdxs.push(d + 1);
+    }
+    if (presentIdxs.length === 0) continue;
 
-      residents.push({
-        fio:       fio.trim(),
-        room:      roomMatch ? roomMatch[1] : '',
-        days:      presentDays,
-        daysCount: presentDays.length,
-        price:     priceNum,
-        total:     presentDays.length * priceNum
-      });
+    residents.push({
+      fio:       fio.trim(),
+      room:      room ? room.toString() : '',
+      days:      presentIdxs,       // порядковые номера внутри диапазона (1-based)
+      daysCount: presentIdxs.length,
+      price:     price,
+      total:     presentIdxs.length * price
     });
-  });
+  }
 
   if (residents.length === 0) {
-    return { ok: false, error: 'Нет данных для "' + company + '" за выбранный период.' };
+    return { ok: false, error: 'Нет данных для "' + company + '" за период ' + dateFrom + ' — ' + dateTo };
   }
 
   residents.sort(function(a, b) {
@@ -142,15 +170,36 @@ function getResidentsData_(company, month, year) {
     return r !== 0 ? r : a.fio.localeCompare(b.fio, 'ru');
   });
 
+  // Заголовки колонок: числа месяца (или "DD.MM" если диапазон охватывает несколько месяцев)
+  var multiMonth = rangeStart.getMonth() !== rangeEnd.getMonth() ||
+                   rangeStart.getFullYear() !== rangeEnd.getFullYear();
+  var colHeaders = rangeDays.map(function(d) {
+    return multiMonth
+      ? (String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0'))
+      : d.getDate();
+  });
+
   return {
-    ok: true, company: company, month: month, year: year,
-    daysInMonth: daysInMonth, location: LOCATION, hostName: HOST_NAME,
-    residents: residents
+    ok: true, company: company,
+    dateFrom: dateFrom, dateTo: dateTo,
+    totalDays: totalDays, colHeaders: colHeaders,
+    location: LOCATION, hostName: HOST_NAME,
+    price: price, residents: residents
   };
 }
 
+// Парсинг "YYYY-MM-DD"
+function parseDateISO_(s) {
+  if (!s) return null;
+  var parts = s.toString().trim().split('-');
+  if (parts.length !== 3) return null;
+  var d = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+  d.setHours(0,0,0,0);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 // ================================================================
-// МЕНЮ В GOOGLE SHEETS — кнопка для генерации листа внутри таблицы
+// МЕНЮ В GOOGLE SHEETS
 // ================================================================
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -160,158 +209,128 @@ function onOpen() {
 }
 
 function showDialog() {
-  var companies = getUniqueCompanies_();
+  var companies = getCompanyList_();
   var now       = new Date();
-
-  var template = HtmlService.createTemplateFromFile('Dialog');
+  var template  = HtmlService.createTemplateFromFile('Dialog');
   template.companies    = companies;
   template.currentMonth = now.getMonth() + 1;
   template.currentYear  = now.getFullYear();
-
-  var html = template.evaluate().setWidth(460).setHeight(370);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Таблица проживания');
+  SpreadsheetApp.getUi().showModalDialog(
+    template.evaluate().setWidth(460).setHeight(370), 'Таблица проживания'
+  );
 }
 
-// Вызывается из Dialog.html — создаёт лист прямо в таблице
-function generateTable(company, month, year) {
+function generateTable(company, dateFrom, dateTo) {
   try {
-    var ss     = SpreadsheetApp.openById(SPREADSHEET_ID);
-    var sheets = ss.getSheets();
-
-    var monthStart = new Date(year, month - 1, 1);
-    monthStart.setHours(0, 0, 0, 0);
-    var monthEnd = new Date(year, month, 0);
-    monthEnd.setHours(23, 59, 59, 999);
-    var daysInMonth = monthEnd.getDate();
-
-    var residents = [];
-
-    sheets.forEach(function(sheet) {
-      if (sheet.getName().indexOf(OUTPUT_PREFIX) === 0) return;
-      var lastRow = sheet.getLastRow();
-      if (lastRow < 2) return;
-
-      var data = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
-      data.forEach(function(row) {
-        var fio         = row[COL_FIO];
-        var companyRoom = row[COL_COMPANY];
-        var checkIn     = row[COL_CHECKIN];
-        var checkOut    = row[COL_CHECKOUT];
-        var price       = row[COL_PRICE];
-
-        if (!fio || typeof fio !== 'string' || !fio.trim()) return;
-        if (!companyRoom || typeof companyRoom !== 'string') return;
-        if (companyRoom.toLowerCase().indexOf(company.toLowerCase()) === -1) return;
-        if (!(checkIn instanceof Date) || !(checkOut instanceof Date)) return;
-
-        var stayStart = new Date(checkIn); stayStart.setHours(0, 0, 0, 0);
-        var stayEnd   = new Date(checkOut); stayEnd.setHours(0, 0, 0, 0);
-        if (stayEnd <= monthStart || stayStart > monthEnd) return;
-
-        var presentDays = [];
-        for (var d = 1; d <= daysInMonth; d++) {
-          var day = new Date(year, month - 1, d);
-          if (day >= stayStart && day < stayEnd) presentDays.push(d);
-        }
-        if (presentDays.length === 0) return;
-
-        var roomMatch = companyRoom.match(/[,\s]+(\d+)\s*$/);
-        var priceNum  = (typeof price === 'number' && price > 0) ? price : 0;
-
-        residents.push({
-          fio: fio.trim(), room: roomMatch ? roomMatch[1] : '',
-          days: presentDays, daysCount: presentDays.length,
-          price: priceNum, total: presentDays.length * priceNum
-        });
-      });
-    });
-
-    if (residents.length === 0) {
-      return { success: false, error: 'Нет данных для "' + company + '" за выбранный период.' };
-    }
-
-    residents.sort(function(a, b) {
-      var r = a.room.localeCompare(b.room, 'ru', { numeric: true });
-      return r !== 0 ? r : a.fio.localeCompare(b.fio, 'ru');
-    });
-
-    return buildSheet_(ss, company, month, year, daysInMonth, residents);
-
+    var data = getResidentsData_(company, dateFrom, dateTo);
+    if (!data.ok) return { success: false, error: data.error };
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    return buildSheet_(ss, data);
   } catch (e) {
     return { success: false, error: e.message };
   }
 }
 
-function buildSheet_(ss, company, month, year, daysInMonth, residents) {
+// ================================================================
+// ГЕНЕРАЦИЯ ЛИСТА
+// ================================================================
+function buildSheet_(ss, data) {
   var MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь',
                      'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
-  var sheetTitle = OUTPUT_PREFIX + MONTH_NAMES[month-1] + ' ' + year + ' — ' + company;
+  var company     = data.company;
+  var daysInMonth = data.totalDays;   // теперь это длина диапазона
+  var colHeaders  = data.colHeaders;  // заголовки колонок дней
+  var residents   = data.residents;
+
+  var periodLabel = data.dateFrom + ' — ' + data.dateTo;
+  var sheetTitle  = OUTPUT_PREFIX + periodLabel + ' — ' + company;
   if (sheetTitle.length > 100) sheetTitle = sheetTitle.substring(0, 100);
 
   var existing = ss.getSheetByName(sheetTitle);
   if (existing) ss.deleteSheet(existing);
   var ws = ss.insertSheet(sheetTitle);
 
-  var C_NUM = 1, C_FIO = 2, C_ROOM = 3, C_D1 = 4;
-  var C_DN = C_D1 + daysInMonth - 1;
-  var C_DAYS = C_DN + 1, C_PRICE = C_DAYS + 1, C_SUM = C_PRICE + 1;
-  var NCOLS = C_SUM;
+  // Колонки выходного листа
+  var C_NUM  = 1; // №
+  var C_FIO  = 2; // ФИО
+  var C_ROOM = 3; // Комната
+  var C_D1   = 4; // Первый день
+  var C_DN   = C_D1 + daysInMonth - 1;
+  var C_DAYS = C_DN + 1; // Итого дней
+  var C_SUM  = C_DAYS + 1; // Сумма
+  var NCOLS  = C_SUM;
+
   var row = 1;
 
+  // Заголовок
   ws.getRange(row, 1, 1, NCOLS).merge();
-  ws.getRange(row, 1).setValue('Таблица проживания сотрудников за ' + MONTH_NAMES[month-1] + ' ' + year + ' г.')
+  ws.getRange(row, 1).setValue('Таблица проживания сотрудников за период ' + periodLabel)
     .setFontWeight('bold').setFontSize(13).setHorizontalAlignment('center');
   row++;
   ws.getRange(row, 1, 1, NCOLS).merge();
-  ws.getRange(row, 1).setValue('Контрагент: ' + company).setFontWeight('bold').setHorizontalAlignment('center');
+  ws.getRange(row, 1).setValue('Контрагент: ' + company)
+    .setFontWeight('bold').setHorizontalAlignment('center');
   row++;
   ws.getRange(row, 1, 1, NCOLS).merge();
-  ws.getRange(row, 1).setValue('Объект: ' + LOCATION).setHorizontalAlignment('center');
+  ws.getRange(row, 1).setValue('Объект: ' + LOCATION + '   |   Цена: ' + data.price + ' руб./сут.')
+    .setHorizontalAlignment('center');
   row += 2;
 
+  // Шапка таблицы
   var headerRow = row;
   ws.getRange(row, C_NUM).setValue('№');
   ws.getRange(row, C_FIO).setValue('ФИО');
   ws.getRange(row, C_ROOM).setValue('Ком.');
-  for (var d = 1; d <= daysInMonth; d++) ws.getRange(row, C_D1 + d - 1).setValue(d);
+  for (var d = 0; d < daysInMonth; d++) ws.getRange(row, C_D1 + d).setValue(colHeaders[d]);
   ws.getRange(row, C_DAYS).setValue('Дней');
-  ws.getRange(row, C_PRICE).setValue('Цена');
   ws.getRange(row, C_SUM).setValue('Сумма');
-  ws.getRange(row, 1, 1, NCOLS).setFontWeight('bold').setBackground('#dce6f1').setHorizontalAlignment('center');
+  ws.getRange(row, 1, 1, NCOLS)
+    .setFontWeight('bold').setBackground('#dce6f1').setHorizontalAlignment('center');
   row++;
 
+  // Данные
   var totalDays = 0, totalAmount = 0, dataStartRow = row;
   residents.forEach(function(res, idx) {
     ws.getRange(row, C_NUM).setValue(idx + 1);
     ws.getRange(row, C_FIO).setValue(res.fio);
     ws.getRange(row, C_ROOM).setValue(res.room).setHorizontalAlignment('center');
+
+    // В каждой ячейке дня — цена (как в эталонном файле ГеоИнвест)
     res.days.forEach(function(d) {
-      ws.getRange(row, C_D1 + d - 1).setValue(1).setHorizontalAlignment('center').setFontColor('#1a5276');
+      ws.getRange(row, C_D1 + d - 1).setValue(res.price)
+        .setHorizontalAlignment('center').setFontColor('#1a5276');
     });
+
     ws.getRange(row, C_DAYS).setValue(res.daysCount).setHorizontalAlignment('center');
-    if (res.price > 0) {
-      ws.getRange(row, C_PRICE).setValue(res.price);
-      ws.getRange(row, C_SUM).setValue(res.total);
-    }
+    ws.getRange(row, C_SUM).setValue(res.total).setHorizontalAlignment('right');
+
     if (idx % 2 === 1) ws.getRange(row, 1, 1, NCOLS).setBackground('#f4f8fd');
-    totalDays += res.daysCount; totalAmount += res.total; row++;
+    totalDays   += res.daysCount;
+    totalAmount += res.total;
+    row++;
   });
 
+  // Итого — сумма по каждому дню + общие итоги
   row++;
-  ws.getRange(row, C_FIO).setValue('ИТОГО:').setFontWeight('bold');
-  ws.getRange(row, C_DAYS).setValue(totalDays).setFontWeight('bold');
-  if (totalAmount > 0) ws.getRange(row, C_SUM).setValue(totalAmount).setFontWeight('bold');
+  ws.getRange(row, C_FIO).setValue('Всего проживают:').setFontWeight('bold');
+  ws.getRange(row, C_DAYS).setValue(totalDays).setFontWeight('bold').setHorizontalAlignment('center');
+  ws.getRange(row, C_SUM).setValue(totalAmount).setFontWeight('bold').setHorizontalAlignment('right');
 
+  // Подписи
   row += 3;
-  ws.getRange(row, 1).setValue('Представитель заказчика: ________________________________  (' + company + ')');
+  ws.getRange(row, 1).setValue('Представитель ' + company + ': ________________________________');
   ws.getRange(row + 2, 1).setValue(HOST_NAME + ':  ________________________________');
 
+  // Форматирование
   ws.getRange(headerRow, 1, residents.length + 1, NCOLS)
     .setBorder(true, true, true, true, true, true, '#aaaaaa', SpreadsheetApp.BorderStyle.SOLID);
-  ws.setColumnWidth(C_NUM, 35); ws.setColumnWidth(C_FIO, 210); ws.setColumnWidth(C_ROOM, 50);
+  ws.setColumnWidth(C_NUM, 35);
+  ws.setColumnWidth(C_FIO, 220);
+  ws.setColumnWidth(C_ROOM, 50);
   for (var d = 1; d <= daysInMonth; d++) ws.setColumnWidth(C_D1 + d - 1, 22);
-  ws.setColumnWidth(C_DAYS, 50); ws.setColumnWidth(C_PRICE, 65); ws.setColumnWidth(C_SUM, 80);
+  ws.setColumnWidth(C_DAYS, 55);
+  ws.setColumnWidth(C_SUM, 80);
   ws.setRowHeightsForced(dataStartRow, residents.length, 20);
   ws.getRange(headerRow, C_D1, residents.length + 1, daysInMonth).setFontSize(9);
   ss.setActiveSheet(ws);
