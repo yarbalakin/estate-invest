@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      padding: 18px 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+      font-size: 12px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    select, input[type=text], input[type=number] {
+      width: 100%;
+      padding: 7px 9px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #333;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #4285f4;
+    }
+    .row2 { display: flex; gap: 10px; }
+    .row2 > div { flex: 1; }
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn:hover { background: #1558b0; }
+    .btn:disabled { background: #aaa; cursor: default; }
+    #status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #666;
+      min-height: 18px;
+    }
+    #status.ok  { color: #0a7a0a; }
+    #status.err { color: #c0392b; }
+  </style>
+</head>
+<body>
+
+  <label>Контрагент</label>
+  <select id="companySelect">
+    <? for (var i = 0; i < companies.length; i++) { ?>
+      <option value="<?= companies[i] ?>"><?= companies[i] ?></option>
+    <? } ?>
+  </select>
+
+  <label>Или введите вручную (перекроет выбор выше)</label>
+  <input type="text" id="companyManual" placeholder="Например: ГеоИнвест">
+
+  <div class="row2">
+    <div>
+      <label>Месяц</label>
+      <select id="month">
+        <option value="1"  <?= currentMonth==1  ?'selected':'' ?>>Январь</option>
+        <option value="2"  <?= currentMonth==2  ?'selected':'' ?>>Февраль</option>
+        <option value="3"  <?= currentMonth==3  ?'selected':'' ?>>Март</option>
+        <option value="4"  <?= currentMonth==4  ?'selected':'' ?>>Апрель</option>
+        <option value="5"  <?= currentMonth==5  ?'selected':'' ?>>Май</option>
+        <option value="6"  <?= currentMonth==6  ?'selected':'' ?>>Июнь</option>
+        <option value="7"  <?= currentMonth==7  ?'selected':'' ?>>Июль</option>
+        <option value="8"  <?= currentMonth==8  ?'selected':'' ?>>Август</option>
+        <option value="9"  <?= currentMonth==9  ?'selected':'' ?>>Сентябрь</option>
+        <option value="10" <?= currentMonth==10 ?'selected':'' ?>>Октябрь</option>
+        <option value="11" <?= currentMonth==11 ?'selected':'' ?>>Ноябрь</option>
+        <option value="12" <?= currentMonth==12 ?'selected':'' ?>>Декабрь</option>
+      </select>
+    </div>
+    <div>
+      <label>Год</label>
+      <input type="number" id="year" value="<?= currentYear ?>" min="2024" max="2030">
+    </div>
+  </div>
+
+  <button class="btn" id="btn" onclick="generate()">Сформировать таблицу</button>
+  <div id="status"></div>
+
+  <script>
+    function generate() {
+      var manual  = document.getElementById('companyManual').value.trim();
+      var company = manual || document.getElementById('companySelect').value;
+      var month   = parseInt(document.getElementById('month').value);
+      var year    = parseInt(document.getElementById('year').value);
+
+      if (!company) {
+        setStatus('Выберите или введите контрагента.', 'err');
+        return;
+      }
+
+      var btn = document.getElementById('btn');
+      btn.disabled = true;
+      setStatus('Формирую таблицу...', '');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+          if (result.success) {
+            setStatus(
+              '✓ Готово! Лист «' + result.sheetName + '» создан.\n' +
+              result.count + ' чел., ' + result.totalDays + ' чел/дней' +
+              (result.totalAmount > 0 ? ', ' + result.totalAmount.toLocaleString('ru') + ' ₽' : ''),
+              'ok'
+            );
+          } else {
+            setStatus('Ошибка: ' + result.error, 'err');
+          }
+        })
+        .withFailureHandler(function(err) {
+          btn.disabled = false;
+          setStatus('Ошибка: ' + err.message, 'err');
+        })
+        .generateTable(company, month, year);
+    }
+
+    function setStatus(text, cls) {
+      var el = document.getElementById('status');
+      el.textContent = text;
+      el.className = cls;
+    }
+  </script>
+</body>
+</html>
