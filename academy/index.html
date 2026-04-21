@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Estate Invest Academy</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0c14;
+            color: #e8e8e8;
+            min-height: 100vh;
+            padding: 28px 16px 56px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: -120px; left: -80px;
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, rgba(245,192,0,0.10) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -100px; right: -60px;
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, rgba(245,192,0,0.06) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        .container { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+
+        /* ── Header ── */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+        .logo-wrap {
+            width: 68px; height: 68px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 0 0 2px rgba(245,192,0,0.35), 0 8px 32px rgba(245,192,0,0.2);
+            background: rgba(245,192,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+        }
+        .header-title {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #F5C000 0%, #ffe066 60%, #e8a800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+        }
+        .header-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+            margin-top: -8px;
+        }
+
+        /* ── Progress ── */
+        .progress-block {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-label { font-size: 13px; color: rgba(255,255,255,0.4); white-space: nowrap; }
+        .progress-track {
+            flex: 1;
+            height: 5px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #F5C000, #ffe066);
+            border-radius: 99px;
+        }
+        .progress-pct {
+            font-size: 13px;
+            font-weight: 700;
+            color: #F5C000;
+            white-space: nowrap;
+        }
+
+        /* ── Section title ── */
+        .section { margin-bottom: 24px; }
+        .section-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #F5C000;
+            margin-bottom: 10px;
+            padding-left: 4px;
+            opacity: 0.7;
+        }
+
+        .links { display: flex; flex-direction: column; gap: 6px; }
+
+        /* ── Lesson Card ── */
+        a.lesson {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 16px;
+            color: #e8e8e8;
+            text-decoration: none;
+            transition: border-color 0.2s, background 0.2s, transform 0.15s;
+            position: relative;
+        }
+        a.lesson::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(245,192,0,0.5), transparent 50%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        a.lesson:hover { background: rgba(245,192,0,0.06); border-color: rgba(245,192,0,0.3); }
+        a.lesson:hover::before { opacity: 1; }
+        a.lesson:active { transform: scale(0.98); }
+
+        .lesson--locked { opacity: 0.45; pointer-events: none; }
+
+        .lesson-num {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(245,192,0,0.1);
+            color: #F5C000;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .lesson-num--locked { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); }
+
+        .lesson-body { flex: 1; min-width: 0; }
+        .lesson-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f0f0f0;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .lesson-desc {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .lesson-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .tag {
+            background: rgba(245,192,0,0.08);
+            border: 1px solid rgba(245,192,0,0.15);
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: rgba(245,192,0,0.7);
+        }
+
+        .lesson-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .status {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+        .status--ready { background: rgba(61,214,140,0.1); color: #3dd68c; }
+        .status--soon  { background: rgba(245,166,35,0.1);  color: #f5a623; }
+        .status--lock  { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.25); }
+
+        .arrow { color: rgba(245,192,0,0.35); font-size: 20px; }
+        a.lesson:hover .arrow { color: #F5C000; }
+
+        /* ── Stats row ── */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            margin-bottom: 32px;
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 22px; font-weight: 800; color: #F5C000; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.15);
+        }
+        footer span { color: rgba(245,192,0,0.5); }
+
+        /* animations */
+        .section {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: up 0.4s ease forwards;
+        }
+        .section:nth-child(4)  { animation-delay: 0.05s; }
+        .section:nth-child(5)  { animation-delay: 0.10s; }
+        .section:nth-child(6)  { animation-delay: 0.15s; }
+        .section:nth-child(7)  { animation-delay: 0.20s; }
+        .section:nth-child(8)  { animation-delay: 0.25s; }
+        .section:nth-child(9)  { animation-delay: 0.30s; }
+        .section:nth-child(10) { animation-delay: 0.35s; }
+        .section:nth-child(11) { animation-delay: 0.40s; }
+        .section:nth-child(12) { animation-delay: 0.45s; }
+        @keyframes up { to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <div class="logo-wrap">🏛</div>
+        <div class="header-title">Estate Invest Academy</div>
+        <div class="header-sub">Практический курс по инвестициям в недвижимость</div>
+    </header>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Урока готово</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">~6 ч</div>
+            <div class="stat-label">Материала</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">17</div>
+            <div class="stat-label">Блоков</div>
+        </div>
+    </div>
+
+    <div class="progress-block">
+        <span class="progress-label">Курс</span>
+        <div class="progress-track">
+            <div class="progress-fill" style="width:18%;"></div>
+        </div>
+        <span class="progress-pct">3 / ~17</span>
+    </div>
+
+    <!-- Модуль 1 -->
+    <div class="section">
+        <div class="section-title">Модуль 1 — Четыре типа недвижимости</div>
+        <div class="links">
+            <a class="lesson" href="lesson-1.html">
+                <div class="lesson-num">1</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Категории земель в России. Азы Торги.гов</div>
+                    <div class="lesson-desc">Категории земель, ВРИ, ГПЗУ, ПКК, ИСОГД — базовый фреймворк</div>
+                    <div class="lesson-tags">
+                        <span class="tag">Категории</span>
+                        <span class="tag">ВРИ</span>
+                        <span class="tag">ГПЗУ</span>
+                        <span class="tag">ПКК</span>
+                        <span class="tag">8 блоков</span>
+                    </div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--ready">Готов</span>
+                    <span class="arrow">&rsaquo;</span>
+                </div>
+            </a>
+
+            <a class="lesson" href="lesson-2.html">
+                <div class="lesson-num">2</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Земельные участки. ВРИ. Работа с ГПЗУ</div>
+                    <div class="lesson-desc">Выписка ЕГРН, разбор 3 ГПЗУ, смена ВРИ и категории, охранки</div>
+                    <div class="lesson-tags">
+                        <span class="tag">Выписка ЕГРН</span>
+                        <span class="tag">Смена ВРИ</span>
+                        <span class="tag">3 кейса</span>
+                        <span class="tag">9 блоков</span>
+                    </div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--ready">Готов</span>
+                    <span class="arrow">&rsaquo;</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">3</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Земельные участки. Охранные зоны</div>
+                    <div class="lesson-desc">Водоохранные зоны, ЛЭП, газопроводы, памятники архитектуры</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--soon">Скоро</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">4</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Земельные участки. Оценка перспективности. Аренда и выкуп ЗУ</div>
+                    <div class="lesson-desc">Критерии оценки, схемы аренды и выкупа земельного участка</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--soon">Скоро</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">5</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Коммерческая недвижимость в жилых домах</div>
+                    <div class="lesson-desc">Нежилые помещения первых этажей, перевод, оценка потенциала</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">6</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Коммерческая недвижимость в отдельно стоящих зданиях</div>
+                    <div class="lesson-desc">Офисы, торговые, склады — специфика анализа и сделок</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">7</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Промышленные объекты и базы</div>
+                    <div class="lesson-desc">Производственные, складские комплексы — особенности и риски</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">8</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Жилая недвижимость</div>
+                    <div class="lesson-desc">Квартиры, дома, таунхаусы — инвестиционный взгляд</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 2 -->
+    <div class="section">
+        <div class="section-title">Модуль 2 — Анализ объектов</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">9</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Технический анализ объектов</div>
+                    <div class="lesson-desc">Осмотр, дефекты, конструктив, инженерные системы</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">10</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Инвестиционный анализ объектов</div>
+                    <div class="lesson-desc">ROI, окупаемость, аналоги, стратегии выхода</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 3 -->
+    <div class="section">
+        <div class="section-title">Модуль 3 — Увеличение ликвидности и добавленной стоимости</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">11</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Увеличение ликвидности и добавленной стоимости объекта</div>
+                    <div class="lesson-desc">Инструменты повышения стоимости до и во время продажи</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 4 -->
+    <div class="section">
+        <div class="section-title">Модуль 4 — Сложные объекты. Кейсы Estate Invest</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">12</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Сложные объекты. Кейсы Estate Invest</div>
+                    <div class="lesson-desc">Разбор реальных сделок: нестандартные ситуации и решения</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 5 -->
+    <div class="section">
+        <div class="section-title">Модуль 5 — Работа с электронными торговыми площадками</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">13</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Работа с электронными торговыми площадками</div>
+                    <div class="lesson-desc">Торги.гов, СБЕР-АСТ, РТС-Тендер, Фабрикант — практика участия</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 6 -->
+    <div class="section">
+        <div class="section-title">Модуль 6 — Продажа. Взаимодействие с клиентом. Подготовка КП</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">14</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Продажа. Взаимодействие с клиентом. Подготовка КП</div>
+                    <div class="lesson-desc">Переговоры, коммерческое предложение, закрытие сделки</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 7 -->
+    <div class="section">
+        <div class="section-title">Модуль 7 — Юридические аспекты сделок с недвижимостью</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">15</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Юридические аспекты сделок с недвижимостью</div>
+                    <div class="lesson-desc">Договоры, регистрация, обременения, риски и защита</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 8 -->
+    <div class="section">
+        <div class="section-title">Модуль 8 — Итоговый алгоритм анализа и работы с недвижимостью</div>
+        <div class="links">
+            <a class="lesson lesson--locked">
+                <div class="lesson-num lesson-num--locked">16</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Итоговый алгоритм анализа и работы с недвижимостью</div>
+                    <div class="lesson-desc">Полный чеклист от поиска объекта до выхода из сделки</div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--lock">Готовится</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Модуль 9 — Бонус -->
+    <div class="section">
+        <div class="section-title">Модуль 9 — Бонусный урок</div>
+        <div class="links">
+            <a class="lesson" href="../Аналитика/урок-таблицы.html">
+                <div class="lesson-num">★</div>
+                <div class="lesson-body">
+                    <div class="lesson-name">Работа с таблицами Estate Invest</div>
+                    <div class="lesson-desc">Разбор рабочих таблиц: учёт объектов, аналитика, формулы</div>
+                    <div class="lesson-tags">
+                        <span class="tag">Таблицы</span>
+                        <span class="tag">Google Sheets</span>
+                        <span class="tag">Бонус</span>
+                    </div>
+                </div>
+                <div class="lesson-right">
+                    <span class="status status--ready">Готов</span>
+                    <span class="arrow">&rsaquo;</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer><span>Estate Invest</span> Academy &middot; 2026</footer>
+</div>
+
+<script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        const BASE = 'https://213-108-21-37.sslip.io:8443';
+        document.querySelectorAll('a.lesson:not(.lesson--locked)').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const href = a.getAttribute('href');
+                tg.openLink(href.startsWith('http') ? href : BASE + '/estate-invest/academy/' + href);
+            });
+        });
+    }
+</script>
+</body>
+</html>
