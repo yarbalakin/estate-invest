@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Урок 5 — Коммерческая недвижимость в жилых домах</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-2: #222633;
+            --border: #2d3348;
+            --text: #e4e6ef;
+            --text-muted: #8b90a5;
+            --accent: #6c8cff;
+            --accent-dim: rgba(108,140,255,0.12);
+            --green: #3dd68c;
+            --green-dim: rgba(61,214,140,0.12);
+            --orange: #f5a623;
+            --orange-dim: rgba(245,166,35,0.12);
+            --red: #f25c5c;
+            --red-dim: rgba(242,92,92,0.12);
+            --purple: #a78bfa;
+            --purple-dim: rgba(167,139,250,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a1d27 0%, #1e2a3a 50%, #1a2332 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 60px 24px 48px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            color: var(--text-muted);
+            font-size: 17px;
+            max-width: 640px;
+            margin: 0 auto 28px;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+        .hero-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15,17,23,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            overflow-x: auto;
+        }
+        .nav-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .nav-link {
+            white-space: nowrap;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .content {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px 100px;
+        }
+
+        .section {
+            margin-bottom: 52px;
+            scroll-margin-top: 60px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .section-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .section-title { font-size: 24px; font-weight: 700; }
+
+        .section--blue .section-num { background: var(--accent-dim); color: var(--accent); }
+        .section--green .section-num { background: var(--green-dim); color: var(--green); }
+        .section--orange .section-num { background: var(--orange-dim); color: var(--orange); }
+        .section--red .section-num { background: var(--red-dim); color: var(--red); }
+        .section--purple .section-num { background: var(--purple-dim); color: var(--purple); }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .card h3 { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+        .card p, .card li { color: var(--text-muted); font-size: 15px; line-height: 1.7; }
+        .card p + p { margin-top: 10px; }
+        .card ul { padding-left: 20px; margin-top: 8px; }
+        .card li { margin-bottom: 6px; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 700px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .grid-3 { grid-template-columns: 1fr; } }
+
+        .def-list { list-style: none; }
+        .def-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .def-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .def-content { flex: 1; }
+        .def-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .def-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .highlight {
+            border-radius: 12px;
+            padding: 20px 22px;
+            margin-bottom: 16px;
+            border-left: 3px solid;
+        }
+        .highlight--tip { background: var(--green-dim); border-color: var(--green); }
+        .highlight--tip .highlight-title { color: var(--green); }
+        .highlight--warn { background: var(--orange-dim); border-color: var(--orange); }
+        .highlight--warn .highlight-title { color: var(--orange); }
+        .highlight--danger { background: var(--red-dim); border-color: var(--red); }
+        .highlight--danger .highlight-title { color: var(--red); }
+        .highlight--info { background: var(--accent-dim); border-color: var(--accent); }
+        .highlight--info .highlight-title { color: var(--accent); }
+        .highlight-title {
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .highlight p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead th {
+            background: var(--surface-2);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        tbody tr:hover { background: var(--surface); }
+
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+        .compare-col {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+        }
+        .compare-col h4 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare-col ul { list-style: none; padding: 0; }
+        .compare-col li {
+            font-size: 14px;
+            color: var(--text-muted);
+            padding: 5px 0;
+            padding-left: 18px;
+            position: relative;
+        }
+        .compare-col li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .compare-col--a li::before { background: var(--green); }
+        .compare-col--b li::before { background: var(--red); }
+
+        .steps { margin-bottom: 16px; }
+        .step { display: flex; gap: 16px; padding: 16px 0; position: relative; }
+        .step + .step { border-top: 1px solid var(--border); }
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-text { flex: 1; }
+        .step-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .step-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .case {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .case-badge {
+            display: inline-block;
+            background: var(--purple-dim);
+            color: var(--purple);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .case-badge--green { background: var(--green-dim); color: var(--green); }
+        .case-badge--orange { background: var(--orange-dim); color: var(--orange); }
+        .case-badge--red { background: var(--red-dim); color: var(--red); }
+        .case h3 { font-size: 17px; margin-bottom: 10px; }
+        .case p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+        .case p + p { margin-top: 8px; }
+        .case-numbers {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .case-num { text-align: center; }
+        .case-num-value { font-size: 20px; font-weight: 700; color: var(--green); }
+        .case-num-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .homework {
+            background: linear-gradient(135deg, rgba(108,140,255,0.08), rgba(167,139,250,0.08));
+            border: 1px solid rgba(108,140,255,0.2);
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 32px;
+        }
+        .homework h3 { font-size: 20px; margin-bottom: 16px; color: var(--accent); }
+        .homework ol { padding-left: 20px; }
+        .homework li { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.7; }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            z-index: 200;
+            transition: width 0.1s;
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 50;
+        }
+        .scroll-top:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag--green { background: var(--green-dim); color: var(--green); }
+        .tag--orange { background: var(--orange-dim); color: var(--orange); }
+        .tag--red { background: var(--red-dim); color: var(--red); }
+        .tag--blue { background: var(--accent-dim); color: var(--accent); }
+        .tag--purple { background: var(--purple-dim); color: var(--purple); }
+
+        .formula {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        .checklist { list-style: none; padding: 0; }
+        .checklist li {
+            font-size: 14px;
+            color: var(--text-muted);
+            padding: 7px 0 7px 26px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            line-height: 1.5;
+        }
+        .checklist li:last-child { border-bottom: none; }
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        .activity-row {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: flex-start;
+        }
+        .activity-row:last-child { border-bottom: none; }
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .activity-dot--green { background: var(--green); }
+        .activity-dot--red { background: var(--red); }
+        .activity-text { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+        .activity-text strong { color: var(--text); }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-badge">Курс: Инвестиции в недвижимость</div>
+    <h1>Урок 5. Коммерческая недвижимость в жилых домах</h1>
+    <p class="hero-sub">Правовой статус, плюсы и риски, дробление на кабинеты, разбор реального кейса Пермь — Уфимская 16</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="hero-stat-value">8</div>
+            <div class="hero-stat-label">Блоков</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">~2 ч</div>
+            <div class="hero-stat-label">Оригинал</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">1</div>
+            <div class="hero-stat-label">Кейс х5</div>
+        </div>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-bar">
+    <div class="nav-inner">
+        <a class="nav-link" href="#definition">Что это</a>
+        <a class="nav-link" href="#legal">Правовой статус</a>
+        <a class="nav-link" href="#advantages">Преимущества</a>
+        <a class="nav-link" href="#risks">Риски</a>
+        <a class="nav-link" href="#deal">Проверка сделки</a>
+        <a class="nav-link" href="#split">Дробление</a>
+        <a class="nav-link" href="#case">Кейс Пермь</a>
+        <a class="nav-link" href="#homework">Задание</a>
+    </div>
+</nav>
+
+<div class="content">
+
+    <!-- ============================================ -->
+    <!-- BLOCK 1: ЧТО ТАКОЕ -->
+    <!-- ============================================ -->
+    <div class="section section--blue" id="definition">
+        <div class="section-header">
+            <div class="section-num">1</div>
+            <h2 class="section-title">Что такое коммерческая недвижимость в жилых домах</h2>
+        </div>
+
+        <div class="card">
+            <h3>Определение</h3>
+            <p>Все помещения в жилых домах, используемые для коммерческой деятельности: магазины, офисы, салоны, кафе, мастерские, аптеки. Занимают преимущественно <strong>первые и цокольные этажи</strong>.</p>
+            <p>На этом уроке разбираем именно этот тип — чтобы потом сравнить с коммерческой недвижимостью в отдельно стоящих зданиях (урок 6).</p>
+        </div>
+
+        <div class="compare">
+            <div class="compare-col compare-col--a">
+                <h4 style="color: var(--green);">КН в жилом доме</h4>
+                <ul>
+                    <li>Первые / цокольные этажи МКД</li>
+                    <li>Собственный кадастровый номер</li>
+                    <li>Статус — нежилое помещение</li>
+                    <li>Регулируется жилым и градостроительным законодательством</li>
+                    <li>ТСЖ / УК отвечает за общедомовые коммуникации</li>
+                </ul>
+            </div>
+            <div class="compare-col compare-col--b">
+                <h4 style="color: var(--orange);">КН в отдельном здании</h4>
+                <ul>
+                    <li>Нежилое здание или торговый / офисный центр</li>
+                    <li>Только градостроительные нормы для нежилых</li>
+                    <li>Все коммуникации — ответственность собственника</li>
+                    <li>Нет долгов по капремонту от предыдущих владельцев</li>
+                    <li>Можно размещать любой вид деятельности (кроме запрещённых)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight highlight--info">
+            <div class="highlight-title">Ключевой факт</div>
+            <p>У каждого нежилого помещения в МКД — свой кадастровый номер. По нему заказывают выписки ЕГРН и технические документы. Без кадастрового номера работать с объектом нельзя.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 2: ПРАВОВОЙ СТАТУС -->
+    <!-- ============================================ -->
+    <div class="section section--orange" id="legal">
+        <div class="section-header">
+            <div class="section-num">2</div>
+            <h2 class="section-title">Правовой статус и ограничения</h2>
+        </div>
+
+        <div class="card">
+            <h3>Согласования при любых изменениях</h3>
+            <p>Любые перепланировки, подключение электроснабжения, работы с канализацией и водопроводом в помещении, находящемся в МКД, требуют согласования:</p>
+            <ul>
+                <li>с ТСЖ (если ТСЖ) или с управляющей компанией</li>
+                <li>с администрацией того района, где находится дом — при перепланировке</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Виды деятельности: что можно, что нельзя</h3>
+            <div class="activity-row">
+                <div class="activity-dot activity-dot--green"></div>
+                <div class="activity-text"><strong>Разрешено:</strong> офисы, агентства недвижимости, ногтевые студии, салоны красоты, парикмахерские, пункты выдачи (Wildberries, Ozon), склады, доставки, педагоги / репетиторы (не в цоколе)</div>
+            </div>
+            <div class="activity-row">
+                <div class="activity-dot activity-dot--red"></div>
+                <div class="activity-text"><strong>Запрещено:</strong> деятельность, требующая лицензирования (клиники — в цоколе), производство с выбросами, лаборатории с химикатами, объекты с большим скоплением людей в цоколе</div>
+            </div>
+            <div class="activity-row">
+                <div class="activity-dot activity-dot--green"></div>
+                <div class="activity-text"><strong>В цоколе можно:</strong> образовательные организации, репетиторы, небольшие студии — если нет нарушений по СанПиН</div>
+            </div>
+            <div class="activity-row">
+                <div class="activity-dot activity-dot--red"></div>
+                <div class="activity-text"><strong>В цоколе нельзя:</strong> медицинские кабинеты с лицензией, производство с вибрацией (пекарни с большими печами), объекты с требованием к вентиляции и шумоизоляции</div>
+            </div>
+        </div>
+
+        <div class="highlight highlight--warn">
+            <div class="highlight-title">Перевод из жилого в нежилое — сложно и дорого</div>
+            <p>Перевод квартиры в нежилой фонд стоит более 1 млн рублей и требует согласия <strong>всех</strong> собственников дома. Если в доме 50 квартир — нужны выписки и согласие от каждого, включая несовершеннолетних (через органы опеки) и муниципальные квартиры (через администрацию). Если в процессе поменялся один собственник — всё начинается заново. Не рекомендуется браться самостоятельно.</p>
+        </div>
+
+        <div class="card">
+            <h3>Режим ремонтных работ</h3>
+            <p>Ремонт можно вести только в рабочее время: <strong>с 09:00 до 18:00</strong> с перерывом на тихий час с 14:00 до 15:00 (нормы зависят от региона). Нарушение — гарантированные конфликты с жильцами.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 3: ПРЕИМУЩЕСТВА -->
+    <!-- ============================================ -->
+    <div class="section section--green" id="advantages">
+        <div class="section-header">
+            <div class="section-num">3</div>
+            <h2 class="section-title">Преимущества для собственника</h2>
+        </div>
+
+        <ul class="def-list">
+            <div class="def-item">
+                <div class="def-icon" style="background: var(--green-dim); color: var(--green);">🚶</div>
+                <div class="def-content">
+                    <div class="def-name">Высокая проходимость</div>
+                    <div class="def-desc">Жители дома — уже готовый поток клиентов. Человек идёт домой, зашёл на маникюр, забрал заказ из доставки. Офисы в МКД сдаются намного быстрее, чем в отдельно стоящих зданиях.</div>
+                </div>
+            </div>
+            <div class="def-item">
+                <div class="def-icon" style="background: var(--green-dim); color: var(--green);">💰</div>
+                <div class="def-content">
+                    <div class="def-name">Более высокая арендная ставка</div>
+                    <div class="def-desc">Квартира за 2 млн сдаётся за ~20 000 ₽/мес. Офис за 2 млн — за ~70 000 ₽/мес. Разница в 3,5 раза при одинаковой цене входа.</div>
+                </div>
+            </div>
+            <div class="def-item">
+                <div class="def-icon" style="background: var(--green-dim); color: var(--green);">🔧</div>
+                <div class="def-content">
+                    <div class="def-name">УК и ТСЖ обслуживают общедомовые коммуникации</div>
+                    <div class="def-desc">Прорвало трубу, засорилась канализация, отключился свет в общедомовой части — всё за счёт УК. Собственник платит только ежемесячные коммунальные платежи.</div>
+                </div>
+            </div>
+            <div class="def-item">
+                <div class="def-icon" style="background: var(--green-dim); color: var(--green);">📈</div>
+                <div class="def-content">
+                    <div class="def-name">Долгосрочная доходность при правильном управлении</div>
+                    <div class="def-desc">6 офисов с разными арендаторами (ногти, парикмахер, косметолог, бровист, пункт выдачи) — арендаторы не конкурируют, а дополняют друг друга. Итог: стабильный поток и долгие договоры.</div>
+                </div>
+            </div>
+            <div class="def-item">
+                <div class="def-icon" style="background: var(--green-dim); color: var(--green);">🏗</div>
+                <div class="def-content">
+                    <div class="def-name">Ремонт мест общего пользования — не ваша забота</div>
+                    <div class="def-desc">Коридоры, лампочки, покраска стен, фасад, входная дверь — всё это УК делает по вашему требованию. Вы платите коммуналку и капремонт — получаете обслуживаемое общее пространство.</div>
+                </div>
+            </div>
+        </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 4: РИСКИ -->
+    <!-- ============================================ -->
+    <div class="section section--red" id="risks">
+        <div class="section-header">
+            <div class="section-num">4</div>
+            <h2 class="section-title">Риски и минусы</h2>
+        </div>
+
+        <div class="highlight highlight--danger">
+            <div class="highlight-title">Запомнить как молитву: долги по капремонту</div>
+            <p>Долги по капитальному ремонту от предыдущего собственника <strong>переходят к вам в любом случае</strong>. Их невозможно оспорить. Все остальные коммунальные долги по закону к вам не переходят — но на практике УК всё равно будет мешать, пока долги не погашены.</p>
+        </div>
+
+        <div class="card">
+            <h3>Основные риски</h3>
+            <ul>
+                <li><strong>Долги по коммунальным услугам</strong> — при покупке с банкротства или арестовки. Оплачивать не обязаны, но УК будет создавать препятствия (отказ в согласованиях, отрезание коммуникаций).</li>
+                <li><strong>Конфликты с жильцами</strong> — во время ремонта гарантированы всегда. Отключение воды, канализации, электричества на весь дом — необходимость при работах с общедомовыми сетями.</li>
+                <li><strong>Конфликты с УК / ТСЖ</strong> — могут отрезать новые коммуникации, отказывать в согласованиях. Из практики: провода отрезали раз в три дня, пока не наладили отношения. Итог — потеря части арендаторов.</li>
+                <li><strong>Повышенные платежи за содержание</strong> — зависят от аппетитов УК. Узнавать заранее: позвонить в УК до сделки, бухгалтеры расскажут всё о долгах и тарифах.</li>
+                <li><strong>Риск утраты статуса (подвал)</strong> — управляющая компания или ТСЖ может через суд доказать, что подвал — общедомовое имущество, и развернуть сделку. Редко, но бывает. Мера защиты: до покупки позвонить в УК и узнать их позицию.</li>
+                <li><strong>Ограничения на реконструкцию</strong> — особенно при покупке объектов — памятников архитектуры.</li>
+                <li><strong>Снижение ликвидности</strong> при нерешённых юридических спорах с соседями или УК.</li>
+            </ul>
+        </div>
+
+        <div class="highlight highlight--warn">
+            <div class="highlight-title">Золотое правило про доли</div>
+            <p>Не покупать <strong>доли</strong> в коммерческих помещениях. Совладелец может перекрыть доступ к коммуникациям, которые физически проходят через его часть. Из практики: год судов, и в итоге всё равно пришлось тянуть собственные коммуникации от нуля. Вывод: лучше сразу делать всё автономно.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 5: ПРОВЕРКА СДЕЛКИ -->
+    <!-- ============================================ -->
+    <div class="section section--blue" id="deal">
+        <div class="section-header">
+            <div class="section-num">5</div>
+            <h2 class="section-title">Проверка сделки: что смотреть перед покупкой</h2>
+        </div>
+
+        <div class="card">
+            <h3>Обязательный пакет документов</h3>
+            <ul class="checklist">
+                <li>Выписка ЕГРН — назначение помещения, наличие обременений, кадастровый номер, план</li>
+                <li>Технический паспорт (архивные копии из БТИ/ЦТИ) — высота потолков, несущие стены, окна, мокрые точки</li>
+                <li>Правоустанавливающие документы — договор купли-продажи, договор мены, приказ администрации. Читаем: нет ли обязательств, переходящих на нового собственника</li>
+                <li>Разрешение на ввод в эксплуатацию — особенно важно для новостроек-долгостроев</li>
+                <li>Согласование перепланировок — если перепланировка есть физически, но не отражена в документах</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Проверка УК и ТСЖ до сделки</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <div class="step-title">Позвонить в УК / ТСЖ</div>
+                        <div class="step-desc">Узнать долги (включая капремонт), узнать отношение к продаже именно этого помещения. Бухгалтеры расскажут всё охотно.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <div class="step-title">Проверить банкротство УК/ТСЖ</div>
+                        <div class="step-desc">Если УК банкрот — нет аварийных бригад, нет обслуживания. Плюс исчезнет главное преимущество объектов в МКД.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <div class="step-title">Узнать статус дома</div>
+                        <div class="step-desc">Не является ли дом аварийным, не входит ли в программу сноса / развития территории. При сносе выплатят только кадастровую стоимость — не рыночную.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">
+                        <div class="step-title">Пройтись вокруг дома</div>
+                        <div class="step-desc">Поговорить с жильцами — узнать об атмосфере в доме, потенциальных «проблемных соседях» среди собственников других коммерческих помещений.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight highlight--warn">
+            <div class="highlight-title">Осторожно: обременения на перепланировку</div>
+            <p>Иногда в правоустанавливающих документах предыдущего собственника прописано обязательство восстановить помещение до первоначального вида. Это обязательство может перейти к вам. Некоторые перепланировки (проём в несущей стене, снесённый балкон, входная группа через балкон) вообще не подлежат узакониванию — нужно будет восстанавливать за свой счёт.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 6: ДРОБЛЕНИЕ ПОМЕЩЕНИЙ -->
+    <!-- ============================================ -->
+    <div class="section section--purple" id="split">
+        <div class="section-header">
+            <div class="section-num">6</div>
+            <h2 class="section-title">Дробление помещений: пошаговый процесс</h2>
+        </div>
+
+        <div class="highlight highlight--tip">
+            <div class="highlight-title">Принцип: чем меньше помещение, тем дороже за метр</div>
+            <p>Большое помещение 170 м² в Новосибирске — 40 000 ₽/м². Маленькое 20–25 м² в том же районе — 65–70 000 ₽/м². Разделив на 12 кабинетов и продав по 1,5 млн, можно заработать 10–18 млн. Это и есть основная бизнес-модель.</p>
+        </div>
+
+        <div class="card">
+            <h3>Требования к каждому новому помещению</h3>
+            <ul>
+                <li>Отдельные приборы учёта воды, электричества, отопления</li>
+                <li>Отдельный вход (дверь) и доступ через места общего пользования (коридор)</li>
+                <li>Стены по периметру (4 стороны) — помещение без окна всё равно является отдельным</li>
+                <li>Места общего пользования (коридор + санузел) выделяются в отдельный кадастровый объект и передаются в долевую собственность каждому покупателю кабинета</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Пошаговый процесс согласования</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <div class="step-title">Заказать архивную техническую документацию</div>
+                        <div class="step-desc">В кадастровой палате, БТИ, ЦТИ или у кадастрового инженера — технические паспорта на помещение (все версии). Это отправная точка для любых дальнейших действий.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <div class="step-title">Нарисовать желаемую планировку, заказать проект</div>
+                        <div class="step-desc">У лицензированной проектной организации (есть СРО). Проектировщик рисует по вашим эскизам: перегородки, двери, коммуникации, эвакуационные выходы. Проект на основании эскизов точнее — меньше расхождений при финишных замерах.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <div class="step-title">Подать в администрацию: получить разрешение на переустройство</div>
+                        <div class="step-desc">Пакет: выписка ЕГРН + техпаспорт + проект + паспорт собственника + заявление. Администрация выдаёт первое решение — разрешение начать ремонт. В решении указан срок и перечень дополнительных согласований (СанПиН, Роспотребнадзор, пожарные — в зависимости от города).</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">
+                        <div class="step-title">Провести ремонт строго по проекту</div>
+                        <div class="step-desc">Если в процессе изменился план — проектировщик переделывает финишный вариант по факту. Несущие стены не трогаем без экспертизы. Если нужно отключить дом от коммуникаций — согласовываем заранее с УК и жильцами.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-text">
+                        <div class="step-title">Получить акт ввода в эксплуатацию</div>
+                        <div class="step-desc">Повторная подача в администрацию: первое разрешение + выписка + финишный проект + заявление. Администрация выдаёт акт, его подписывает УК (с выездом на объект). Затем — итоговое разрешение от администрации.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">6</div>
+                    <div class="step-text">
+                        <div class="step-title">Зарегистрировать новые помещения в Росреестре</div>
+                        <div class="step-desc">На основании итогового разрешения кадастровый инженер делает технические планы на каждое новое помещение. Подаём на постановку на кадастровый учёт — получаем выписки с новыми кадастровыми номерами.</div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">7</div>
+                    <div class="step-text">
+                        <div class="step-title">Заключить договора с ресурсоснабжающими организациями</div>
+                        <div class="step-desc">Только после получения новых выписок — чтобы не делать работу дважды (старый договор расторгать, заключать 9 новых). Договора на воду, электричество, коммуналку и капремонт — на каждое из новых помещений.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight highlight--info">
+            <div class="highlight-title">Количество помещений в распоряжении = максимум, что можно поставить на учёт</div>
+            <p>В финальном распоряжении администрация пропишет: «с целью образования N помещений». Ровно столько вы и сможете зарегистрировать. Если нужно 12 — в заявлении указывайте 12.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 7: КЕЙС -->
+    <!-- ============================================ -->
+    <div class="section section--purple" id="case">
+        <div class="section-header">
+            <div class="section-num">7</div>
+            <h2 class="section-title">Кейс: Пермь, ул. Уфимская 16</h2>
+        </div>
+
+        <div class="case">
+            <div class="case-badge case-badge--green">Реальный кейс — x5 от вложений</div>
+            <h3>Цокольный этаж в жилом доме, 177 м²</h3>
+            <p>Государственные торги, единственный участник — куплено по стартовой цене. На момент покупки помещение — запущенный цоколь с 7 окнами и единой планировкой.</p>
+            <p><strong>Что было в документах:</strong> выписка ЕГРН с планом, технический паспорт с несущими стенами и мокрыми точками. Этаж — цокольный (не подвал), что важно: банки кредитуют цоколь, подвал — нет.</p>
+            <p><strong>Решение по планировке:</strong> провести длинный коридор через проёмы в несущих стенах (несущие не трогали). Одно окно разделили на два меньших — получили дополнительный кабинет с окном. Мокрые точки завели в каждый кабинет.</p>
+            <div class="formula">177 м² → 9 офисов + коридор + санузел = 11 помещений на кадастровый учёт</div>
+            <p><strong>Итог:</strong> 7 офисов с окнами, 2 офиса без окон. Первые 5 офисов проданы в течение месяца. Все с окнами — за 2–3 месяца. Два без окон — продавались дольше всего.</p>
+            <div class="case-numbers">
+                <div class="case-num">
+                    <div class="case-num-value">2,2 млн</div>
+                    <div class="case-num-label">Покупка</div>
+                </div>
+                <div class="case-num">
+                    <div class="case-num-value">2,5 млн</div>
+                    <div class="case-num-label">Ремонт</div>
+                </div>
+                <div class="case-num">
+                    <div class="case-num-value">65 000 ₽/м²</div>
+                    <div class="case-num-label">Цена продажи</div>
+                </div>
+                <div class="case-num">
+                    <div class="case-num-value">~11 млн</div>
+                    <div class="case-num-label">Выручка</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Что смотрели в техническом паспорте</h3>
+            <ul>
+                <li><strong>Несущие стены</strong> — толстые стены на плане, на которых лежат плиты перекрытия. Их не сносим, только делаем проёмы с согласованием</li>
+                <li><strong>Окна</strong> — сколько кабинетов с окном можно сделать (7 окон = минимум 7 кабинетов)</li>
+                <li><strong>Мокрые точки</strong> — наличие воды и канализации. Раскидали по всем кабинетам — это сильно повысило стоимость и скорость продажи</li>
+                <li><strong>Перегородки</strong> — какие можно снести, какие нельзя</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Расчёт рентабельности: логика «до покупки»</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Как принималось решение ещё на этапе анализа лота:</p>
+            <div class="formula">Рынок: 177 м² целиком → ~2 000 000 ₽ (рыночная цена = цена торгов)
+Маленькие офисы 15–20 м² в этом районе → 1 200 000 – 1 500 000 ₽/шт
+9 офисов × 1 300 000 ₽ = 11 700 000 ₽ выручка
+Входим: 2 200 000 + 2 500 000 = 4 700 000 ₽
+Прибыль: ~7 000 000 ₽</div>
+            <p>Целое помещение продать по рынку — нет смысла. Дробление × ремонт = x2,5 к вложениям.</p>
+        </div>
+
+        <div class="highlight highlight--tip">
+            <div class="highlight-title">Места общего пользования — отдельный кадастровый объект</div>
+            <p>Коридор и санузел выделены в отдельное помещение с кадастровым номером. При каждой продаже кабинета — передаётся доля в МОП. Это защищает от споров о том, «чей коридор» и «чей туалет».</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BLOCK 8: СРАВНИТЕЛЬНАЯ ТАБЛИЦА -->
+    <!-- ============================================ -->
+    <div class="section section--blue" id="compare-table">
+        <div class="section-header">
+            <div class="section-num">8</div>
+            <h2 class="section-title">КН в МКД vs КН в отдельном здании: итоговое сравнение</h2>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>В жилом доме (МКД)</th>
+                        <th>В отдельном здании</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Проходимость</td>
+                        <td style="color: var(--green);">Высокая (жители дома)</td>
+                        <td style="color: var(--text-muted);">Зависит от локации</td>
+                    </tr>
+                    <tr>
+                        <td>Скорость сдачи</td>
+                        <td style="color: var(--green);">Быстрее</td>
+                        <td style="color: var(--text-muted);">Медленнее</td>
+                    </tr>
+                    <tr>
+                        <td>Аварийное обслуживание</td>
+                        <td style="color: var(--green);">УК / ТСЖ за свой счёт</td>
+                        <td style="color: var(--red);">Собственник за свой счёт</td>
+                    </tr>
+                    <tr>
+                        <td>Долги при покупке</td>
+                        <td style="color: var(--red);">Капремонт переходит обязательно</td>
+                        <td style="color: var(--green);">Долги не переходят</td>
+                    </tr>
+                    <tr>
+                        <td>Виды деятельности</td>
+                        <td style="color: var(--orange);">Ограничены СанПиН для МКД</td>
+                        <td style="color: var(--green);">Любые (кроме запрещённых)</td>
+                    </tr>
+                    <tr>
+                        <td>Согласования</td>
+                        <td style="color: var(--red);">УК + администрация района</td>
+                        <td style="color: var(--green);">Только градостроительные нормы</td>
+                    </tr>
+                    <tr>
+                        <td>Конфликты с соседями</td>
+                        <td style="color: var(--red);">Высокий риск при ремонте</td>
+                        <td style="color: var(--green);">Минимальный</td>
+                    </tr>
+                    <tr>
+                        <td>Арендная ставка</td>
+                        <td style="color: var(--green);">Выше, чем у жилья и отд. зданий</td>
+                        <td style="color: var(--text-muted);">Зависит от класса здания</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- HOMEWORK -->
+    <div class="homework" id="homework">
+        <h3>Домашнее задание</h3>
+        <ol>
+            <li>Найти на torgi.gov.ru или в вашем регионе один лот нежилого помещения в МКД. Выписать: площадь, этаж (первый / цоколь / подвал), стартовая цена.</li>
+            <li>Зайти на торговые площадки (Авито, ЦИАН) и найти цены на маленькие офисы (15–25 м²) в том же городе и районе. Сравнить с ценой большого помещения на торгах — посчитать, сколько кабинетов получится и какова потенциальная выручка.</li>
+            <li>Определить, какой тип деятельности будет оптимален для данного помещения (учитывая этаж и наличие окон). Кто арендаторы? Почему они не будут конкурировать между собой?</li>
+            <li>Позвонить в УК или ТСЖ (если данные доступны): узнать про долги и своё отношение к возможной покупке/ремонту.</li>
+        </ol>
+        <p style="color:var(--text-muted);font-size:13px;margin-top:16px;">Формат сдачи: ссылка на лот + расчёт рентабельности (2–4 предложения) + вывод: покупать / не покупать и почему.</p>
+    </div>
+
+</div>
+
+<!-- SCROLL TOP -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+    // Progress bar
+    const progressBar = document.getElementById('progressBar');
+    const scrollTop = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const total = document.body.scrollHeight - window.innerHeight;
+        progressBar.style.width = (scrolled / total * 100) + '%';
+        scrollTop.style.display = scrolled > 400 ? 'flex' : 'none';
+    });
+
+    // Active nav link
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
